@@ -1,0 +1,213 @@
+// This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Usuarios y autenticación
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("USER")
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  articles        Article[]
+  comments        Comment[]
+  chatSessions    ChatSession[]
+  documentRequests DocumentRequest[]
+  calculatorHistory CalculatorHistory[]
+  
+  @@map("users")
+}
+
+// Base de conocimiento
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  slug        String    @unique
+  color       String    @default("#3B82F6")
+  icon        String?
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relaciones
+  articles Article[]
+  
+  @@map("categories")
+}
+
+model Article {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String?
+  status      String @default("DRAFT")
+  views       Int      @default(0)
+  featured    Boolean  @default(false)
+  tags        String   // JSON array stringified
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  comments    Comment[]
+  attachments Attachment[]
+  
+  @@map("articles")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  authorId  String
+  author    User    @relation(fields: [authorId], references: [id])
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id])
+  
+  @@map("comments")
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  filename  String
+  originalName String
+  mimeType  String
+  size      Int
+  path      String
+  createdAt DateTime @default(now())
+
+  // Relaciones
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id])
+  
+  @@map("attachments")
+}
+
+// Bot y Chat
+model ChatSession {
+  id        String   @id @default(uuid())
+  title     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
+  messages ChatMessage[]
+  
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String      @id @default(uuid())
+  content   String
+  role      String
+  metadata  String?     // JSON for additional info
+  createdAt DateTime    @default(now())
+
+  // Relaciones
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id])
+  
+  @@map("chat_messages")
+}
+
+// Sistema de documentos
+model DocumentTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  category    String
+  template    String   // JSON structure
+  fields      String   // JSON array of required fields
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  requests DocumentRequest[]
+  
+  @@map("document_templates")
+}
+
+model DocumentRequest {
+  id         String          @id @default(uuid())
+  status     String          @default("PENDING")
+  data       String          // JSON with form data
+  result     String?         // Generated document path
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  // Relaciones
+  userId     String
+  user       User            @relation(fields: [userId], references: [id])
+  templateId String
+  template   DocumentTemplate @relation(fields: [templateId], references: [id])
+  
+  @@map("document_requests")
+}
+
+// Calculadora Argentina
+model CalculatorConfig {
+  id        String   @id @default(uuid())
+  type      String   @unique
+  name      String
+  rates     String   // JSON with tax rates and formulas
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("calculator_configs")
+}
+
+model CalculatorHistory {
+  id         String   @id @default(uuid())
+  type       String
+  inputs     String   // JSON with calculation inputs
+  result     String   // JSON with calculation results
+  createdAt  DateTime @default(now())
+
+  // Relaciones
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  
+  @@map("calculator_history")
+}
+
+// Configuración del sistema
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  type      String @default("STRING")
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("system_config")
+}
