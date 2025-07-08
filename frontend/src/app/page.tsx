@@ -90,39 +90,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-remax-blue rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">R</span>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">RE/MAX</h1>
-                  <p className="text-sm text-gray-600">Knowledge Platform</p>
-                </div>
-              </div>
-            </div>
-            <nav className="flex items-center space-x-6">
-              <Link href="/knowledge" className="text-gray-600 hover:text-remax-blue transition-colors">
-                Base de Conocimiento
-              </Link>
-              <Link href="/chat" className="text-gray-600 hover:text-remax-blue transition-colors">
-                Asistente IA
-              </Link>
-              <Link href="/calculator" className="text-gray-600 hover:text-remax-blue transition-colors">
-                Calculadora
-              </Link>
-              <Link href="/login" className="btn-primary px-4 py-2 text-sm">
-                Iniciar Sesión
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-remax-blue to-remax-blue-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
