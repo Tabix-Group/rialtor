@@ -39,8 +39,8 @@ export default function RegisterPage() {
     }
 
     try {
-      // TODO: Integrar con el backend real
-      const response = await fetch('/api/auth/register', {
+      // Integración directa con el backend
+      const response = await fetch('http://localhost:3001/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

@@ -53,7 +53,18 @@ app.use(limiter);
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Responder manualmente a preflight OPTIONS para todas las rutas
+app.options('*', cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 // Logging
@@ -70,8 +81,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Compression
 app.use(compression());
 
+
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Favicon support (returns a 204 No Content if not present)
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // Health check
 app.get('/health', (req, res) => {
@@ -98,7 +112,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 API: http://localhost:${PORT}/api`);

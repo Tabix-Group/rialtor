@@ -17,8 +17,8 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // TODO: Integrar con el backend real
-      const response = await fetch('/api/auth/login', {
+      // Integración directa con el backend
+      const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
