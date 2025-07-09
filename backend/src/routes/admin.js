@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-// Placeholder para rutas de administración
-router.get('/', (req, res) => {
-  res.json({ message: 'Admin routes - To be implemented' });
-});
+const { getStats } = require('../controllers/adminController');
+const { authenticateToken, authorizeRoles } = require('../middleware/auth');
 
+// Estadísticas para dashboard de administración
+router.get('/stats', authenticateToken, authorizeRoles('ADMIN'), getStats);
+
+// Export router
 module.exports = router;

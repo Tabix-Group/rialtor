@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, UserPlus, Shield } from 'lucide-react'
 import UserManagement from '../../components/UserManagement'
 
@@ -28,44 +28,53 @@ export default function AdminPage() {
   }
 
   const [activeTab, setActiveTab] = useState('dashboard')
+  // Dashboard stats
+  const [statsData, setStatsData] = useState<{ totalUsers: number; publishedArticles: number; chatQueries: number; documentsUploaded: number } | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  // Fetch dashboard stats
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) return;
+    setStatsLoading(true);
+    fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => res.json())
+      .then(data => {
+        setStatsData(data);
+        setStatsLoading(false);
+      })
+      .catch(() => setStatsLoading(false));
+  }, []);
 
-  const stats: StatCard[] = [
-    {
-      title: 'Total Usuarios',
-      value: '1,234',
-      change: '+12%',
-      changeType: 'increase',
-      icon: <Users className="w-6 h-6" />
-    },
-    {
-      title: 'Artículos Publicados',
-      value: '456',
-      change: '+8%',
-      changeType: 'increase',
-      icon: <FileText className="w-6 h-6" />
-    },
-    {
-      title: 'Consultas Chat',
-      value: '2,789',
-      change: '+23%',
-      changeType: 'increase',
-      icon: <MessageSquare className="w-6 h-6" />
-    },
-    {
-      title: 'Documentos Subidos',
-      value: '189',
-      change: '+5%',
-      changeType: 'increase',
-      icon: <FileText className="w-6 h-6" />
-    }
-  ]
+  // Recent users state
+  const [recentUsersData, setRecentUsersData] = useState<any[]>([]);
+  const [recentLoading, setRecentLoading] = useState(true);
+  useEffect(() => {
+    const fetchRecentUsers = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) return;
+      setRecentLoading(true);
+      try {
+        const res = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        setRecentUsersData(data.users || []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setRecentLoading(false);
+      }
+    };
+    fetchRecentUsers();
+  }, []);
 
-  const recentUsers = [
-    { id: 1, name: 'Juan Pérez', email: 'juan.perez@remax.com', role: 'Agente', status: 'Activo' },
-    { id: 2, name: 'María González', email: 'maria.gonzalez@remax.com', role: 'Broker', status: 'Activo' },
-    { id: 3, name: 'Carlos López', email: 'carlos.lopez@remax.com', role: 'Agente', status: 'Pendiente' },
-    { id: 4, name: 'Ana Martínez', email: 'ana.martinez@remax.com', role: 'Admin', status: 'Activo' },
-  ]
+  // Prepare stats cards
+  const stats: StatCard[] = statsLoading || !statsData
+    ? []
+    : [
+        { title: 'Total Usuarios', value: statsData.totalUsers.toString(), change: '', changeType: 'increase', icon: <Users className="w-6 h-6" /> },
+        { title: 'Artículos Publicados', value: statsData.publishedArticles.toString(), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> },
+        { title: 'Consultas Chat', value: statsData.chatQueries.toString(), change: '', changeType: 'increase', icon: <MessageSquare className="w-6 h-6" /> },
+        { title: 'Documentos Subidos', value: statsData.documentsUploaded.toString(), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> }
+      ]
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -116,56 +125,54 @@ export default function AdminPage() {
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Usuarios Recientes</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Usuario
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rol
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentUsers.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{user.email}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.status === 'Activo' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button className="text-red-600 hover:text-red-900">Editar</button>
-                  </td>
+        {recentLoading ? (
+          <div className="text-center py-8 text-gray-500">Cargando usuarios recientes...</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Usuario
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rol
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {recentUsersData.map(user => (
+                  <tr key={user.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{user.role}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-500'}`}>{user.isActive ? 'Activo' : 'Inactivo'}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button className="text-red-600 hover:text-red-900">Editar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )
