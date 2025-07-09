@@ -11,7 +11,21 @@ interface StatCard {
   icon: React.ReactNode
 }
 
+import { useAuth } from '../auth/authContext'
+import { useRouter } from 'next/navigation'
+
+
 export default function AdminPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Proteger ruta: si no está logueado, redirigir a login
+  // Solo ejecutar en el cliente y evitar doble render
+  if (typeof window !== 'undefined' && !loading && !user) {
+    router.replace('/auth/login');
+    return null;
+  }
+
   const [activeTab, setActiveTab] = useState('dashboard')
 
   const stats: StatCard[] = [

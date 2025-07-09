@@ -13,51 +13,61 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 
+import { useAuth } from './auth/authContext'
+
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
+  const { user } = useAuth();
 
+  // Features protegidas
   const features = [
     {
       name: 'Base de Conocimiento',
       description: 'Accede a artículos, guías y documentación del sector inmobiliario argentino',
       icon: BookOpenIcon,
       href: '/knowledge',
-      color: 'bg-blue-500'
+      color: 'bg-blue-500',
+      protected: true
     },
     {
       name: 'Asistente IA',
       description: 'Consulta con nuestro bot inteligente sobre regulaciones y procesos',
       icon: ChatBubbleLeftRightIcon,
       href: '/chat',
-      color: 'bg-green-500'
+      color: 'bg-green-500',
+      protected: true
     },
     {
       name: 'Generador de Documentos',
       description: 'Crea contratos, formularios y documentos legales personalizados',
       icon: DocumentTextIcon,
       href: '/documents',
-      color: 'bg-purple-500'
+      color: 'bg-purple-500',
+      protected: true
     },
     {
       name: 'Calculadora Argentina',
       description: 'Calcula comisiones, impuestos, sellos y tasas provinciales',
       icon: CalculatorIcon,
       href: '/calculator',
-      color: 'bg-orange-500'
+      color: 'bg-orange-500',
+      protected: true
     },
     {
       name: 'Gestión de Usuarios',
       description: 'Administra usuarios, roles y permisos del sistema',
       icon: UserGroupIcon,
       href: '/admin/users',
-      color: 'bg-red-500'
+      color: 'bg-red-500',
+      protected: true
     },
     {
       name: 'Reportes y Métricas',
       description: 'Visualiza estadísticas de uso y rendimiento de la plataforma',
       icon: ChartBarIcon,
       href: '/admin/reports',
-      color: 'bg-indigo-500'
+      color: 'bg-indigo-500',
+      protected: true
     }
   ]
 
@@ -88,6 +98,22 @@ export default function Home() {
     }
   ]
 
+  // Si no está logueado, mostrar solo home básica
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+        <h1 className="text-4xl md:text-6xl font-bold text-remax-red mb-6 text-center">RE/MAX Argentina</h1>
+        <p className="text-xl text-gray-700 mb-8 max-w-2xl text-center">
+          Bienvenido a la plataforma de conocimiento y herramientas para agentes inmobiliarios.
+        </p>
+        <div className="flex space-x-4">
+          <a href="/auth/login" className="btn-secondary px-8 py-3 rounded-lg font-medium">Iniciar Sesión</a>
+        </div>
+      </div>
+    )
+  }
+
+  // Si está logueado, mostrar la home completa
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -102,7 +128,6 @@ export default function Home() {
               Tu centro de recursos completo para el sector inmobiliario. 
               Accede a información actualizada, herramientas de cálculo y asistencia inteligente.
             </p>
-            
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto mb-12">
               <div className="relative">
@@ -121,19 +146,16 @@ export default function Home() {
                 </button>
               </div>
             </div>
-
             <div className="flex justify-center space-x-4">
-              <Link href="/knowledge" className="btn-outline px-6 py-3">
-                Explorar Conocimiento
-              </Link>
-              <Link href="/chat" className="btn-secondary px-6 py-3">
-                Consultar Asistente
-              </Link>
+              {features.filter(f => !f.protected).map((feature) => (
+                <Link key={feature.name} href={feature.href} className="btn-outline px-6 py-3">
+                  {feature.name}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
       </section>
-
       {/* Features Grid */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -145,9 +167,8 @@ export default function Home() {
               Descubre todas las funcionalidades disponibles para optimizar tu trabajo inmobiliario
             </p>
           </div>
-          
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => (
+            {features.filter(f => !f.protected || user).map((feature) => (
               <Link key={feature.name} href={feature.href} className="group">
                 <div className="card hover:shadow-lg transition-shadow duration-300">
                   <div className="flex items-center mb-4">
@@ -167,7 +188,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Recent Articles */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -179,7 +199,6 @@ export default function Home() {
               Ver todos →
             </Link>
           </div>
-          
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {recentArticles.map((article) => (
               <div key={article.id} className="card hover:shadow-lg transition-shadow duration-300">
@@ -208,7 +227,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="bg-remax-red">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -230,7 +248,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

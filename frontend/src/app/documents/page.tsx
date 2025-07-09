@@ -13,7 +13,19 @@ interface Document {
   url: string
 }
 
+import { useAuth } from '../auth/authContext'
+import { useRouter } from 'next/navigation'
+
 export default function DocumentsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Proteger ruta: si no está logueado, redirigir a login
+  if (!loading && !user && typeof window !== 'undefined') {
+    router.replace('/auth/login');
+    return null;
+  }
+
   const [documents] = useState<Document[]>([
     {
       id: '1',

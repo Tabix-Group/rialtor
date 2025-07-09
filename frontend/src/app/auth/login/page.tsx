@@ -25,8 +25,16 @@ export default function LoginPage() {
       })
 
       if (response.ok) {
-        // Redirect to dashboard or home
-        window.location.href = '/'
+        const data = await response.json();
+        // Guardar token y usuario en contexto y localStorage
+        if (data.token && data.user) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+          }
+        }
+        // Redirigir al panel de administración
+        window.location.href = '/admin';
       } else {
         const data = await response.json()
         setError(data.message || 'Error al iniciar sesión')

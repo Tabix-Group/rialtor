@@ -16,7 +16,19 @@ interface CalculationResult {
   }
 }
 
+import { useAuth } from '../auth/authContext'
+import { useRouter } from 'next/navigation'
+
 export default function CalculatorPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Proteger ruta: si no está logueado, redirigir a login
+  if (!loading && !user && typeof window !== 'undefined') {
+    router.replace('/auth/login');
+    return null;
+  }
+
   const [saleAmount, setSaleAmount] = useState('')
   const [commissionRate, setCommissionRate] = useState('3')
   const [zone, setZone] = useState('caba')

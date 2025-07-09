@@ -10,9 +10,20 @@ import {
   CalendarIcon
 } from '@heroicons/react/24/outline'
 
+import { useAuth } from '../auth/authContext'
+import { useRouter } from 'next/navigation'
+
 export default function KnowledgePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Proteger ruta: si no está logueado, redirigir a login
+  if (!loading && !user && typeof window !== 'undefined') {
+    router.replace('/auth/login');
+    return null;
+  }
 
   const categories = [
     { id: 'all', name: 'Todas las categorías', count: 156 },

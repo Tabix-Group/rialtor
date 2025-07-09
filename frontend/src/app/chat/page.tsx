@@ -10,6 +10,9 @@ interface Message {
   timestamp: Date
 }
 
+import { useAuth } from '../auth/authContext'
+import { useRouter } from 'next/navigation'
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -21,6 +24,14 @@ export default function ChatPage() {
   ])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Proteger ruta: si no está logueado, redirigir a login
+  if (!loading && !user && typeof window !== 'undefined') {
+    router.replace('/auth/login');
+    return null;
+  }
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return

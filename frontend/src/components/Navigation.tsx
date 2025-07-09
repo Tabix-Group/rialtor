@@ -1,21 +1,28 @@
+
 'use client'
 
+
+import { useAuth } from '../app/auth/authContext'
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X, Home, BookOpen, MessageSquare, Calculator, FileText, Shield, User, LogOut } from 'lucide-react'
 
-export default function Navigation() {
+
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const { user, logout } = useAuth()
+
+  // Solo mostrar navegación si el usuario está logueado
+  if (!user) return null
 
   const navigation = [
     { name: 'Inicio', href: '/', icon: Home },
-    { name: 'Conocimiento', href: '/knowledge', icon: BookOpen },
-    { name: 'Chat', href: '/chat', icon: MessageSquare },
-    { name: 'Calculadora', href: '/calculator', icon: Calculator },
-    { name: 'Documentos', href: '/documents', icon: FileText },
-    { name: 'Administración', href: '/admin', icon: Shield },
+    { name: 'Conocimiento', href: '/knowledge', icon: BookOpen, protected: true },
+    { name: 'Chat', href: '/chat', icon: MessageSquare, protected: true },
+    { name: 'Calculadora', href: '/calculator', icon: Calculator, protected: true },
+    { name: 'Documentos', href: '/documents', icon: FileText, protected: true },
+    { name: 'Administración', href: '/admin', icon: Shield, protected: true },
   ]
 
   const isActive = (href: string) => {
@@ -41,7 +48,8 @@ export default function Navigation() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => {
-              const Icon = item.icon
+              if (item.protected && !user) return null;
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.name}
@@ -55,24 +63,20 @@ export default function Navigation() {
                   <Icon className="w-4 h-4" />
                   <span>{item.name}</span>
                 </Link>
-              )
+              );
             })}
           </div>
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/auth/login"
-              className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            <span className="text-gray-700 text-sm font-medium">{user.name}</span>
+            <button
+              onClick={logout}
+              className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 transition-colors"
             >
-              Iniciar Sesión
-            </Link>
-            <Link
-              href="/auth/register"
-              className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
-            >
-              Registrarse
-            </Link>
+              <LogOut className="w-5 h-5" />
+              <span>Salir</span>
+            </button>
           </div>
 
           {/* Mobile menu button */}
@@ -92,7 +96,8 @@ export default function Navigation() {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
             {navigation.map((item) => {
-              const Icon = item.icon
+              if (item.protected && !user) return null;
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.name}
@@ -107,25 +112,16 @@ export default function Navigation() {
                   <Icon className="w-5 h-5" />
                   <span>{item.name}</span>
                 </Link>
-              )
+              );
             })}
             <div className="border-t pt-3 mt-3">
-              <Link
-                href="/auth/login"
-                onClick={() => setIsOpen(false)}
+              <button
+                onClick={() => { setIsOpen(false); logout(); }}
                 className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 transition-colors"
               >
-                <User className="w-5 h-5" />
-                <span>Iniciar Sesión</span>
-              </Link>
-              <Link
-                href="/auth/register"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium bg-red-600 text-white hover:bg-red-700 transition-colors mt-2"
-              >
-                <User className="w-5 h-5" />
-                <span>Registrarse</span>
-              </Link>
+                <LogOut className="w-5 h-5" />
+                <span>Salir</span>
+              </button>
             </div>
           </div>
         </div>
