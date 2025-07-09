@@ -12,7 +12,7 @@ const generateToken = (userId) => {
 
 const register = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, phone, office, role } = req.body;
 
     // Verificar si el usuario ya existe
     const existingUser = await prisma.user.findUnique({
@@ -35,12 +35,16 @@ const register = async (req, res, next) => {
         email,
         password: hashedPassword,
         name,
-        role: 'USER'
+        phone,
+        office,
+        role: role || 'USER'
       },
       select: {
         id: true,
         email: true,
         name: true,
+        phone: true,
+        office: true,
         role: true,
         avatar: true,
         createdAt: true

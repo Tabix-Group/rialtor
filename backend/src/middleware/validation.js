@@ -27,12 +27,27 @@ const validateAuth = {
       .withMessage('Please provide a valid email'),
     body('password')
       .isLength({ min: 8 })
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-      .withMessage('Password must be at least 8 characters with uppercase, lowercase, number and special character'),
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/)
+      .withMessage('Password must be at least 8 characters with uppercase, lowercase and number'),
     body('name')
       .trim()
       .isLength({ min: 2, max: 50 })
       .withMessage('Name must be between 2 and 50 characters'),
+    body('phone')
+      .optional()
+      .isString()
+      .isLength({ min: 6, max: 30 })
+      .withMessage('Phone must be between 6 and 30 characters'),
+    body('office')
+      .optional()
+      .isString()
+      .isLength({ min: 2, max: 100 })
+      .withMessage('Office must be between 2 and 100 characters'),
+    body('role')
+      .optional()
+      .isString()
+      .isLength({ min: 2, max: 20 })
+      .withMessage('Role must be between 2 and 20 characters'),
     validateRequest
   ],
   login: [

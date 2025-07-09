@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, UserPlus, Shield } from 'lucide-react'
+import UserManagement from '../../components/UserManagement'
 
 interface StatCard {
   title: string
@@ -169,30 +170,16 @@ export default function AdminPage() {
     </div>
   )
 
-  const renderUsers = () => (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Gestión de Usuarios</h3>
-        <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2">
-          <UserPlus className="w-5 h-5" />
-          Nuevo Usuario
-        </button>
+  const renderUsers = () => {
+    if (user?.role !== 'ADMIN') {
+      return <div className="p-6 text-center text-red-500">No autorizado</div>;
+    }
+    return (
+      <div className="bg-white rounded-lg shadow">
+        <UserManagement token={typeof window !== 'undefined' ? localStorage.getItem('token') || '' : ''} />
       </div>
-      <div className="p-6">
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Buscar usuarios..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          />
-        </div>
-        <div className="text-center py-8">
-          <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Funcionalidad de gestión de usuarios en desarrollo</p>
-        </div>
-      </div>
-    </div>
-  )
+    );
+  }
 
   const renderContent = () => (
     <div className="bg-white rounded-lg shadow">
@@ -241,6 +228,7 @@ export default function AdminPage() {
           {/* Sidebar */}
           <div className="lg:w-64">
             <div className="bg-white rounded-lg shadow p-4">
+              {/* Sidebar navigation: hide Users tab for non-admins */}
               <nav className="space-y-2">
                 <button
                   onClick={() => setActiveTab('dashboard')}
@@ -251,15 +239,17 @@ export default function AdminPage() {
                   <BarChart3 className="w-5 h-5" />
                   Dashboard
                 </button>
-                <button
-                  onClick={() => setActiveTab('users')}
-                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left transition-colors ${
-                    activeTab === 'users' ? 'bg-red-50 text-red-600' : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  <Users className="w-5 h-5" />
-                  Usuarios
-                </button>
+                {user?.role === 'ADMIN' && (
+                  <button
+                    onClick={() => setActiveTab('users')}
+                    className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left transition-colors ${
+                      activeTab === 'users' ? 'bg-red-50 text-red-600' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Users className="w-5 h-5" />
+                    Usuarios
+                  </button>
+                )}
                 <button
                   onClick={() => setActiveTab('content')}
                   className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left transition-colors ${

@@ -40,10 +40,21 @@ export default function RegisterPage() {
 
     try {
       // Integración directa con el backend
+
+      // Unir firstName y lastName en name para el backend
+      const payload = {
+        name: formData.firstName.trim() + ' ' + formData.lastName.trim(),
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        office: formData.office,
+        role: formData.role
+      };
+
       const response = await fetch('http://localhost:3001/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       })
 
       if (response.ok) {
