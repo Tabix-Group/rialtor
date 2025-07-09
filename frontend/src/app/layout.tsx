@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '../styles/globals.css';
 import { AuthProvider } from './auth/authContext';
+import LayoutWithNav from './LayoutWithNav';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body className={inter.className}>
         <AuthProvider>
-          {children}
+          <LayoutWithNav>
+            {children}
+          </LayoutWithNav>
         </AuthProvider>
       </body>
     </html>

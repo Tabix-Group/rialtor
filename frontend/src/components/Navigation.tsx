@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X, Home, BookOpen, MessageSquare, Calculator, FileText, Shield, User, LogOut } from 'lucide-react'
 
 
+function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const { user, logout } = useAuth()
@@ -17,7 +18,7 @@ import { Menu, X, Home, BookOpen, MessageSquare, Calculator, FileText, Shield, U
   if (!user) return null
 
   const navigation = [
-    { name: 'Inicio', href: '/', icon: Home },
+    // { name: 'Inicio', href: '/', icon: Home }, // Eliminado porque el logo ya cumple esa función
     { name: 'Conocimiento', href: '/knowledge', icon: BookOpen, protected: true },
     { name: 'Chat', href: '/chat', icon: MessageSquare, protected: true },
     { name: 'Calculadora', href: '/calculator', icon: Calculator, protected: true },
@@ -129,3 +130,5 @@ import { Menu, X, Home, BookOpen, MessageSquare, Calculator, FileText, Shield, U
     </nav>
   )
 }
+
+export default Navigation;
