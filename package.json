@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "markdown-it": "^14.1.0",
+    "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "react-markdown-editor-lite": "^1.3.4",
+    "rehype-highlight": "^7.0.2"
+  }
+}
