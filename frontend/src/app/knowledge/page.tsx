@@ -441,6 +441,8 @@ function ArticleEditor({ isOpen, onClose, categories, article, onSuccess }: {
         method,
         headers: {
           'Content-Type': 'application/json',
+          // Añadir token de autorización
+          'Authorization': `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('token') : ''}`
         },
         body: JSON.stringify(formData),
       });

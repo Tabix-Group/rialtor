@@ -101,14 +101,202 @@ export default function Home() {
   // Si no está logueado, mostrar solo home básica
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-remax-red mb-6 text-center">RE/MAX Argentina</h1>
-        <p className="text-xl text-gray-700 mb-8 max-w-2xl text-center">
-          Bienvenido a la plataforma de conocimiento y herramientas para agentes inmobiliarios.
-        </p>
-        <div className="flex space-x-4">
-          <a href="/auth/login" className="btn-secondary px-8 py-3 rounded-lg font-medium">Iniciar Sesión</a>
-        </div>
+      <div className="min-h-screen bg-white">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-remax-blue via-remax-blue-light to-remax-blue-dark">
+          <div className="absolute inset-0 hero-pattern opacity-10"></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+            <div className="text-center">
+              <div className="flex justify-center mb-8">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                  <h1 className="text-5xl md:text-7xl font-bold text-white mb-2">
+                    RE/MAX
+                  </h1>
+                  <div className="text-remax-red text-2xl md:text-3xl font-semibold bg-white px-4 py-2 rounded-lg">
+                    Argentina
+                  </div>
+                </div>
+              </div>
+              <h2 className="text-2xl md:text-4xl font-bold text-white mb-6 max-w-4xl mx-auto">
+                Plataforma de Conocimiento y Herramientas para Agentes Inmobiliarios
+              </h2>
+              <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Accede a información actualizada, herramientas de cálculo especializadas, 
+                asistencia inteligente y recursos completos para el sector inmobiliario argentino.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/auth/login" className="btn-secondary px-8 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                  Iniciar Sesión
+                </Link>
+                <Link href="/auth/register" className="btn-outline px-8 py-4 text-lg font-semibold rounded-lg bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white hover:text-remax-blue shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                  Registrarse
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Preview */}
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Herramientas Profesionales
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Descubre las funcionalidades que transformarán tu trabajo inmobiliario
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.slice(0, 6).map((feature, index) => (
+                <div key={feature.name} className="group">
+                  <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                    <div className="flex items-center mb-6">
+                      <div className={`${feature.color} w-14 h-14 rounded-xl flex items-center justify-center shadow-lg`}>
+                        <feature.icon className="w-7 h-7 text-white" />
+                      </div>
+                      <div className="ml-4">
+                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-remax-blue transition-colors">
+                          {feature.name}
+                        </h3>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                  Tu Socio en el Éxito Inmobiliario
+                </h2>
+                <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                  RE/MAX Argentina presenta una plataforma integral diseñada específicamente 
+                  para agentes inmobiliarios que buscan excellence y eficiencia en su trabajo diario.
+                </p>
+                <div className="space-y-6">
+                  <div className="flex items-start">
+                    <div className="bg-remax-blue w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">✓</span>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Información Actualizada</h3>
+                      <p className="text-gray-600">Acceso a regulaciones, normativas y cambios del sector en tiempo real.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="bg-remax-red w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">✓</span>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Herramientas Especializadas</h3>
+                      <p className="text-gray-600">Calculadoras, generadores de documentos y asistencia inteligente.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="bg-remax-blue w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white font-bold text-sm">✓</span>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">Soporte Profesional</h3>
+                      <p className="text-gray-600">Respaldo completo para todas tus operaciones inmobiliarias.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="lg:text-right">
+                <div className="bg-gradient-to-br from-remax-blue to-remax-blue-light rounded-3xl p-8 shadow-2xl">
+                  <div className="text-center">
+                    <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8">
+                      <h3 className="text-3xl font-bold text-white mb-2">+10,000</h3>
+                      <p className="text-blue-100">Agentes Activos</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                        <h4 className="text-2xl font-bold text-white">150+</h4>
+                        <p className="text-blue-100 text-sm">Oficinas</p>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                        <h4 className="text-2xl font-bold text-white">24/7</h4>
+                        <p className="text-blue-100 text-sm">Soporte</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-remax-red to-remax-red-light">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+              ¿Listo para Transformar tu Negocio?
+            </h2>
+            <p className="text-xl text-red-100 mb-10 max-w-3xl mx-auto">
+              Únete a miles de agentes que ya confían en RE/MAX Argentina para su éxito profesional
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/auth/register" className="bg-white text-remax-red px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                Comenzar Ahora
+              </Link>
+              <Link href="/auth/login" className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-remax-red transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                Ya Tengo Cuenta
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-4 gap-8">
+              <div className="md:col-span-2">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="bg-remax-blue w-10 h-10 rounded-lg flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">R</span>
+                  </div>
+                  <span className="text-2xl font-bold">RE/MAX Argentina</span>
+                </div>
+                <p className="text-gray-400 mb-6 max-w-md">
+                  Plataforma de conocimiento y herramientas profesionales para agentes inmobiliarios argentinos. 
+                  Transformando el sector con tecnología e innovación.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Recursos</h3>
+                <ul className="space-y-2">
+                  <li><span className="text-gray-400">Base de Conocimiento</span></li>
+                  <li><span className="text-gray-400">Documentos Legales</span></li>
+                  <li><span className="text-gray-400">Calculadora Argentina</span></li>
+                  <li><span className="text-gray-400">Asistente IA</span></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Soporte</h3>
+                <ul className="space-y-2">
+                  <li><span className="text-gray-400">Centro de Ayuda</span></li>
+                  <li><span className="text-gray-400">Contacto</span></li>
+                  <li><span className="text-gray-400">Capacitación</span></li>
+                  <li><span className="text-gray-400">Documentación</span></li>
+                </ul>
+              </div>
+            </div>
+            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+              <p>&copy; 2024 RE/MAX Argentina. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </footer>
       </div>
     )
   }
