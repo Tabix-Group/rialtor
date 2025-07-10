@@ -162,13 +162,47 @@ const validateChat = {
 };
 
 const validateCalculator = {
-  calculate: [
-    body('type')
-      .isIn(['COMMISSION', 'TAXES', 'STAMPS', 'ITI', 'REGISTRATION'])
-      .withMessage('Invalid calculator type'),
-    body('inputs')
-      .isObject()
-      .withMessage('Inputs must be an object'),
+  commission: [
+    body('saleAmount')
+      .isFloat({ min: 0.01 })
+      .withMessage('Sale amount must be greater than 0'),
+    body('commissionRate')
+      .isFloat({ min: 0.01, max: 100 })
+      .withMessage('Commission rate must be between 0.01 and 100'),
+    body('zone')
+      .optional()
+      .isString()
+      .isIn(['caba', 'gba', 'interior'])
+      .withMessage('Zone must be caba, gba, or interior'),
+    body('isIndependent')
+      .optional()
+      .isBoolean()
+      .withMessage('isIndependent must be a boolean'),
+    body('province')
+      .optional()
+      .isString()
+      .withMessage('Province must be a string'),
+    body('stampRate')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Stamp rate must be a positive number'),
+    validateRequest
+  ],
+  taxes: [
+    body('amount')
+      .isFloat({ min: 0.01 })
+      .withMessage('Amount must be greater than 0'),
+    body('taxType')
+      .isIn(['STAMPS', 'ITI', 'REGISTRATION'])
+      .withMessage('Invalid tax type'),
+    body('province')
+      .optional()
+      .isString()
+      .withMessage('Province must be a string'),
+    body('stampRate')
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage('Stamp rate must be a positive number'),
     validateRequest
   ]
 };

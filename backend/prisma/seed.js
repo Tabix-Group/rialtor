@@ -236,6 +236,36 @@ Utiliza nuestra calculadora integrada para obtener cálculos precisos y actualiz
         sellos: 1.2,
         registro: 0.3
       })
+    },
+    {
+      type: 'STAMPS',
+      name: 'Calculadora de Sellos',
+      rates: JSON.stringify({
+        buenos_aires: 1.2,
+        caba: 1.5,
+        catamarca: 1.0,
+        chaco: 1.0,
+        chubut: 1.0,
+        cordoba: 1.2,
+        corrientes: 1.0,
+        entre_rios: 1.0,
+        formosa: 1.0,
+        jujuy: 1.0,
+        la_pampa: 1.0,
+        la_rioja: 1.0,
+        mendoza: 1.5,
+        misiones: 1.0,
+        neuquen: 1.0,
+        rio_negro: 1.0,
+        salta: 1.0,
+        san_juan: 1.0,
+        san_luis: 1.0,
+        santa_cruz: 1.0,
+        santa_fe: 1.2,
+        santiago_del_estero: 1.0,
+        tierra_del_fuego: 1.0,
+        tucuman: 1.0
+      })
     }
   ];
 
