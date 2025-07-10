@@ -11,6 +11,10 @@ interface CalculationResult {
   zone: string
   province: string
   stampRate: number
+  ivaRate: number
+  incomeTaxRate: number
+  iibbRate: number
+  otherRate: number
   isIndependent: boolean
   grossCommission: number
   taxes: {
@@ -21,7 +25,6 @@ interface CalculationResult {
     other: number
     total: number
   }
-  netAmount: number
   details: {
     grossCommission: number
     iva: number
@@ -30,7 +33,6 @@ interface CalculationResult {
     stamps: number
     other: number
     totalTaxes: number
-    netAmount: number
   }
 }
 
@@ -56,6 +58,11 @@ export default function CalculatorPage() {
   const [isIndependent, setIsIndependent] = useState(true)
   const [province, setProvince] = useState('caba')
   const [stampRate, setStampRate] = useState('1.5')
+  const [ivaRate, setIvaRate] = useState('21')
+  const [incomeTaxRate, setIncomeTaxRate] = useState('0') // Cambiado a 0 por defecto
+  const [iibbRate, setIibbRate] = useState('1.5')
+  const [otherRate, setOtherRate] = useState('1')
+  const [operationType, setOperationType] = useState('A') // A: Registrada, B: No registrada
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [provinces, setProvinces] = useState<Province[]>([])
   const [loading2, setLoading2] = useState(false)
@@ -76,6 +83,23 @@ export default function CalculatorPage() {
 
     fetchProvinces();
   }, []);
+
+  // Actualizar valores predeterminados según el tipo de operación
+  useEffect(() => {
+    if (operationType === 'A') {
+      // Operación registrada
+      setIvaRate('21')
+      setIncomeTaxRate(isIndependent ? '35' : '0')
+      setIibbRate('1.5')
+      setOtherRate('1')
+    } else {
+      // Operación no registrada
+      setIvaRate('0')
+      setIncomeTaxRate('0')
+      setIibbRate('0')
+      setOtherRate('0.5') // Gastos mínimos
+    }
+  }, [operationType, isIndependent]);
 
   // Actualizar alícuota de sellos cuando cambia la provincia
   useEffect(() => {
@@ -103,7 +127,11 @@ export default function CalculatorPage() {
           zone,
           isIndependent,
           province,
-          stampRate: parseFloat(stampRate)
+          stampRate: parseFloat(stampRate),
+          ivaRate: parseFloat(ivaRate),
+          incomeTaxRate: parseFloat(incomeTaxRate),
+          iibbRate: parseFloat(iibbRate),
+          otherRate: parseFloat(otherRate)
         })
       });
 
@@ -143,7 +171,7 @@ export default function CalculatorPage() {
               Calculadora de Comisiones con Sellos
             </h1>
             <p className="text-gray-600">
-              Calcula tu comisión neta después de impuestos incluyendo sellos provinciales
+              Calcula tu comisión después de impuestos incluyendo sellos provinciales
             </p>
           </div>
 
@@ -182,6 +210,20 @@ export default function CalculatorPage() {
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tipo de operación
+                </label>
+                <select
+                  value={operationType}
+                  onChange={(e) => setOperationType(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                >
+                  <option value="A">Operación A (Registrada)</option>
+                  <option value="B">Operación B (No registrada)</option>
+                </select>
               </div>
 
               <div>
@@ -239,6 +281,73 @@ export default function CalculatorPage() {
                 </p>
               </div>
 
+              {/* Configuración de impuestos */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Configuración de Impuestos</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      IVA (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={ivaRate}
+                      onChange={(e) => setIvaRate(e.target.value)}
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Ganancias (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={incomeTaxRate}
+                      onChange={(e) => setIncomeTaxRate(e.target.value)}
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      IIBB (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={iibbRate}
+                      onChange={(e) => setIibbRate(e.target.value)}
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Otros gastos (%)
+                    </label>
+                    <input
+                      type="number"
+                      value={otherRate}
+                      onChange={(e) => setOtherRate(e.target.value)}
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -248,7 +357,7 @@ export default function CalculatorPage() {
                   className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                 />
                 <label htmlFor="independent" className="ml-2 text-sm text-gray-700">
-                  Trabajador independiente (se aplica impuesto a las ganancias)
+                  Trabajador independiente
                 </label>
               </div>
 
@@ -270,14 +379,7 @@ export default function CalculatorPage() {
                     Resultados del Cálculo
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="bg-white rounded-lg p-4">
-                      <div className="text-2xl font-bold text-green-600">
-                        {formatCurrency(result.netAmount)}
-                      </div>
-                      <div className="text-sm text-gray-600">Comisión Neta</div>
-                    </div>
-                    
+                  <div className="grid grid-cols-1 gap-4 mb-6">
                     <div className="bg-white rounded-lg p-4">
                       <div className="text-2xl font-bold text-blue-600">
                         {formatCurrency(result.grossCommission)}
@@ -301,19 +403,19 @@ export default function CalculatorPage() {
                       <h4 className="font-semibold text-gray-800 mb-3">Detalle de Impuestos y Gastos</h4>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span>IVA (21%):</span>
+                          <span>IVA ({formatPercentage(result.ivaRate)}):</span>
                           <span>{formatCurrency(result.taxes.iva)}</span>
                         </div>
                         
-                        {result.isIndependent && (
+                        {result.incomeTaxRate > 0 && (
                           <div className="flex justify-between text-sm">
-                            <span>Impuesto a las Ganancias (35%):</span>
+                            <span>Impuesto a las Ganancias ({formatPercentage(result.incomeTaxRate)}):</span>
                             <span>{formatCurrency(result.taxes.incomeTax)}</span>
                           </div>
                         )}
                         
                         <div className="flex justify-between text-sm">
-                          <span>IIBB (1.5%):</span>
+                          <span>IIBB ({formatPercentage(result.iibbRate)}):</span>
                           <span>{formatCurrency(result.taxes.iibb)}</span>
                         </div>
                         
@@ -325,7 +427,7 @@ export default function CalculatorPage() {
                         </div>
                         
                         <div className="flex justify-between text-sm">
-                          <span>Otros gastos (1%):</span>
+                          <span>Otros gastos ({formatPercentage(result.otherRate)}):</span>
                           <span>{formatCurrency(result.taxes.other)}</span>
                         </div>
                         

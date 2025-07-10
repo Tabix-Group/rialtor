@@ -83,7 +83,11 @@ const calculateCommission = async (req, res) => {
       zone, 
       isIndependent,
       province,
-      stampRate
+      stampRate,
+      ivaRate,
+      incomeTaxRate,
+      iibbRate,
+      otherRate
     } = req.body;
 
     // Validaciones
@@ -104,19 +108,34 @@ const calculateCommission = async (req, res) => {
     const amount = parseFloat(saleAmount);
     const rate = parseFloat(commissionRate);
     const stampsRate = parseFloat(stampRate) || 0;
+    const ivaPercentage = parseFloat(ivaRate) || 21;
+    const incomeTaxPercentage = parseFloat(incomeTaxRate) || 0; // 0% por defecto
+    const iibbPercentage = parseFloat(iibbRate) || 1.5;
+    const otherPercentage = parseFloat(otherRate) || 1;
 
     // Cálculo de comisión bruta
     const grossCommission = (amount * rate) / 100;
 
-    // Cálculos de impuestos (valores aproximados para Argentina)
-    const iva = grossCommission * 0.21; // 21% IVA
-    const incomeTax = isIndependent ? grossCommission * 0.35 : 0; // 35% Ganancias si es independiente
-    const iibb = grossCommission * 0.015; // 1.5% IIBB aproximado
-    const stamps = stampsRate > 0 ? (amount * stampsRate) / 100 : 0; // Sellos sobre el monto total
-    const other = grossCommission * 0.01; // 1% otros gastos
+    // Cálculos de impuestos - CORREGIDO: TODOS sobre el valor de la operación
+    const baseForTaxes = amount; // Base para impuestos es el VALOR DE LA OPERACIÓN
+    
+    // IVA sobre el valor de la operación (solo si factura)
+    const iva = baseForTaxes * (ivaPercentage / 100);
+    
+    // Ganancias sobre el valor de la operación (solo si es independiente y configura el porcentaje)
+    const incomeTax = (isIndependent && incomeTaxPercentage > 0) ? (baseForTaxes * (incomeTaxPercentage / 100)) : 0;
+    
+    // IIBB sobre el valor de la operación
+    const iibb = baseForTaxes * (iibbPercentage / 100);
+    
+    // Sellos sobre el valor de la operación
+    const stamps = stampsRate > 0 ? (baseForTaxes * stampsRate) / 100 : 0;
+    
+    // Otros gastos sobre el valor de la operación
+    const other = baseForTaxes * (otherPercentage / 100);
 
+    // Total de impuestos y gastos
     const totalTaxes = iva + incomeTax + iibb + stamps + other;
-    const netAmount = grossCommission - totalTaxes;
 
     const result = {
       saleAmount: amount,
@@ -124,6 +143,10 @@ const calculateCommission = async (req, res) => {
       zone,
       province,
       stampRate: stampsRate,
+      ivaRate: ivaPercentage,
+      incomeTaxRate: incomeTaxPercentage,
+      iibbRate: iibbPercentage,
+      otherRate: otherPercentage,
       isIndependent,
       grossCommission,
       taxes: {
@@ -134,7 +157,6 @@ const calculateCommission = async (req, res) => {
         other,
         total: totalTaxes
       },
-      netAmount,
       details: {
         grossCommission,
         iva,
@@ -142,28 +164,30 @@ const calculateCommission = async (req, res) => {
         iibb,
         stamps,
         other,
-        totalTaxes,
-        netAmount
+        totalTaxes
       }
     };
 
     // Guardar en historial si hay usuario logueado
-    if (req.user) {
-      await prisma.calculatorHistory.create({
-        data: {
-          type: 'COMMISSION',
-          inputs: JSON.stringify({
-            saleAmount: amount,
-            commissionRate: rate,
-            zone,
-            province,
-            stampRate: stampsRate,
-            isIndependent
-          }),
-          result: JSON.stringify(result),
-          userId: req.user.id
-        }
-      });
+    if (req.user) {        await prisma.calculatorHistory.create({
+          data: {
+            type: 'COMMISSION',
+            inputs: JSON.stringify({
+              saleAmount: amount,
+              commissionRate: rate,
+              zone,
+              province,
+              stampRate: stampsRate,
+              ivaRate: ivaPercentage,
+              incomeTaxRate: incomeTaxPercentage,
+              iibbRate: iibbPercentage,
+              otherRate: otherPercentage,
+              isIndependent
+            }),
+            result: JSON.stringify(result),
+            userId: req.user.id
+          }
+        });
     }
 
     res.json({

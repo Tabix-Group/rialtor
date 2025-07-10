@@ -186,6 +186,22 @@ const validateCalculator = {
       .optional()
       .isFloat({ min: 0 })
       .withMessage('Stamp rate must be a positive number'),
+    body('ivaRate')
+      .optional()
+      .isFloat({ min: 0, max: 100 })
+      .withMessage('IVA rate must be between 0 and 100'),
+    body('incomeTaxRate')
+      .optional()
+      .isFloat({ min: 0, max: 100 })
+      .withMessage('Income tax rate must be between 0 and 100'),
+    body('iibbRate')
+      .optional()
+      .isFloat({ min: 0, max: 100 })
+      .withMessage('IIBB rate must be between 0 and 100'),
+    body('otherRate')
+      .optional()
+      .isFloat({ min: 0, max: 100 })
+      .withMessage('Other rate must be between 0 and 100'),
     validateRequest
   ],
   taxes: [
