@@ -105,37 +105,60 @@ const calculateCommission = async (req, res) => {
       });
     }
 
-    const amount = parseFloat(saleAmount);
+    const amount = Math.round(parseFloat(saleAmount));
     const rate = parseFloat(commissionRate);
     const stampsRate = parseFloat(stampRate) || 0;
-    const ivaPercentage = parseFloat(ivaRate) || 21;
-    const incomeTaxPercentage = parseFloat(incomeTaxRate) || 0; // 0% por defecto
-    const iibbPercentage = parseFloat(iibbRate) || 1.5;
-    const otherPercentage = parseFloat(otherRate) || 1;
+    
+    console.log('Received saleAmount:', saleAmount, 'Parsed amount:', amount);
+    
+    // Validar que los porcentajes sean números válidos, usar 0 si no lo son
+    const ivaPercentage = isNaN(parseFloat(ivaRate)) ? 0 : parseFloat(ivaRate);
+    const incomeTaxPercentage = isNaN(parseFloat(incomeTaxRate)) ? 0 : parseFloat(incomeTaxRate);
+    const iibbPercentage = isNaN(parseFloat(iibbRate)) ? 0 : parseFloat(iibbRate);
+    const otherPercentage = isNaN(parseFloat(otherRate)) ? 0 : parseFloat(otherRate);
 
     // Cálculo de comisión bruta
     const grossCommission = (amount * rate) / 100;
 
-    // Cálculos de impuestos - CORREGIDO: TODOS sobre el valor de la operación
+    // Cálculos de impuestos - Solo calcular si la alícuota es mayor a 0
     const baseForTaxes = amount; // Base para impuestos es el VALOR DE LA OPERACIÓN
     
-    // IVA sobre el valor de la operación (solo si factura)
-    const iva = baseForTaxes * (ivaPercentage / 100);
+    // IVA sobre el valor de la operación (solo si factura Y la alícuota es > 0)
+    const iva = ivaPercentage > 0 ? (baseForTaxes * (ivaPercentage / 100)) : 0;
     
-    // Ganancias sobre el valor de la operación (solo si es independiente y configura el porcentaje)
+    // Ganancias sobre el valor de la operación (solo si es independiente Y configura el porcentaje > 0)
     const incomeTax = (isIndependent && incomeTaxPercentage > 0) ? (baseForTaxes * (incomeTaxPercentage / 100)) : 0;
     
-    // IIBB sobre el valor de la operación
-    const iibb = baseForTaxes * (iibbPercentage / 100);
+    // IIBB sobre el valor de la operación (solo si la alícuota es > 0)
+    const iibb = iibbPercentage > 0 ? (baseForTaxes * (iibbPercentage / 100)) : 0;
     
-    // Sellos sobre el valor de la operación
+    // Sellos sobre el valor de la operación (solo si la alícuota es > 0)
     const stamps = stampsRate > 0 ? (baseForTaxes * stampsRate) / 100 : 0;
     
-    // Otros gastos sobre el valor de la operación
-    const other = baseForTaxes * (otherPercentage / 100);
+    // Otros gastos sobre el valor de la operación (solo si la alícuota es > 0)
+    const other = otherPercentage > 0 ? (baseForTaxes * (otherPercentage / 100)) : 0;
 
     // Total de impuestos y gastos
     const totalTaxes = iva + incomeTax + iibb + stamps + other;
+
+    // Crear objeto de detalles solo con los impuestos que tienen valor > 0
+    const taxDetails = {};
+    if (iva > 0) taxDetails.iva = iva;
+    if (incomeTax > 0) taxDetails.incomeTax = incomeTax;
+    if (iibb > 0) taxDetails.iibb = iibb;
+    if (stamps > 0) taxDetails.stamps = stamps;
+    if (other > 0) taxDetails.other = other;
+
+    console.log('Tax calculations:', {
+      ivaPercentage,
+      iibbPercentage,
+      incomeTaxPercentage,
+      iva,
+      iibb,
+      incomeTax,
+      stamps,
+      other
+    });
 
     const result = {
       saleAmount: amount,
@@ -159,11 +182,7 @@ const calculateCommission = async (req, res) => {
       },
       details: {
         grossCommission,
-        iva,
-        incomeTax,
-        iibb,
-        stamps,
-        other,
+        ...taxDetails,
         totalTaxes
       }
     };

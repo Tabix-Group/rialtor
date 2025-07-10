@@ -93,11 +93,11 @@ export default function CalculatorPage() {
       setIibbRate('1.5')
       setOtherRate('1')
     } else {
-      // Operación no registrada
+      // Operación no registrada - TODOS en 0
       setIvaRate('0')
       setIncomeTaxRate('0')
       setIibbRate('0')
-      setOtherRate('0.5') // Gastos mínimos
+      setOtherRate('0')
     }
   }, [operationType, isIndependent]);
 
@@ -114,6 +114,21 @@ export default function CalculatorPage() {
 
     setLoading2(true);
     
+    const requestData = {
+      saleAmount: parseFloat(saleAmount),
+      commissionRate: parseFloat(commissionRate),
+      zone,
+      isIndependent,
+      province,
+      stampRate: parseFloat(stampRate),
+      ivaRate: parseFloat(ivaRate),
+      incomeTaxRate: parseFloat(incomeTaxRate),
+      iibbRate: parseFloat(iibbRate),
+      otherRate: parseFloat(otherRate)
+    };
+
+    console.log('Sending data to backend:', requestData);
+    
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/calculator/commission`, {
         method: 'POST',
@@ -121,18 +136,7 @@ export default function CalculatorPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({
-          saleAmount: parseFloat(saleAmount),
-          commissionRate: parseFloat(commissionRate),
-          zone,
-          isIndependent,
-          province,
-          stampRate: parseFloat(stampRate),
-          ivaRate: parseFloat(ivaRate),
-          incomeTaxRate: parseFloat(incomeTaxRate),
-          iibbRate: parseFloat(iibbRate),
-          otherRate: parseFloat(otherRate)
-        })
+        body: JSON.stringify(requestData)
       });
 
       if (response.ok) {
@@ -189,6 +193,8 @@ export default function CalculatorPage() {
                     value={saleAmount}
                     onChange={(e) => setSaleAmount(e.target.value)}
                     placeholder="1000000"
+                    step="1"
+                    min="1"
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                 </div>
@@ -402,34 +408,43 @@ export default function CalculatorPage() {
                     <div className="bg-white rounded-lg p-4 mt-4">
                       <h4 className="font-semibold text-gray-800 mb-3">Detalle de Impuestos y Gastos</h4>
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>IVA ({formatPercentage(result.ivaRate)}):</span>
-                          <span>{formatCurrency(result.taxes.iva)}</span>
-                        </div>
+                        {/* Solo mostrar impuestos que tienen valor > 0 */}
+                        {result.taxes.iva > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span>IVA ({formatPercentage(result.ivaRate)}):</span>
+                            <span>{formatCurrency(result.taxes.iva)}</span>
+                          </div>
+                        )}
                         
-                        {result.incomeTaxRate > 0 && (
+                        {result.taxes.incomeTax > 0 && (
                           <div className="flex justify-between text-sm">
                             <span>Impuesto a las Ganancias ({formatPercentage(result.incomeTaxRate)}):</span>
                             <span>{formatCurrency(result.taxes.incomeTax)}</span>
                           </div>
                         )}
                         
-                        <div className="flex justify-between text-sm">
-                          <span>IIBB ({formatPercentage(result.iibbRate)}):</span>
-                          <span>{formatCurrency(result.taxes.iibb)}</span>
-                        </div>
+                        {result.taxes.iibb > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span>IIBB ({formatPercentage(result.iibbRate)}):</span>
+                            <span>{formatCurrency(result.taxes.iibb)}</span>
+                          </div>
+                        )}
                         
-                        <div className="flex justify-between text-sm bg-yellow-50 p-2 rounded">
-                          <span>
-                            <strong>Sellos {provinces.find(p => p.key === result.province)?.name || result.province} ({formatPercentage(result.stampRate)}):</strong>
-                          </span>
-                          <span className="font-medium">{formatCurrency(result.taxes.stamps)}</span>
-                        </div>
+                        {result.taxes.stamps > 0 && (
+                          <div className="flex justify-between text-sm bg-yellow-50 p-2 rounded">
+                            <span>
+                              <strong>Sellos {provinces.find(p => p.key === result.province)?.name || result.province} ({formatPercentage(result.stampRate)}):</strong>
+                            </span>
+                            <span className="font-medium">{formatCurrency(result.taxes.stamps)}</span>
+                          </div>
+                        )}
                         
-                        <div className="flex justify-between text-sm">
-                          <span>Otros gastos ({formatPercentage(result.otherRate)}):</span>
-                          <span>{formatCurrency(result.taxes.other)}</span>
-                        </div>
+                        {result.taxes.other > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span>Otros gastos ({formatPercentage(result.otherRate)}):</span>
+                            <span>{formatCurrency(result.taxes.other)}</span>
+                          </div>
+                        )}
                         
                         <div className="border-t pt-2 mt-2">
                           <div className="flex justify-between font-semibold text-red-600">
