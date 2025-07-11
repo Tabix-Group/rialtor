@@ -22,7 +22,7 @@ export default function Home() {
   // Features protegidas
   const features = [
     {
-      name: 'Base de Conocimiento',
+      name: 'Artículos',
       description: 'Accede a artículos, guías y documentación del sector inmobiliario argentino',
       icon: BookOpenIcon,
       href: '/knowledge',
@@ -30,7 +30,7 @@ export default function Home() {
       protected: true
     },
     {
-      name: 'Asistente IA',
+      name: 'Agente IA',
       description: 'Consulta con nuestro bot inteligente sobre regulaciones y procesos',
       icon: ChatBubbleLeftRightIcon,
       href: '/chat',
@@ -276,10 +276,10 @@ export default function Home() {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Recursos</h3>
                 <ul className="space-y-2">
-                  <li><span className="text-gray-400">Base de Conocimiento</span></li>
+                  <li><span className="text-gray-400">Artículos</span></li>
                   <li><span className="text-gray-400">Documentos Legales</span></li>
                   <li><span className="text-gray-400">Calculadora Argentina</span></li>
-                  <li><span className="text-gray-400">Asistente IA</span></li>
+                  <li><span className="text-gray-400">Agente IA</span></li>
                 </ul>
               </div>
               <div>
@@ -454,10 +454,10 @@ export default function Home() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Recursos</h3>
               <ul className="space-y-2">
-                <li><Link href="/knowledge" className="text-gray-400 hover:text-white transition-colors">Base de Conocimiento</Link></li>
+                <li><Link href="/knowledge" className="text-gray-400 hover:text-white transition-colors">Artículos</Link></li>
                 <li><Link href="/documents" className="text-gray-400 hover:text-white transition-colors">Documentos</Link></li>
                 <li><Link href="/calculator" className="text-gray-400 hover:text-white transition-colors">Calculadora</Link></li>
-                <li><Link href="/chat" className="text-gray-400 hover:text-white transition-colors">Asistente IA</Link></li>
+                <li><Link href="/chat" className="text-gray-400 hover:text-white transition-colors">Agente IA</Link></li>
               </ul>
             </div>
             <div>

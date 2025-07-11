@@ -19,8 +19,8 @@ function Navigation() {
 
   const navigation = [
     // { name: 'Inicio', href: '/', icon: Home }, // Eliminado porque el logo ya cumple esa función
-    { name: 'Conocimiento', href: '/knowledge', icon: BookOpen, protected: true },
-    { name: 'Chat', href: '/chat', icon: MessageSquare, protected: true },
+    { name: 'Artículos', href: '/knowledge', icon: BookOpen, protected: true },
+    { name: 'Agente IA', href: '/chat', icon: MessageSquare, protected: true },
     { name: 'Calculadora', href: '/calculator', icon: Calculator, protected: true },
     { name: 'Documentos', href: '/documents', icon: FileText, protected: true },
     { name: 'Administración', href: '/admin', icon: Shield, protected: true },
