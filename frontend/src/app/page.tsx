@@ -118,7 +118,7 @@ export default function Home() {
                 </div>
               </div>
               <h2 className="text-2xl md:text-4xl font-bold text-white mb-6 max-w-4xl mx-auto">
-                Plataforma de Conocimiento y Herramientas para Agentes Inmobiliarios
+                Agente de Conocimiento
               </h2>
               <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
                 Accede a información actualizada, herramientas de cálculo especializadas, 
@@ -309,7 +309,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Plataforma de Conocimiento
+              Agente de Conocimiento
               <span className="block text-remax-red">RE/MAX Argentina</span>
             </h1>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
