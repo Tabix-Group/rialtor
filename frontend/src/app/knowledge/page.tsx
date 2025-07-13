@@ -65,26 +65,30 @@ export default function KnowledgePage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'articles' | 'categories'>('articles');
+  const [viewMode, setViewMode] = useState<'articles' | 'categories' | 'drafts'>('articles');
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const { user } = useAuth();
   const router = useRouter();
 
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [viewMode]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
+      let articlesUrl = '/api/articles?status=PUBLISHED';
+      if (viewMode === 'drafts') {
+        articlesUrl = '/api/articles?status=DRAFT';
+      }
       const [articlesResponse, categoriesResponse] = await Promise.all([
-        fetch('/api/articles?status=PUBLISHED'),
+        fetch(articlesUrl),
         fetch('/api/categories')
       ]);
-      
       const articlesData = await articlesResponse.json();
       const categoriesData = await categoriesResponse.json();
-      
       setArticles(articlesData.articles || []);
       setCategories(categoriesData.categories || []);
     } catch (error) {
@@ -98,8 +102,12 @@ export default function KnowledgePage() {
     if (!confirm('¿Estás seguro de que quieres eliminar este artículo?')) return;
 
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch(`/api/articles/${articleId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
       });
 
       if (response.ok) {
@@ -114,8 +122,12 @@ export default function KnowledgePage() {
     if (!confirm('¿Estás seguro de que quieres eliminar esta categoría?')) return;
 
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch(`/api/categories/${categoryId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
       });
 
       if (response.ok) {
@@ -160,13 +172,19 @@ export default function KnowledgePage() {
             {user?.role === 'ADMIN' && (
               <div className="flex items-center gap-3">
                 <button
+                  onClick={() => setViewMode('drafts')}
+                  className={`flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors ${viewMode === 'drafts' ? 'ring-2 ring-blue-500' : ''}`}
+                >
+                  <FiClock size={16} />
+                  Borradores
+                </button>
+                <button
                   onClick={() => setViewMode(viewMode === 'articles' ? 'categories' : 'articles')}
                   className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   {viewMode === 'articles' ? <FiFolder size={16} /> : <FiFileText size={16} />}
                   {viewMode === 'articles' ? 'Gestionar Categorías' : 'Ver Artículos'}
                 </button>
-                
                 <button
                   onClick={() => viewMode === 'articles' ? setShowCreateModal(true) : setShowCategoryModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -229,8 +247,8 @@ export default function KnowledgePage() {
               </button>
             </div>
 
-            {/* Lista de artículos */}
-            {viewMode === 'articles' && (
+            {/* Lista de artículos o borradores */}
+            {(viewMode === 'articles' || viewMode === 'drafts') && (
               <div className="space-y-4">
                 {filteredArticles.map(article => (
                   <div
@@ -241,13 +259,13 @@ export default function KnowledgePage() {
                       <div className="flex items-center gap-4 mb-4">
                         <div 
                           className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-semibold"
-                          style={{ backgroundColor: article.category.color }}
+                          style={{ backgroundColor: article.category?.color || '#3B82F6' }}
                         >
                           <FiFileText size={20} />
                         </div>
                         <div>
                           <span className="inline-block px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                            {article.category.name}
+                            {article.category?.name || 'Sin categoría'}
                           </span>
                           <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
                             <span className="flex items-center gap-1">
@@ -265,7 +283,6 @@ export default function KnowledgePage() {
                           </div>
                         </div>
                       </div>
-                      
                       {user?.role === 'ADMIN' && (
                         <div className="flex items-center gap-2">
                           <button 
@@ -283,15 +300,12 @@ export default function KnowledgePage() {
                         </div>
                       )}
                     </div>
-                    
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       {article.title}
                     </h3>
-                    
                     <p className="text-gray-600 mb-4">
                       {article.excerpt}
                     </p>
-                    
                     <div className="flex items-center justify-between">
                       <span className="flex items-center gap-2 text-sm text-gray-500">
                         <FiUser size={12} />
@@ -353,13 +367,14 @@ export default function KnowledgePage() {
             )}
 
             {/* Estado vacío */}
-            {((viewMode === 'articles' && filteredArticles.length === 0) || 
+            {(((viewMode === 'articles' || viewMode === 'drafts') && filteredArticles.length === 0) || 
               (viewMode === 'categories' && categories.length === 0)) && (
               <div className="text-center py-12">
                 <div className="text-gray-500 text-lg">
-                  {viewMode === 'articles' ? 'No se encontraron artículos' : 'No hay categorías creadas'}
+                  {viewMode === 'articles' ? 'No se encontraron artículos' :
+                    viewMode === 'drafts' ? 'No tienes borradores' : 'No hay categorías creadas'}
                 </div>
-                {user?.role === 'ADMIN' && (
+                {user?.role === 'ADMIN' && viewMode !== 'drafts' && (
                   <button
                     onClick={() => viewMode === 'articles' ? setShowCreateModal(true) : setShowCategoryModal(true)}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -437,12 +452,12 @@ function ArticleEditor({ isOpen, onClose, categories, article, onSuccess }: {
       const url = article ? `/api/articles/${article.id}` : '/api/articles';
       const method = article ? 'PUT' : 'POST';
       
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          // Añadir token de autorización
-          'Authorization': `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('token') : ''}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify(formData),
       });
@@ -642,10 +657,12 @@ function CategoryModal({ isOpen, onClose, category, onSuccess }: {
       const url = category ? `/api/categories/${category.id}` : '/api/categories';
       const method = category ? 'PUT' : 'POST';
       
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify(formData),
       });
