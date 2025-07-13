@@ -12,6 +12,9 @@ pnpm-debug.log*
 .env.test.local
 .env.production.local
 
+# Example env
+.env.example
+
 # Database
 *.db
 *.db-journal
