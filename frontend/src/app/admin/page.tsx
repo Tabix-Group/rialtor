@@ -227,62 +227,62 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-red-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <Shield className="w-8 h-8" />
-            <div>
-              <h1 className="text-2xl font-bold">Panel de Administración</h1>
-              <p className="text-red-100">Gestión y control de la plataforma RE/MAX</p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-red-600 to-red-400 text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex items-center gap-5">
+          <span className="inline-flex items-center justify-center bg-white/20 rounded-full p-3 shadow">
+            <Shield className="w-10 h-10 text-white/90" />
+          </span>
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight">Panel de Administración</h1>
+            <p className="text-red-100 text-lg">Gestión y control de la plataforma RE/MAX</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex flex-col lg:flex-row gap-10">
           {/* Sidebar */}
-          <div className="lg:w-64">
-            <div className="bg-white rounded-lg shadow p-4">
-              {/* Sidebar navigation: hide Users tab for non-admins */}
-              <nav className="space-y-2">
+          <div className="lg:w-72">
+            <div className="bg-white/90 rounded-2xl shadow-2xl border border-gray-100 p-6 sticky top-8">
+              <nav className="space-y-3">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left transition-colors ${
-                    activeTab === 'dashboard' ? 'bg-red-50 text-red-600' : 'text-gray-700 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
+                    activeTab === 'dashboard' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <BarChart3 className="w-5 h-5" />
+                  <BarChart3 className="w-6 h-6" />
                   Dashboard
                 </button>
                 {user?.role === 'ADMIN' && (
                   <button
                     onClick={() => setActiveTab('users')}
-                    className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'users' ? 'bg-red-50 text-red-600' : 'text-gray-700 hover:bg-gray-50'
+                    className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
+                      activeTab === 'users' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                   >
-                    <Users className="w-5 h-5" />
+                    <Users className="w-6 h-6" />
                     Usuarios
                   </button>
                 )}
                 <button
                   onClick={() => setActiveTab('content')}
-                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left transition-colors ${
-                    activeTab === 'content' ? 'bg-red-50 text-red-600' : 'text-gray-700 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
+                    activeTab === 'content' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-6 h-6" />
                   Contenido
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left transition-colors ${
-                    activeTab === 'settings' ? 'bg-red-50 text-red-600' : 'text-gray-700 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
+                    activeTab === 'settings' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-6 h-6" />
                   Configuración
                 </button>
               </nav>

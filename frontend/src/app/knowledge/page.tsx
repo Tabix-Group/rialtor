@@ -159,37 +159,36 @@ export default function KnowledgePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-red-50">
       {/* Header - Estilo similar al panel de administración */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-lg border-b">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex justify-between items-center py-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Base de Conocimiento</h1>
-              <p className="text-gray-600 mt-1">Gestiona artículos y categorías del conocimiento</p>
+              <h1 className="text-4xl font-extrabold tracking-tight">Base de Conocimiento</h1>
+              <p className="text-blue-100 mt-2 text-lg">Gestiona artículos y categorías del conocimiento</p>
             </div>
-            
             {user?.role === 'ADMIN' && (
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setViewMode('drafts')}
-                  className={`flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors ${viewMode === 'drafts' ? 'ring-2 ring-blue-500' : ''}`}
+                  className={`flex items-center gap-2 px-5 py-3 text-blue-700 bg-white/80 rounded-xl font-semibold hover:bg-blue-100 transition-all shadow ${viewMode === 'drafts' ? 'ring-2 ring-blue-500' : ''}`}
                 >
-                  <FiClock size={16} />
+                  <FiClock size={18} />
                   Borradores
                 </button>
                 <button
                   onClick={() => setViewMode(viewMode === 'articles' ? 'categories' : 'articles')}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-5 py-3 text-blue-700 bg-white/80 rounded-xl font-semibold hover:bg-blue-100 transition-all shadow"
                 >
-                  {viewMode === 'articles' ? <FiFolder size={16} /> : <FiFileText size={16} />}
+                  {viewMode === 'articles' ? <FiFolder size={18} /> : <FiFileText size={18} />}
                   {viewMode === 'articles' ? 'Gestionar Categorías' : 'Ver Artículos'}
                 </button>
                 <button
                   onClick={() => viewMode === 'articles' ? setShowCreateModal(true) : setShowCategoryModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl font-bold hover:from-blue-600 hover:to-blue-800 transition-all shadow"
                 >
-                  <FiPlus size={16} />
+                  <FiPlus size={18} />
                   {viewMode === 'articles' ? 'Nuevo Artículo' : 'Nueva Categoría'}
                 </button>
               </div>
@@ -199,28 +198,28 @@ export default function KnowledgePage() {
       </div>
 
       {/* Contenido principal */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
           {/* Sidebar de categorías */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Categorías</h2>
+            <div className="bg-white/90 rounded-2xl shadow-2xl border border-gray-100 p-6 sticky top-8">
+              <h2 className="text-xl font-bold text-blue-700 mb-6">Categorías</h2>
               <div className="space-y-2">
                 {allCategories.map(category => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-colors ${
+                    className={`w-full flex items-center justify-between px-5 py-3 rounded-xl text-left font-semibold transition-all shadow-sm ${
                       selectedCategory === category.id 
-                        ? 'bg-blue-600 text-white' 
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-700 text-white' 
+                        : 'text-blue-700 hover:bg-blue-50 bg-white/80'
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      <FiFolder size={16} />
+                      <FiFolder size={18} />
                       {category.name}
                     </span>
-                    <span className="text-sm font-medium">{category.articleCount}</span>
+                    <span className="text-sm font-bold">{category.articleCount}</span>
                   </button>
                 ))}
               </div>
@@ -230,19 +229,19 @@ export default function KnowledgePage() {
           {/* Contenido principal */}
           <div className="lg:col-span-3">
             {/* Barra de búsqueda */}
-            <div className="flex gap-4 mb-6">
+            <div className="flex gap-4 mb-8">
               <div className="flex-1 relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400" size={22} />
                 <input
                   type="text"
                   placeholder="Buscar en la base de conocimiento..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg shadow-sm"
                 />
               </div>
-              <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2">
-                <FiFilter size={16} />
+              <button className="px-7 py-3 bg-white/80 text-blue-700 rounded-xl hover:bg-blue-50 flex items-center gap-2 font-semibold shadow">
+                <FiFilter size={18} />
                 Filtros
               </button>
             </div>
