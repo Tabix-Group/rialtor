@@ -1,3 +1,5 @@
+
+require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const OpenAI = require('openai');
 
@@ -189,7 +191,7 @@ const sendMessage = async (req, res, next) => {
 
     // Llamar a OpenAI
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o',
       messages: messages,
       max_tokens: 1000,
       temperature: 0.7
@@ -204,7 +206,7 @@ const sendMessage = async (req, res, next) => {
         content: assistantResponse,
         role: 'ASSISTANT',
         metadata: JSON.stringify({
-          model: 'gpt-4',
+          model: 'gpt-4o',
           tokens: completion.usage?.total_tokens,
           relevantArticles: relevantArticles.map(a => a.id)
         })
@@ -229,10 +231,10 @@ const sendMessage = async (req, res, next) => {
       }))
     });
   } catch (error) {
-    if (error.code === 'insufficient_quota') {
+    if (error.code === 'insufficient_quota' || error.status === 503) {
       return res.status(503).json({
         error: 'Service temporarily unavailable',
-        message: 'AI service is currently unavailable. Please try again later.'
+        message: error.message || 'AI service is currently unavailable. Please try again later.'
       });
     }
     next(error);
@@ -247,9 +249,9 @@ const getRelevantContext = async (query) => {
       where: {
         status: 'PUBLISHED',
         OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { content: { contains: query, mode: 'insensitive' } },
-          { excerpt: { contains: query, mode: 'insensitive' } }
+          { title: { contains: query } },
+          { content: { contains: query } },
+          { excerpt: { contains: query } }
         ]
       },
       include: {

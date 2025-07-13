@@ -7,7 +7,7 @@ interface Message {
   id: string
   content: string
   isUser: boolean
-  timestamp: Date
+  timestamp: string // ISO string
 }
 
 import { useAuth } from '../auth/authContext'
@@ -19,7 +19,7 @@ export default function ChatPage() {
       id: '1',
       content: 'Hola! Soy tu asistente de RE/MAX. ¿En qué puedo ayudarte hoy?',
       isUser: false,
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     }
   ])
   const [inputValue, setInputValue] = useState('')
@@ -40,7 +40,7 @@ export default function ChatPage() {
       id: Date.now().toString(),
       content: inputValue,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -48,10 +48,13 @@ export default function ChatPage() {
     setIsLoading(true)
 
     try {
-      // TODO: Integrar con el backend real
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ message: inputValue })
       })
 
@@ -59,9 +62,9 @@ export default function ChatPage() {
         const data = await response.json()
         const botMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: data.message,
+          content: data.assistantMessage?.content || data.message || 'Sin respuesta del asistente.',
           isUser: false,
-          timestamp: new Date()
+          timestamp: new Date().toISOString()
         }
         setMessages(prev => [...prev, botMessage])
       } else {
@@ -73,7 +76,7 @@ export default function ChatPage() {
         id: (Date.now() + 1).toString(),
         content: 'Gracias por tu mensaje. Esta es una respuesta simulada. En producción, aquí funcionará la integración con OpenAI.',
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       }
       setMessages(prev => [...prev, botMessage])
     } finally {
@@ -124,7 +127,7 @@ export default function ChatPage() {
                       <p className={`text-xs mt-1 ${
                         message.isUser ? 'text-red-200' : 'text-gray-500'
                       }`}>
-                        {message.timestamp.toLocaleTimeString()}
+                        {new Date(message.timestamp).toLocaleTimeString()}
                       </p>
                     </div>
                     {message.isUser && <User className="w-4 h-4 mt-1" />}

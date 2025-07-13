@@ -7,9 +7,10 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Create admin user
-  const hashedPassword = await bcrypt.hash('admin123', 12);
-  
+
+  // Create admin user (contraseña cumple validación: Admin1234)
+  const adminPassword = 'Admin1234';
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
   const admin = await prisma.user.upsert({
     where: { email: 'admin@remax.com' },
     update: {},
@@ -24,9 +25,9 @@ async function main() {
 
   console.log('✅ Admin user created:', admin.email);
 
-  // Create demo user
-  const demoPassword = await bcrypt.hash('demo123', 12);
-  
+  // Create demo user (contraseña cumple validación: Demo1234)
+  const demoPasswordPlain = 'Demo1234';
+  const demoPassword = await bcrypt.hash(demoPasswordPlain, 12);
   const demo = await prisma.user.upsert({
     where: { email: 'demo@remax.com' },
     update: {},
@@ -321,11 +322,11 @@ Utiliza nuestra calculadora integrada para obtener cálculos precisos y actualiz
   console.log('');
   console.log('📧 Admin credentials:');
   console.log('   Email: admin@remax.com');
-  console.log('   Password: admin123');
+  console.log('   Password:', adminPassword);
   console.log('');
   console.log('📧 Demo credentials:');
   console.log('   Email: demo@remax.com');
-  console.log('   Password: demo123');
+  console.log('   Password:', demoPasswordPlain);
 }
 
 main()
