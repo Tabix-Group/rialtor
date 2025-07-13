@@ -6,9 +6,12 @@ const OpenAI = require('openai');
 const prisma = new PrismaClient();
 
 // Inicializar OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 const createChatSession = async (req, res, next) => {
   try {
@@ -189,14 +192,16 @@ const sendMessage = async (req, res, next) => {
       });
     });
 
-    // Llamar a OpenAI
+    // Llamar a OpenAI solo si está inicializado
+    if (!openai) {
+      return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
+    }
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: messages,
       max_tokens: 1000,
       temperature: 0.7
     });
-
     const assistantResponse = completion.choices[0].message.content;
 
     // Guardar respuesta del asistente

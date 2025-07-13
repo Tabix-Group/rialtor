@@ -7,8 +7,8 @@ import LayoutWithNav from './LayoutWithNav';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'RE/MAX Knowledge Platform',
-  description: 'Plataforma de conocimiento y herramientas para agentes inmobiliarios',
+  title: 'RE/MAX Plataforma Integral',
+  description: 'Solución integral de recursos, archivos y herramientas para profesionales inmobiliarios',
 };
 
 

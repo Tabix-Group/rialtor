@@ -172,7 +172,7 @@ export default function CalculatorPage() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
               <Calculator className="w-8 h-8 text-red-600" />
-              Calculadora de Comisiones con Sellos
+              Calculadora 
             </h1>
             <p className="text-gray-600">
               Calcula tu comisión después de impuestos incluyendo sellos provinciales

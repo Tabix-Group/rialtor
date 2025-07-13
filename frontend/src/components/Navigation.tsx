@@ -18,12 +18,12 @@ function Navigation() {
   if (!user) return null
 
   const navigation = [
-    // { name: 'Inicio', href: '/', icon: Home }, // Eliminado porque el logo ya cumple esa función
-    { name: 'Artículos', href: '/knowledge', icon: BookOpen, protected: true },
-    { name: 'Agente IA', href: '/chat', icon: MessageSquare, protected: true },
+    // { name: 'Inicio', href: '/', icon: Home },
+    { name: 'Recursos', href: '/knowledge', icon: BookOpen, protected: true },
+    { name: 'Asistente IA', href: '/chat', icon: MessageSquare, protected: true },
     { name: 'Calculadora', href: '/calculator', icon: Calculator, protected: true },
-    { name: 'Documentos', href: '/documents', icon: FileText, protected: true },
-    { name: 'Administración', href: '/admin', icon: Shield, protected: true },
+    { name: 'Archivos', href: '/documents', icon: FileText, protected: true },
+    { name: 'Panel de Control', href: '/admin', icon: Shield, protected: true },
   ]
 
   const isActive = (href: string) => {
@@ -76,7 +76,7 @@ function Navigation() {
               className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 transition-colors"
             >
               <LogOut className="w-5 h-5" />
-              <span>Salir</span>
+              <span>Cerrar Sesión</span>
             </button>
           </div>
 
@@ -121,7 +121,7 @@ function Navigation() {
                 className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 transition-colors"
               >
                 <LogOut className="w-5 h-5" />
-                <span>Salir</span>
+                <span>Cerrar Sesión</span>
               </button>
             </div>
           </div>
