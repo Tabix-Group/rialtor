@@ -12,7 +12,19 @@ const getStats = async (req, res, next) => {
     console.log('Artículos publicados:', publishedArticles);
     const chatQueries = await prisma.chatSession.count();
     console.log('Consultas chat:', chatQueries);
-    const documentsUploaded = await prisma.documentRequest.count();
+    // Contar archivos subidos en la carpeta uploads (no .json)
+    const fs = require('fs');
+    const path = require('path');
+    const uploadDir = path.join(__dirname, '../../uploads');
+    let documentsUploaded = 0;
+    try {
+      if (fs.existsSync(uploadDir)) {
+        const files = fs.readdirSync(uploadDir);
+        documentsUploaded = files.filter(f => !f.endsWith('.json')).length;
+      }
+    } catch (e) {
+      documentsUploaded = 0;
+    }
     console.log('Documentos subidos:', documentsUploaded);
 
     res.json({ totalUsers, publishedArticles, chatQueries, documentsUploaded });

@@ -72,7 +72,14 @@ router.get('/', (req, res) => {
   fs.readdir(uploadDir, (err, files) => {
     if (err) return res.status(500).json({ error: 'No se pudo leer la carpeta de uploads' });
     // Only list files, not .json metadata
-    const documents = files.filter(f => !f.endsWith('.json')).map(filename => {
+    const documentFiles = files.filter(f => !f.endsWith('.json'));
+
+    // Si se pide solo el conteo
+    if (req.query.countOnly === '1') {
+      return res.json({ count: documentFiles.length });
+    }
+
+    const documents = documentFiles.map(filename => {
       const filePath = path.join(uploadDir, filename);
       const stat = fs.statSync(filePath);
       // Leer metadatos si existen

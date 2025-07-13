@@ -31,6 +31,8 @@ export default function AdminPage() {
   // Dashboard stats
   const [statsData, setStatsData] = useState<{ totalUsers: number; publishedArticles: number; chatQueries: number; documentsUploaded: number } | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [documentsCount, setDocumentsCount] = useState<number | null>(null);
+
   // Fetch dashboard stats
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -43,6 +45,14 @@ export default function AdminPage() {
         setStatsLoading(false);
       })
       .catch(() => setStatsLoading(false));
+
+    // Obtener el total real de documentos subidos
+    fetch('/api/documents?countOnly=1', { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => res.json())
+      .then(data => {
+        if (typeof data.count === 'number') setDocumentsCount(data.count);
+      })
+      .catch(() => setDocumentsCount(null));
   }, []);
 
   // Recent users state
@@ -73,7 +83,7 @@ export default function AdminPage() {
         { title: 'Total Usuarios', value: statsData.totalUsers.toString(), change: '', changeType: 'increase', icon: <Users className="w-6 h-6" /> },
         { title: 'Artículos Publicados', value: statsData.publishedArticles.toString(), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> },
         { title: 'Consultas Chat', value: statsData.chatQueries.toString(), change: '', changeType: 'increase', icon: <MessageSquare className="w-6 h-6" /> },
-        { title: 'Documentos Subidos', value: statsData.documentsUploaded.toString(), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> }
+        { title: 'Documentos Subidos', value: (documentsCount !== null ? documentsCount.toString() : statsData.documentsUploaded.toString()), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> }
       ]
 
   const renderDashboard = () => (
