@@ -139,15 +139,15 @@ export default function KnowledgePage() {
   };
 
   const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(search.toLowerCase()) ||
-                         article.excerpt.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || article.category.id === selectedCategory;
+    const matchesSearch = (article.title?.toLowerCase() || '').includes(search.toLowerCase()) ||
+                         (article.excerpt?.toLowerCase() || '').includes(search.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || (article.category && article.category.id === selectedCategory);
     return matchesSearch && matchesCategory;
   });
 
   const allCategories = [
-    { id: 'all', name: 'Todas las categorías', articleCount: articles.length },
-    ...categories
+    { id: 'all', name: 'Todas las categorías', articleCount: Array.isArray(articles) ? articles.length : 0 },
+    ...Array.isArray(categories) ? categories : []
   ];
 
   if (loading) {
