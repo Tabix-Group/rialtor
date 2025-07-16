@@ -38,7 +38,8 @@ export default function ArticlePage() {
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { id } = useParams();
+  const params = useParams();
+  const id = params && typeof params['id'] === 'string' ? params['id'] : Array.isArray(params?.['id']) ? params['id'][0] : undefined;
   const router = useRouter();
   const { user } = useAuth();
 
@@ -236,16 +237,18 @@ export default function ArticlePage() {
                       {children}
                     </blockquote>
                   ),
-                  code: ({ inline, children }) => {
-                    if (inline) {
+                  code: ({ node, children, ...props }) => {
+                    // @ts-ignore: node.inline is not typed in react-markdown types
+                    const isInline = node && (node as any).inline;
+                    if (isInline) {
                       return (
-                        <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-800">
+                        <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-800" {...props}>
                           {children}
                         </code>
                       );
                     }
                     return (
-                      <code className="block bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                      <code className="block bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto" {...props}>
                         {children}
                       </code>
                     );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { FileText, Upload, Download, Search, Filter, Eye, Edit, Trash2 } from 'lucide-react'
 
 interface Document {
@@ -46,7 +46,7 @@ export default function DocumentsPage() {
   };
 
   // On mount
-  useState(() => { fetchDocuments(); }, []);
+  useEffect(() => { fetchDocuments(); }, []);
 
 
   const [searchTerm, setSearchTerm] = useState('')
