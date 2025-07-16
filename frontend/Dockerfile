@@ -29,7 +29,6 @@ RUN adduser -S nextjs -u 1001
 ENV NODE_ENV=production
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
 
 # Cambiar permisos
 RUN chown -R nextjs:nodejs /app
