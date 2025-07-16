@@ -38,4 +38,4 @@ USER nextjs
 EXPOSE 3000
 
 # Comando por defecto
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
