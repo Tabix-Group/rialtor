@@ -7,7 +7,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y openssl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
-    
+
 # Copiar package.json y package-lock.json
 COPY package*.json ./
 
@@ -21,8 +21,8 @@ COPY . .
 RUN npx prisma generate
 
 # Crear usuario no root
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+RUN groupadd --gid 1001 nodejs \
+ && useradd --uid 1001 --gid nodejs --no-create-home --shell /usr/sbin/nologin nodejs
 
 # Cambiar permisos
 RUN chown -R nodejs:nodejs /app
