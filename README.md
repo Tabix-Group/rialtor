@@ -1,31 +1,68 @@
 # RE/MAX Knowledge Platform
 
-Una plataforma completa de gestión de conocimiento para RE/MAX Argentina con bot inteligente, calculadoras de comisiones y sistema de documentos.
+Plataforma integral para RE/MAX Argentina: gestión de conocimiento, bot IA, calculadoras, sistema de documentos y panel administrativo.
 
-## 🚀 Características
+## 🚀 Características principales
 
-- **Base de Conocimiento**: Sistema tipo wiki para documentación del sector inmobiliario
-- **Bot con IA**: Asistente inteligente alimentado por OpenAI que responde consultas sobre documentos
-- **Generación de Documentos**: Templates de contratos, formularios y documentos legales
-- **Calculadora Argentina**: Comisiones, impuestos, sellos y tasas locales
-- **Panel de Administración**: Gestión de usuarios, contenido y configuraciones
-- **Autenticación**: Sistema de roles y permisos
+- **Base de Conocimiento**: Wiki inmobiliaria con editor Markdown, categorías y artículos con control de estado (borrador, publicado, archivado).
+- **Bot con IA**: Asistente OpenAI que responde consultas sobre documentos y artículos, con sesiones de chat y contexto relevante.
+- **Gestión de Documentos**: Subida, descarga y eliminación de archivos, categorización y búsqueda avanzada.
+- **Calculadora Argentina**: Cálculo de comisiones, impuestos, sellos y tasas por provincia, con historial y configuraciones personalizadas.
+- **Panel de Administración**: Dashboard con estadísticas, gestión de usuarios (CRUD), control de roles y permisos, y administración de contenido.
+- **Autenticación**: Registro, login, refresco de token, cambio de contraseña, roles (ADMIN, USER, AGENTE), y protección de rutas.
+
+## 🌐 Enlace de producción
+
+- [Frontend en Railway](https://remax-fe-production.up.railway.app/)
 
 ## 🛠️ Stack Tecnológico
 
 ### Backend
-- **Node.js** con **Express.js**
-- **SQLite** (desarrollo) → **PostgreSQL** (producción)
-- **Prisma ORM** para manejo de base de datos
-- **JWT** para autenticación
+- **Node.js** + **Express.js**
+- **Prisma ORM** (SQLite en desarrollo, PostgreSQL en producción)
+- **JWT** para autenticación y roles
 - **OpenAI API** para el bot inteligente
 - **Multer** para manejo de archivos
+- **Docker** y **docker-compose** para despliegue
 
 ### Frontend
-- **Next.js 14** con **React 18**
-- **TypeScript** para mayor robustez
-- **Tailwind CSS** para estilos
-- **Headless UI** para componentes
+- **Next.js 14** + **React 18** + **TypeScript**
+- **Tailwind CSS** y **Headless UI**
+- **Axios** para llamadas API
+- **Zustand** para estado global
+- **Quill** y **react-markdown** para edición y visualización de artículos
+
+## 📦 Estructura actual
+
+- **backend/**: API REST, controladores, rutas, middleware, Prisma, Dockerfile
+- **frontend/**: Next.js app, páginas protegidas, componentes, editor, gestión de usuarios, Dockerfile
+- **uploads/**: Archivos subidos
+- **docker-compose.yml**: Orquestación de servicios
+
+## 🆕 Cambios recientes
+
+- Migración completa a Next.js 14 y React 18 con TypeScript
+- Implementación de proxy API en frontend para comunicación segura con backend
+- Mejoras en autenticación y protección de rutas (AuthProvider, useAuth)
+- Panel de administración con dashboard, estadísticas y gestión de usuarios
+- Calculadora de comisiones y sellos con historial y configuraciones por provincia
+- Bot IA con sesiones, contexto relevante y OpenAI
+- Gestión avanzada de documentos (subida, descarga, eliminación, categorías)
+- Editor de artículos con soporte Markdown y vista previa
+- Sistema de roles y permisos (ADMIN, USER, AGENTE)
+- Dockerización de frontend y backend para despliegue en Railway
+
+## 📄 Instalación y desarrollo
+
+1. Clonar el repositorio
+2. Configurar variables de entorno en ambos proyectos (`.env`)
+3. Instalar dependencias en `backend/` y `frontend/`
+4. Ejecutar `docker-compose up` para desarrollo local
+5. Acceder a la app en `http://localhost:3000` (frontend) y `http://localhost:3001/api` (backend)
+
+## ✨ Contribuciones y contacto
+
+Para sugerencias, mejoras o reportes, abrir un issue o contactar a Tabix Group.
 - **React Hook Form** para formularios
 - **Zustand** para estado global
 

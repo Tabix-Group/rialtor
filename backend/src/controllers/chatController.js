@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const OpenAI = require('openai');
@@ -155,54 +154,130 @@ const sendMessage = async (req, res, next) => {
       }
     });
 
-    // Obtener contexto relevante de la base de conocimiento
-    const relevantArticles = await getRelevantContext(message);
+    // Buscar contexto relevante en artículos y documentos
+    let contextText = '';
+    let foundContext = false;
 
-    // Preparar mensajes para OpenAI
+    // Buscar artículos relevantes
+    // Búsqueda semántica avanzada en artículos
+    // Buscar SOLO en la base de datos local (Postgres)
+    const articles = await prisma.article.findMany({
+      where: {
+        status: 'PUBLISHED',
+        OR: [
+          { title: { contains: message, mode: 'insensitive' } },
+          { content: { contains: message, mode: 'insensitive' } },
+          { excerpt: { contains: message, mode: 'insensitive' } }
+        ]
+      },
+      include: { category: true },
+      take: 3,
+      orderBy: { views: 'desc' }
+    });
+
+    if (articles.length > 0) {
+      foundContext = true;
+      contextText += 'Artículos relevantes:\n';
+      articles.forEach((a, idx) => {
+        // Si el artículo viene de semantic_search y no tiene slug, buscarlo en la base
+        let slug = a.slug;
+        let title = a.title || a.name || '';
+        let excerpt = a.excerpt || a.summary || '';
+        let content = a.content || a.text || '';
+        let category = (a.category && a.category.name) || a.category || 'Sin categoría';
+        if (!slug && a.id) {
+          slug = a.id;
+        }
+        const baseUrl = process.env.FRONTEND_URL || 'https://remax.tabix.com.ar';
+        const articleUrl = slug ? `${baseUrl}/knowledge/article/${slug}` : '';
+        contextText += `(${idx+1}) Título: ${title}\nResumen: ${excerpt}\nContenido: ${content.substring(0, 800)}\nCategoría: ${category}\nEnlace: ${articleUrl}\n---\n`;
+      });
+    }
+
+    // Buscar documentos relevantes (DocumentTemplate)
+    // Búsqueda semántica avanzada en documentos
+    // Buscar SOLO en la base de datos local (Postgres)
+    const documents = await prisma.documentTemplate.findMany({
+      where: {
+        OR: [
+          { name: { contains: message, mode: 'insensitive' } },
+          { description: { contains: message, mode: 'insensitive' } },
+          { category: { contains: message, mode: 'insensitive' } },
+          { template: { contains: message, mode: 'insensitive' } }
+        ]
+      },
+      take: 2,
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (documents.length > 0) {
+      foundContext = true;
+      contextText += '\nDocumentos relevantes:\n';
+      documents.forEach((d, idx) => {
+        contextText += `(${idx+1}) Título: ${d.title}\nContenido: ${d.content.substring(0, 800)}\n---\n`;
+      });
+    }
+
+    // Construir prompt para OpenAI
+    let systemPrompt = '';
+    if (foundContext) {
+      systemPrompt = `Eres un asistente experto en bienes raíces de Argentina trabajando para RE/MAX. El siguiente CONTEXTO contiene artículos y documentos extraídos de la base de datos interna de RE/MAX. SOLO puedes responder usando la información que aparece en este contexto. Si tu respuesta se basa en un artículo, debes citar el enlace de referencia incluido en el contexto. Si la pregunta no está respondida en el contexto, responde exactamente: 'No tengo información suficiente sobre este tema en la base de conocimiento.' No inventes ni uses información externa, ni respondas sobre temas que no aparecen en el contexto.\n\nCONTEXT:\n${contextText}`;
+    } else {
+      systemPrompt = `No tengo información suficiente sobre este tema en la base de conocimiento.`;
+    }
+    // LOG: Mostrar el contexto y el prompt antes de enviar a OpenAI
+    console.log('--- CONTEXTO ENVIADO A OPENAI ---');
+    console.log(systemPrompt);
+    console.log('----------------------------------');
+
     const messages = [
       {
         role: 'system',
-        content: `Eres un asistente experto en bienes raíces de Argentina trabajando para RE/MAX. 
-        Ayudas a agentes inmobiliarios con consultas sobre regulaciones, procesos, documentación y cálculos.
-        
-        Contexto relevante de la base de conocimiento:
-        ${relevantArticles.map(article => `
-        Título: ${article.title}
-        Contenido: ${article.content}
-        Categoría: ${article.category.name}
-        `).join('\n\n')}
-        
-        Responde de manera profesional, precisa y basada en la información proporcionada.
-        Si no tienes información suficiente, indícalo claramente.
-        Siempre considera las regulaciones argentinas actuales.`
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: message
       }
     ];
-
-    // Agregar historial de mensajes de la sesión
-    const sessionMessages = await prisma.chatMessage.findMany({
-      where: { sessionId: session.id },
-      orderBy: { createdAt: 'asc' },
-      take: 10 // Limitar el historial
-    });
-
-    sessionMessages.forEach(msg => {
-      messages.push({
-        role: msg.role.toLowerCase(),
-        content: msg.content
-      });
-    });
 
     // Llamar a OpenAI solo si está inicializado
     if (!openai) {
       return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
     }
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-3.5-turbo',
       messages: messages,
       max_tokens: 1000,
       temperature: 0.7
     });
-    const assistantResponse = completion.choices[0].message.content;
+    let assistantResponse = completion.choices[0].message.content;
+    // LOG: Mostrar la respuesta recibida de OpenAI
+    console.log('--- RESPUESTA OPENAI ---');
+    console.log(assistantResponse);
+    console.log('------------------------');
+
+    // Si la respuesta es muy restrictiva, permite una respuesta general
+    if (assistantResponse.includes('No tengo información suficiente') && !foundContext) {
+      // Reintentar con prompt menos restrictivo
+      const fallbackMessages = [
+        {
+          role: 'system',
+          content: 'Eres un asistente experto en bienes raíces de Argentina trabajando para RE/MAX. Ayuda a los agentes inmobiliarios respondiendo sus consultas de manera profesional y precisa.'
+        },
+        {
+          role: 'user',
+          content: message
+        }
+      ];
+      const fallbackCompletion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+        messages: fallbackMessages,
+        max_tokens: 1000,
+        temperature: 0.7
+      });
+      assistantResponse = fallbackCompletion.choices[0].message.content;
+    }
 
     // Guardar respuesta del asistente
     const assistantMessage = await prisma.chatMessage.create({
@@ -212,8 +287,7 @@ const sendMessage = async (req, res, next) => {
         role: 'ASSISTANT',
         metadata: JSON.stringify({
           model: 'gpt-4o',
-          tokens: completion.usage?.total_tokens,
-          relevantArticles: relevantArticles.map(a => a.id)
+          tokens: completion.usage?.total_tokens
         })
       }
     });
@@ -228,12 +302,7 @@ const sendMessage = async (req, res, next) => {
       message: 'Message sent successfully',
       sessionId: session.id,
       userMessage,
-      assistantMessage,
-      relevantArticles: relevantArticles.map(article => ({
-        id: article.id,
-        title: article.title,
-        category: article.category.name
-      }))
+      assistantMessage
     });
   } catch (error) {
     if (error.code === 'insufficient_quota' || error.status === 503) {
