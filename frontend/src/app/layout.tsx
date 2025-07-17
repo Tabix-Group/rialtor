@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <head>
-        <link rel="icon" href="/favicon2.png" type="image/png" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
       </head>
       <body className={inter.className}>
         <AuthProvider>
