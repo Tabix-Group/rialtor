@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const OpenAI = require('openai');
@@ -155,42 +154,17 @@ const sendMessage = async (req, res, next) => {
       }
     });
 
-    // Obtener contexto relevante de la base de conocimiento
-    const relevantArticles = await getRelevantContext(message);
-
-    // Preparar mensajes para OpenAI
+    // Versión original: enviar solo el mensaje del usuario a la IA, sin contexto de artículos
     const messages = [
       {
         role: 'system',
-        content: `Eres un asistente experto en bienes raíces de Argentina trabajando para RE/MAX. 
-        Ayudas a agentes inmobiliarios con consultas sobre regulaciones, procesos, documentación y cálculos.
-        
-        Contexto relevante de la base de conocimiento:
-        ${relevantArticles.map(article => `
-        Título: ${article.title}
-        Contenido: ${article.content}
-        Categoría: ${article.category.name}
-        `).join('\n\n')}
-        
-        Responde de manera profesional, precisa y basada en la información proporcionada.
-        Si no tienes información suficiente, indícalo claramente.
-        Siempre considera las regulaciones argentinas actuales.`
+        content: `Eres un asistente experto en bienes raíces de Argentina trabajando para RE/MAX. Ayuda a los agentes inmobiliarios respondiendo sus consultas de manera profesional y precisa.`
+      },
+      {
+        role: 'user',
+        content: message
       }
     ];
-
-    // Agregar historial de mensajes de la sesión
-    const sessionMessages = await prisma.chatMessage.findMany({
-      where: { sessionId: session.id },
-      orderBy: { createdAt: 'asc' },
-      take: 10 // Limitar el historial
-    });
-
-    sessionMessages.forEach(msg => {
-      messages.push({
-        role: msg.role.toLowerCase(),
-        content: msg.content
-      });
-    });
 
     // Llamar a OpenAI solo si está inicializado
     if (!openai) {
@@ -212,8 +186,7 @@ const sendMessage = async (req, res, next) => {
         role: 'ASSISTANT',
         metadata: JSON.stringify({
           model: 'gpt-4o',
-          tokens: completion.usage?.total_tokens,
-          relevantArticles: relevantArticles.map(a => a.id)
+          tokens: completion.usage?.total_tokens
         })
       }
     });
@@ -228,12 +201,7 @@ const sendMessage = async (req, res, next) => {
       message: 'Message sent successfully',
       sessionId: session.id,
       userMessage,
-      assistantMessage,
-      relevantArticles: relevantArticles.map(article => ({
-        id: article.id,
-        title: article.title,
-        category: article.category.name
-      }))
+      assistantMessage
     });
   } catch (error) {
     if (error.code === 'insufficient_quota' || error.status === 503) {
