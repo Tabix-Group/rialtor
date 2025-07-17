@@ -18,7 +18,7 @@ pnpm-debug.log*
 # Database
 *.db
 *.db-journal
-migrations/
+# migrations/
 
 # Logs
 logs/

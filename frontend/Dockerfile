@@ -26,9 +26,10 @@ RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 
 # Copiar archivos necesarios
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+ENV NODE_ENV=production
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package*.json ./
 
 # Cambiar permisos
 RUN chown -R nextjs:nodejs /app
@@ -38,4 +39,4 @@ USER nextjs
 EXPOSE 3000
 
 # Comando por defecto
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
