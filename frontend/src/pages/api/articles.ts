@@ -4,7 +4,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  // const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+  console.log('[articles] proxying to:', backendUrl);
+  if (!backendUrl) {
+    throw new Error('NEXT_PUBLIC_API_URL is not set!');
+  }
   const { method, headers, body, query } = req;
   
   // Build URL with query parameters

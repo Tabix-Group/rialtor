@@ -14,7 +14,7 @@ yarn-error.log*
 # Database
 dev.db
 dev.db-journal
-migrations/
+# migrations/
 
 # Uploads
 uploads/
