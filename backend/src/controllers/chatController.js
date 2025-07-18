@@ -311,13 +311,20 @@ const sendMessage = async (req, res, next) => {
       assistantMessage
     });
   } catch (error) {
+    // Log completo del error para debug
+    console.error('[ERROR][sendMessage]', error);
     if (error.code === 'insufficient_quota' || error.status === 503) {
       return res.status(503).json({
         error: 'Service temporarily unavailable',
         message: error.message || 'AI service is currently unavailable. Please try again later.'
       });
     }
-    next(error);
+    // Responder con el mensaje de error si existe
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message || 'Unexpected error',
+      details: error
+    });
   }
 };
 
