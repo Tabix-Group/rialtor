@@ -110,9 +110,15 @@ const createUser = async (req, res, next) => {
         isActive: true
       }
     });
-    // Asignar roles si se envían
-    if (Array.isArray(roles) && roles.length > 0) {
-      for (const roleId of roles) {
+    // Asignar roles si se envían, si no, asignar rol USUARIO por defecto
+    let assignedRoles = roles;
+    if (!Array.isArray(roles) || roles.length === 0) {
+      // Buscar el rol USUARIO
+      const userRole = await prisma.role.findFirst({ where: { name: 'USUARIO' } });
+      if (userRole) assignedRoles = [userRole.id];
+    }
+    if (Array.isArray(assignedRoles) && assignedRoles.length > 0) {
+      for (const roleId of assignedRoles) {
         await prisma.roleAssignment.upsert({
           where: { userId_roleId: { userId: user.id, roleId } },
           update: {},
