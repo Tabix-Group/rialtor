@@ -7,9 +7,15 @@ const prisma = new PrismaClient();
 // Inicializar OpenAI
 let openai = null;
 if (process.env.OPENAI_API_KEY) {
+  // Log para debug: mostrar parte de la key (no toda por seguridad)
+  const key = process.env.OPENAI_API_KEY;
+  const safeKey = key.length > 8 ? key.substring(0, 4) + '...' + key.substring(key.length - 4) : key;
+  console.log('[DEBUG] OPENAI_API_KEY detected:', safeKey);
   openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
+} else {
+  console.log('[DEBUG] OPENAI_API_KEY NOT FOUND');
 }
 
 const createChatSession = async (req, res, next) => {
