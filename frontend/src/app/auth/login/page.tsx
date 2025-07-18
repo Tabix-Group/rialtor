@@ -34,8 +34,8 @@ export default function LoginPage() {
             localStorage.setItem('user', JSON.stringify(data.user));
           }
         }
-        // Redirigir al panel de administración
-        window.location.href = '/admin';
+        // Redirigir a knowledge
+        window.location.href = '/knowledge';
       } else {
         const data = await response.json()
         setError(data.message || 'Error al iniciar sesión')
