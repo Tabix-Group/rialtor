@@ -1,3 +1,49 @@
+// Obtener usuario sin formatear (para validación interna)
+const getUserByIdRaw = async (id) => {
+  return prisma.user.findUnique({ where: { id } });
+};
+// Obtener usuario individual con roles y permisos
+const getUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        office: true,
+        avatar: true,
+        isActive: true,
+        updatedAt: true,
+        roleAssignments: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                permissions: { select: { name: true } }
+              }
+            }
+          }
+        }
+      }
+    });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const userWithRoles = {
+      ...user,
+      roles: user.roleAssignments.map(ra => ({
+        id: ra.role.id,
+        name: ra.role.name,
+        permissions: ra.role.permissions.map(p => p.name)
+      }))
+    };
+    res.json({ user: userWithRoles });
+  } catch (error) {
+    next(error);
+  }
+};
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 
@@ -13,14 +59,33 @@ const listUsers = async (req, res, next) => {
         name: true,
         phone: true,
         office: true,
-        role: true,
         avatar: true,
         isActive: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        roleAssignments: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                permissions: { select: { name: true } }
+              }
+            }
+          }
+        }
       }
     });
-    res.json({ users });
+    // Mapear a estructura roles: [{id, name, permissions: [string]}]
+    const usersWithRoles = users.map(u => ({
+      ...u,
+      roles: u.roleAssignments.map(ra => ({
+        id: ra.role.id,
+        name: ra.role.name,
+        permissions: ra.role.permissions.map(p => p.name)
+      }))
+    }));
+    res.json({ users: usersWithRoles });
   } catch (error) {
     next(error);
   }
@@ -42,7 +107,6 @@ const createUser = async (req, res, next) => {
         name,
         phone,
         office,
-        role: role || 'USER',
         isActive: true
       },
       select: {
@@ -51,13 +115,31 @@ const createUser = async (req, res, next) => {
         name: true,
         phone: true,
         office: true,
-        role: true,
         avatar: true,
         isActive: true,
-        createdAt: true
+        createdAt: true,
+        roleAssignments: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                permissions: { select: { name: true } }
+              }
+            }
+          }
+        }
       }
     });
-    res.status(201).json({ user });
+    const userWithRoles = {
+      ...user,
+      roles: user.roleAssignments.map(ra => ({
+        id: ra.role.id,
+        name: ra.role.name,
+        permissions: ra.role.permissions.map(p => p.name)
+      }))
+    };
+    res.status(201).json({ user: userWithRoles });
   } catch (error) {
     next(error);
   }
@@ -74,7 +156,6 @@ const updateUser = async (req, res, next) => {
         ...(name && { name }),
         ...(phone && { phone }),
         ...(office && { office }),
-        ...(role && { role }),
         ...(typeof isActive === 'boolean' && { isActive })
       },
       select: {
@@ -83,13 +164,31 @@ const updateUser = async (req, res, next) => {
         name: true,
         phone: true,
         office: true,
-        role: true,
         avatar: true,
         isActive: true,
-        updatedAt: true
+        updatedAt: true,
+        roleAssignments: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                permissions: { select: { name: true } }
+              }
+            }
+          }
+        }
       }
     });
-    res.json({ user });
+    const userWithRoles = {
+      ...user,
+      roles: user.roleAssignments.map(ra => ({
+        id: ra.role.id,
+        name: ra.role.name,
+        permissions: ra.role.permissions.map(p => p.name)
+      }))
+    };
+    res.json({ user: userWithRoles });
   } catch (error) {
     next(error);
   }
@@ -110,5 +209,7 @@ module.exports = {
   listUsers,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getUserById,
+  getUserByIdRaw
 };

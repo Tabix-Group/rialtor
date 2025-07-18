@@ -3,6 +3,7 @@
 
 
 import { useAuth } from '../app/auth/authContext'
+import { usePermission } from '../hooks/usePermission';
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -17,14 +18,13 @@ function Navigation() {
   // Solo mostrar navegación si el usuario está logueado
   if (!user) return null
 
-  const navigation = [
-    // { name: 'Inicio', href: '/', icon: Home },
-    { name: 'Recursos', href: '/knowledge', icon: BookOpen, protected: true },
-    { name: 'Asistente IA', href: '/chat', icon: MessageSquare, protected: true },
-    { name: 'Calculadora', href: '/calculator', icon: Calculator, protected: true },
-    { name: 'Archivos', href: '/documents', icon: FileText, protected: true },
-    { name: 'Panel de Control', href: '/admin', icon: Shield, protected: true },
-  ]
+  const navConfig = [
+    { name: 'Recursos', href: '/knowledge', icon: BookOpen, permission: 'manage_articles' },
+    { name: 'Asistente IA', href: '/chat', icon: MessageSquare, permission: 'use_chat' },
+    { name: 'Calculadora', href: '/calculator', icon: Calculator, permission: 'use_calculator' },
+    { name: 'Archivos', href: '/documents', icon: FileText, permission: 'manage_documents' },
+    { name: 'Panel de Control', href: '/admin', icon: Shield, permission: 'view_admin' },
+  ];
 
   const isActive = (href: string) => {
     if (href === '/') {
@@ -48,9 +48,10 @@ function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => {
-              if (item.protected && !user) return null;
+            {navConfig.map((item) => {
               const Icon = item.icon;
+              const hasPerm = usePermission(item.permission);
+              if (!hasPerm) return null;
               return (
                 <Link
                   key={item.name}
@@ -96,9 +97,10 @@ function Navigation() {
       {isOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
-            {navigation.map((item) => {
-              if (item.protected && !user) return null;
+            {navConfig.map((item) => {
               const Icon = item.icon;
+              const hasPerm = usePermission(item.permission);
+              if (!hasPerm) return null;
               return (
                 <Link
                   key={item.name}

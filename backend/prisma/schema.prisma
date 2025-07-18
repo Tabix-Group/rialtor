@@ -14,7 +14,6 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   @default("USER")
   phone     String?
   office    String?
   avatar    String?
@@ -28,8 +27,46 @@ model User {
   chatSessions    ChatSession[]
   documentRequests DocumentRequest[]
   calculatorHistory CalculatorHistory[]
-  
+
+  // Roles y permisos
+  roleAssignments RoleAssignment[]
+
   @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  permissions Permission[]
+  assignments RoleAssignment[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  roles       Role[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("permissions")
+}
+
+model RoleAssignment {
+  id        String   @id @default(uuid())
+  userId    String
+  roleId    String
+  user      User     @relation(fields: [userId], references: [id])
+  role      Role     @relation(fields: [roleId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@unique([userId, roleId])
+  @@map("role_assignments")
 }
 
 // Base de conocimiento

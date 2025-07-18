@@ -37,7 +37,7 @@ const register = async (req, res, next) => {
         name,
         phone,
         office,
-        role: role || 'USER'
+        // role eliminado, ahora se asigna por roleAssignments
       },
       select: {
         id: true,
@@ -45,7 +45,7 @@ const register = async (req, res, next) => {
         name: true,
         phone: true,
         office: true,
-        role: true,
+        // role eliminado
         avatar: true,
         createdAt: true
       }
@@ -70,7 +70,30 @@ const login = async (req, res, next) => {
 
     // Buscar el usuario
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        office: true,
+        avatar: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        password: true, // necesario para comparar
+        roleAssignments: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                permissions: { select: { name: true } }
+              }
+            }
+          }
+        }
+      }
     });
 
     if (!user) {
@@ -101,12 +124,25 @@ const login = async (req, res, next) => {
     // Generar token
     const token = generateToken(user.id);
 
-    // Respuesta sin contraseña
-    const { password: _, ...userWithoutPassword } = user;
-
+    if (!user) {
+      return res.status(401).json({
+        error: 'Invalid credentials',
+        message: 'Email or password is incorrect'
+      });
+    }
+    // Mapear roles igual que en userController y quitar password
+    const { password: _, ...userSafe } = user;
+    const userWithRoles = {
+      ...userSafe,
+      roles: user.roleAssignments.map(ra => ({
+        id: ra.role.id,
+        name: ra.role.name,
+        permissions: ra.role.permissions.map(p => p.name)
+      }))
+    };
     res.json({
       message: 'Login successful',
-      user: userWithoutPassword,
+      user: userWithRoles,
       token
     });
   } catch (error) {
@@ -122,17 +158,36 @@ const getMe = async (req, res, next) => {
         id: true,
         email: true,
         name: true,
-        role: true,
+        phone: true,
+        office: true,
         avatar: true,
         isActive: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        roleAssignments: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                permissions: { select: { name: true } }
+              }
+            }
+          }
+        }
       }
     });
-
+    const userWithRoles = {
+      ...user,
+      roles: user.roleAssignments.map(ra => ({
+        id: ra.role.id,
+        name: ra.role.name,
+        permissions: ra.role.permissions.map(p => p.name)
+      }))
+    };
     res.json({
       message: 'User profile retrieved successfully',
-      user
+      user: userWithRoles
     });
   } catch (error) {
     next(error);
@@ -154,7 +209,7 @@ const updateProfile = async (req, res, next) => {
         id: true,
         email: true,
         name: true,
-        role: true,
+        // role eliminado
         avatar: true,
         updatedAt: true
       }
@@ -224,7 +279,7 @@ const refreshToken = async (req, res, next) => {
         id: true,
         email: true,
         name: true,
-        role: true,
+        // role eliminado
         avatar: true,
         isActive: true
       }

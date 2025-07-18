@@ -89,6 +89,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Favicon support (returns a 204 No Content if not present)
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
+const rolesRouter = require('./routes/roles');
+const permissionsRouter = require('./routes/permissions');
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -108,6 +111,8 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/calculator', calculatorRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/roles', rolesRouter);
+app.use('/api/permissions', permissionsRouter);
 
 // Error handling middleware
 app.use(notFound);

@@ -168,7 +168,7 @@ export default function KnowledgePage() {
               <h1 className="text-4xl font-extrabold tracking-tight">Base de Conocimiento</h1>
               <p className="text-blue-100 mt-2 text-lg">Gestiona artículos y categorías del conocimiento</p>
             </div>
-            {user?.role === 'ADMIN' && (
+            {user?.roles?.some((r: any) => r.name === 'ADMIN') && (
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setViewMode('drafts')}
@@ -282,7 +282,7 @@ export default function KnowledgePage() {
                           </div>
                         </div>
                       </div>
-                      {user?.role === 'ADMIN' && (
+                      {user?.roles?.some((r: any) => r.name === 'ADMIN') && (
                         <div className="flex items-center gap-2">
                           <button 
                             onClick={() => setEditingArticle(article)}
@@ -323,7 +323,7 @@ export default function KnowledgePage() {
             )}
 
             {/* Gestión de categorías */}
-            {viewMode === 'categories' && user?.role === 'ADMIN' && (
+            {viewMode === 'categories' && user?.roles?.some((r: any) => r.name === 'ADMIN') && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {categories.map(category => (
                   <div
@@ -373,7 +373,7 @@ export default function KnowledgePage() {
                   {viewMode === 'articles' ? 'No se encontraron artículos' :
                     viewMode === 'drafts' ? 'No tienes borradores' : 'No hay categorías creadas'}
                 </div>
-                {user?.role === 'ADMIN' && viewMode !== 'drafts' && (
+                {user?.roles?.some((r: any) => r.name === 'ADMIN') && viewMode !== 'drafts' && (
                   <button
                     onClick={() => viewMode === 'articles' ? setShowCreateModal(true) : setShowCategoryModal(true)}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

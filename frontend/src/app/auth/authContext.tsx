@@ -3,12 +3,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface Role {
+  id: string;
+  name: string;
+  permissions: string[];
+}
+
 interface User {
   id: string;
   email: string;
   name: string;
-  role: string;
   avatar?: string;
+  roles: Role[];
 }
 
 interface AuthContextType {
@@ -29,7 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     const userData = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      const parsed = JSON.parse(userData);
+      // Si viene de backend antiguo, migrar a nueva estructura
+      if (!parsed.roles && parsed.role) {
+        parsed.roles = [{ id: 'legacy', name: parsed.role, permissions: [] }];
+      }
+      setUser(parsed);
     }
     setLoading(false);
   }, []);

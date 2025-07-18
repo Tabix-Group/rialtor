@@ -27,7 +27,7 @@ const authenticateToken = async (req, res, next) => {
         id: true,
         email: true,
         name: true,
-        role: true,
+        // role eliminado
         isActive: true,
         avatar: true
       }
@@ -40,7 +40,7 @@ const authenticateToken = async (req, res, next) => {
       console.log('[AUTH] User is not active:', user.email);
       return res.status(401).json({ error: 'Account deactivated' });
     }
-    console.log('[AUTH] User authenticated:', user.email, user.role);
+    console.log('[AUTH] User authenticated:', user.email);
     req.user = user;
     next();
   } catch (error) {
@@ -55,23 +55,6 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-const authorizeRoles = (...allowedRoles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        error: 'Insufficient permissions',
-        required: allowedRoles,
-        current: req.user.role
-      });
-    }
-
-    next();
-  };
-};
 
 // Middleware opcional para autenticación
 const optionalAuth = async (req, res, next) => {
@@ -87,7 +70,7 @@ const optionalAuth = async (req, res, next) => {
           id: true,
           email: true,
           name: true,
-          role: true,
+          // role eliminado
           isActive: true,
           avatar: true
         }
@@ -107,6 +90,5 @@ const optionalAuth = async (req, res, next) => {
 
 module.exports = {
   authenticateToken,
-  authorizeRoles,
   optionalAuth
 };

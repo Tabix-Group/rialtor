@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 
 const { getStats } = require('../controllers/adminController');
-const { authenticateToken, authorizeRoles } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissions');
 
 // Estadísticas para dashboard de administración
-router.get('/stats', authenticateToken, authorizeRoles('ADMIN'), getStats);
+router.get('/stats', authenticateToken, checkPermission('view_admin'), getStats);
 
 // Export router
 module.exports = router;

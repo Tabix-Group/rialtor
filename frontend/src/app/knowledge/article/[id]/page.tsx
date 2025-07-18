@@ -122,7 +122,7 @@ export default function ArticlePage() {
               Volver a la base de conocimiento
             </button>
 
-            {user?.role === 'ADMIN' && (
+            {user?.roles?.some((r: any) => r.name === 'ADMIN') && (
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => router.push(`/knowledge/article/${article?.id}/edit`)}

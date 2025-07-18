@@ -13,6 +13,7 @@ interface StatCard {
 }
 
 import { useAuth } from '../auth/authContext'
+import { usePermission } from '../../hooks/usePermission';
 import { useRouter } from 'next/navigation'
 
 
@@ -22,7 +23,9 @@ export default function AdminPage() {
 
   // Proteger ruta: si no está logueado, redirigir a login
   // Solo ejecutar en el cliente y evitar doble render
-  if (typeof window !== 'undefined' && !loading && !user) {
+  const hasAdminPerm = usePermission('view_admin');
+  const hasUserMgmtPerm = usePermission('manage_users');
+  if (typeof window !== 'undefined' && !loading && (!user || !hasAdminPerm)) {
     router.replace('/auth/login');
     return null;
   }
@@ -169,7 +172,13 @@ export default function AdminPage() {
                       <div className="text-sm text-gray-500">{user.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{user.role}</span>
+                      {user.roles && user.roles.length > 0 ? (
+                        user.roles.map((role: any) => (
+                          <span key={role.id} className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-1 mb-1">{role.name}</span>
+                        ))
+                      ) : (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-500">Sin rol</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-500'}`}>{user.isActive ? 'Activo' : 'Inactivo'}</span>
@@ -188,7 +197,7 @@ export default function AdminPage() {
   )
 
   const renderUsers = () => {
-    if (user?.role !== 'ADMIN') {
+    if (!hasUserMgmtPerm) {
       return <div className="p-6 text-center text-red-500">No autorizado</div>;
     }
     return (
@@ -256,7 +265,7 @@ export default function AdminPage() {
                   <BarChart3 className="w-6 h-6" />
                   Dashboard
                 </button>
-                {user?.role === 'ADMIN' && (
+                {hasUserMgmtPerm && (
                   <button
                     onClick={() => setActiveTab('users')}
                     className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${

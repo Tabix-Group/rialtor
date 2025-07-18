@@ -9,15 +9,16 @@ const {
   deleteCategory
 } = require('../controllers/categoryController');
 
-const { authenticateToken, authorizeRoles } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissions');
 
 // Public routes
 router.get('/', getCategories);
 router.get('/:id', getCategoryById);
 
 // Protected routes (admin only)
-router.post('/', authenticateToken, authorizeRoles('ADMIN'), createCategory);
-router.put('/:id', authenticateToken, authorizeRoles('ADMIN'), updateCategory);
-router.delete('/:id', authenticateToken, authorizeRoles('ADMIN'), deleteCategory);
+router.post('/', authenticateToken, checkPermission('manage_categories'), createCategory);
+router.put('/:id', authenticateToken, checkPermission('manage_categories'), updateCategory);
+router.delete('/:id', authenticateToken, checkPermission('manage_categories'), deleteCategory);
 
 module.exports = router;
