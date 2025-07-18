@@ -170,15 +170,19 @@ const createUser = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, phone, office, role, isActive } = req.body;
+    const { name, phone, office, role, isActive, password } = req.body;
+    let updateData = {
+      ...(name && { name }),
+      ...(phone && { phone }),
+      ...(office && { office }),
+      ...(typeof isActive === 'boolean' && { isActive })
+    };
+    if (password && password.length > 0) {
+      updateData.password = await bcrypt.hash(password, 12);
+    }
     const user = await prisma.user.update({
       where: { id },
-      data: {
-        ...(name && { name }),
-        ...(phone && { phone }),
-        ...(office && { office }),
-        ...(typeof isActive === 'boolean' && { isActive })
-      },
+      data: updateData,
       select: {
         id: true,
         email: true,
