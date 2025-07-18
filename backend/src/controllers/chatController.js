@@ -120,8 +120,10 @@ const getChatSession = async (req, res, next) => {
 
 const sendMessage = async (req, res, next) => {
   try {
+    console.log('[CHAT] sendMessage called');
     const { message, sessionId } = req.body;
     const userId = req.user.id;
+    console.log('[CHAT] userId:', userId, 'sessionId:', sessionId, 'message:', message);
 
     let session;
 
@@ -134,6 +136,7 @@ const sendMessage = async (req, res, next) => {
           isActive: true
         }
       });
+      console.log('[CHAT] Nueva sesión creada:', session.id);
     } else {
       // Verificar que la sesión existe y pertenece al usuario
       session = await prisma.chatSession.findFirst({
@@ -142,13 +145,14 @@ const sendMessage = async (req, res, next) => {
           userId 
         }
       });
-
       if (!session) {
+        console.log('[CHAT] Sesión no encontrada o acceso denegado:', sessionId);
         return res.status(404).json({
           error: 'Session not found',
           message: 'Chat session not found or access denied'
         });
       }
+      console.log('[CHAT] Sesión encontrada:', session.id);
     }
 
     // Guardar mensaje del usuario
@@ -159,14 +163,13 @@ const sendMessage = async (req, res, next) => {
         role: 'USER'
       }
     });
+    console.log('[CHAT] Mensaje de usuario guardado:', userMessage.id);
 
     // Buscar contexto relevante en artículos y documentos
     let contextText = '';
     let foundContext = false;
 
     // Buscar artículos relevantes
-    // Búsqueda semántica avanzada en artículos
-    // Buscar SOLO en la base de datos local (Postgres)
     const articles = await prisma.article.findMany({
       where: {
         status: 'PUBLISHED',
@@ -180,12 +183,12 @@ const sendMessage = async (req, res, next) => {
       take: 3,
       orderBy: { views: 'desc' }
     });
+    console.log('[CHAT] Artículos encontrados:', articles.length);
 
     if (articles.length > 0) {
       foundContext = true;
       contextText += 'Artículos relevantes:\n';
       articles.forEach((a, idx) => {
-        // Si el artículo viene de semantic_search y no tiene slug, buscarlo en la base
         let slug = a.slug;
         let title = a.title || a.name || '';
         let excerpt = a.excerpt || a.summary || '';
@@ -201,8 +204,6 @@ const sendMessage = async (req, res, next) => {
     }
 
     // Buscar documentos relevantes (DocumentTemplate)
-    // Búsqueda semántica avanzada en documentos
-    // Buscar SOLO en la base de datos local (Postgres)
     const documents = await prisma.documentTemplate.findMany({
       where: {
         OR: [
@@ -215,6 +216,7 @@ const sendMessage = async (req, res, next) => {
       take: 2,
       orderBy: { createdAt: 'desc' }
     });
+    console.log('[CHAT] Documentos encontrados:', documents.length);
 
     if (documents.length > 0) {
       foundContext = true;
@@ -231,10 +233,7 @@ const sendMessage = async (req, res, next) => {
     } else {
       systemPrompt = `No tengo información suficiente sobre este tema en la base de conocimiento.`;
     }
-    // LOG: Mostrar el contexto y el prompt antes de enviar a OpenAI
-    console.log('--- CONTEXTO ENVIADO A OPENAI ---');
-    console.log(systemPrompt);
-    console.log('----------------------------------');
+    console.log('[CHAT] Prompt generado para OpenAI:', systemPrompt.substring(0, 300));
 
     const messages = [
       {
@@ -249,8 +248,10 @@ const sendMessage = async (req, res, next) => {
 
     // Llamar a OpenAI solo si está inicializado
     if (!openai) {
+      console.log('[CHAT] OpenAI no inicializado');
       return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
     }
+    console.log('[CHAT] Llamando a OpenAI...');
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: messages,
@@ -258,14 +259,11 @@ const sendMessage = async (req, res, next) => {
       temperature: 0.7
     });
     let assistantResponse = completion.choices[0].message.content;
-    // LOG: Mostrar la respuesta recibida de OpenAI
-    console.log('--- RESPUESTA OPENAI ---');
-    console.log(assistantResponse);
-    console.log('------------------------');
+    console.log('[CHAT] Respuesta OpenAI:', assistantResponse.substring(0, 200));
 
     // Si la respuesta es muy restrictiva, permite una respuesta general
     if (assistantResponse.includes('No tengo información suficiente') && !foundContext) {
-      // Reintentar con prompt menos restrictivo
+      console.log('[CHAT] Reintentando con prompt menos restrictivo');
       const fallbackMessages = [
         {
           role: 'system',
@@ -277,12 +275,13 @@ const sendMessage = async (req, res, next) => {
         }
       ];
       const fallbackCompletion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+        model: 'gpt-3.5-turbo',
         messages: fallbackMessages,
         max_tokens: 1000,
         temperature: 0.7
       });
       assistantResponse = fallbackCompletion.choices[0].message.content;
+      console.log('[CHAT] Respuesta fallback OpenAI:', assistantResponse.substring(0, 200));
     }
 
     // Guardar respuesta del asistente
@@ -297,12 +296,14 @@ const sendMessage = async (req, res, next) => {
         })
       }
     });
+    console.log('[CHAT] Mensaje de asistente guardado:', assistantMessage.id);
 
     // Actualizar la sesión
     await prisma.chatSession.update({
       where: { id: session.id },
       data: { updatedAt: new Date() }
     });
+    console.log('[CHAT] Sesión actualizada:', session.id);
 
     res.json({
       message: 'Message sent successfully',
@@ -310,6 +311,7 @@ const sendMessage = async (req, res, next) => {
       userMessage,
       assistantMessage
     });
+    console.log('[CHAT] Respuesta enviada al frontend');
   } catch (error) {
     // Log completo del error para debug
     console.error('[ERROR][sendMessage]', error);
