@@ -9,12 +9,25 @@ async function main() {
 
 
 
-  // Buscar roles por nombre
-  const adminRole = await prisma.role.findFirst({ where: { name: 'ADMIN' } });
-  const userRole = await prisma.role.findFirst({ where: { name: 'USER' } });
-  if (!adminRole || !userRole) {
-    throw new Error('Roles ADMIN y USER deben existir en la base de datos antes de correr el seed.');
-  }
+
+  // Crear roles base si no existen
+  const adminRole = await prisma.role.upsert({
+    where: { name: 'ADMIN' },
+    update: {},
+    create: {
+      name: 'ADMIN',
+      description: 'Administrador'
+    }
+  });
+  const userRole = await prisma.role.upsert({
+    where: { name: 'USUARIO' },
+    update: {},
+    create: {
+      name: 'USUARIO',
+      description: 'Usuario'
+    }
+  });
+  // Puedes agregar más roles base aquí si lo deseas
 
   // Crear usuario admin
   const adminPassword = 'Admin1234';
