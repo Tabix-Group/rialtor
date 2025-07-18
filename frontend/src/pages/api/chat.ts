@@ -9,23 +9,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Extraer el mensaje y sessionId del body
     const { message, sessionId } = req.body;
-    // Aquí podrías agregar autenticación si es necesario
-
+    // Usar la variable de entorno correcta
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
     // Llamar al backend Node.js
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-    const response = await axios.post(`${backendUrl}/api/chat/message`, {
+    const response = await axios.post(`${backendUrl}/chat/message`, {
       message,
       sessionId
     }, {
       headers: {
-        // Puedes reenviar el token de autenticación si es necesario
         'Content-Type': 'application/json',
         ...(req.headers.authorization ? { 'Authorization': req.headers.authorization } : {})
       },
-      // Si necesitas reenviar cookies:
-      // withCredentials: true
     });
-
     return res.status(200).json(response.data);
   } catch (error) {
     if (axios.isAxiosError(error)) {
