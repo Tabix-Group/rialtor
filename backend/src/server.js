@@ -21,6 +21,8 @@ const calculatorRoutes = require('./routes/calculator');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
+// Confía en el primer proxy (Railway/Nginx)
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 // Security middleware
