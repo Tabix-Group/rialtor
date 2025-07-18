@@ -29,45 +29,6 @@ async function main() {
   });
   // Puedes agregar más roles base aquí si lo deseas
 
-  // Crear usuario admin
-  const adminPassword = 'Admin1234';
-  const hashedPassword = await bcrypt.hash(adminPassword, 12);
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@remax.com' },
-    update: {},
-    create: {
-      email: 'admin@remax.com',
-      password: hashedPassword,
-      name: 'Administrador',
-      isActive: true
-    }
-  });
-  await prisma.roleAssignment.upsert({
-    where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } },
-    update: {},
-    create: { userId: admin.id, roleId: adminRole.id }
-  });
-  console.log('✅ Admin user created:', admin.email);
-
-  // Crear usuario demo
-  const demoPasswordPlain = 'Demo1234';
-  const demoPassword = await bcrypt.hash(demoPasswordPlain, 12);
-  const demo = await prisma.user.upsert({
-    where: { email: 'demo@remax.com' },
-    update: {},
-    create: {
-      email: 'demo@remax.com',
-      password: demoPassword,
-      name: 'Usuario Demo',
-      isActive: true
-    }
-  });
-  await prisma.roleAssignment.upsert({
-    where: { userId_roleId: { userId: demo.id, roleId: userRole.id } },
-    update: {},
-    create: { userId: demo.id, roleId: userRole.id }
-  });
-  console.log('✅ Demo user created:', demo.email);
 
 
   // Create calculator configs
@@ -171,14 +132,6 @@ async function main() {
   }
 
   console.log('🎉 Seed completed successfully!');
-  console.log('');
-  console.log('📧 Admin credentials:');
-  console.log('   Email: admin@remax.com');
-  console.log('   Password:', adminPassword);
-  console.log('');
-  console.log('📧 Demo credentials:');
-  console.log('   Email: demo@remax.com');
-  console.log('   Password:', demoPasswordPlain);
 }
 
 main()
