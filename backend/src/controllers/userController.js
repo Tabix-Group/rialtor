@@ -94,7 +94,7 @@ const listUsers = async (req, res, next) => {
 // Create a new user (admin only)
 const createUser = async (req, res, next) => {
   try {
-    const { email, password, name, phone, office, role } = req.body;
+    const { email, password, name, phone, office, roles } = req.body;
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
@@ -108,7 +108,21 @@ const createUser = async (req, res, next) => {
         phone,
         office,
         isActive: true
-      },
+      }
+    });
+    // Asignar roles si se envían
+    if (Array.isArray(roles) && roles.length > 0) {
+      for (const roleId of roles) {
+        await prisma.roleAssignment.upsert({
+          where: { userId_roleId: { userId: user.id, roleId } },
+          update: {},
+          create: { userId: user.id, roleId }
+        });
+      }
+    }
+    // Traer usuario con roles asignados
+    const userWithRoles = await prisma.user.findUnique({
+      where: { id: user.id },
       select: {
         id: true,
         email: true,
@@ -131,15 +145,16 @@ const createUser = async (req, res, next) => {
         }
       }
     });
-    const userWithRoles = {
-      ...user,
-      roles: user.roleAssignments.map(ra => ({
-        id: ra.role.id,
-        name: ra.role.name,
-        permissions: ra.role.permissions.map(p => p.name)
-      }))
-    };
-    res.status(201).json({ user: userWithRoles });
+    res.status(201).json({
+      user: {
+        ...userWithRoles,
+        roles: userWithRoles.roleAssignments.map(ra => ({
+          id: ra.role.id,
+          name: ra.role.name,
+          permissions: ra.role.permissions.map(p => p.name)
+        }))
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -198,6 +213,9 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
+    // Eliminar primero los roleAssignments
+    await prisma.roleAssignment.deleteMany({ where: { userId: id } });
+    // Luego eliminar el usuario
     await prisma.user.delete({ where: { id } });
     res.json({ message: 'User deleted successfully' });
   } catch (error) {

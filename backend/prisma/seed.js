@@ -8,7 +8,15 @@ async function main() {
   console.log('🌱 Starting seed...');
 
 
-  // Create admin user (contraseña cumple validación: Admin1234)
+
+  // Buscar roles por nombre
+  const adminRole = await prisma.role.findFirst({ where: { name: 'ADMIN' } });
+  const userRole = await prisma.role.findFirst({ where: { name: 'USER' } });
+  if (!adminRole || !userRole) {
+    throw new Error('Roles ADMIN y USER deben existir en la base de datos antes de correr el seed.');
+  }
+
+  // Crear usuario admin
   const adminPassword = 'Admin1234';
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
   const admin = await prisma.user.upsert({
@@ -18,14 +26,17 @@ async function main() {
       email: 'admin@remax.com',
       password: hashedPassword,
       name: 'Administrador',
-      role: 'ADMIN',
       isActive: true
     }
   });
-
+  await prisma.roleAssignment.upsert({
+    where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } },
+    update: {},
+    create: { userId: admin.id, roleId: adminRole.id }
+  });
   console.log('✅ Admin user created:', admin.email);
 
-  // Create demo user (contraseña cumple validación: Demo1234)
+  // Crear usuario demo
   const demoPasswordPlain = 'Demo1234';
   const demoPassword = await bcrypt.hash(demoPasswordPlain, 12);
   const demo = await prisma.user.upsert({
@@ -35,11 +46,14 @@ async function main() {
       email: 'demo@remax.com',
       password: demoPassword,
       name: 'Usuario Demo',
-      role: 'USER',
       isActive: true
     }
   });
-
+  await prisma.roleAssignment.upsert({
+    where: { userId_roleId: { userId: demo.id, roleId: userRole.id } },
+    update: {},
+    create: { userId: demo.id, roleId: userRole.id }
+  });
   console.log('✅ Demo user created:', demo.email);
 
 
