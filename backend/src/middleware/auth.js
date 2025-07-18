@@ -7,13 +7,19 @@ const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
-
+    console.log('[AUTH] Authorization header:', authHeader);
     if (!token) {
+      console.log('[AUTH] No token found');
       return res.status(401).json({ error: 'Access token required' });
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('[AUTH] Token decoded:', decoded);
+    } catch (jwtErr) {
+      console.log('[AUTH] JWT error:', jwtErr);
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
     // Verificar si el usuario existe y está activo
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
@@ -26,15 +32,15 @@ const authenticateToken = async (req, res, next) => {
         avatar: true
       }
     });
-
     if (!user) {
+      console.log('[AUTH] User not found for id:', decoded.userId);
       return res.status(401).json({ error: 'Invalid token' });
     }
-
     if (!user.isActive) {
+      console.log('[AUTH] User is not active:', user.email);
       return res.status(401).json({ error: 'Account deactivated' });
     }
-
+    console.log('[AUTH] User authenticated:', user.email, user.role);
     req.user = user;
     next();
   } catch (error) {
