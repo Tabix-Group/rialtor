@@ -1,4 +1,6 @@
+
 'use client'
+
 
 import { useState, useEffect } from 'react'
 import { Calculator, DollarSign, Percent, TrendingUp, MapPin, Receipt } from 'lucide-react'
@@ -216,17 +218,19 @@ export default function CalculatorPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Form & Results */}
           <div className="lg:col-span-2">
-            {/* Comisión */}
-            <section id="comision" className="mb-12">
-              <div className="bg-white/90 rounded-3xl shadow-2xl p-10 border border-gray-100 backdrop-blur-md flex flex-col gap-10">
-                <div className="text-center mb-2">
-                  <p className="text-base text-gray-500 max-w-2xl mx-auto">
-                    Calculá comisiones, impuestos y gastos asociados a operaciones inmobiliarias en Argentina. Incluye cálculo de comisión, honorarios de escribano, otros gastos y ganancia inmobiliaria, todo en un solo lugar.
-                  </p>
-                </div>
-                <div className="flex flex-col md:flex-row gap-10 items-start">
-                  {/* Formulario */}
-                  <form className="w-full max-w-2xl mx-auto space-y-7" onSubmit={e => { e.preventDefault(); calculateCommission(); setShowSummary(true); }}>
+          {/* Comisión */}
+          <section id="comision" className="mb-12">
+            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+              <div className="flex items-center gap-3 mb-4">
+                <Calculator className="w-8 h-8 text-red-500" />
+                <h2 className="text-2xl font-bold tracking-tight text-red-700">Cálculo de Comisión</h2>
+              </div>
+              <p className="text-base text-gray-500 max-w-2xl mb-2">
+                Calculá comisiones, impuestos y gastos asociados a operaciones inmobiliarias en Argentina. Incluye cálculo de comisión, honorarios de escribano, otros gastos y ganancia inmobiliaria, todo en un solo lugar.
+              </p>
+              <div className="flex flex-col md:flex-row gap-10 items-start">
+                {/* Formulario */}
+                <form className="w-full max-w-2xl mx-auto space-y-7" onSubmit={e => { e.preventDefault(); calculateCommission(); setShowSummary(true); }}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-1">
@@ -481,89 +485,108 @@ export default function CalculatorPage() {
             </section>
             {/* Calculadoras adicionales */}
             <section id="escribano" className="mb-12">
+            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+              <div className="flex items-center gap-3 mb-4">
+                <Receipt className="w-8 h-8 text-blue-500" />
+                <h2 className="text-2xl font-bold tracking-tight text-blue-700">Honorarios de Escribano</h2>
+              </div>
               <EscribanoCalculator />
+            </div>
             </section>
             <section id="otros" className="mb-12">
+            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+              <div className="flex items-center gap-3 mb-4">
+                <Percent className="w-8 h-8 text-yellow-500" />
+                <h2 className="text-2xl font-bold tracking-tight text-yellow-700">Otros Gastos</h2>
+              </div>
               <OtrosGastosCalculator />
+            </div>
             </section>
             <section id="ganancia" className="mb-12">
+            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+              <div className="flex items-center gap-3 mb-4">
+                <TrendingUp className="w-8 h-8 text-green-500" />
+                <h2 className="text-2xl font-bold tracking-tight text-green-700">Ganancia Inmobiliaria</h2>
+              </div>
               <GananciaInmobiliariaCalculator />
+            </div>
             </section>
           </div>
           {/* Resumen lateral fijo */}
           <aside className="hidden lg:block sticky top-24 self-start">
-                  {/* Resultados */}
-                  <div className="flex-1">
-                    {result && showSummary && (
-                      <div className="bg-gradient-to-br from-blue-50 via-white to-red-50 border border-red-100 rounded-2xl p-8 shadow-lg animate-fade-in ml-0 md:ml-8 mt-10 md:mt-0">
-                        <h3 className="text-2xl font-bold text-red-700 mb-6 flex items-center gap-3">
-                          <TrendingUp className="w-7 h-7" />
-                          Resultados del Cálculo
-                        </h3>
-                        <div className="grid grid-cols-1 gap-4 mb-8">
-                          <div className="bg-gradient-to-r from-blue-100 to-red-100 rounded-xl p-6 flex flex-col items-center shadow">
-                            <div className="text-4xl font-extrabold text-blue-700">
-                              {formatCurrency(result.grossCommission)}
-                            </div>
-                            <div className="text-base text-gray-600 mt-1">Comisión Bruta</div>
-                          </div>
+            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in ml-0 md:ml-8 mt-10 md:mt-0">
+              <div className="flex items-center gap-3 mb-4">
+                <TrendingUp className="w-8 h-8 text-red-500" />
+                <h2 className="text-2xl font-bold tracking-tight text-red-700">Resumen del Cálculo</h2>
+              </div>
+              <div className="flex-1">
+                {result && showSummary && (
+                  <>
+                    <div className="grid grid-cols-1 gap-4 mb-8">
+                      <div className="bg-gradient-to-r from-blue-100 to-red-100 rounded-xl p-6 flex flex-col items-center shadow">
+                        <div className="text-4xl font-extrabold text-blue-700">
+                          {formatCurrency(result.grossCommission)}
                         </div>
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center py-2 border-b border-red-100">
-                            <span className="text-base text-gray-700">Monto de la operación:</span>
-                            <span className="font-semibold">{formatCurrency(result.saleAmount)}</span>
-                          </div>
-                          <div className="flex justify-between items-center py-2 border-b border-red-100">
-                            <span className="text-base text-gray-700">Comisión ({formatPercentage(result.commissionRate)}):</span>
-                            <span className="font-semibold">{formatCurrency(result.grossCommission)}</span>
-                          </div>
-                          <div className="bg-white rounded-xl p-5 mt-4 border border-gray-100 shadow-sm">
-                            <h4 className="font-bold text-gray-800 mb-4 text-lg">Detalle de Impuestos y Gastos</h4>
-                            <div className="space-y-3">
-                              {result.taxes.iva > 0 && (
-                                <div className="flex justify-between text-base">
-                                  <span>IVA ({formatPercentage(result.ivaRate)}):</span>
-                                  <span>{formatCurrency(result.taxes.iva)}</span>
-                                </div>
-                              )}
-                              {result.taxes.incomeTax > 0 && (
-                                <div className="flex justify-between text-base">
-                                  <span>Impuesto a las Ganancias ({formatPercentage(result.incomeTaxRate)}):</span>
-                                  <span>{formatCurrency(result.taxes.incomeTax)}</span>
-                                </div>
-                              )}
-                              {result.taxes.iibb > 0 && (
-                                <div className="flex justify-between text-base">
-                                  <span>IIBB ({formatPercentage(result.iibbRate)}):</span>
-                                  <span>{formatCurrency(result.taxes.iibb)}</span>
-                                </div>
-                              )}
-                              {result.taxes.stamps > 0 && (
-                                <div className="flex justify-between text-base bg-yellow-50 p-2 rounded-lg border border-yellow-100">
-                                  <span>
-                                    <strong>Sellos {provinces.find(p => p.key === result.province)?.name || result.province} ({formatPercentage(result.stampRate)}):</strong>
-                                  </span>
-                                  <span className="font-bold text-yellow-700">{formatCurrency(result.taxes.stamps)}</span>
-                                </div>
-                              )}
-                              {result.taxes.other > 0 && (
-                                <div className="flex justify-between text-base">
-                                  <span>Otros gastos ({formatPercentage(result.otherRate)}):</span>
-                                  <span>{formatCurrency(result.taxes.other)}</span>
-                                </div>
-                              )}
-                              <div className="border-t pt-3 mt-3">
-                                <div className="flex justify-between font-bold text-red-600 text-lg">
-                                  <span>Total Impuestos y Gastos:</span>
-                                  <span>{formatCurrency(result.taxes.total)}</span>
-                                </div>
-                              </div>
+                        <div className="text-base text-gray-600 mt-1">Comisión Bruta</div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-2 border-b border-red-100">
+                        <span className="text-base text-gray-700">Monto de la operación:</span>
+                        <span className="font-semibold">{formatCurrency(result.saleAmount)}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-red-100">
+                        <span className="text-base text-gray-700">Comisión ({formatPercentage(result.commissionRate)}):</span>
+                        <span className="font-semibold">{formatCurrency(result.grossCommission)}</span>
+                      </div>
+                      <div className="bg-white rounded-xl p-5 mt-4 border border-gray-100 shadow-sm">
+                        <h4 className="font-bold text-gray-800 mb-4 text-lg">Detalle de Impuestos y Gastos</h4>
+                        <div className="space-y-3">
+                          {result.taxes.iva > 0 && (
+                            <div className="flex justify-between text-base">
+                              <span>IVA ({formatPercentage(result.ivaRate)}):</span>
+                              <span>{formatCurrency(result.taxes.iva)}</span>
+                            </div>
+                          )}
+                          {result.taxes.incomeTax > 0 && (
+                            <div className="flex justify-between text-base">
+                              <span>Impuesto a las Ganancias ({formatPercentage(result.incomeTaxRate)}):</span>
+                              <span>{formatCurrency(result.taxes.incomeTax)}</span>
+                            </div>
+                          )}
+                          {result.taxes.iibb > 0 && (
+                            <div className="flex justify-between text-base">
+                              <span>IIBB ({formatPercentage(result.iibbRate)}):</span>
+                              <span>{formatCurrency(result.taxes.iibb)}</span>
+                            </div>
+                          )}
+                          {result.taxes.stamps > 0 && (
+                            <div className="flex justify-between text-base bg-yellow-50 p-2 rounded-lg border border-yellow-100">
+                              <span>
+                                <strong>Sellos {provinces.find(p => p.key === result.province)?.name || result.province} ({formatPercentage(result.stampRate)}):</strong>
+                              </span>
+                              <span className="font-bold text-yellow-700">{formatCurrency(result.taxes.stamps)}</span>
+                            </div>
+                          )}
+                          {result.taxes.other > 0 && (
+                            <div className="flex justify-between text-base">
+                              <span>Otros gastos ({formatPercentage(result.otherRate)}):</span>
+                              <span>{formatCurrency(result.taxes.other)}</span>
+                            </div>
+                          )}
+                          <div className="border-t pt-3 mt-3">
+                            <div className="flex justify-between font-bold text-red-600 text-lg">
+                              <span>Total Impuestos y Gastos:</span>
+                              <span>{formatCurrency(result.taxes.total)}</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </aside>
         </div>
       </div>

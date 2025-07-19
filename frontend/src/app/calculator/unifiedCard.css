@@ -1,0 +1,23 @@
+/* Unified card and section styles for calculator page */
+.unified-card {
+  @apply bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in;
+}
+.section-header {
+  @apply flex items-center gap-3 mb-4;
+}
+.section-title {
+  @apply text-2xl font-bold tracking-tight;
+}
+.section-icon {
+  @apply w-8 h-8;
+}
+.section-desc {
+  @apply text-base text-gray-500 max-w-2xl mb-2;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-fade-in {
+  animation: fade-in 0.7s cubic-bezier(0.4,0,0.2,1);
+}
