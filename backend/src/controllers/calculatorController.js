@@ -87,10 +87,17 @@ const calculateCommission = async (req, res) => {
       ivaRate,
       incomeTaxRate,
       iibbRate,
-      otherRate
+       otherRate,
+      isOnlyHome,
+      cotizacionUsdOficial
     } = req.body;
 
     // Validaciones
+    const { 
+      dealType,
+      buyerType,
+      sellerType
+    } = req.body;
     if (!saleAmount || saleAmount <= 0) {
       return res.status(400).json({
         success: false,
@@ -105,9 +112,9 @@ const calculateCommission = async (req, res) => {
       });
     }
 
-    const amount = Math.round(parseFloat(saleAmount));
+    const amount = parseFloat(saleAmount);
     const rate = parseFloat(commissionRate);
-    const stampsRate = parseFloat(stampRate) || 0;
+    let stampsRate = parseFloat(stampRate) || 0;
     
     console.log('Received saleAmount:', saleAmount, 'Parsed amount:', amount);
     
@@ -133,7 +140,42 @@ const calculateCommission = async (req, res) => {
     const iibb = iibbPercentage > 0 ? (baseForTaxes * (iibbPercentage / 100)) : 0;
     
     // Sellos sobre el valor de la operación (solo si la alícuota es > 0)
-    const stamps = stampsRate > 0 ? (baseForTaxes * stampsRate) / 100 : 0;
+    let stamps = 0;
+    let exencionCabaPesos = 205332000; // Tope de exención en pesos
+    let exencionCabaUsd = null;
+    if (province === 'caba') {
+      if (buyerType === 'juridica' || sellerType === 'juridica') {
+        stampsRate = 3.5;
+      } else {
+        stampsRate = 1.5;
+        // Exención por única vivienda en CABA
+        if (isOnlyHome && cotizacionUsdOficial && !isNaN(Number(cotizacionUsdOficial))) {
+          exencionCabaUsd = exencionCabaPesos / Number(cotizacionUsdOficial);
+        }
+      }
+    } else if (province === 'buenos_aires') {
+      if (buyerType === 'juridica' || sellerType === 'juridica') {
+        stampsRate = 2;
+      } else {
+        stampsRate = 1.2;
+      }
+    }
+    // Si el usuario ingresó manualmente una tasa diferente, se respeta
+    if (!isNaN(parseFloat(stampRate)) && parseFloat(stampRate) !== stampsRate) {
+      stampsRate = parseFloat(stampRate);
+    }
+    if (stampsRate > 0) {
+      // Exención por única vivienda en CABA
+      if (province === 'caba' && buyerType === 'fisica' && sellerType === 'fisica' && isOnlyHome && exencionCabaUsd) {
+        if (amount <= exencionCabaUsd) {
+          stamps = 0;
+        } else {
+          stamps = ((amount - exencionCabaUsd) * stampsRate) / 100;
+        }
+      } else {
+        stamps = (baseForTaxes * stampsRate) / 100;
+      }
+    }
     
     // Otros gastos sobre el valor de la operación (solo si la alícuota es > 0)
     const other = otherPercentage > 0 ? (baseForTaxes * (otherPercentage / 100)) : 0;

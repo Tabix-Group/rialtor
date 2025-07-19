@@ -59,11 +59,38 @@ export default function CalculatorPage() {
   const [province, setProvince] = useState('caba')
   const [stampRate, setStampRate] = useState('1.5')
   const [ivaRate, setIvaRate] = useState('21')
-  const [incomeTaxRate, setIncomeTaxRate] = useState('0') // Cambiado a 0 por defecto
+  const [incomeTaxRate, setIncomeTaxRate] = useState('0')
   const [iibbRate, setIibbRate] = useState('1.5')
   const [otherRate, setOtherRate] = useState('1')
   const [operationType, setOperationType] = useState('A') // A: Registrada, B: No registrada
+  const [dealType, setDealType] = useState('compra_venta') // compra_venta, alquiler, etc.
+  const [buyerType, setBuyerType] = useState('fisica') // fisica, juridica
+  const [sellerType, setSellerType] = useState('fisica') // fisica, juridica
   const [result, setResult] = useState<CalculationResult | null>(null)
+  const [isOnlyHome, setIsOnlyHome] = useState(false) // ¿Es única vivienda en CABA?
+  const [usdRate, setUsdRate] = useState('') // Cotización oficial USD/ARS
+  const [usdRateLoading, setUsdRateLoading] = useState(false)
+  // Obtener cotización oficial USD/ARS al montar el componente
+  useEffect(() => {
+    const fetchUsdRate = async () => {
+      setUsdRateLoading(true);
+      try {
+        // Puedes cambiar la API si tienes otra preferida
+        const res = await fetch('https://dolarapi.com/v1/dolares/oficial');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.venta) {
+            setUsdRate(data.venta.toString());
+          }
+        }
+      } catch (e) {
+        // Si falla, dejar vacío para que el usuario lo ingrese
+      } finally {
+        setUsdRateLoading(false);
+      }
+    };
+    fetchUsdRate();
+  }, []);
   const [provinces, setProvinces] = useState<Province[]>([])
   const [loading2, setLoading2] = useState(false)
 
@@ -101,13 +128,20 @@ export default function CalculatorPage() {
     }
   }, [operationType, isIndependent]);
 
-  // Actualizar alícuota de sellos cuando cambia la provincia
+  // Actualizar alícuota de sellos cuando cambia la provincia o tipo de persona
   useEffect(() => {
     const selectedProvince = provinces.find(p => p.key === province);
     if (selectedProvince) {
-      setStampRate(selectedProvince.defaultStampRate.toString());
+      // Lógica sugerida: si alguna parte es jurídica, sugerir la alícuota máxima para esa provincia
+      if ((province === 'caba' && (buyerType === 'juridica' || sellerType === 'juridica'))) {
+        setStampRate('3.5');
+      } else if (province === 'buenos_aires' && (buyerType === 'juridica' || sellerType === 'juridica')) {
+        setStampRate('2');
+      } else {
+        setStampRate(selectedProvince.defaultStampRate.toString());
+      }
     }
-  }, [province, provinces]);
+  }, [province, provinces, buyerType, sellerType]);
 
   const calculateCommission = async () => {
     if (!saleAmount || !commissionRate || !stampRate) return;
@@ -124,7 +158,12 @@ export default function CalculatorPage() {
       ivaRate: parseFloat(ivaRate),
       incomeTaxRate: parseFloat(incomeTaxRate),
       iibbRate: parseFloat(iibbRate),
-      otherRate: parseFloat(otherRate)
+      otherRate: parseFloat(otherRate),
+      dealType,
+      buyerType,
+      sellerType,
+      isOnlyHome,
+      cotizacionUsdOficial: usdRate ? parseFloat(usdRate) : undefined
     };
 
     console.log('Sending data to backend:', requestData);
@@ -220,19 +259,81 @@ export default function CalculatorPage() {
                 </div>
               </div>
 
+            <div>
+              <label className="block text-base font-semibold text-gray-700 mb-2">
+                Tipo de operación
+              </label>
+              <select
+                value={dealType}
+                onChange={(e) => setDealType(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent text-lg shadow-sm"
+              >
+                <option value="compra_venta">Compra-Venta</option>
+                <option value="alquiler">Alquiler</option>
+                <option value="comercial">Comercial</option>
+                <option value="temporal">Temporal</option>
+              </select>
+            </div>
+            {/* Única vivienda en CABA y cotización oficial */}
+            {province === 'caba' && buyerType === 'fisica' && sellerType === 'fisica' && (
+              <>
+                <div className="flex items-center mb-2">
+                  <input
+                    type="checkbox"
+                    id="onlyHome"
+                    checked={isOnlyHome}
+                    onChange={e => setIsOnlyHome(e.target.checked)}
+                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-400 accent-blue-500"
+                  />
+                  <label htmlFor="onlyHome" className="ml-3 text-base text-gray-700 font-medium select-none cursor-pointer">
+                    ¿Comprador única vivienda en CABA?
+                  </label>
+                </div>
+                {isOnlyHome && (
+                  <div className="mb-2">
+                    <label className="block text-base font-semibold text-gray-700 mb-1">
+                      Cotización oficial USD/ARS
+                    </label>
+                    <input
+                      type="number"
+                      value={usdRate}
+                      onChange={e => setUsdRate(e.target.value)}
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg shadow-sm"
+                      disabled={usdRateLoading}
+                    />
+                    <p className="text-xs text-blue-700 mt-1 font-medium">
+                      {usdRateLoading ? 'Obteniendo cotización oficial...' : 'Puedes editar este valor si lo deseas.'}
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-base font-semibold text-gray-700 mb-2">
-                  Tipo de operación
-                </label>
+                <label className="block text-base font-semibold text-gray-700 mb-2">Tipo de persona (Comprador)</label>
                 <select
-                  value={operationType}
-                  onChange={(e) => setOperationType(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent text-lg shadow-sm"
+                  value={buyerType}
+                  onChange={e => setBuyerType(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg shadow-sm"
                 >
-                  <option value="A">Operación A (Registrada)</option>
-                  <option value="B">Operación B (No registrada)</option>
+                  <option value="fisica">Física</option>
+                  <option value="juridica">Jurídica</option>
                 </select>
               </div>
+              <div>
+                <label className="block text-base font-semibold text-gray-700 mb-2">Tipo de persona (Vendedor)</label>
+                <select
+                  value={sellerType}
+                  onChange={e => setSellerType(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg shadow-sm"
+                >
+                  <option value="fisica">Física</option>
+                  <option value="juridica">Jurídica</option>
+                </select>
+              </div>
+            </div>
 
               <div>
                 <label className="block text-base font-semibold text-gray-700 mb-2">
