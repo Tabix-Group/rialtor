@@ -220,7 +220,6 @@ export default function CalculatorPage() {
             <section id="comision" className="mb-12">
               <div className="bg-white/90 rounded-3xl shadow-2xl p-10 border border-gray-100 backdrop-blur-md flex flex-col gap-10">
                 <div className="text-center mb-2">
-                  <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Calculadora de Operaciones Inmobiliarias</h1>
                   <p className="text-base text-gray-500 max-w-2xl mx-auto">
                     Calculá comisiones, impuestos y gastos asociados a operaciones inmobiliarias en Argentina. Incluye cálculo de comisión, honorarios de escribano, otros gastos y ganancia inmobiliaria, todo en un solo lugar.
                   </p>
