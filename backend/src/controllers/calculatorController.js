@@ -1,3 +1,87 @@
+// Calculadora de honorarios de escribano
+const calculateEscribano = async (req, res) => {
+  try {
+    const { saleAmount, escrituraAmount, buyerRate = 2, sellerRate = 0 } = req.body;
+    // saleAmount: monto de venta, escrituraAmount: monto de escritura (puede ser igual o menor)
+    // buyerRate y sellerRate: % sugerido para cada parte
+    if (!saleAmount || saleAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'El monto de venta debe ser mayor a 0' });
+    }
+    const venta = parseFloat(saleAmount);
+    const escritura = escrituraAmount ? parseFloat(escrituraAmount) : venta;
+    const comprador = (escritura * (parseFloat(buyerRate) / 100));
+    const vendedor = (escritura * (parseFloat(sellerRate) / 100));
+    res.json({
+      success: true,
+      data: {
+        escrituraAmount: escritura,
+        buyerRate: parseFloat(buyerRate),
+        sellerRate: parseFloat(sellerRate),
+        comprador,
+        vendedor,
+        total: comprador + vendedor
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al calcular honorarios escribano', error: error.message });
+  }
+};
+
+// Calculadora de otros gastos
+const calculateOtrosGastos = async (req, res) => {
+  try {
+    const { escrituraAmount, buyerRate = 0.6, sellerRate = 0.8 } = req.body;
+    if (!escrituraAmount || escrituraAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'El monto de escritura debe ser mayor a 0' });
+    }
+    const escritura = parseFloat(escrituraAmount);
+    const comprador = escritura * (parseFloat(buyerRate) / 100);
+    const vendedor = escritura * (parseFloat(sellerRate) / 100);
+    res.json({
+      success: true,
+      data: {
+        escrituraAmount: escritura,
+        buyerRate: parseFloat(buyerRate),
+        sellerRate: parseFloat(sellerRate),
+        comprador,
+        vendedor,
+        total: comprador + vendedor
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al calcular otros gastos', error: error.message });
+  }
+};
+
+// Calculadora de impuesto a la ganancia inmobiliaria (cédula)
+const calculateGananciaInmobiliaria = async (req, res) => {
+  try {
+    const { saleAmount, purchaseAmount, mejoras = 0, gastos = 0 } = req.body;
+    // saleAmount: precio de venta, purchaseAmount: precio de compra, mejoras: mejoras declaradas, gastos: gastos deducibles
+    if (!saleAmount || saleAmount <= 0 || !purchaseAmount || purchaseAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Debe ingresar precio de venta y compra válidos' });
+    }
+    const venta = parseFloat(saleAmount);
+    const compra = parseFloat(purchaseAmount);
+    const mejorasVal = parseFloat(mejoras) || 0;
+    const gastosVal = parseFloat(gastos) || 0;
+    const base = venta - (compra + mejorasVal + gastosVal);
+    const impuesto = base > 0 ? base * 0.15 : 0;
+    res.json({
+      success: true,
+      data: {
+        saleAmount: venta,
+        purchaseAmount: compra,
+        mejoras: mejorasVal,
+        gastos: gastosVal,
+        baseImponible: base,
+        impuestoGanancia: impuesto
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al calcular impuesto a la ganancia inmobiliaria', error: error.message });
+  }
+};
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -407,5 +491,8 @@ module.exports = {
   getProvincias,
   calculateCommission,
   calculateTaxes,
-  getCalculatorHistory
+  getCalculatorHistory,
+  calculateEscribano,
+  calculateOtrosGastos,
+  calculateGananciaInmobiliaria
 };

@@ -15,6 +15,9 @@ router.use(authenticateToken);
 // Cálculos
 router.post('/commission', validateCalculator.commission, calculatorController.calculateCommission);
 router.post('/taxes', validateCalculator.taxes, calculatorController.calculateTaxes);
+router.post('/escribano', calculatorController.calculateEscribano);
+router.post('/otros-gastos', calculatorController.calculateOtrosGastos);
+router.post('/ganancias', calculatorController.calculateGananciaInmobiliaria);
 
 // Historial
 router.get('/history', calculatorController.getCalculatorHistory);
