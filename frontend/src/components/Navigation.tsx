@@ -28,7 +28,7 @@ function Navigation() {
   ];
 
   // Si el usuario es USUARIO (roles es array de strings o enums)
-  const isUsuario = user && Array.isArray(user.roles) && user.roles.includes('USUARIO');
+  const isUsuario = user && Array.isArray(user.roles) && user.roles.includes('USUARIO' as any);
   if (isUsuario) {
     navConfig = [
       { name: 'Recursos', href: '/knowledge', icon: BookOpen, permission: '' },
