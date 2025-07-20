@@ -1,30 +1,31 @@
 
 const express = require('express');
+console.log('BACKEND ARRANCÓ: Documentos API cargada');
 const router = express.Router();
+// Log global para depuración de cualquier petición al router
+router.use((req, res, next) => {
+  console.log(`[DOCUMENTS ROUTER] ${req.method} ${req.originalUrl}`);
+  next();
+});
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('../cloudinary');
 
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
-
+// Multer en memoria
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (req, file, cb) => {
-    const allowed = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    const allowed = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'image/png',
+      'image/jpeg'
+    ];
     if (allowed.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -33,103 +34,121 @@ const upload = multer({
   }
 });
 
-// POST /api/documents - upload a file
-router.post('/', upload.single('file'), (req, res) => {
+// POST /api/documents - upload a file a Cloudinary
+router.post('/', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No se subió ningún archivo' });
   }
-  // Permitir categoría opcional
   const category = req.body.category || 'General';
-  const metadata = {
-    id: req.file.filename,
-    title: req.file.originalname,
-    type: req.file.mimetype,
-    category,
-    uploadDate: new Date(),
-    size: (req.file.size / 1024).toFixed(1) + ' KB',
-    url: `/uploads/${req.file.filename}`
-  };
-  // Guardar metadatos en archivo .json
   try {
-    fs.writeFileSync(path.join(uploadDir, req.file.filename + '.json'), JSON.stringify(metadata));
-  } catch {}
-  res.status(201).json({ document: metadata });
+    // Subir a Cloudinary con el nombre original
+    // Usar el nombre original completo (con extensión) como public_id
+    const originalName = req.file.originalname;
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'auto',
+        folder: 'documents',
+        public_id: originalName,
+        use_filename: true,
+        unique_filename: false,
+        overwrite: true
+      },
+      (error, result) => {
+        if (error) {
+          return res.status(500).json({ error: 'Error al subir a Cloudinary', details: error });
+        }
+        const metadata = {
+          id: result.public_id,
+          title: originalName,
+          type: req.file.mimetype,
+          category,
+          uploadDate: new Date(),
+          size: (req.file.size / 1024).toFixed(1) + ' KB',
+          url: result.secure_url
+        };
+        return res.status(201).json({ document: metadata });
+      }
+    );
+    stream.end(req.file.buffer);
+  } catch (err) {
+    return res.status(500).json({ error: 'Error inesperado', details: err });
+  }
 });
 
 // DELETE /api/documents/:id - delete a file by route param
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
+// DELETE /api/documents/:id - delete a file from Cloudinary by route param
+router.delete('/*', async (req, res) => {
+  let id = req.params[0];
   if (!id) return res.status(400).json({ error: 'Falta el id del documento' });
-  const filePath = path.join(uploadDir, id);
-  fs.unlink(filePath, (err) => {
-    if (err) return res.status(404).json({ error: 'Archivo no encontrado' });
-    res.json({ message: 'Archivo eliminado correctamente' });
-  });
-});
-
-// GET /api/documents - list uploaded files
-router.get('/', (req, res) => {
-  fs.readdir(uploadDir, (err, files) => {
-    if (err) return res.status(500).json({ error: 'No se pudo leer la carpeta de uploads' });
-    // Only list files, not .json metadata
-    const documentFiles = files.filter(f => !f.endsWith('.json'));
-
-    // Si se pide solo el conteo
-    if (req.query.countOnly === '1') {
-      return res.json({ count: documentFiles.length });
+  id = decodeURIComponent(id);
+  if (!id.startsWith('documents/')) {
+    id = 'documents/' + id;
+  }
+  // Detectar tipo por extensión
+  const ext = id.split('.').pop()?.toLowerCase();
+  let resourceType = 'raw';
+  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) resourceType = 'image';
+  else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext)) resourceType = 'video';
+  // Otros tipos (pdf, docx, xlsx, etc) usan raw
+  console.log(`Intentando eliminar en Cloudinary: ${id} (resource_type: ${resourceType})`);
+  try {
+    const result = await cloudinary.uploader.destroy(id, { resource_type: resourceType });
+    console.log('Resultado de Cloudinary:', result);
+    if (result.result === 'ok' || result.result === 'not_found') {
+      return res.json({ message: `Archivo eliminado correctamente (${id})` });
+    } else {
+      return res.status(500).json({ error: 'No se pudo eliminar el archivo', details: result });
     }
-
-    const documents = documentFiles.map(filename => {
-      const filePath = path.join(uploadDir, filename);
-      const stat = fs.statSync(filePath);
-      // Leer metadatos si existen
-      let category = 'General';
-      let type = 'Otro';
-      let title = filename;
-      const metaPath = path.join(uploadDir, filename + '.json');
-      if (fs.existsSync(metaPath)) {
-        try {
-          const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-          category = meta.category || category;
-          type = meta.type || type;
-          title = meta.title || title;
-        } catch {}
-      }
-      return {
-        id: filename,
-        title,
-        type,
-        category,
-        uploadDate: stat.birthtime,
-        size: (stat.size / 1024).toFixed(1) + ' KB',
-        url: `/uploads/${filename}`
-      };
-    });
-    res.json({ documents });
-  });
-});
-
-// GET /api/documents/:id - serve file for view or download
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const filePath = path.join(uploadDir, id);
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Archivo no encontrado' });
-  const download = req.query.download === '1';
-  if (download) {
-    res.download(filePath);
-  } else {
-    res.sendFile(filePath);
+  } catch (err) {
+    console.error('Error al eliminar en Cloudinary:', id, err);
+    return res.status(500).json({ error: 'Error al eliminar en Cloudinary', details: err.message || err });
   }
 });
-// DELETE /api/documents?id=FILENAME - delete a file
-router.delete('/', (req, res) => {
-  const { id } = req.query;
-  if (!id) return res.status(400).json({ error: 'Falta el id del documento' });
-  const filePath = path.join(uploadDir, id);
-  fs.unlink(filePath, (err) => {
-    if (err) return res.status(404).json({ error: 'Archivo no encontrado' });
-    res.json({ message: 'Archivo eliminado correctamente' });
-  });
+
+// GET /api/documents - list uploaded files from Cloudinary
+router.get('/', async (req, res) => {
+  try {
+    // Buscar archivos en la carpeta 'documents' de Cloudinary
+    const result = await cloudinary.search
+      .expression('folder:documents')
+      .sort_by('created_at','desc')
+      .max_results(100)
+      .execute();
+    const documents = result.resources.map(file => ({
+      id: file.public_id,
+      title: file.filename || file.public_id.split('/').pop(),
+      type: file.format,
+      category: 'General', // Puedes guardar la categoría en metadata si lo deseas
+      uploadDate: file.created_at,
+      size: (file.bytes / 1024).toFixed(1) + ' KB',
+      url: file.secure_url
+    }));
+    if (req.query.countOnly === '1') {
+      return res.json({ count: documents.length });
+    }
+    res.json({ documents });
+  } catch (err) {
+    res.status(500).json({ error: 'No se pudo obtener la lista de documentos', details: err });
+  }
 });
+
+// GET /api/documents/:id - redirect to Cloudinary URL
+router.get('/:id', async (req, res) => {
+  let { id } = req.params;
+  id = decodeURIComponent(id);
+  try {
+    const resource = await cloudinary.api.resource(id, { resource_type: 'auto' });
+    if (!resource || !resource.secure_url) return res.status(404).json({ error: 'Archivo no encontrado' });
+    if (req.query.download === '1') {
+      const filename = id.split('/').pop();
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.redirect(resource.secure_url + '?fl_attachment');
+    }
+    return res.redirect(resource.secure_url);
+  } catch (err) {
+    return res.status(404).json({ error: 'Archivo no encontrado', details: err });
+  }
+});
+// (Eliminada la ruta DELETE por query para mantener solo la RESTful y evitar ambigüedades)
 module.exports = router;
 

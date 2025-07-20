@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react'
-import { FileText, Upload, Download, Search, Filter, Eye, Edit, Trash2 } from 'lucide-react'
+import { FileText, Upload, Download, Search, Filter, Eye, Image, FileSpreadsheet, FileArchive, FileVideo, FileAudio, Trash2 } from 'lucide-react'
 
 interface Document {
   id: string
@@ -62,12 +62,33 @@ export default function DocumentsPage() {
     return matchesSearch && matchesCategory
   })
 
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case 'PDF':
-        return <FileText className="w-8 h-8 text-red-500" />
+  const getFileIcon = (doc: Document) => {
+    const ext = doc.title.split('.').pop()?.toLowerCase();
+    if (!ext) return <FileText className="w-8 h-8 text-gray-500" />;
+    switch (ext) {
+      case 'pdf':
+        return <FileText className="w-8 h-8 text-red-500" />;
+      case 'doc':
+      case 'docx':
+        return <FileText className="w-8 h-8 text-blue-700" />;
+      case 'xls':
+      case 'xlsx':
+        return <FileSpreadsheet className="w-8 h-8 text-green-600" />;
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+        return <Image className="w-8 h-8 text-yellow-500" />;
+      case 'zip':
+      case 'rar':
+        return <FileArchive className="w-8 h-8 text-orange-500" />;
+      case 'mp4':
+      case 'avi':
+        return <FileVideo className="w-8 h-8 text-purple-500" />;
+      case 'mp3':
+      case 'wav':
+        return <FileAudio className="w-8 h-8 text-pink-500" />;
       default:
-        return <FileText className="w-8 h-8 text-gray-500" />
+        return <FileText className="w-8 h-8 text-gray-500" />;
     }
   }
 
@@ -77,13 +98,22 @@ export default function DocumentsPage() {
   };
 
   const handleDownload = (doc: Document) => {
-    if (doc.url && doc.url !== '#') window.open(doc.url + '?download=1', '_blank');
+    if (doc.url && doc.url !== '#') {
+      // Forzar descarga y sugerir el nombre original
+      const a = document.createElement('a');
+      a.href = `/api/documents/${doc.id}?download=1`;
+      a.download = doc.title;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   };
 
   const handleDelete = async (doc: Document) => {
     if (!confirm('¿Eliminar este documento?')) return;
+    // Enviar el id exactamente como lo da la API, sin modificarlo
     try {
-      const res = await fetch(`/api/documents?id=${doc.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/documents/${encodeURIComponent(doc.id)}`, { method: 'DELETE' });
       if (res.ok) setDocuments(docs => docs.filter(d => d.id !== doc.id));
     } catch {}
   };
@@ -188,7 +218,7 @@ export default function DocumentsPage() {
             {filteredDocuments.map((doc) => (
               <div key={doc.id} className="border border-gray-100 rounded-2xl p-6 bg-white/80 hover:bg-blue-50 transition-all shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-5">
-                  {getFileIcon(doc.type)}
+                  {getFileIcon(doc)}
                   <div>
                     <h3 className="font-bold text-gray-800 text-lg">{doc.title}</h3>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-1">
@@ -208,9 +238,6 @@ export default function DocumentsPage() {
                   </button>
                   <button className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-100 rounded-xl transition-all" onClick={() => handleDownload(doc)} title="Descargar">
                     <Download className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 text-gray-500 hover:text-yellow-600 hover:bg-yellow-100 rounded-xl transition-all" onClick={() => handleEdit(doc)} title="Editar">
-                    <Edit className="w-5 h-5" />
                   </button>
                   <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-xl transition-all" onClick={() => handleDelete(doc)} title="Eliminar">
                     <Trash2 className="w-5 h-5" />

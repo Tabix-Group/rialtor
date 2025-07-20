@@ -102,6 +102,14 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Log global para cualquier petición DELETE
+app.use((req, res, next) => {
+  if (req.method === 'DELETE') {
+    console.log(`[SERVER] DELETE recibido: ${req.originalUrl}`);
+  }
+  next();
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
