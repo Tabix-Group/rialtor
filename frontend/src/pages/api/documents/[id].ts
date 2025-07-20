@@ -63,7 +63,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else {
       res.status(response.status);
       if (response.body) {
-        response.body.pipe(res);
+        const reader = response.body.getReader();
+        const chunks: Uint8Array[] = [];
+        let done = false;
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          if (value) chunks.push(value);
+          done = readerDone;
+        }
+        const buffer = Buffer.concat(chunks);
+        res.end(buffer);
       } else {
         res.end();
       }
