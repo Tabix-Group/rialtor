@@ -62,7 +62,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(response.status).json(data);
     } else {
       res.status(response.status);
-      response.body.pipe(res);
+      if (response.body) {
+        response.body.pipe(res);
+      } else {
+        res.end();
+      }
     }
   } catch (error) {
     console.error('Error proxying documents API [id]:', error);
