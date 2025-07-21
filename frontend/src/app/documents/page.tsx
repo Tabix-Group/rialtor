@@ -30,6 +30,7 @@ export default function DocumentsPage() {
   const [loadingDocs, setLoadingDocs] = useState(true);
   const [editingDoc, setEditingDoc] = useState<Document | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
 
   // Fetch documents from API
   const fetchDocuments = async () => {
@@ -130,19 +131,34 @@ export default function DocumentsPage() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Siempre tomar el valor actual del select
     const categoryToSend = uploadCategory || (categories.find(c => c !== 'all') || 'General');
     const formData = new FormData();
     formData.append('file', file);
     formData.append('category', categoryToSend);
     try {
       const res = await fetch('/api/documents', { method: 'POST', body: formData });
-      if (res.ok) fetchDocuments();
-    } catch {}
+      if (res.ok) {
+        setUploadSuccess('Archivo subido correctamente');
+        fetchDocuments();
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        setTimeout(() => setUploadSuccess(null), 3000);
+      } else {
+        setUploadSuccess('Error al subir el archivo');
+        setTimeout(() => setUploadSuccess(null), 3000);
+      }
+    } catch {
+      setUploadSuccess('Error al subir el archivo');
+      setTimeout(() => setUploadSuccess(null), 3000);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50 py-12">
+      {uploadSuccess && (
+        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 text-lg font-semibold">
+          {uploadSuccess}
+        </div>
+      )}
       <div className="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="bg-white/90 rounded-3xl shadow-2xl border border-gray-100 backdrop-blur-md">
           {/* Header */}
