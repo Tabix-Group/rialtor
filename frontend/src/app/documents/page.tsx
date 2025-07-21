@@ -112,11 +112,17 @@ export default function DocumentsPage() {
 
   const handleDelete = async (doc: Document) => {
     if (!confirm('¿Eliminar este documento?')) return;
-    // Enviar el id exactamente como lo da la API, sin modificarlo
     try {
       const res = await fetch(`/api/documents/${encodeURIComponent(doc.id)}`, { method: 'DELETE' });
-      if (res.ok) setDocuments(docs => docs.filter(d => d.id !== doc.id));
-    } catch {}
+      if (res.ok) {
+        setUploadSuccess('Documento eliminado correctamente');
+        await fetchDocuments();
+        setTimeout(() => setUploadSuccess(null), 3000);
+      }
+    } catch {
+      setUploadSuccess('Error al eliminar el documento');
+      setTimeout(() => setUploadSuccess(null), 3000);
+    }
   };
 
   const handleEdit = (doc: Document) => {
@@ -139,8 +145,8 @@ export default function DocumentsPage() {
       const res = await fetch('/api/documents', { method: 'POST', body: formData });
       if (res.ok) {
         setUploadSuccess('Archivo subido correctamente');
-        fetchDocuments();
         if (fileInputRef.current) fileInputRef.current.value = '';
+        await fetchDocuments();
         setTimeout(() => setUploadSuccess(null), 3000);
       } else {
         setUploadSuccess('Error al subir el archivo');
