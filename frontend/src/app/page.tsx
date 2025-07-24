@@ -98,9 +98,9 @@ export default function Home() {
 
 
       {/* Hero Section */}
-      <section className="w-full" style={{ backgroundColor: '#0B3B6A' }}>
+      <section className="w-full" style={{ backgroundColor: '#010413' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 flex flex-col items-center justify-center text-center">
-          <img src="/images/logo.jfif" alt="Logo RE/MAX" className="w-48 h-48 md:w-72 md:h-72 mb-10 object-contain" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0}} />
+          <img src="/images/logo.jfif" alt="Logo RE/MAX" className="w-72 h-72 md:w-[32rem] md:h-[32rem] mb-10 object-contain" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0}} />
           <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-center">
             <button onClick={() => window.location.href = '/auth/register'} className="px-8 py-3 rounded-lg bg-remax-red text-white font-semibold text-lg shadow hover:bg-red-700 transition-colors">Quiero usarlo</button>
             <button onClick={handleScrollToDemo} className="px-8 py-3 rounded-lg bg-white text-remax-blue font-semibold text-lg shadow hover:bg-blue-100 transition-colors border border-remax-blue">Ver demo</button>
