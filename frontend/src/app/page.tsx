@@ -7,65 +7,50 @@ import {
   ChatBubbleLeftRightIcon, 
   DocumentTextIcon, 
   CalculatorIcon,
-  UserGroupIcon,
-  ChartBarIcon,
-  CogIcon,
-  MagnifyingGlassIcon
+  ShieldCheckIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline'
-
 import { useAuth } from './auth/authContext'
 
 export default function Home() {
-  // Features protegidas
+  // Features públicas (si no está logueado, no tienen link)
   const features = [
     {
-      name: 'Artículos',
-      description: 'Accede a artículos, guías y documentación del sector inmobiliario argentino',
+      name: 'Informes y Novedades de Mercado',
+      description: 'Accedé a análisis del mercado inmobiliario actual, evolución de precios y zonas calientes.',
       icon: BookOpenIcon,
       href: '/knowledge',
-      color: 'bg-blue-500',
-      protected: true
     },
     {
-      name: 'Agente IA',
-      description: 'Consulta con nuestro bot inteligente sobre regulaciones y procesos',
+      name: 'Consultor Inmobiliario IA',
+      description: 'Tu asesor personal 24/7 para consultas sobre captación, negociación, tasaciones y más.',
       icon: ChatBubbleLeftRightIcon,
       href: '/chat',
-      color: 'bg-green-500',
-      protected: true
     },
     {
-      name: 'Generador de Documentos',
-      description: 'Crea contratos, formularios y documentos legales personalizados',
-      icon: DocumentTextIcon,
-      href: '/documents',
-      color: 'bg-purple-500',
-      protected: true
-    },
-    {
-      name: 'Calculadora Argentina',
-      description: 'Calcula comisiones, impuestos, sellos y tasas provinciales',
+      name: 'Calculadora de Gastos',
+      description: 'Calculá los costos totales de una operación: escritura, impuestos, sellos, comisiones, etc.',
       icon: CalculatorIcon,
       href: '/calculator',
-      color: 'bg-orange-500',
-      protected: true
     },
     {
-      name: 'Gestión de Usuarios',
-      description: 'Administra usuarios, roles y permisos del sistema',
-      icon: UserGroupIcon,
-      href: '/admin/users',
-      color: 'bg-red-500',
-      protected: true
+      name: 'Documentos Inteligentes',
+      description: 'Generá modelos de reserva, autorización, boleto y contratos en segundos.',
+      icon: DocumentTextIcon,
+      href: '/documents',
     },
     {
-      name: 'Reportes y Métricas',
-      description: 'Visualiza estadísticas de uso y rendimiento de la plataforma',
-      icon: ChartBarIcon,
-      href: '/admin/reports',
-      color: 'bg-indigo-500',
-      protected: true
-    }
+      name: 'Créditos Hipotecarios',
+      description: 'Conocé las opciones vigentes de financiación en bancos públicos y privados; tasas y requisitos.',
+      icon: CurrencyDollarIcon,
+      href: '', // aún no creada
+    },
+    {
+      name: 'Generador de Placas para Publicar',
+      description: 'Compará opciones de seguros de caución, garantías y avales. Ideal para alquileres.',
+      icon: ShieldCheckIcon,
+      href: '', // aún no creada
+    },
   ];
 
   type Article = {
@@ -100,49 +85,26 @@ export default function Home() {
   }, []);
 
   
-  // Si el usuario NO está logueado, solo mostrar el hero y los botones de login/register
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Hero Section Mejorada */}
-        <section className="bg-gradient-to-r from-remax-blue to-remax-blue-light">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
-            <div className="flex flex-col items-center justify-center text-center">
-              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-4 drop-shadow-lg">
-                Base de Conocimiento
-              </h1>
-              <span className="block text-3xl md:text-5xl font-bold text-remax-red mb-4 tracking-tight drop-shadow-lg">
-                RE/MAX Argentina
-              </span>
-              <p className="text-lg md:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto font-light">
-                Un espacio exclusivo para profesionales inmobiliarios.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
-                <Link href="/auth/login" className="px-8 py-3 rounded-lg bg-remax-red text-white font-semibold text-lg shadow hover:bg-red-700 transition-colors">Iniciar Sesión</Link>
-                <Link href="/auth/register" className="px-8 py-3 rounded-lg bg-white text-remax-blue font-semibold text-lg shadow hover:bg-blue-100 transition-colors border border-remax-blue">Registrarse</Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    );
-  }
+  // Función para scrollear al video demo
+  const handleScrollToDemo = () => {
+    const el = document.getElementById('demo-video');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  // Si el usuario está logueado, mostrar la home completa
+  // Home pública y privada (misma vista, cambia links y header)
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Hero Section Mejorada */}
-      <section className="bg-gradient-to-r from-remax-blue to-remax-blue-light">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
-          <div className="flex flex-col items-center justify-center text-center">
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-4 drop-shadow-lg">
-              Base de Conocimiento
-            </h1>
-            <span className="block text-3xl md:text-5xl font-bold text-remax-red mb-4 tracking-tight drop-shadow-lg">
-              RE/MAX Argentina
-            </span>
-            <p className="text-lg md:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto font-light">
-              Un espacio exclusivo para profesionales inmobiliarios.             </p>
+      {/* Header usuario logueado */}
+
+
+      {/* Hero Section */}
+      <section className="w-full" style={{ backgroundColor: '#0B3B6A' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 flex flex-col items-center justify-center text-center">
+          <img src="/images/logo.jfif" alt="Logo RE/MAX" className="w-48 h-48 md:w-72 md:h-72 mb-10 object-contain" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0}} />
+          <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-center">
+            <button onClick={() => window.location.href = '/auth/register'} className="px-8 py-3 rounded-lg bg-remax-red text-white font-semibold text-lg shadow hover:bg-red-700 transition-colors">Quiero usarlo</button>
+            <button onClick={handleScrollToDemo} className="px-8 py-3 rounded-lg bg-white text-remax-blue font-semibold text-lg shadow hover:bg-blue-100 transition-colors border border-remax-blue">Ver demo</button>
+            <button onClick={() => window.location.href = '/auth/login'} className="px-8 py-3 rounded-lg bg-gray-200 text-remax-blue font-semibold text-lg shadow hover:bg-gray-300 transition-colors border border-remax-blue">Ingresar</button>
           </div>
         </div>
       </section>
@@ -159,14 +121,15 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.filter(f => !f.protected || user).map((feature) => (
-              <Link key={feature.name} href={feature.href} className="group">
-                <div className="flex items-center p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all">
-                  <div className={`w-12 h-12 rounded-lg ${feature.color} flex items-center justify-center group-hover:scale-110 transition-transform mr-4`}>
-                    <feature.icon className="h-6 w-6 text-white" />
+            {features.map((feature, idx) => {
+              const isActive = user && feature.href;
+              const content = (
+                <div className={`flex items-start p-5 bg-gray-50 rounded-xl shadow-sm border border-gray-100 transition-all h-full ${isActive ? 'hover:shadow-md cursor-pointer' : 'opacity-80'}`}>
+                  <div className={`w-12 h-12 rounded-lg bg-remax-blue flex items-center justify-center mr-4`}>
+                    <feature.icon className="h-7 w-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-remax-blue transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
                       {feature.name}
                     </h3>
                     <p className="text-gray-500 text-sm">
@@ -174,38 +137,32 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
-              </Link>
-            ))}
+              );
+              return isActive ? (
+                <Link key={feature.name} href={feature.href} className="block h-full">{content}</Link>
+              ) : (
+                <div key={feature.name} className="h-full">{content}</div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Últimos Artículos */}
-      <section className="py-12 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Últimos Artículos</h2>
-            <p className="text-gray-600">Lo más reciente en conocimiento inmobiliario</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {recentArticles.length === 0 ? (
-              <div className="col-span-3 text-center text-gray-400">No hay artículos recientes.</div>
-            ) : (
-              recentArticles.map((article) => (
-                <Link key={article.id} href={`/knowledge/article/${article.id}`} className="block bg-gray-50 rounded-xl shadow hover:shadow-lg transition p-6 border border-gray-100 group">
-                  <h3 className="text-lg font-bold text-remax-blue group-hover:underline mb-2">{article.title}</h3>
-                  <p className="text-gray-600 text-sm mb-2 line-clamp-3">{article.summary || article.content?.slice(0, 120) + '...'}</p>
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-xs text-gray-500">{article.category?.name || 'Sin categoría'}</span>
-                    <span className="text-xs text-gray-400">{new Date(article.createdAt).toLocaleDateString('es-AR')}</span>
-                  </div>
-                </Link>
-              ))
-            )}
+      {/* Demo Video Section */}
+      <section id="demo-video" className="py-16 bg-gray-100">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Mirá cómo funciona</h2>
+          <div className="aspect-w-16 aspect-h-9 w-full rounded-xl overflow-hidden shadow-lg mx-auto">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Demo RIALTOR"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-72 md:h-96"
+            ></iframe>
           </div>
         </div>
       </section>
-
 
       {/* Footer Mejorado */}
       <footer className="bg-gray-900 text-white py-14 mt-auto">
@@ -214,9 +171,7 @@ export default function Home() {
             {/* Brand/Descripción */}
             <div className="md:col-span-1 flex flex-col items-start mb-8 md:mb-0">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="bg-remax-blue w-12 h-12 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-2xl">R</span>
-                </div>
+                <img src="/images/logo.jfif" alt="Logo RE/MAX" className="w-12 h-12 rounded-lg object-contain bg-white" />
                 <span className="text-2xl font-bold">RE/MAX Argentina</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-xs text-sm">
