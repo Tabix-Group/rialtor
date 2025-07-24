@@ -8,7 +8,7 @@ import Footer from '../components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'RE/MAX Plataforma Integral',
+  title: 'RIALTOR - Plataforma Integral',
   description: 'Solución integral de recursos, archivos y herramientas para profesionales inmobiliarios',
 };
 

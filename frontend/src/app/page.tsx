@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  BookOpenIcon, 
-  ChatBubbleLeftRightIcon, 
-  DocumentTextIcon, 
-  CalculatorIcon,
-  ShieldCheckIcon,
-  CurrencyDollarIcon
-} from '@heroicons/react/24/outline'
+  BookOpen,
+  User2,
+  Calculator,
+  FileText,
+  BadgeDollarSign,
+  ShieldCheck
+} from 'lucide-react';
 import { useAuth } from './auth/authContext'
 
 export default function Home() {
@@ -18,37 +18,37 @@ export default function Home() {
     {
       name: 'Informes y Novedades de Mercado',
       description: 'Accedé a análisis del mercado inmobiliario actual, evolución de precios y zonas calientes.',
-      icon: BookOpenIcon,
+      icon: BookOpen,
       href: '/knowledge',
     },
     {
       name: 'Consultor Inmobiliario IA',
       description: 'Tu asesor personal 24/7 para consultas sobre captación, negociación, tasaciones y más.',
-      icon: ChatBubbleLeftRightIcon,
+      icon: User2,
       href: '/chat',
     },
     {
       name: 'Calculadora de Gastos',
       description: 'Calculá los costos totales de una operación: escritura, impuestos, sellos, comisiones, etc.',
-      icon: CalculatorIcon,
+      icon: Calculator,
       href: '/calculator',
     },
     {
       name: 'Documentos Inteligentes',
       description: 'Generá modelos de reserva, autorización, boleto y contratos en segundos.',
-      icon: DocumentTextIcon,
+      icon: FileText,
       href: '/documents',
     },
     {
       name: 'Créditos Hipotecarios',
       description: 'Conocé las opciones vigentes de financiación en bancos públicos y privados; tasas y requisitos.',
-      icon: CurrencyDollarIcon,
+      icon: BadgeDollarSign,
       href: '', // aún no creada
     },
     {
       name: 'Generador de Placas para Publicar',
       description: 'Compará opciones de seguros de caución, garantías y avales. Ideal para alquileres.',
-      icon: ShieldCheckIcon,
+      icon: ShieldCheck,
       href: '', // aún no creada
     },
   ];
@@ -113,29 +113,25 @@ export default function Home() {
       <section className="py-10 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Herramientas y Recursos
+            <h2 className="text-3xl font-bold text-white mb-2">
+              ¿Qué puedes hacer con RIALTOR?
             </h2>
-            <p className="text-md text-gray-600 max-w-2xl mx-auto">
-              Todo lo que necesitás, en un solo lugar.
-            </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, idx) => {
               const isActive = user && feature.href;
               const content = (
-                <div className={`flex items-start p-5 bg-gray-50 rounded-xl shadow-sm border border-gray-100 transition-all h-full ${isActive ? 'hover:shadow-md cursor-pointer' : 'opacity-80'}`}>
-                  <div className={`w-12 h-12 rounded-lg bg-remax-blue flex items-center justify-center mr-4`}>
-                    <feature.icon className="h-7 w-7 text-white" />
+                <div
+                  className="flex flex-col h-full p-6 rounded-xl border border-orange-500 bg-white shadow-sm transition-all duration-300 group hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.04] hover:bg-orange-50 hover:border-orange-400 hover:ring-2 hover:ring-orange-200/60"
+                  style={{ boxShadow: '0 2px 8px 0 rgba(0,0,0,0.06)' }}
+                >
+                  <div className="flex items-center mb-4">
+                    <feature.icon className="h-10 w-10 text-orange-500 mr-3 transition-colors duration-300 group-hover:text-orange-600" strokeWidth={2.2} />
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-700 transition-colors duration-300">{feature.name}</h3>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {feature.name}
-                    </h3>
-                    <p className="text-gray-500 text-sm">
-                      {feature.description}
-                    </p>
-                  </div>
+                  <p className="text-gray-700 text-sm font-light group-hover:text-orange-900 transition-colors duration-300">
+                    {feature.description}
+                  </p>
                 </div>
               );
               return isActive ? (
@@ -165,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* Footer Mejorado */}
-      <footer className="bg-gray-900 text-white py-14 mt-auto">
+      <footer className="text-white py-14 mt-auto" style={{ backgroundColor: '#010413' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 items-start">
             {/* Brand/Descripción */}
