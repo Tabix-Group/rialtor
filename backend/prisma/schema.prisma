@@ -180,8 +180,12 @@ model ChatMessage {
 model DocumentTemplate {
   id          String   @id @default(uuid())
   name        String
+  title       String?
   description String?
   category    String
+  url         String?
+  cloudinaryId String?
+  content     String?
   template    String   // JSON structure
   fields      String   // JSON array of required fields
   isActive    Boolean  @default(true)
@@ -190,7 +194,7 @@ model DocumentTemplate {
 
   // Relaciones
   requests DocumentRequest[]
-  
+
   @@map("document_templates")
 }
 

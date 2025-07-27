@@ -11,6 +11,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const cloudinary = require('../cloudinary');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
 
 // Multer en memoria
 const upload = multer({
@@ -41,8 +45,6 @@ router.post('/', upload.single('file'), async (req, res) => {
   }
   const category = req.body.category || 'General';
   try {
-    // Subir a Cloudinary con el nombre original
-    // Usar el nombre original completo (con extensión) como public_id
     const originalName = req.file.originalname;
     const stream = cloudinary.uploader.upload_stream(
       {
@@ -53,10 +55,37 @@ router.post('/', upload.single('file'), async (req, res) => {
         unique_filename: false,
         overwrite: true
       },
-      (error, result) => {
+      async (error, result) => {
         if (error) {
           return res.status(500).json({ error: 'Error al subir a Cloudinary', details: error });
         }
+        let extractedText = '';
+        try {
+          if (req.file.mimetype === 'application/pdf') {
+            extractedText = (await pdfParse(req.file.buffer)).text;
+          } else if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            extractedText = (await mammoth.extractRawText({ buffer: req.file.buffer })).value;
+          } else if (req.file.mimetype === 'text/plain') {
+            extractedText = req.file.buffer.toString('utf-8');
+          }
+        } catch (err) {
+          extractedText = '';
+        }
+        // Guardar en la base
+        await prisma.documentTemplate.create({
+          data: {
+            name: originalName,
+            title: originalName,
+            category,
+            url: result.secure_url,
+            cloudinaryId: result.public_id,
+            content: extractedText,
+            description: '',
+            template: '',
+            fields: '',
+            isActive: true
+          }
+        });
         const metadata = {
           id: result.public_id,
           title: originalName,
@@ -95,6 +124,8 @@ router.delete('/*', async (req, res) => {
     const result = await cloudinary.uploader.destroy(id, { resource_type: resourceType });
     console.log('Resultado de Cloudinary:', result);
     if (result.result === 'ok' || result.result === 'not_found') {
+      // Eliminar de la base de datos
+      await prisma.documentTemplate.deleteMany({ where: { cloudinaryId: id } });
       return res.json({ message: `Archivo eliminado correctamente (${id})` });
     } else {
       return res.status(500).json({ error: 'No se pudo eliminar el archivo', details: result });
