@@ -43,7 +43,7 @@ export default function Home() {
       name: 'Créditos Hipotecarios',
       description: 'Conocé las opciones vigentes de financiación en bancos públicos y privados; tasas y requisitos.',
       icon: BadgeDollarSign,
-      href: '', // aún no creada
+      href: '/creditos', // redirige siempre a la vista creditos
     },
     {
       name: 'Generador de Placas para Publicar',
@@ -119,7 +119,9 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, idx) => {
-              const isActive = user && feature.href;
+              // La card de Créditos Hipotecarios siempre tiene link activo
+              const isCreditos = feature.name === 'Créditos Hipotecarios';
+              const isActive = (user && feature.href) || isCreditos;
               const content = (
                 <div
                   className="flex flex-col h-full p-6 rounded-xl border border-orange-500 bg-white shadow-sm transition-all duration-300 group hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.04] hover:bg-orange-50 hover:border-orange-400 hover:ring-2 hover:ring-orange-200/60"
@@ -134,7 +136,7 @@ export default function Home() {
                   </p>
                 </div>
               );
-              return isActive ? (
+              return isActive && feature.href ? (
                 <Link key={feature.name} href={feature.href} className="block h-full">{content}</Link>
               ) : (
                 <div key={feature.name} className="h-full">{content}</div>
