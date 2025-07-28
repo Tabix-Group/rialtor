@@ -174,7 +174,7 @@ export default function DocumentsPage() {
               Gestión de Documentos
             </h1>
             <p className="text-red-100 text-lg">
-              Accede y gestiona todos los documentos importantes de RE/MAX
+              Accede y gestiona todos los documentos importantes de Rialtor
             </p>
           </div>
 

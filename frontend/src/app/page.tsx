@@ -169,8 +169,8 @@ export default function Home() {
             {/* Brand/Descripción */}
             <div className="md:col-span-1 flex flex-col items-start mb-8 md:mb-0">
               <div className="flex items-center space-x-3 mb-4">
-                <img src="/images/logo.jfif" alt="Logo RE/MAX" className="w-20 h-20 object-contain m-0 p-0" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, marginTop: 0, marginBottom: 0}} />
-                <span className="text-2xl font-bold">RE/MAX Argentina</span>
+                <img src="/images/logo.jfif" alt="Logo Rialtor" className="w-20 h-20 object-contain m-0 p-0" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, marginTop: 0, marginBottom: 0}} />
+                <span className="text-2xl font-bold">RIALTOR</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-xs text-sm">
                 Base de conocimiento y herramientas profesionales para agentes inmobiliarios argentinos.

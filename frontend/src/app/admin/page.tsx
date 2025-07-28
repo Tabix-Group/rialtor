@@ -245,7 +245,7 @@ export default function AdminPage() {
           </span>
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight">Panel de Administración</h1>
-            <p className="text-red-100 text-lg">Gestión y control de la plataforma RE/MAX</p>
+            <p className="text-red-100 text-lg">Gestión y control de la plataforma Rialtor</p>
           </div>
         </div>
       </div>

@@ -10,25 +10,26 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'RIALTOR - Plataforma Integral',
   description: 'Solución integral de recursos, archivos y herramientas para profesionales inmobiliarios',
+  icons: {
+    icon: '/favicon.png',
+  },
 };
-
-
-// LayoutContent must be a client component to use hooks like useAuth
-// Move Navigation into a client component, and only use AuthProvider here
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-gray-50 text-gray-900 antialiased`}>
         <AuthProvider>
-          <LayoutWithNav>
-            {children}
-          </LayoutWithNav>
+          <div className="flex flex-col min-h-screen">
+            <LayoutWithNav>
+              <main className="flex-grow">{children}</main>
+            </LayoutWithNav>
+            <Footer />
+          </div>
         </AuthProvider>
-        <Footer />
       </body>
     </html>
   );
