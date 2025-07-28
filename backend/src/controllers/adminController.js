@@ -12,20 +12,20 @@ const getStats = async (req, res, next) => {
     console.log('Artículos publicados:', publishedArticles);
     const chatQueries = await prisma.chatSession.count();
     console.log('Consultas chat:', chatQueries);
-    // Contar archivos subidos en la carpeta uploads (no .json)
-    const fs = require('fs');
-    const path = require('path');
-    const uploadDir = path.join(__dirname, '../../uploads');
+
+    // Contar archivos subidos en Cloudinary (carpeta 'documents')
+    const cloudinary = require('../cloudinary');
     let documentsUploaded = 0;
     try {
-      if (fs.existsSync(uploadDir)) {
-        const files = fs.readdirSync(uploadDir);
-        documentsUploaded = files.filter(f => !f.endsWith('.json')).length;
-      }
+      const result = await cloudinary.search
+        .expression('folder:documents')
+        .max_results(100)
+        .execute();
+      documentsUploaded = result.resources.length;
     } catch (e) {
       documentsUploaded = 0;
     }
-    console.log('Documentos subidos:', documentsUploaded);
+    console.log('Documentos subidos (Cloudinary):', documentsUploaded);
 
     res.json({ totalUsers, publishedArticles, chatQueries, documentsUploaded });
   } catch (error) {

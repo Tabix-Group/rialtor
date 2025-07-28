@@ -1,15 +1,18 @@
+
 # RE/MAX Knowledge Platform
 
-Plataforma integral para RE/MAX Argentina: gestión de conocimiento, bot IA, calculadoras, sistema de documentos y panel administrativo.
+Plataforma integral para RE/MAX Argentina: gestión de conocimiento, bot IA, calculadoras, sistema de documentos en la nube (Cloudinary) y panel administrativo avanzado.
 
-## 🚀 Características principales
+## 🚀 Funcionalidades Actuales
 
-- **Base de Conocimiento**: Wiki inmobiliaria con editor Markdown, categorías y artículos con control de estado (borrador, publicado, archivado).
-- **Bot con IA**: Asistente OpenAI que responde consultas sobre documentos y artículos, con sesiones de chat y contexto relevante.
-- **Gestión de Documentos**: Subida, descarga y eliminación de archivos, categorización y búsqueda avanzada.
-- **Calculadora Argentina**: Cálculo de comisiones, impuestos, sellos y tasas por provincia, con historial y configuraciones personalizadas.
-- **Panel de Administración**: Dashboard con estadísticas, gestión de usuarios (CRUD), control de roles y permisos, y administración de contenido.
-- **Autenticación**: Registro, login, refresco de token, cambio de contraseña, roles (ADMIN, USER, AGENTE), y protección de rutas.
+- **Base de Conocimiento**: Wiki inmobiliaria con editor Markdown, categorías, control de estado (borrador, publicado, archivado), historial de versiones y búsqueda avanzada.
+- **Bot con IA**: Asistente OpenAI que responde consultas sobre documentos y artículos, con sesiones de chat, contexto relevante y respuestas sobre regulaciones argentinas.
+- **Gestión de Documentos en Cloudinary**: Subida, descarga y eliminación de archivos en la nube, categorización, búsqueda avanzada, conteo en dashboard y soporte para múltiples formatos (PDF, Word, Excel, imágenes).
+- **Generación de Documentos**: Templates de contratos, formularios personalizables, generación automática con datos del usuario y exportación a Word/PDF.
+- **Calculadora Argentina**: Cálculo de comisiones, impuestos, sellos y tasas por provincia, ITI, historial y configuraciones personalizadas.
+- **Panel de Administración**: Dashboard con estadísticas en tiempo real (usuarios, artículos, consultas, documentos en Cloudinary), gestión de usuarios (CRUD), control de roles y permisos, administración de contenido y configuración del sistema.
+- **Autenticación y Seguridad**: Registro, login, refresco de token, cambio de contraseña, roles y permisos granulares (ADMIN, USER, AGENTE), protección de rutas, validación y sanitización de datos.
+- **Dockerización**: Despliegue de frontend y backend en Railway y otros entornos, con docker-compose y soporte para variables de entorno.
 
 ## 🌐 Enlace de producción
 
@@ -17,40 +20,50 @@ Plataforma integral para RE/MAX Argentina: gestión de conocimiento, bot IA, cal
 
 ## 🛠️ Stack Tecnológico
 
-### Backend
-- **Node.js** + **Express.js**
-- **Prisma ORM** (SQLite en desarrollo, PostgreSQL en producción)
-- **JWT** para autenticación y roles
-- **OpenAI API** para el bot inteligente
-- **Multer** para manejo de archivos
-- **Docker** y **docker-compose** para despliegue
+**Backend:**
+- Node.js + Express.js
+- Prisma ORM (SQLite en desarrollo, PostgreSQL en producción)
+- JWT para autenticación y roles
+- OpenAI API para el bot inteligente
+- Multer para manejo de archivos
+- Cloudinary para almacenamiento de documentos
+- Docker y docker-compose para despliegue
 
-### Frontend
-- **Next.js 14** + **React 18** + **TypeScript**
-- **Tailwind CSS** y **Headless UI**
-- **Axios** para llamadas API
-- **Zustand** para estado global
-- **Quill** y **react-markdown** para edición y visualización de artículos
+**Frontend:**
+- Next.js 14 + React 18 + TypeScript
+- Tailwind CSS y Headless UI
+- Axios para llamadas API
+- Zustand para estado global
+- React Hook Form para formularios
+- Quill y react-markdown para edición y visualización de artículos
 
-## 📦 Estructura actual
+**Herramientas y Calidad:**
+- Docker para contenedores
+- ESLint y Prettier para calidad de código
+- Husky para git hooks
+
+## 📦 Estructura del Proyecto
 
 - **backend/**: API REST, controladores, rutas, middleware, Prisma, Dockerfile
 - **frontend/**: Next.js app, páginas protegidas, componentes, editor, gestión de usuarios, Dockerfile
-- **uploads/**: Archivos subidos
+- **uploads/**: Archivos subidos (legacy, ahora todo en Cloudinary)
 - **docker-compose.yml**: Orquestación de servicios
 
-## 🆕 Cambios recientes
+## 🆕 Cambios y Mejoras Recientes
 
 - Migración completa a Next.js 14 y React 18 con TypeScript
-- Implementación de proxy API en frontend para comunicación segura con backend
-- Mejoras en autenticación y protección de rutas (AuthProvider, useAuth)
-- Panel de administración con dashboard, estadísticas y gestión de usuarios
-- Calculadora de comisiones y sellos con historial y configuraciones por provincia
+- Proxy API en frontend para comunicación segura con backend
+- Autenticación robusta y protección de rutas (AuthProvider, useAuth)
+- Panel de administración con dashboard y estadísticas en tiempo real (usuarios, artículos, consultas, documentos en Cloudinary)
+- Calculadora de comisiones, sellos e ITI con historial y configuraciones por provincia
 - Bot IA con sesiones, contexto relevante y OpenAI
-- Gestión avanzada de documentos (subida, descarga, eliminación, categorías)
+- Gestión avanzada de documentos en Cloudinary (subida, descarga, eliminación, categorías, conteo en dashboard)
 - Editor de artículos con soporte Markdown y vista previa
-- Sistema de roles y permisos (ADMIN, USER, AGENTE)
+- Sistema de roles y permisos (ADMIN, USER, AGENTE) y control granular
 - Dockerización de frontend y backend para despliegue en Railway
+- Refactor de endpoints y controladores para estadísticas y conteo real de documentos en Cloudinary
+
+
 
 ## 📄 Instalación y desarrollo
 
@@ -59,6 +72,7 @@ Plataforma integral para RE/MAX Argentina: gestión de conocimiento, bot IA, cal
 3. Instalar dependencias en `backend/` y `frontend/`
 4. Ejecutar `docker-compose up` para desarrollo local
 5. Acceder a la app en `http://localhost:3000` (frontend) y `http://localhost:3001/api` (backend)
+
 
 ## ✨ Contribuciones y contacto
 
@@ -155,37 +169,44 @@ El diseño sigue la identidad visual de RE/MAX:
 - **Tipografía**: Fuentes profesionales y legibles
 - **UI/UX**: Diseño limpio, intuitivo y responsive
 
-## 📝 Funcionalidades Principales
 
-### 1. Base de Conocimiento
-- Crear y editar artículos tipo wiki
-- Categorización por temas
-- Búsqueda avanzada
+## 📝 Funcionalidades Detalladas
+
+### Base de Conocimiento
+- Crear, editar y archivar artículos tipo wiki
+- Editor Markdown con vista previa
+- Categorización y búsqueda avanzada
 - Historial de versiones
 
-### 2. Bot Inteligente
-- Respuestas basadas en documentos cargados
+### Bot Inteligente
+- Respuestas basadas en artículos y documentos
 - Integración con OpenAI
-- Contexto persistente
-- Respuestas precisas sobre regulaciones argentinas
+- Sesiones de chat y contexto persistente
 
-### 3. Generación de Documentos
-- Templates de contratos
-- Formularios personalizables
-- Generación automática con datos del usuario
+### Gestión y Generación de Documentos
+- Subida, descarga y eliminación de archivos en Cloudinary
+- Conteo de documentos en dashboard (en tiempo real)
+- Templates de contratos y formularios personalizables
 - Exportación a Word/PDF
 
-### 4. Calculadora Argentina
+### Calculadora Argentina
 - Comisiones inmobiliarias
 - Impuestos a las ganancias
 - Sellos y tasas provinciales
 - ITI (Impuesto a la Transferencia de Inmuebles)
+- Historial y configuraciones por provincia
 
-### 5. Panel de Administración
-- Gestión de usuarios y roles
-- Configuración de calculadoras
-- Administración de contenido
-- Métricas y reportes
+### Panel de Administración
+- Dashboard con estadísticas en tiempo real (usuarios, artículos, consultas, documentos en Cloudinary)
+- Gestión de usuarios y roles (CRUD)
+- Administración de contenido y configuración del sistema
+
+### Seguridad
+- Autenticación JWT
+- Roles y permisos granulares
+- Validación y sanitización de datos
+- Rate limiting
+
 
 ## 🔐 Seguridad
 
@@ -207,16 +228,18 @@ El diseño sigue la identidad visual de RE/MAX:
 - Nginx como reverse proxy
 - SSL/TLS certificates
 
+
 ## 📊 Roadmap
 
-- [ ] ✅ Estructura base del proyecto
-- [ ] 🔄 Sistema de autenticación
-- [ ] 🔄 Base de conocimiento
-- [ ] 🔄 Bot con IA
-- [ ] 🔄 Calculadora argentina
-- [ ] 🔄 Sistema de documentos
-- [ ] 🔄 Panel de administración
-- [ ] 🔄 Despliegue en producción
+- [x] Estructura base del proyecto
+- [x] Sistema de autenticación y roles
+- [x] Base de conocimiento y editor avanzado
+- [x] Bot con IA y contexto
+- [x] Calculadora argentina y reportes
+- [x] Sistema de documentos en Cloudinary
+- [x] Panel de administración y dashboard en tiempo real
+- [x] Despliegue en producción con Docker
+
 
 ## 🤝 Contribución
 
