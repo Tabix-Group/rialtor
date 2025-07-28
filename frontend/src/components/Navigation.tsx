@@ -18,8 +18,8 @@ function Navigation() {
 
   const navConfig = isUsuario
     ? [
-        { name: 'Recursos', href: '/knowledge', icon: 'BookOpen' },
-        { name: 'Calculadora', href: '/calculator', icon: 'Calculator' },
+        { name: 'Recursos', href: '/knowledge', icon: 'BookOpen', permission: undefined },
+        { name: 'Calculadora', href: '/calculator', icon: 'Calculator', permission: undefined },
       ]
     : [
         { name: 'Recursos', href: '/knowledge', icon: 'BookOpen', permission: 'manage_articles' },
