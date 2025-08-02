@@ -51,6 +51,12 @@ export default function Home() {
       icon: ShieldCheck,
       href: '', // aún no creada
     },
+    {
+      name: 'Calculadora de Seguro de Caución',
+      description: 'Simulá y compará el costo de diferentes seguros de caución para alquileres. Descubrí cómo funciona, qué requisitos hay y cuál es la mejor opción para tu operación inmobiliaria.',
+      icon: ShieldCheck,
+      href: '/creditos',
+    },
   ];
 
   type Article = {
@@ -117,11 +123,11 @@ export default function Home() {
               ¿Qué puedes hacer con RIALTOR?
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, idx) => {
-              // La card de Créditos Hipotecarios siempre tiene link activo
               const isCreditos = feature.name === 'Créditos Hipotecarios';
-              const isActive = (user && feature.href) || isCreditos;
+              const isCaucion = feature.name === 'Calculadora de Seguro de Caución';
+              const isActive = user && feature.href && !isCreditos && !isCaucion;
               const content = (
                 <div
                   className="flex flex-col h-full p-6 rounded-xl border border-orange-500 bg-white shadow-sm transition-all duration-300 group hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.04] hover:bg-orange-50 hover:border-orange-400 hover:ring-2 hover:ring-orange-200/60"
@@ -136,7 +142,19 @@ export default function Home() {
                   </p>
                 </div>
               );
-              return isActive && feature.href ? (
+              // Si es la card de Créditos Hipotecarios, nunca tiene link
+              if (isCreditos) {
+                return <div key={feature.name} className="h-full">{content}</div>;
+              }
+              // Si es la card de Seguro de Caución, solo tiene link si está logueado
+              if (isCaucion) {
+                if (user) {
+                  return <Link key={feature.name} href={feature.href} className="block h-full">{content}</Link>;
+                } else {
+                  return <div key={feature.name} className="h-full">{content}</div>;
+                }
+              }
+              return isActive ? (
                 <Link key={feature.name} href={feature.href} className="block h-full">{content}</Link>
               ) : (
                 <div key={feature.name} className="h-full">{content}</div>
