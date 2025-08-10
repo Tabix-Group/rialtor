@@ -47,9 +47,9 @@ export default function Home() {
     },
     {
       name: 'Generador de Placas para Publicar',
-      description: 'Compará opciones de seguros de caución, garantías y avales. Ideal para alquileres.',
+      description: 'Crea placas profesionales para tus propiedades con IA. Sube fotos y obtén imágenes listas para publicar.',
       icon: ShieldCheck,
-      href: '', // aún no creada
+      href: '/placas',
     },
     {
       name: 'Calculadora de Seguro de Caución',

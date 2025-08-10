@@ -41,6 +41,7 @@ function Navigation() {
           ],
           permission: 'use_calculator',
         },
+        { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: 'use_placas' },
         { name: 'Archivos', href: '/documents', icon: 'FileText', permission: 'manage_documents' },
         { name: 'Panel de Control', href: '/admin', icon: 'Shield', permission: 'view_admin' },
       ]
@@ -51,6 +52,7 @@ function Navigation() {
     Calculator: require('lucide-react').Calculator,
     FileText: require('lucide-react').FileText,
     Shield: require('lucide-react').Shield,
+    ImageIcon: require('lucide-react').Image,
   }
 
   const isActive = (href: string) => pathname?.startsWith(href)

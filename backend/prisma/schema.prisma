@@ -27,6 +27,7 @@ model User {
   chatSessions    ChatSession[]
   documentRequests DocumentRequest[]
   calculatorHistory CalculatorHistory[]
+  propertyPlaques PropertyPlaque[]
 
   // Roles y permisos
   roleAssignments RoleAssignment[]
@@ -253,4 +254,26 @@ model SystemConfig {
   updatedAt DateTime @updatedAt
   
   @@map("system_config")
+}
+
+// Placas de propiedades
+model PropertyPlaque {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  propertyData    String   // JSON con datos de la propiedad
+  originalImages  String   // JSON array con URLs de imágenes originales
+  generatedImages String   // JSON array con URLs de placas generadas
+  status          String   @default("PROCESSING")
+  aiPrompt        String?
+  aiResponse      String?
+  metadata        String?  // JSON con metadata adicional
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relaciones
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  
+  @@map("property_plaques")
 }

@@ -14,6 +14,7 @@ async function main() {
     { name: 'manage_documents', description: 'Gestionar documentos' },
     { name: 'use_calculator', description: 'Usar calculadora' },
     { name: 'use_chat', description: 'Usar chat' },
+    { name: 'use_placas', description: 'Usar generador de placas' },
     // Agrega más según tus vistas/secciones
   ];
 
@@ -32,7 +33,7 @@ async function main() {
       description: 'Administrador',
       permissions: [
         'view_admin', 'view_broker', 'view_agent', 'view_user',
-        'manage_articles', 'manage_categories', 'manage_users', 'manage_documents', 'use_calculator', 'use_chat',
+        'manage_articles', 'manage_categories', 'manage_users', 'manage_documents', 'use_calculator', 'use_chat', 'use_placas',
       ],
     },
     {
@@ -40,14 +41,14 @@ async function main() {
       description: 'Broker',
       permissions: [
         'view_broker', 'view_agent', 'view_user',
-        'manage_articles', 'manage_categories', 'manage_documents', 'use_calculator', 'use_chat',
+        'manage_articles', 'manage_categories', 'manage_documents', 'use_calculator', 'use_chat', 'use_placas',
       ],
     },
     {
       name: 'AGENTE',
       description: 'Agente',
       permissions: [
-        'view_agent', 'view_user', 'manage_documents', 'use_calculator', 'use_chat',
+        'view_agent', 'view_user', 'manage_documents', 'use_calculator', 'use_chat', 'use_placas',
       ],
     },
     {
