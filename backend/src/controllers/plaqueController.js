@@ -254,9 +254,12 @@ Responde en formato JSON con las claves: tipo, caracteristicas, ubicacion_texto,
 
     // 3. Subir imagen final a Cloudinary
     console.log('[PLACAS] Subiendo placa final a Cloudinary...');
+    const folder = 'placas/generadas';
+    const filename = `${Date.now()}_placa`;
     const result = await uploadBufferToCloudinary(
-      plaqueImageBuffer, 
-      `placas/generadas/${Date.now()}_placa.png`
+      plaqueImageBuffer,
+      folder,
+      filename
     );
 
     console.log('[PLACAS] Placa final subida a:', result.secure_url);
@@ -462,11 +465,12 @@ function uploadImageToCloudinary(buffer, folder) {
 /**
  * Subir buffer a Cloudinary
  */
-function uploadBufferToCloudinary(buffer, publicId) {
+function uploadBufferToCloudinary(buffer, folder, filename) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        public_id: publicId,
+        folder,
+        public_id: filename,
         resource_type: 'image',
         format: 'png'
       },
@@ -478,7 +482,6 @@ function uploadBufferToCloudinary(buffer, publicId) {
     stream.end(buffer);
   });
 }
-
 /**
  * Obtener placas del usuario
  */
