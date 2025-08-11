@@ -303,15 +303,25 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     console.log('[PLACAS] Generando overlay con color:', overlayColor);
     console.log('[PLACAS] Datos de propiedad:', JSON.stringify(propertyInfo, null, 2));
     
-    // Limpiar y preparar textos para evitar problemas de codificación
-    const precio = String(propertyInfo.precio || '0').replace(/[^\d]/g, '');
-    const moneda = String(propertyInfo.moneda || 'USD');
-    const tipo = String(propertyInfo.tipo || imageAnalysis?.tipo || 'Propiedad');
-    const ambientes = propertyInfo.ambientes ? String(propertyInfo.ambientes) : null;
-    const superficie = propertyInfo.superficie ? String(propertyInfo.superficie) : null;
-    const direccion = String(propertyInfo.direccion || 'Ubicacion disponible');
-    const contacto = String(propertyInfo.contacto || 'Contacto disponible');
-    const email = propertyInfo.email ? String(propertyInfo.email) : null;
+    // Limpiar y preparar textos para evitar problemas de codificación y overlays vacíos
+    function cleanText(val, fallback, maxLen = 40) {
+      if (!val) return fallback;
+      let s = String(val).replace(/[<>"'`]/g, '').trim();
+      if (s.length === 0) return fallback;
+      return s.length > maxLen ? s.slice(0, maxLen) + '…' : s;
+    }
+
+    const precio = cleanText(propertyInfo.precio, 'Consultar', 20).replace(/[^\d]/g, '');
+    const moneda = cleanText(propertyInfo.moneda, 'USD', 8);
+    const tipo = cleanText(propertyInfo.tipo || imageAnalysis?.tipo, 'Propiedad', 30);
+    const ambientes = propertyInfo.ambientes ? cleanText(propertyInfo.ambientes, '', 10) : null;
+    const superficie = propertyInfo.superficie ? cleanText(propertyInfo.superficie, '', 10) : null;
+    const direccion = cleanText(propertyInfo.direccion, 'Ubicación disponible', 40);
+    const contacto = cleanText(propertyInfo.contacto, 'Contacto disponible', 30);
+    const email = propertyInfo.email ? cleanText(propertyInfo.email, '', 40) : null;
+
+    // Log para depuración
+    console.log('[PLACAS][DEBUG] Overlay fields:', {precio, moneda, tipo, ambientes, superficie, direccion, contacto, email});
     
     const svgOverlay = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" encoding="UTF-8">
         <defs>

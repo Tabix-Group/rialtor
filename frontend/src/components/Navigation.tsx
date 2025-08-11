@@ -41,7 +41,7 @@ function Navigation() {
           ],
           permission: 'use_calculator',
         },
-        { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: 'use_placas' },
+  // { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: 'use_placas' }, // OCULTO TEMPORALMENTE
         { name: 'Archivos', href: '/documents', icon: 'FileText', permission: 'manage_documents' },
         { name: 'Panel de Control', href: '/admin', icon: 'Shield', permission: 'view_admin' },
       ]
