@@ -301,70 +301,97 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
     
     console.log('[PLACAS] Generando overlay con color:', overlayColor);
+    console.log('[PLACAS] Datos de propiedad:', JSON.stringify(propertyInfo, null, 2));
     
-    const svgOverlay = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    // Limpiar y preparar textos para evitar problemas de codificación
+    const precio = String(propertyInfo.precio || '0').replace(/[^\d]/g, '');
+    const moneda = String(propertyInfo.moneda || 'USD');
+    const tipo = String(propertyInfo.tipo || imageAnalysis?.tipo || 'Propiedad');
+    const ambientes = propertyInfo.ambientes ? String(propertyInfo.ambientes) : null;
+    const superficie = propertyInfo.superficie ? String(propertyInfo.superficie) : null;
+    const direccion = String(propertyInfo.direccion || 'Ubicacion disponible');
+    const contacto = String(propertyInfo.contacto || 'Contacto disponible');
+    const email = propertyInfo.email ? String(propertyInfo.email) : null;
+    
+    const svgOverlay = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" encoding="UTF-8">
         <defs>
-          <style>
-            .precio { font-family: Arial, sans-serif; font-size: ${Math.max(24, width/30)}px; font-weight: bold; fill: ${textColor}; }
-            .info { font-family: Arial, sans-serif; font-size: ${Math.max(16, width/50)}px; fill: ${textColor}; }
-            .contacto { font-family: Arial, sans-serif; font-size: ${Math.max(14, width/60)}px; fill: ${textColor}; }
-          </style>
+          <style><![CDATA[
+            .precio { 
+              font-family: 'Arial', 'Helvetica', sans-serif; 
+              font-size: ${Math.max(28, width/25)}px; 
+              font-weight: bold; 
+              fill: ${textColor}; 
+            }
+            .info { 
+              font-family: 'Arial', 'Helvetica', sans-serif; 
+              font-size: ${Math.max(18, width/40)}px; 
+              fill: ${textColor}; 
+              font-weight: 500;
+            }
+            .contacto { 
+              font-family: 'Arial', 'Helvetica', sans-serif; 
+              font-size: ${Math.max(16, width/50)}px; 
+              fill: ${textColor}; 
+            }
+            .label {
+              font-family: 'Arial', 'Helvetica', sans-serif; 
+              font-size: ${Math.max(14, width/60)}px; 
+              fill: ${textColor}; 
+              opacity: 0.8;
+            }
+          ]]></style>
         </defs>
         
-        <!-- Fondo semitransparente -->
-        <rect x="${width - 350}" y="20" width="320" height="200" fill="${overlayColor}" rx="10"/>
+        <!-- Fondo principal -->
+        <rect x="${width - 380}" y="20" width="350" height="220" fill="${overlayColor}" rx="12" stroke="${textColor}" stroke-width="2" opacity="0.95"/>
         
         <!-- Precio principal -->
-        <text x="${width - 330}" y="50" class="precio">
-          ${propertyInfo.moneda || '$'} ${formatPrice(propertyInfo.precio)}
-        </text>
+        <text x="${width - 360}" y="55" class="precio">${moneda} ${formatPrice(precio)}</text>
         
-        <!-- Tipo y características -->
-        <text x="${width - 330}" y="80" class="info">
-          ${propertyInfo.tipo || imageAnalysis.tipo}
-        </text>
+        <!-- Tipo de propiedad -->
+        <text x="${width - 360}" y="85" class="info">${tipo}</text>
         
-        ${propertyInfo.ambientes ? `
-        <text x="${width - 330}" y="105" class="info">
-          ${propertyInfo.ambientes} ambientes
-        </text>
-        ` : ''}
+        ${ambientes ? `<text x="${width - 360}" y="110" class="info">${ambientes} ambientes</text>` : ''}
         
-        ${propertyInfo.superficie ? `
-        <text x="${width - 330}" y="130" class="info">
-          ${propertyInfo.superficie} m²
-        </text>
-        ` : ''}
+        ${superficie ? `<text x="${width - 360}" y="135" class="info">${superficie} m2</text>` : ''}
         
-        <!-- Dirección -->
-        <text x="${width - 330}" y="155" class="info">
-          📍 ${propertyInfo.direccion}
-        </text>
+        <!-- Ubicación -->
+        <text x="${width - 360}" y="165" class="label">Ubicacion:</text>
+        <text x="${width - 360}" y="185" class="contacto">${direccion}</text>
         
         <!-- Contacto -->
-        <text x="${width - 330}" y="180" class="contacto">
-          📞 ${propertyInfo.contacto}
-        </text>
+        <text x="${width - 360}" y="210" class="label">Contacto:</text>
+        <text x="${width - 360}" y="230" class="contacto">${contacto}</text>
         
-        ${propertyInfo.email ? `
-        <text x="${width - 330}" y="200" class="contacto">
-          ✉️ ${propertyInfo.email}
-        </text>
-        ` : ''}
+        ${email ? `<text x="${width - 360}" y="250" class="contacto">${email}</text>` : ''}
         
-        <!-- Logo RE/MAX (esquina inferior) -->
-        <rect x="20" y="${height - 80}" width="100" height="60" fill="rgba(220,38,127,0.9)" rx="5"/>
-        <text x="25" y="${height - 45}" style="font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: white;">RE/MAX</text>
-      </svg>
-    `;
+        <!-- Logo RE/MAX -->
+        <rect x="20" y="${height - 90}" width="120" height="70" fill="#DC267F" rx="8"/>
+        <text x="30" y="${height - 55}" style="font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: white;">RE/MAX</text>
+        <text x="30" y="${height - 35}" style="font-family: Arial, sans-serif; font-size: 12px; fill: white;">PROPIEDADES</text>
+      </svg>`;
 
-    // Aplicar overlay a la imagen
+    console.log('[PLACAS] SVG generado:', svgOverlay.substring(0, 200) + '...');
+
+    // Aplicar overlay a la imagen con configuración explícita de codificación
+    const svgBuffer = Buffer.from(svgOverlay, 'utf8');
+    
+    console.log('[PLACAS] Tamaño del SVG buffer:', svgBuffer.length, 'bytes');
+    
     const processedImage = await image
-      .composite([{ input: Buffer.from(svgOverlay), top: 0, left: 0 }])
-      .png()
+      .composite([{ 
+        input: svgBuffer, 
+        top: 0, 
+        left: 0 
+      }])
+      .png({ 
+        quality: 90,
+        compressionLevel: 6 
+      })
       .toBuffer();
 
+    console.log('[PLACAS] Imagen procesada, tamaño final:', processedImage.length, 'bytes');
+    
     return processedImage;
 
   } catch (error) {
@@ -388,7 +415,17 @@ function determineOverlayColor(colores) {
  * Formatear precio con separadores de miles
  */
 function formatPrice(price) {
-  return parseInt(price).toLocaleString('es-AR');
+  try {
+    // Convertir a número, removiendo caracteres no numéricos
+    const numPrice = parseInt(String(price).replace(/[^\d]/g, ''));
+    if (isNaN(numPrice) || numPrice <= 0) {
+      return 'Consultar';
+    }
+    return numPrice.toLocaleString('es-AR');
+  } catch (error) {
+    console.error('[PLACAS] Error formateando precio:', error);
+    return 'Consultar';
+  }
 }
 
 /**
