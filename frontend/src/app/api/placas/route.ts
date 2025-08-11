@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     
     const queryString = searchParams.toString();
-    const url = `${API_BASE}/api/placas${queryString ? `?${queryString}` : ''}`;
+    const url = `${API_BASE}/placas${queryString ? `?${queryString}` : ''}`;
 
     const response = await fetch(url, {
       headers: {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const token = request.headers.get('authorization');
     const formData = await request.formData();
 
-    const response = await fetch(`${API_BASE}/api/placas`, {
+    const response = await fetch(`${API_BASE}/placas`, {
       method: 'POST',
       headers: {
         'Authorization': token || '',

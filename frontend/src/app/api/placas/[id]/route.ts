@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
     const token = request.headers.get('authorization');
     const { id } = params;
 
-    const response = await fetch(`${API_BASE}/api/placas/${id}`, {
+    const response = await fetch(`${API_BASE}/placas/${id}`, {
       headers: {
         'Authorization': token || '',
         'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ export async function DELETE(
     const token = request.headers.get('authorization');
     const { id } = params;
 
-    const response = await fetch(`${API_BASE}/api/placas/${id}`, {
+    const response = await fetch(`${API_BASE}/placas/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': token || '',
