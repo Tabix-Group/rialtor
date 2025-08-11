@@ -4,6 +4,7 @@ const OpenAI = require('openai');
 const cloudinary = require('../cloudinary');
 const multer = require('multer');
 const sharp = require('sharp');
+const fetch = require('node-fetch'); // Importar fetch para compatibilidad
 
 const prisma = new PrismaClient();
 
@@ -111,12 +112,15 @@ const createPropertyPlaque = async (req, res, next) => {
 async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
   try {
     console.log('[PLACAS] Iniciando procesamiento de imágenes para placa:', plaqueId);
+    console.log('[PLACAS] Datos de propiedad:', JSON.stringify(propertyInfo, null, 2));
 
     // 1. Subir imágenes originales a Cloudinary
     const originalImageUrls = [];
     for (const file of files) {
+      console.log('[PLACAS] Subiendo imagen a Cloudinary...');
       const result = await uploadImageToCloudinary(file.buffer, `placas/originales/${plaqueId}`);
       originalImageUrls.push(result.secure_url);
+      console.log('[PLACAS] Imagen subida:', result.secure_url);
     }
 
     console.log('[PLACAS] Imágenes originales subidas:', originalImageUrls.length);
@@ -130,23 +134,28 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
       }
     });
 
+    console.log('[PLACAS] Estado actualizado a GENERATING');
+
     // 3. Generar placas usando OpenAI Vision + diseño
     const generatedImageUrls = [];
     
     for (let i = 0; i < originalImageUrls.length; i++) {
       const originalUrl = originalImageUrls[i];
-      console.log(`[PLACAS] Procesando imagen ${i + 1}/${originalImageUrls.length}`);
+      console.log(`[PLACAS] Procesando imagen ${i + 1}/${originalImageUrls.length}: ${originalUrl}`);
       
       try {
         // Generar placa para esta imagen
         const plaqueImageUrl = await generatePlaqueForImage(originalUrl, propertyInfo);
         generatedImageUrls.push(plaqueImageUrl);
-        console.log(`[PLACAS] Placa generada para imagen ${i + 1}`);
+        console.log(`[PLACAS] Placa generada para imagen ${i + 1}: ${plaqueImageUrl}`);
       } catch (error) {
-        console.error(`[PLACAS] Error generando placa para imagen ${i + 1}:`, error);
+        console.error(`[PLACAS] Error generando placa para imagen ${i + 1}:`, error.message);
+        console.error(`[PLACAS] Stack trace:`, error.stack);
         // Continuar con las demás imágenes
       }
     }
+
+    console.log('[PLACAS] Total de placas generadas:', generatedImageUrls.length);
 
     // 4. Actualizar estado final
     await prisma.propertyPlaque.update({
@@ -161,12 +170,13 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
     console.log('[PLACAS] Procesamiento completado. Placas generadas:', generatedImageUrls.length);
 
   } catch (error) {
-    console.error('[PLACAS] Error en procesamiento:', error);
+    console.error('[PLACAS] Error en procesamiento:', error.message);
+    console.error('[PLACAS] Stack trace completo:', error.stack);
     await prisma.propertyPlaque.update({
       where: { id: plaqueId },
       data: { 
         status: 'ERROR',
-        metadata: JSON.stringify({ error: error.message })
+        metadata: JSON.stringify({ error: error.message, stack: error.stack })
       }
     });
   }
@@ -176,11 +186,15 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
  * Generar placa para una imagen específica
  */
 async function generatePlaqueForImage(imageUrl, propertyInfo) {
+  console.log('[PLACAS] Iniciando generación de placa para:', imageUrl);
+  
   if (!openai) {
     throw new Error('OpenAI no está configurado');
   }
 
   try {
+    console.log('[PLACAS] Llamando a OpenAI Vision API...');
+    
     // 1. Analizar la imagen con OpenAI Vision
     const analysisPrompt = `
 Analiza esta imagen de propiedad inmobiliaria y describe:
@@ -207,13 +221,20 @@ Responde en formato JSON con las claves: tipo, caracteristicas, ubicacion_texto,
           ]
         }
       ],
-      max_tokens: 500
+      max_tokens: 500,
+      temperature: 0.7
     });
+
+    console.log('[PLACAS] Respuesta de OpenAI Vision recibida');
 
     let imageAnalysis;
     try {
-      imageAnalysis = JSON.parse(visionResponse.choices[0].message.content);
-    } catch {
+      const rawContent = visionResponse.choices[0].message.content;
+      console.log('[PLACAS] Contenido crudo de OpenAI:', rawContent);
+      imageAnalysis = JSON.parse(rawContent);
+      console.log('[PLACAS] Análisis parseado exitosamente:', imageAnalysis);
+    } catch (parseError) {
+      console.warn('[PLACAS] Error parseando JSON de OpenAI, usando valores por defecto:', parseError.message);
       // Si no es JSON válido, usar valores por defecto
       imageAnalysis = {
         tipo: "propiedad",
@@ -224,21 +245,29 @@ Responde en formato JSON con las claves: tipo, caracteristicas, ubicacion_texto,
       };
     }
 
-    console.log('[PLACAS] Análisis de imagen:', imageAnalysis);
+    console.log('[PLACAS] Análisis de imagen final:', imageAnalysis);
 
     // 2. Generar el overlay de información
+    console.log('[PLACAS] Generando overlay...');
     const plaqueImageBuffer = await createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis);
+    console.log('[PLACAS] Overlay generado, tamaño del buffer:', plaqueImageBuffer.length);
 
     // 3. Subir imagen final a Cloudinary
+    console.log('[PLACAS] Subiendo placa final a Cloudinary...');
     const result = await uploadBufferToCloudinary(
       plaqueImageBuffer, 
       `placas/generadas/${Date.now()}_placa.png`
     );
 
+    console.log('[PLACAS] Placa final subida a:', result.secure_url);
     return result.secure_url;
 
   } catch (error) {
-    console.error('[PLACAS] Error generando placa:', error);
+    console.error('[PLACAS] Error detallado en generación de placa:', {
+      message: error.message,
+      stack: error.stack,
+      imageUrl: imageUrl
+    });
     throw error;
   }
 }
@@ -248,17 +277,30 @@ Responde en formato JSON con las claves: tipo, caracteristicas, ubicacion_texto,
  */
 async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
   try {
+    console.log('[PLACAS] Descargando imagen de:', imageUrl);
+    
     // Descargar imagen original
     const response = await fetch(imageUrl);
-    const imageBuffer = await response.buffer();
+    if (!response.ok) {
+      throw new Error(`Error descargando imagen: ${response.status} ${response.statusText}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const imageBuffer = Buffer.from(arrayBuffer);
+    
+    console.log('[PLACAS] Imagen descargada, tamaño:', imageBuffer.length, 'bytes');
 
     // Procesar con Sharp
     const image = sharp(imageBuffer);
     const { width, height } = await image.metadata();
+    
+    console.log('[PLACAS] Dimensiones de imagen:', width, 'x', height);
 
     // Crear SVG con la información de la propiedad
     const overlayColor = determineOverlayColor(imageAnalysis.colores);
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
+    
+    console.log('[PLACAS] Generando overlay con color:', overlayColor);
     
     const svgOverlay = `
       <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
