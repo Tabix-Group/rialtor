@@ -118,6 +118,11 @@ const getChatSession = async (req, res, next) => {
   }
 };
 
+const { kb_lookup, tasador_express, calc_gastos_escritura, calc_honorarios } = require('../services/rialtorTools');
+const { saveSlots, getSlots } = require('../services/sessionStore');
+const metrics = require('../instrumentation/rialtorMetrics');
+const templates = require('../templates/rialtorTemplates');
+
 const sendMessage = async (req, res, next) => {
   try {
     console.log('[CHAT] sendMessage called');
@@ -165,7 +170,7 @@ const sendMessage = async (req, res, next) => {
     });
     console.log('[CHAT] Mensaje de usuario guardado:', userMessage.id);
 
-    // Buscar contexto relevante en artículos y documentos
+  // Buscar contexto relevante en artículos y documentos (mantener lógica existente)
     let contextText = '';
     let foundContext = false;
 
@@ -226,62 +231,112 @@ const sendMessage = async (req, res, next) => {
       });
     }
 
-    // Construir prompt para OpenAI
-    let systemPrompt = '';
-    if (foundContext) {
-      systemPrompt = `Eres un asistente experto en bienes raíces de Argentina trabajando para RE/MAX. El siguiente CONTEXTO contiene artículos y documentos extraídos de la base de datos interna de RE/MAX. SOLO puedes responder usando la información que aparece en este contexto. Si tu respuesta se basa en un artículo, debes citar el enlace de referencia incluido en el contexto. Si la pregunta no está respondida en el contexto, responde exactamente: 'No tengo información suficiente sobre este tema en la base de conocimiento.' No inventes ni uses información externa, ni respondas sobre temas que no aparecen en el contexto.\n\nCONTEXT:\n${contextText}`;
-    } else {
-      systemPrompt = `No tengo información suficiente sobre este tema en la base de conocimiento.`;
-    }
-    console.log('[CHAT] Prompt generado para OpenAI:', systemPrompt.substring(0, 300));
-
-    const messages = [
-      {
-        role: 'system',
-        content: systemPrompt
-      },
-      {
-        role: 'user',
-        content: message
+    // Persistir slots mínimos si vienen en el mensaje (ej: zona, tipo, superficie)
+    try {
+      const possibleSlots = {};
+      // Intent: simple extracción con regexes para capturar m2, barrio, tipo
+      const m2Match = message.match(/(\d{2,4})\s?m\s?\b|(\d{2,4})\s?m2\b/i);
+      if (m2Match) {
+        const m2 = Number((m2Match[1] || m2Match[2]));
+        if (!isNaN(m2)) possibleSlots.superficie = m2;
       }
-    ];
-
-    // Llamar a OpenAI solo si está inicializado
-    if (!openai) {
-      console.log('[CHAT] OpenAI no inicializado');
-      return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
+      const barrioMatch = message.match(/(Caballito|Palermo|Belgrano|Recoleta|[A-Z][a-z]+)\b/);
+      if (barrioMatch) possibleSlots.zona = barrioMatch[1];
+      const tipoMatch = message.match(/(dept|departamento|ph|casa|monoamb|2 amb|3 amb|local)/i);
+      if (tipoMatch) possibleSlots.tipo_propiedad = tipoMatch[1];
+      if (Object.keys(possibleSlots).length > 0) {
+        saveSlots(session.id, possibleSlots);
+        console.log('[CHAT] Slots guardados:', possibleSlots);
+      }
+    } catch (e) {
+      console.warn('[CHAT] No se pudieron extraer slots:', e.message);
     }
-    console.log('[CHAT] Llamando a OpenAI...');
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: messages,
-      max_tokens: 1000,
-      temperature: 0.7
-    });
-    let assistantResponse = completion.choices[0].message.content;
-    console.log('[CHAT] Respuesta OpenAI:', assistantResponse.substring(0, 200));
 
-    // Si la respuesta es muy restrictiva, permite una respuesta general
-    if (assistantResponse.includes('No tengo información suficiente') && !foundContext) {
-      console.log('[CHAT] Reintentando con prompt menos restrictivo');
-      const fallbackMessages = [
-        {
-          role: 'system',
-          content: 'Eres un asistente experto en bienes raíces de Argentina trabajando para RE/MAX. Ayuda a los agentes inmobiliarios respondiendo sus consultas de manera profesional y precisa.'
-        },
-        {
-          role: 'user',
-          content: message
+    // Ruteo simplificado: si la consulta parece de tasación/gastos/honorarios, usar herramientas internas.
+    let assistantResponse = null;
+    let usedSource = 'openai';
+    try {
+      const lower = message.toLowerCase();
+      if (lower.includes('valor') || lower.includes('tasac') || lower.match(/\d+m2|m\b|m2\b/)) {
+        // Extraer slots y llamar a tasador
+        const slots = getSlots(session.id) || {};
+        const barrio = slots.zona || (message.match(/(Caballito|Palermo|Belgrano|Recoleta)/) || [])[0];
+        const superficie = slots.superficie || (message.match(/(\d{2,4})\s?m2|m\b/) || [])[1];
+        try {
+          const tas = await tasador_express({ barrio, tipo_propiedad: slots.tipo_propiedad || 'departamento', superficie_m2: Number(superficie) || slots.superficie });
+          assistantResponse = templates.formatTasacion(Object.assign({}, tas, { barrio, tipo_propiedad: slots.tipo_propiedad }));
+          usedSource = 'tools:tasador_express';
+        } catch (tErr) {
+          console.warn('[CHAT] tasador_express failed:', tErr.message);
         }
+      }
+
+      if (!assistantResponse && (lower.includes('honorari') || lower.includes('quien paga') || lower.includes('paga'))) {
+        const slots = getSlots(session.id) || {};
+        const jurisdiccion = slots.jurisdiccion || (message.match(/CABA|PBA/) || [])[0];
+        const precio = (message.match(/\$?\s?(\d+[\.,]?\d+)/) || [])[1];
+        try {
+          const h = await calc_honorarios({ jurisdiccion: jurisdiccion || 'CABA', tipo_operacion: 'venta', precio_operacion: Number(precio) || 0 });
+          assistantResponse = `Honorarios: ${h.porcentaje * 100}% = ${h.total} (formula: ${h.formula})\nNota: ${h.quien_paga}`;
+          usedSource = 'tools:calc_honorarios';
+        } catch (hErr) {
+          console.warn('[CHAT] calc_honorarios failed:', hErr.message);
+        }
+      }
+
+      if (!assistantResponse && (lower.includes('gastos') || lower.includes('sellos') || lower.includes('escritura'))) {
+        const jurisdiccion = (message.match(/CABA|PBA/) || [])[0] || 'PBA';
+        const precio_match = message.match(/(\d+[\.,]?\d+)/);
+        const precio_val = precio_match ? Number(precio_match[1].replace(/\./g, '')) : null;
+        try {
+          const g = await calc_gastos_escritura({ jurisdiccion, precio_operacion: precio_val || 0, primera_vivienda: false, tiene_otra_propiedad: lower.includes('otra propiedad') });
+          assistantResponse = `Gastos (${g.jurisdiccion}): total ARS ${g.total_comprador_ars}. Desglose: impuestos ${g.desglose.impuestos_sellos}, aranceles ${g.desglose.aranceles_notariales}. ${g.observaciones}`;
+          usedSource = 'tools:calc_gastos_escritura';
+        } catch (gErr) {
+          console.warn('[CHAT] calc_gastos_escritura failed:', gErr.message);
+        }
+      }
+    } catch (rErr) {
+      console.warn('[CHAT] routing error:', rErr.message);
+    }
+
+    // Si no se resolvió con herramientas, fallback a la lógica anterior (OpenAI con contexto si existe)
+    if (!assistantResponse) {
+      // Construir prompt para OpenAI
+      let systemPrompt = '';
+      if (foundContext) {
+        systemPrompt = `Eres RIALTOR, un consultor de IA especializado EXCLUSIVAMENTE en el sector inmobiliario argentino (AMBA). El siguiente CONTEXTO contiene artículos y documentos extraídos de la base de datos interna. Prioriza responder usando este contexto y especifica si la info no está en KB interna. CONTEXT:\n${contextText}`;
+      } else {
+        // System prompt inmutable (short) as requested by config
+        systemPrompt = `Eres RIALTOR, un consultor de IA especializado EXCLUSIVAMENTE en el sector inmobiliario argentino, con foco en AMBA. Responde brevemente y con pasos accionables.`;
+      }
+      console.log('[CHAT] Prompt generado para OpenAI:', systemPrompt.substring(0, 300));
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message }
       ];
-      const fallbackCompletion = await openai.chat.completions.create({
+
+      if (!openai) {
+        console.log('[CHAT] OpenAI no inicializado');
+        return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
+      }
+      console.log('[CHAT] Llamando a OpenAI...');
+      const before = Date.now();
+      const completion = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
-        messages: fallbackMessages,
+        messages: messages,
         max_tokens: 1000,
         temperature: 0.7
       });
-      assistantResponse = fallbackCompletion.choices[0].message.content;
-      console.log('[CHAT] Respuesta fallback OpenAI:', assistantResponse.substring(0, 200));
+      const after = Date.now();
+      assistantResponse = completion.choices[0].message.content;
+      metrics.record({ source_used: usedSource === 'openai' ? 'openai' : usedSource, tool_used: usedSource, latency_ms: after - before, tokens_out: completion.usage?.total_tokens, fallback_reason: null });
+      console.log('[CHAT] Respuesta OpenAI:', assistantResponse.substring(0, 200));
+      usedSource = 'openai';
+    } else {
+      // Record metric for tool usage
+      metrics.record({ source_used: usedSource, tool_used: usedSource, latency_ms: 0, tokens_out: 0, fallback_reason: null });
     }
 
     // Guardar respuesta del asistente
@@ -290,10 +345,7 @@ const sendMessage = async (req, res, next) => {
         sessionId: session.id,
         content: assistantResponse,
         role: 'ASSISTANT',
-        metadata: JSON.stringify({
-          model: 'gpt-4o',
-          tokens: completion.usage?.total_tokens
-        })
+        metadata: JSON.stringify({ model: 'hybrid-rialtor', source: 'internal' })
       }
     });
     console.log('[CHAT] Mensaje de asistente guardado:', assistantMessage.id);

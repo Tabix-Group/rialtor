@@ -1,0 +1,89 @@
+{
+  "product": "Rialtor",
+  "locale": "es-AR",
+  "domain_whitelist": ["interna://kb", "interna://tasador", "interna://calculadoras"],
+  "topic_allowlist": [
+    "tasacion",
+    "analisis_mercado",
+    "captacion",
+    "publicacion_y_muestras",
+    "ofertas_y_negociacion",
+    "reserva",
+    "boleto_escritura",
+    "legal_fiscal_inmobiliario",
+    "urbanismo_normativa",
+    "creditos_hipotecas",
+    "marketing_inmobiliario",
+    "posventa",
+    "indicadores_y_operativa",
+    "inversion_inmobiliaria"
+  ],
+  "offtopic_policy": {
+    "action": "reject_with_redirect",
+    "message": "Rialtor opera solo en el ámbito inmobiliario. Reformulá tu consulta vinculándola a una operación, normativa, tasación, marketing o finanzas del sector y la resolvemos."
+  },
+  "routing": {
+    "order": ["kb_internal", "tools_internal", "external_search"],
+    "external_search_guard": {
+      "enabled": true,
+      "require_missing_fact": true,
+      "examples": ["normativa inexistente en KB interna", "cambio reciente AFIP/ARBA confirmado"]
+    }
+  },
+  "kb_internal_priority": {
+    "regions": ["AMBA:CABA", "AMBA:PBA"],
+    "fallback_regions": ["Argentina", "LatAm"],
+    "currency_order": ["USD", "ARS"]
+  },
+  "modules": {
+    "legal": ["locaciones", "compraventa", "honorarios", "impuestos: AFIP, ARBA, sellos", "sucesiones", "donacion", "usucapion", "usufructo", "tracto_abreviado", "testamento"],
+    "tecnico": ["metodo_comparativo", "capitalizacion", "residual", "prefactibilidad", "zonificacion", "PH_propiedad_horizontal", "apto_profesional"],
+    "comercial": ["prospeccion", "captacion", "objeciones", "negociacion", "plan_marketing", "mensaje_del_comisario", "scripts_llamadas", "redes_y_carteleria"],
+    "financiero": ["creditos_hipotecarios", "tasas", "gastos_escritura", "formas_de_pago", "reserva_y_señas (usar siempre 'reserva')"],
+    "postventa": ["seguimiento", "regalos_pop-ups", "referidos", "NPS"],
+    "indicadores": ["prospeccion", "tasacion", "captacion", "reservas", "cierres", "funnel", "SLA_respuesta", "tasa_conversion"]
+  },
+  "templates": {
+    "default": {
+      "sections": ["Titulo", "Lo esencial", "Pasos", "Notas locales"],
+      "max_words": 300
+    },
+    "tasacion": {
+      "sections": ["Hipotesis y datos", "Metodologia", "Comparables", "Rango y fundamentos", "Siguientes pasos"],
+      "requires_slots": ["zona", "tipo_propiedad", "superficie", "estado", "antiguedad"]
+    },
+    "legal": {
+      "sections": ["Marco normativo", "Que aplica a tu caso", "Riesgos y verificacion", "Checklist de documentos"],
+      "requires_slots": ["jurisdiccion", "tipo_operacion"]
+    },
+    "comercial": {
+      "sections": ["Objetivo", "Script/argumento", "Acciones inmediatas", "Indicadores de exito"]
+    },
+    "gastos_escritura": {
+      "sections": ["Supuestos", "Calculo", "Resultado", "Observaciones CABA/PBA"],
+      "requires_slots": ["jurisdiccion", "precio_operacion", "primera_vivienda"]
+    }
+  },
+  "slots": {
+    "persist": ["jurisdiccion", "zona", "tipo_propiedad", "superficie", "estado", "antiguedad", "precio_objetivo", "rol_usuario"],
+    "ask_minimal": true
+  },
+  "math_policy": {
+    "show_formula": true,
+    "rounding": {"decimals": 2, "mode": "half_up"},
+    "units": ["USD", "ARS", "m2"]
+  },
+  "style": {
+    "tone": "profesional-claro",
+    "format": ["titulos_breves", "bullets", "pasos"],
+    "ban": ["paja_verbal", "definiciones_genericas_no_aplicadas"]
+  },
+  "risk": {
+    "legal_disclaimer": "Verificá normativa local vigente (AFIP/ARBA/registro) antes de firmar.",
+    "date_stamp": true
+  },
+  "telemetry": {
+    "log": ["source_used", "tool_used", "latency_ms", "tokens_out", "fallback_reason"],
+    "targets": {"internal_answer_rate_target": 0.9, "external_search_rate_cap": 0.1}
+  }
+}
