@@ -361,11 +361,24 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     lines.push({ text: contacto, cls: 'contacto', size: contactoSize });
     if (email) lines.push({ text: email, cls: 'contacto', size: contactoSize });
 
-    const padding = 14;
-    const boxMaxWidth = Math.min(380, Math.floor(width * 0.38));
-    const lineHeight = Math.max(18, Math.floor(width / 80));
+    const padding = 18;
+    const boxMaxWidth = Math.min(420, Math.floor(width * 0.40));
+    const baseLineHeight = Math.max(20, Math.floor(width / 70));
+
+    // Truncar líneas largas a un número razonable de caracteres para evitar overflow visual
+    const maxCharsPerLine = Math.floor(boxMaxWidth / (Math.max(12, Math.floor(precioSize / 2))));
+    function wrapOrTruncate(text) {
+      if (!text) return '';
+      if (text.length <= maxCharsPerLine) return text;
+      return text.slice(0, maxCharsPerLine - 1) + '…';
+    }
+
+    // Aplicar truncado a las líneas de contenido (solo a las líneas de contenido, no a labels)
+    const formattedLines = lines.map((ln) => ({ ...ln, text: ln.cls === 'label' ? ln.text : wrapOrTruncate(ln.text) }));
+
+    const lineHeight = baseLineHeight;
+    const boxContentHeight = formattedLines.length * (lineHeight + 8);
     const boxWidth = boxMaxWidth;
-    const boxContentHeight = lines.length * (lineHeight + 6);
     const boxHeight = boxContentHeight + padding * 2;
 
     function choosePosition(ubicacion, w, h, bw, bh) {
@@ -394,26 +407,50 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n`;
     svg += `  <defs>\n`;
+    svg += `    <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">\n`;
+    svg += `      <stop offset="0%" stop-color="rgba(0,0,0,0.6)" />\n`;
+    svg += `      <stop offset="100%" stop-color="rgba(0,0,0,0.4)" />\n`;
+    svg += `    </linearGradient>\n`;
+    svg += `    <filter id="f1" x="-20%" y="-20%" width="140%" height="140%">\n`;
+    svg += `      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.45" />\n`;
+    svg += `    </filter>\n`;
     svg += `    <style><![CDATA[\n`;
-    svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: bold; fill: ${textColor}; }\n`;
+    svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: 700; fill: ${textColor}; }\n`;
     svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${textColor}; font-weight: 500; }\n`;
     svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${textColor}; }\n`;
-    svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${textColor}; opacity: 0.9; }\n`;
+    svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${textColor}; opacity: 0.9; font-weight: 600; }\n`;
     svg += `    ]]></style>\n`;
     svg += `  </defs>\n`;
-    svg += `  <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="${boxHeight}" fill="${overlayColor}" rx="12" stroke="${textColor}" stroke-width="2" opacity="0.95"/>\n`;
 
-    let currentY = pos.y + padding + Math.floor(precioSize / 2);
-    for (let i = 0; i < lines.length; i++) {
-      const ln = lines[i];
+    // Caja con gradiente, blur y sombra (más profesional)
+    svg += `  <g filter="url(#f1)">\n`;
+    svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="${boxHeight}" rx="14" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
+    svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="6" rx="14" fill="rgba(255,255,255,0.06)" />\n`;
+    svg += `  </g>\n`;
+
+    // Texto con mejor separación
+    let currentY = pos.y + padding + Math.floor(precioSize * 0.9);
+    for (let i = 0; i < formattedLines.length; i++) {
+      const ln = formattedLines[i];
       const safeText = escapeForSvg(ln.text);
       const textX = pos.x + padding + 8;
-      svg += `  <text x="${textX}" y="${currentY + ln.size}" class="${ln.cls}">${safeText}</text>\n`;
+      // Si es precio, colocarlo en una línea más grande
+      if (ln.cls === 'precio') {
+        svg += `  <text x="${textX}" y="${currentY}" class="precio">${safeText}</text>\n`;
+        currentY += (lineHeight + 6);
+        continue;
+      }
+      // Labels en mayúscula ligera
+      if (ln.cls === 'label') {
+        svg += `  <text x="${textX}" y="${currentY}" class="label">${safeText}</text>\n`;
+        currentY += (lineHeight - 2);
+        continue;
+      }
+      svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
       currentY += (lineHeight + 6);
     }
 
     svg += `</svg>`;
-
     const svgOverlay = svg;
 
     console.log('[PLACAS] SVG generado:', svgOverlay.substring(0, 200) + '...');
