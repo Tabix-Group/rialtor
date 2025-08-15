@@ -5,7 +5,7 @@ FROM node:18-slim
 WORKDIR /app
 # Instalar OpenSSL y CA certs para Prisma
 RUN apt-get update && \
-    apt-get install -y openssl ca-certificates && \
+    apt-get install -y openssl ca-certificates fontconfig fonts-dejavu-core && \
     rm -rf /var/lib/apt/lists/*
 
 # Copiar package.json y package-lock.json

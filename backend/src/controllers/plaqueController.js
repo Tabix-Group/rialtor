@@ -326,63 +326,41 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     // Log para depuración
     console.log('[PLACAS][DEBUG] Overlay fields:', {precio, moneda, tipo, ambientes, superficie, direccion, contacto, email});
     
-    const svgOverlay = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" encoding="UTF-8">
-        <defs>
-          <style><![CDATA[
-            .precio { 
-              font-family: 'Arial', 'Helvetica', sans-serif; 
-              font-size: ${Math.max(28, width/25)}px; 
-              font-weight: bold; 
-              fill: ${textColor}; 
-            }
-            .info { 
-              font-family: 'Arial', 'Helvetica', sans-serif; 
-              font-size: ${Math.max(18, width/40)}px; 
-              fill: ${textColor}; 
-              font-weight: 500;
-            }
-            .contacto { 
-              font-family: 'Arial', 'Helvetica', sans-serif; 
-              font-size: ${Math.max(16, width/50)}px; 
-              fill: ${textColor}; 
-            }
-            .label {
-              font-family: 'Arial', 'Helvetica', sans-serif; 
-              font-size: ${Math.max(14, width/60)}px; 
-              fill: ${textColor}; 
-              opacity: 0.8;
-            }
-          ]]></style>
-        </defs>
-        
-        <!-- Fondo principal -->
-        <rect x="${width - 380}" y="20" width="350" height="220" fill="${overlayColor}" rx="12" stroke="${textColor}" stroke-width="2" opacity="0.95"/>
-        
-        <!-- Precio principal -->
-        <text x="${width - 360}" y="55" class="precio">${moneda} ${formatPrice(precio)}</text>
-        
-        <!-- Tipo de propiedad -->
-        <text x="${width - 360}" y="85" class="info">${tipo}</text>
-        
-        ${ambientes ? `<text x="${width - 360}" y="110" class="info">${ambientes} ambientes</text>` : ''}
-        
-        ${superficie ? `<text x="${width - 360}" y="135" class="info">${superficie} m2</text>` : ''}
-        
-        <!-- Ubicación -->
-        <text x="${width - 360}" y="165" class="label">Ubicacion:</text>
-        <text x="${width - 360}" y="185" class="contacto">${direccion}</text>
-        
-        <!-- Contacto -->
-        <text x="${width - 360}" y="210" class="label">Contacto:</text>
-        <text x="${width - 360}" y="230" class="contacto">${contacto}</text>
-        
-        ${email ? `<text x="${width - 360}" y="250" class="contacto">${email}</text>` : ''}
-        
-        <!-- Logo RE/MAX -->
-        <rect x="20" y="${height - 90}" width="120" height="70" fill="#DC267F" rx="8"/>
-        <text x="30" y="${height - 55}" style="font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: white;">RE/MAX</text>
-        <text x="30" y="${height - 35}" style="font-family: Arial, sans-serif; font-size: 12px; fill: white;">PROPIEDADES</text>
-      </svg>`;
+    // Escapar texto para insertar en SVG y evitar caracteres inválidos
+    function escapeForSvg(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // XML prolog y preferir DejaVu Sans (instalada en base image) para evitar glifos extraños
+    const svgOverlay = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+      `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n` +
+      `  <defs>\n` +
+      `    <style><![CDATA[\n` +
+      `      .precio { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(28, width/25)}px; font-weight: bold; fill: ${textColor}; }\n` +
+      `      .info { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(18, width/40)}px; fill: ${textColor}; font-weight: 500; }\n` +
+      `      .contacto { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(16, width/50)}px; fill: ${textColor}; }\n` +
+      `      .label { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(14, width/60)}px; fill: ${textColor}; opacity: 0.8; }\n` +
+      `    ]]></style>\n` +
+      `  </defs>\n` +
+      `  <rect x="${width - 380}" y="20" width="350" height="220" fill="${overlayColor}" rx="12" stroke="${textColor}" stroke-width="2" opacity="0.95"/>\n` +
+      `  <text x="${width - 360}" y="55" class="precio">${escapeForSvg(moneda)} ${escapeForSvg(formatPrice(precio))}</text>\n` +
+      `  <text x="${width - 360}" y="85" class="info">${escapeForSvg(tipo)}</text>\n` +
+      `${ambientes ? `  <text x="${width - 360}" y="110" class="info">${escapeForSvg(ambientes)} ambientes</text>\n` : ''}` +
+      `${superficie ? `  <text x="${width - 360}" y="135" class="info">${escapeForSvg(superficie)} m2</text>\n` : ''}` +
+      `  <text x="${width - 360}" y="165" class="label">Ubicacion:</text>\n` +
+      `  <text x="${width - 360}" y="185" class="contacto">${escapeForSvg(direccion)}</text>\n` +
+      `  <text x="${width - 360}" y="210" class="label">Contacto:</text>\n` +
+      `  <text x="${width - 360}" y="230" class="contacto">${escapeForSvg(contacto)}</text>\n` +
+      `${email ? `  <text x="${width - 360}" y="250" class="contacto">${escapeForSvg(email)}</text>\n` : ''}` +
+      `  <rect x="20" y="${height - 90}" width="120" height="70" fill="#DC267F" rx="8"/>\n` +
+      `  <text x="30" y="${height - 55}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 24px; font-weight: bold; fill: white;">RE/MAX</text>\n` +
+      `  <text x="30" y="${height - 35}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 12px; fill: white;">PROPIEDADES</text>\n` +
+      `</svg>`;
 
     console.log('[PLACAS] SVG generado:', svgOverlay.substring(0, 200) + '...');
 
@@ -417,11 +395,17 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
  * Determinar color de fondo para el overlay basado en los colores de la imagen
  */
 function determineOverlayColor(colores) {
-  const colorLower = colores.toLowerCase();
-  if (colorLower.includes('oscuro') || colorLower.includes('negro') || colorLower.includes('dark')) {
-    return 'rgba(255,255,255,0.9)'; // Fondo blanco para imágenes oscuras
+  try {
+    if (!colores || typeof colores !== 'string') return 'rgba(0,0,0,0.8)';
+    const colorLower = colores.toLowerCase();
+    if (colorLower.includes('oscuro') || colorLower.includes('negro') || colorLower.includes('dark')) {
+      return 'rgba(255,255,255,0.9)'; // Fondo blanco para imágenes oscuras
+    }
+    return 'rgba(0,0,0,0.8)'; // Fondo oscuro para imágenes claras
+  } catch (e) {
+    console.warn('[PLACAS] determineOverlayColor error, usando valor por defecto:', e && e.message);
+    return 'rgba(0,0,0,0.8)';
   }
-  return 'rgba(0,0,0,0.8)'; // Fondo oscuro para imágenes claras
 }
 
 /**
