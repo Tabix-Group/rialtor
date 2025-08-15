@@ -50,6 +50,14 @@ const createPropertyPlaque = async (req, res, next) => {
       });
     }
 
+    // Limitar número máximo de imágenes a 2
+    if (req.files.length > 2) {
+      return res.status(400).json({
+        error: 'Límite de imágenes excedido',
+        message: 'Solo se permiten hasta 2 imágenes por placa'
+      });
+    }
+
     // Validar datos de la propiedad
     const propertyInfo = JSON.parse(propertyData);
     if (!propertyInfo.precio || !propertyInfo.direccion || !propertyInfo.contacto) {
@@ -336,31 +344,77 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
         .replace(/'/g, '&#39;');
     }
 
-    // XML prolog y preferir DejaVu Sans (instalada en base image) para evitar glifos extraños
-    const svgOverlay = `<?xml version="1.0" encoding="UTF-8"?>\n` +
-      `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n` +
-      `  <defs>\n` +
-      `    <style><![CDATA[\n` +
-      `      .precio { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(28, width/25)}px; font-weight: bold; fill: ${textColor}; }\n` +
-      `      .info { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(18, width/40)}px; fill: ${textColor}; font-weight: 500; }\n` +
-      `      .contacto { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(16, width/50)}px; fill: ${textColor}; }\n` +
-      `      .label { font-family: 'DejaVu Sans', 'Arial', 'Helvetica', sans-serif; font-size: ${Math.max(14, width/60)}px; fill: ${textColor}; opacity: 0.8; }\n` +
-      `    ]]></style>\n` +
-      `  </defs>\n` +
-      `  <rect x="${width - 380}" y="20" width="350" height="220" fill="${overlayColor}" rx="12" stroke="${textColor}" stroke-width="2" opacity="0.95"/>\n` +
-      `  <text x="${width - 360}" y="55" class="precio">${escapeForSvg(moneda)} ${escapeForSvg(formatPrice(precio))}</text>\n` +
-      `  <text x="${width - 360}" y="85" class="info">${escapeForSvg(tipo)}</text>\n` +
-      `${ambientes ? `  <text x="${width - 360}" y="110" class="info">${escapeForSvg(ambientes)} ambientes</text>\n` : ''}` +
-      `${superficie ? `  <text x="${width - 360}" y="135" class="info">${escapeForSvg(superficie)} m2</text>\n` : ''}` +
-      `  <text x="${width - 360}" y="165" class="label">Ubicacion:</text>\n` +
-      `  <text x="${width - 360}" y="185" class="contacto">${escapeForSvg(direccion)}</text>\n` +
-      `  <text x="${width - 360}" y="210" class="label">Contacto:</text>\n` +
-      `  <text x="${width - 360}" y="230" class="contacto">${escapeForSvg(contacto)}</text>\n` +
-      `${email ? `  <text x="${width - 360}" y="250" class="contacto">${escapeForSvg(email)}</text>\n` : ''}` +
-      `  <rect x="20" y="${height - 90}" width="120" height="70" fill="#DC267F" rx="8"/>\n` +
-      `  <text x="30" y="${height - 55}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 24px; font-weight: bold; fill: white;">RE/MAX</text>\n` +
-      `  <text x="30" y="${height - 35}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 12px; fill: white;">PROPIEDADES</text>\n` +
-      `</svg>`;
+    // XML prolog y preferir DejaVu Sans. Construcción dinámica del cuadro sin logo.
+    const precioSize = Math.max(28, Math.floor(width / 25));
+    const infoSize = Math.max(18, Math.floor(width / 40));
+    const contactoSize = Math.max(16, Math.floor(width / 50));
+    const labelSize = Math.max(14, Math.floor(width / 60));
+
+    const lines = [];
+    lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
+    lines.push({ text: tipo, cls: 'info', size: infoSize });
+    if (ambientes) lines.push({ text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
+    if (superficie) lines.push({ text: `${superficie} m2`, cls: 'info', size: infoSize });
+    lines.push({ text: 'Ubicación:', cls: 'label', size: labelSize });
+    lines.push({ text: direccion, cls: 'contacto', size: contactoSize });
+    lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
+    lines.push({ text: contacto, cls: 'contacto', size: contactoSize });
+    if (email) lines.push({ text: email, cls: 'contacto', size: contactoSize });
+
+    const padding = 14;
+    const boxMaxWidth = Math.min(380, Math.floor(width * 0.38));
+    const lineHeight = Math.max(18, Math.floor(width / 80));
+    const boxWidth = boxMaxWidth;
+    const boxContentHeight = lines.length * (lineHeight + 6);
+    const boxHeight = boxContentHeight + padding * 2;
+
+    function choosePosition(ubicacion, w, h, bw, bh) {
+      const margin = 20;
+      if (!ubicacion || typeof ubicacion !== 'string') {
+        return { x: w - bw - margin, y: margin };
+      }
+      const u = ubicacion.toLowerCase();
+      const top = u.includes('superior') || u.includes('arriba') || u.includes('top');
+      const bottom = u.includes('inferior') || u.includes('abajo') || u.includes('bottom');
+      const left = u.includes('izquierda') || u.includes('left');
+      const right = u.includes('derecha') || u.includes('right');
+
+      if (top && left) return { x: margin, y: margin };
+      if (top && right) return { x: w - bw - margin, y: margin };
+      if (bottom && left) return { x: margin, y: h - bh - margin };
+      if (bottom && right) return { x: w - bw - margin, y: h - bh - margin };
+      if (left) return { x: margin, y: margin };
+      if (right) return { x: w - bw - margin, y: margin };
+      if (bottom) return { x: Math.floor((w - bw) / 2), y: h - bh - margin };
+      return { x: w - bw - margin, y: margin };
+    }
+
+    const pos = choosePosition(imageAnalysis?.ubicacion_texto, width, height, boxWidth, boxHeight);
+
+    let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n`;
+    svg += `  <defs>\n`;
+    svg += `    <style><![CDATA[\n`;
+    svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: bold; fill: ${textColor}; }\n`;
+    svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${textColor}; font-weight: 500; }\n`;
+    svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${textColor}; }\n`;
+    svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${textColor}; opacity: 0.9; }\n`;
+    svg += `    ]]></style>\n`;
+    svg += `  </defs>\n`;
+    svg += `  <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="${boxHeight}" fill="${overlayColor}" rx="12" stroke="${textColor}" stroke-width="2" opacity="0.95"/>\n`;
+
+    let currentY = pos.y + padding + Math.floor(precioSize / 2);
+    for (let i = 0; i < lines.length; i++) {
+      const ln = lines[i];
+      const safeText = escapeForSvg(ln.text);
+      const textX = pos.x + padding + 8;
+      svg += `  <text x="${textX}" y="${currentY + ln.size}" class="${ln.cls}">${safeText}</text>\n`;
+      currentY += (lineHeight + 6);
+    }
+
+    svg += `</svg>`;
+
+    const svgOverlay = svg;
 
     console.log('[PLACAS] SVG generado:', svgOverlay.substring(0, 200) + '...');
 
@@ -599,7 +653,7 @@ function extractPublicIdFromUrl(url) {
 }
 
 module.exports = {
-  upload: upload.array('images', 10), // Máximo 10 imágenes
+  upload: upload.array('images', 2), // Máximo 2 imágenes
   createPropertyPlaque,
   getUserPlaques,
   getPlaqueById,
