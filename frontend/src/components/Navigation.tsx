@@ -145,7 +145,7 @@ function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-semibold tracking-tight text-gray-900">RIALTOR</span>
+            <img src="/images/logo1.png" alt="Logo" className="w-8 h-8 object-contain" />
           </Link>
 
           {/* Desktop nav */}
