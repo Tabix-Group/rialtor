@@ -69,6 +69,18 @@ const corsOptions = {
     // allow requests with no origin (e.g., server-to-server, mobile clients)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Allow by suffix for the custom domain to avoid blocking www/rialtor variants
+    try {
+      const parsed = new URL(origin);
+      const hostname = parsed.hostname || '';
+      if (hostname.endsWith('.rialtor.app')) {
+        console.log(`[CORS] Allowed origin by suffix rule: ${origin}`);
+        return callback(null, true);
+      }
+    } catch (e) {
+      // if URL parsing fails, fall through to blocking
+    }
+
     console.warn(`[CORS] Blocked origin: ${origin}`);
     return callback(new Error('Not allowed by CORS'), false);
   },
