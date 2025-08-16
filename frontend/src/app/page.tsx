@@ -28,10 +28,10 @@ export default function Home() {
       href: '/chat',
     },
     {
-      name: 'Calculadora de Gastos',
-      description: 'Calculá los costos totales de una operación: escritura, impuestos, sellos, comisiones, etc.',
+      name: 'Calculadoras',
+      description: 'Accedé a todas nuestras calculadoras: Gastos de escritura, Honorarios, Impuesto Ganancia y Seguro de Caución. Una vista centralizada para elegir la herramienta que necesitás.',
       icon: Calculator,
-      href: '/calculator',
+      href: '/calculadoras',
     },
     {
       name: 'Documentos Inteligentes',
@@ -201,7 +201,7 @@ export default function Home() {
               <ul className="space-y-2 text-sm">
                 <li><Link href="/knowledge" className="text-gray-300 hover:text-white transition-colors">Artículos</Link></li>
                 <li><Link href="/documents" className="text-gray-300 hover:text-white transition-colors">Documentos Legales</Link></li>
-                <li><Link href="/calculator" className="text-gray-300 hover:text-white transition-colors">Calculadora Argentina</Link></li>
+                <li><Link href="/calculadoras" className="text-gray-300 hover:text-white transition-colors">Calculadoras</Link></li>
                 <li><Link href="/chat" className="text-gray-300 hover:text-white transition-colors">Agente IA</Link></li>
               </ul>
             </div>
