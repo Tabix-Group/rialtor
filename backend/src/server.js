@@ -53,22 +53,32 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+// Support multiple frontend origins via FRONTEND_URLS (comma separated) or single FRONTEND_URL
+const getAllowedOrigins = () => {
+  const env = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000';
+  return env.split(',').map(s => s.trim()).filter(Boolean);
+};
 
-// Responder manualmente a preflight OPTIONS para todas las rutas
-app.options('*', cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+const allowedOrigins = getAllowedOrigins();
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // allow requests with no origin (e.g., server-to-server, mobile clients)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    console.warn(`[CORS] Blocked origin: ${origin}`);
+    return callback(new Error('Not allowed by CORS'), false);
+  },
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+};
+
+app.use(cors(corsOptions));
+
+// Respond to preflight OPTIONS using same options
+app.options('*', cors(corsOptions));
 
 // Logging
 if (process.env.NODE_ENV === 'development') {
