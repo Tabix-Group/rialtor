@@ -23,7 +23,9 @@ function Navigation() {
           name: 'Calculadoras',
           icon: 'Calculator',
           dropdown: [
-            { name: 'Gastos', href: '/calculator' },
+            { name: 'Gastos Escritura', href: '/calcescritura' },
+            { name: 'Gastos Honorarios', href: '/calchonorarios' },
+            { name: 'Impuesto Ganancia', href: '/calciigg' },
             { name: 'Seguros de Caución', href: '/creditos' },
           ],
           permission: undefined,
@@ -37,7 +39,9 @@ function Navigation() {
           name: 'Calculadoras',
           icon: 'Calculator',
           dropdown: [
-            { name: 'Gastos', href: '/calculator' },
+            { name: 'Gastos Escritura', href: '/calcescritura' },
+            { name: 'Gastos Honorarios', href: '/calchonorarios' },
+            { name: 'Impuesto Ganancia', href: '/calciigg' },
             { name: 'Seguros de Caución', href: '/creditos' },
           ],
           permission: 'use_calculator',
