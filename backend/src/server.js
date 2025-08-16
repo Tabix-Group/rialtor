@@ -61,6 +61,9 @@ const getAllowedOrigins = () => {
 
 const allowedOrigins = getAllowedOrigins();
 
+// Log allowed origins on startup to help debugging deployed env vars
+console.log('✅ Allowed CORS origins:', allowedOrigins);
+
 const corsOptions = {
   origin: (origin, callback) => {
     // allow requests with no origin (e.g., server-to-server, mobile clients)
