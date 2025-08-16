@@ -155,20 +155,22 @@ function Navigation() {
             {renderLinks()}
           </div>
 
-          {/* User Info Dropdown */}
-          <div className="hidden md:flex items-center gap-4 relative group">
+          {/* Compact User Icon Dropdown */}
+          <div className="hidden md:flex items-center gap-2 relative group">
             <button
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-md transition focus:outline-none"
+              aria-label="Usuario"
+              className="p-2 rounded-full text-gray-700 hover:bg-gray-100 focus:outline-none"
               tabIndex={0}
             >
               <User2 className="w-5 h-5" />
-              <span className="font-medium">{user.name}</span>
-              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
-            <div className="absolute right-0 top-12 min-w-[160px] bg-white border rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-50 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
+            <div className="absolute right-0 top-12 min-w-[180px] bg-white border rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-50 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
+              <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                <div className="font-medium">{user.name}</div>
+              </div>
               <button
                 onClick={logout}
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition rounded-t-lg"
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-lg"
               >
                 <LogOut className="w-5 h-5" />
                 Cerrar sesión

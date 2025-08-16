@@ -92,6 +92,16 @@ export default function CalcIIGGPage() {
             </label>
 
             <label className="flex flex-col">
+              <span className="text-sm text-gray-600 mb-1">Año de adquisición</span>
+              <input inputMode="numeric" value={anoAdquisicion} onChange={(e) => setAnoAdquisicion(e.target.value)} placeholder="Ej. 2019" className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+            </label>
+
+            <label className="flex items-center gap-3">
+              <input type="checkbox" checked={esViviendaUnica} onChange={(e) => setEsViviendaUnica(e.target.checked)} className="w-4 h-4" />
+              <span className="text-sm text-gray-600">Vivienda única, familiar y de uso permanente</span>
+            </label>
+
+            <label className="flex flex-col">
               <span className="text-sm text-gray-600 mb-1">Moneda</span>
               <select value={moneda} onChange={(e) => setMoneda(e.target.value)} className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400">
                 <option value="USD">USD</option>
@@ -101,16 +111,36 @@ export default function CalcIIGGPage() {
 
           </div>
 
-          <div className="mt-6 bg-indigo-50 border border-indigo-100 rounded-lg p-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Ganancia neta</div>
-              <div className="text-2xl font-bold text-indigo-700">{formatMoney(gain)}</div>
+          <div className="mt-6 bg-indigo-50 border border-indigo-100 rounded-lg p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+              <div>
+                <div className="text-sm text-gray-600">Ganancia neta</div>
+                <div className="text-2xl font-bold text-indigo-700">{formatMoney(gain)}</div>
+              </div>
+
+              <div>
+                <div className="text-sm text-gray-600">Impuesto cedular estimado ({jurisdiction})</div>
+                {aplica ? (
+                  <div className="text-2xl font-bold text-gray-700">{formatMoney(impuesto)}</div>
+                ) : (
+                  <div className="text-2xl font-bold text-red-600">No aplica</div>
+                )}
+              </div>
             </div>
 
-            <div>
-              <div className="text-sm text-gray-600">Impuesto cedular estimado ({jurisdiction})</div>
-              <div className="text-2xl font-bold text-gray-700">{formatMoney(impuesto)}</div>
-            </div>
+            {!aplica && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-100 rounded text-sm text-red-700">
+                {numericAnoAdq === 0 ? (
+                  <div>Ingrese el año de adquisición para evaluar si aplica.</div>
+                ) : numericAnoAdq < 2018 ? (
+                  <div>No aplica: el inmueble fue adquirido antes de 2018.</div>
+                ) : esViviendaUnica ? (
+                  <div>No aplica: es vivienda única, familiar y de uso permanente.</div>
+                ) : (
+                  <div>No aplica.</div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="mt-4 text-xs text-gray-500">Los resultados muestran el impuesto estimado por la ganancia inmobiliaria según la jurisdicción seleccionada. Las alícuotas están configuradas en el código y no se muestran al usuario.</div>
