@@ -1,4 +1,4 @@
-use client
+"use client"
 
 import Link from 'next/link'
 import { Calculator, FileText, Percent, ShieldCheck } from 'lucide-react'
