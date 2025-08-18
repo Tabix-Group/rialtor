@@ -106,7 +106,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="w-full" style={{ backgroundColor: '#010413' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center" style={{paddingTop: '3vw', paddingBottom: '3vw'}}>
-          <img src="/images/logo.jfif" alt="Logo RE/MAX" className="w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] object-contain" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, margin: 0}} />
+          <img src="/images/logo.png" alt="Logo RE/MAX" className="w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] object-contain" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, margin: 0}} />
           <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-center">
             <button onClick={() => window.location.href = '/auth/register'} className="px-8 py-3 rounded-lg bg-remax-red text-white font-semibold text-lg shadow hover:bg-red-700 transition-colors">Quiero usarlo</button>
             <button onClick={handleScrollToDemo} className="px-8 py-3 rounded-lg bg-white text-remax-blue font-semibold text-lg shadow hover:bg-blue-100 transition-colors border border-remax-blue">Ver demo</button>
@@ -187,7 +187,7 @@ export default function Home() {
             {/* Brand/Descripción */}
             <div className="md:col-span-1 flex flex-col items-start mb-8 md:mb-0">
               <div className="flex items-center space-x-3 mb-4">
-                <img src="/images/logo.jfif" alt="Logo Rialtor" className="w-20 h-20 object-contain m-0 p-0" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, marginTop: 0, marginBottom: 0}} />
+                <img src="/images/logo.png" alt="Logo Rialtor" className="w-20 h-20 object-contain m-0 p-0" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, marginTop: 0, marginBottom: 0}} />
                 <span className="text-2xl font-bold">RIALTOR</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-xs text-sm">
