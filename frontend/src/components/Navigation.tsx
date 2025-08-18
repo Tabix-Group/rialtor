@@ -33,14 +33,14 @@ function Navigation() {
   { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
       ]
     : [
-        { name: 'Recursos', href: '/knowledge', icon: 'BookOpen', permission: 'manage_articles' },
+        { name: 'Noticias', href: '/knowledge', icon: 'BookOpen', permission: 'manage_articles' },
         { name: 'Asistente IA', href: '/chat', icon: 'MessageSquare', permission: 'use_chat' },
         {
           name: 'Calculadoras',
           icon: 'Calculator',
           dropdown: [
             { name: 'Gastos Escritura', href: '/calcescritura' },
-            { name: 'Gastos Honorarios', href: '/calchonorarios' },
+            { name: 'Honorarios Inmobiliarios', href: '/calchonorarios' },
             { name: 'Impuesto Ganancia', href: '/calciigg' },
             { name: 'Seguros de Caución', href: '/creditos' },
           ],

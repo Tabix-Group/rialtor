@@ -195,9 +195,9 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Recursos */}
+            {/* Noticias */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Recursos</h3>
+              <h3 className="text-lg font-semibold mb-4">Noticias</h3>
               <ul className="space-y-2 text-sm">
                 <li><Link href="/knowledge" className="text-gray-300 hover:text-white transition-colors">Artículos</Link></li>
                 <li><Link href="/documents" className="text-gray-300 hover:text-white transition-colors">Documentos Legales</Link></li>
