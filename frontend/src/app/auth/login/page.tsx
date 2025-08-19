@@ -58,7 +58,7 @@ export default function LoginPage() {
             Iniciar Sesión
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Accede a tu cuenta de RE/MAX
+            Accede a tu cuenta de Rialtor
           </p>
         </div>
 
