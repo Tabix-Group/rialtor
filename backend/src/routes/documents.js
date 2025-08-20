@@ -176,12 +176,35 @@ ${safeText}`;
     const content = completion?.choices?.[0]?.message?.content || null;
     if (!content) return res.status(500).json({ error: 'No se obtuvo respuesta de OpenAI' });
 
+    // Helper: buscar montos, cuotas y porcentajes directamente en el texto como respaldo
+    const extractAmountsFromText = (txt) => {
+      if (!txt) return [];
+      const out = new Set();
+      const patterns = [
+        /(?:USD|US\$|U\$S|US\$)\s?[\d\.,]+/gi,
+        /\b[\d\.,]+\s?(?:USD|US\$|U\$S|ARS|AR\$|pesos|d[oó]lares|dolares)\b/gi,
+        /\$\s?[\d\.,]+/g,
+        /\b[\d\.,]+\s?(?:pesos|peso|d[oó]lar|dolares|cuotas|cuota)\b/gi,
+        /(?:en\s)?[0-9]{1,3}\s?(?:cuotas|cuota)\b/gi,
+        /[0-9]+(?:[\.,][0-9]{1,2})?\s?%/g
+      ];
+      for (const re of patterns) {
+        let m;
+        while ((m = re.exec(txt)) !== null) {
+          let val = m[0].trim();
+          // Normalize separators: keep original but collapse multiple spaces
+          val = val.replace(/\s+/g, ' ');
+          out.add(val);
+        }
+      }
+      return Array.from(out);
+    };
+
     // Intentar parsear JSON estricto. Si falla, buscar un JSON dentro del texto.
     let parsed = null;
     try {
       parsed = JSON.parse(content);
     } catch (e) {
-      // extraer primer bloque JSON {...}
       try {
         const m = content.match(/\{[\s\S]*\}/);
         if (m) {
@@ -192,13 +215,36 @@ ${safeText}`;
       }
     }
 
+    // Si tenemos parsed, asegurarnos de que amounts contenga valores (si no, extraerlos del texto)
     if (parsed && parsed.summary) {
-      // Devolver summary como texto (compatibilidad) y el objeto extraído
+      try {
+        parsed.amounts = Array.isArray(parsed.amounts) ? parsed.amounts : [];
+        if (parsed.amounts.length === 0) {
+          const found = extractAmountsFromText(text);
+          if (found.length) parsed.amounts = parsed.amounts.concat(found);
+        }
+      } catch (e) {
+        // noop
+      }
       return res.json({ summary: String(parsed.summary).trim(), extracted: parsed });
     }
 
-    // Fallback: devolver el texto completo que haya devuelto el modelo como summary
-    console.warn('[DOCUMENTS] No se pudo parsear JSON de OpenAI, devolviendo texto crudo.');
+    // Si no pudimos parsear JSON del modelo, construimos un objeto extraído mínimo usando regex
+    const fallbackAmounts = extractAmountsFromText(text);
+    if (fallbackAmounts.length) {
+      const built = {
+        summary: content.trim().split('\n').slice(0,3).join(' '),
+        amounts: fallbackAmounts,
+        persons: [],
+        addresses: [],
+        dates: [],
+        relevant: []
+      };
+      return res.json({ summary: built.summary, extracted: built });
+    }
+
+    // Fallback final: devolver el texto completo que haya devuelto el modelo como summary
+    console.warn('[DOCUMENTS] No se pudo parsear JSON de OpenAI y no se detectaron montos por regex. Devolviendo texto crudo.');
     return res.json({ summary: content.trim() });
   } catch (err) {
     console.error('[DOCUMENTS] Error en /summary:', err);
