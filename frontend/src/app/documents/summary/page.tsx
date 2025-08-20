@@ -40,7 +40,20 @@ export default function DocumentSummaryPage() {
         throw new Error(err.error || 'Error al generar resumen');
       }
       const sumData = await sumRes.json();
-      setSummary(sumData.summary || 'No se recibió resumen');
+      // If backend returns structured extraction, show readable summary plus extracted fields
+      if (sumData.extracted) {
+        const ex = sumData.extracted;
+        const parts: string[] = [];
+        if (ex.summary) parts.push(String(ex.summary));
+        if (Array.isArray(ex.amounts) && ex.amounts.length) parts.push('\nMontos: ' + ex.amounts.join('; '));
+        if (Array.isArray(ex.persons) && ex.persons.length) parts.push('\nPersonas: ' + ex.persons.join('; '));
+        if (Array.isArray(ex.addresses) && ex.addresses.length) parts.push('\nDirecciones: ' + ex.addresses.join('; '));
+        if (Array.isArray(ex.dates) && ex.dates.length) parts.push('\nFechas: ' + ex.dates.join('; '));
+        if (Array.isArray(ex.relevant) && ex.relevant.length) parts.push('\nOtros: ' + ex.relevant.join('; '));
+        setSummary(parts.join('\n'));
+      } else {
+        setSummary(sumData.summary || 'No se recibió resumen');
+      }
     } catch (e: any) {
       setError(e.message || 'Error desconocido');
     } finally {

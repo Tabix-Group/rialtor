@@ -58,10 +58,14 @@ router.post('/', upload.single('file'), async (req, res) => {
   const category = req.body.category || 'General';
   try {
     const originalName = req.file.originalname;
+    // Determine Cloudinary folder based on category from the frontend.
+    // For the summary view we expect the frontend to send category: 'ChatUpload'
+    // and those files should be stored under 'chatdocs'. Default remains 'documents'.
+    const folderName = (req.body && req.body.category === 'ChatUpload') ? 'chatdocs' : 'documents';
     const stream = cloudinary.uploader.upload_stream(
       {
         resource_type: 'auto',
-        folder: 'documents',
+        folder: folderName,
         public_id: originalName,
         use_filename: true,
         unique_filename: false,
@@ -137,25 +141,65 @@ router.post('/summary', async (req, res) => {
 
     // Truncar texto para no exceder tokens (usar primeros 4000 caracteres)
     const safeText = text.length > 4000 ? text.substring(0, 4000) : text;
-    const systemPrompt = 'Eres un asistente que resume documentos inmobiliarios en español en 3 líneas concisas y claras.';
-    const userPrompt = `Resume en 3 líneas, en español, lo más relevante de este documento:
-\n${safeText}`;
 
-    console.log('[DOCUMENTS] Llamando a OpenAI para resumir documento', id);
+    // Pedimos al modelo un JSON estricto con resumen + entidades para extraer montos,
+    // personas, direcciones, fechas y otros datos relevantes. Si no puede devolver JSON,
+    // hacemos fallback a la respuesta de texto simple para mantener compatibilidad.
+    const systemPrompt = 'Eres un asistente experto en documentos legales e inmobiliarios. ' +
+      'Resumes y extraes datos importantes en español.';
+
+    const userPrompt = `A partir del siguiente texto de un documento, devuelve ÚNICAMENTE un objeto JSON válido con esta estructura:
+{
+  "summary": "resumen en español en 3 líneas",
+  "amounts": ["lista de montos y monedas detectadas, por ejemplo 'USD 1.000.000'"],
+  "persons": ["nombres de personas o entidades mencionadas"],
+  "addresses": ["direcciones o ubicaciones mencionadas"],
+  "dates": ["fechas relevantes mencionadas"],
+  "relevant": ["otros datos relevantes: cláusulas, objetos del contrato, porcentajes, plazos, etc"]
+}
+
+Si algún campo no aplica, devuélvelo como lista vacía. Lee el texto a continuación y extrae la información.
+Texto:
+${safeText}`;
+
+    console.log('[DOCUMENTS] Llamando a OpenAI para resumen estructurado del documento', id);
     const completion = await openaiClient.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      max_tokens: 300,
-      temperature: 0.3
+      max_tokens: 800,
+      temperature: 0.1
     });
 
-    const summary = completion?.choices?.[0]?.message?.content || null;
-    if (!summary) return res.status(500).json({ error: 'No se obtuvo resumen de OpenAI' });
+    const content = completion?.choices?.[0]?.message?.content || null;
+    if (!content) return res.status(500).json({ error: 'No se obtuvo respuesta de OpenAI' });
 
-    return res.json({ summary: summary.trim() });
+    // Intentar parsear JSON estricto. Si falla, buscar un JSON dentro del texto.
+    let parsed = null;
+    try {
+      parsed = JSON.parse(content);
+    } catch (e) {
+      // extraer primer bloque JSON {...}
+      try {
+        const m = content.match(/\{[\s\S]*\}/);
+        if (m) {
+          parsed = JSON.parse(m[0]);
+        }
+      } catch (e2) {
+        parsed = null;
+      }
+    }
+
+    if (parsed && parsed.summary) {
+      // Devolver summary como texto (compatibilidad) y el objeto extraído
+      return res.json({ summary: String(parsed.summary).trim(), extracted: parsed });
+    }
+
+    // Fallback: devolver el texto completo que haya devuelto el modelo como summary
+    console.warn('[DOCUMENTS] No se pudo parsear JSON de OpenAI, devolviendo texto crudo.');
+    return res.json({ summary: content.trim() });
   } catch (err) {
     console.error('[DOCUMENTS] Error en /summary:', err);
     return res.status(500).json({ error: 'Error al generar el resumen', details: err.message || err });
