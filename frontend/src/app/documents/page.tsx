@@ -31,6 +31,8 @@ export default function DocumentsPage() {
   const [editingDoc, setEditingDoc] = useState<Document | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const [docSummary, setDocSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Fetch documents from API
   const fetchDocuments = async () => {
@@ -122,6 +124,30 @@ export default function DocumentsPage() {
     } catch {
       setUploadSuccess('Error al eliminar el documento');
       setTimeout(() => setUploadSuccess(null), 3000);
+    }
+  };
+
+  const fetchSummary = async (doc: Document) => {
+    if (!confirm('Solicitar resumen del documento seleccionado?')) return;
+    setDocSummary(null);
+    setSummaryLoading(true);
+    try {
+      // Call frontend proxy: /api/documents/summary -> backend /documents/summary
+      const res = await fetch(`/api/documents/summary`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: doc.id })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Error al solicitar resumen');
+      }
+      const data = await res.json();
+      setDocSummary(data.summary || 'No se recibió resumen');
+    } catch (e: any) {
+      setDocSummary(e.message || 'Error desconocido');
+    } finally {
+      setSummaryLoading(false);
     }
   };
 
@@ -236,38 +262,54 @@ export default function DocumentsPage() {
                 <p className="text-gray-500 text-lg">No se encontraron documentos</p>
               </div>
             ) : (
-              <div className="space-y-5">
-            {filteredDocuments.map((doc) => (
-              <div key={doc.id} className="border border-gray-100 rounded-2xl p-6 bg-white/80 hover:bg-blue-50 transition-all shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-5">
-                  {getFileIcon(doc)}
-                  <div>
-                    <h3 className="font-bold text-gray-800 text-lg">{doc.title}</h3>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-1">
-                      <span className="bg-gray-100 px-2 py-1 rounded font-medium">
-                        {doc.category}
-                      </span>
-                      <span>{doc.size}</span>
-                      <span>
-                        {typeof doc.uploadDate === 'string' ? new Date(doc.uploadDate).toLocaleDateString('es-AR') : doc.uploadDate.toLocaleDateString('es-AR')}
-                      </span>
+              <>
+                <div className="space-y-5">
+                  {filteredDocuments.map((doc) => (
+                    <div key={doc.id} className="border border-gray-100 rounded-2xl p-6 bg-white/80 hover:bg-blue-50 transition-all shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex items-center gap-5">
+                        {getFileIcon(doc)}
+                        <div>
+                          <h3 className="font-bold text-gray-800 text-lg">{doc.title}</h3>
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-1">
+                            <span className="bg-gray-100 px-2 py-1 rounded font-medium">
+                              {doc.category}
+                            </span>
+                            <span>{doc.size}</span>
+                            <span>
+                              {typeof doc.uploadDate === 'string' ? new Date(doc.uploadDate).toLocaleDateString('es-AR') : doc.uploadDate.toLocaleDateString('es-AR')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-xl transition-all" onClick={() => handleView(doc)} title="Ver">
+                          <Eye className="w-5 h-5" />
+                        </button>
+                        <button className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-100 rounded-xl transition-all" onClick={() => handleDownload(doc)} title="Descargar">
+                          <Download className="w-5 h-5" />
+                        </button>
+                        <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-xl transition-all" onClick={() => handleDelete(doc)} title="Eliminar">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                        <button className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all" onClick={() => fetchSummary(doc)} title="Resumen">
+                          <span className="sr-only">Resumen</span>
+                          R
+                        </button>
+                      </div>
                     </div>
+                  ))}
+                </div>
+                {/* Summary panel */}
+                {docSummary && (
+                  <div className="mt-6 p-4 bg-white rounded-xl border border-gray-100 shadow">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-semibold text-lg text-gray-800">Resumen del documento</h4>
+                      <button className="text-sm text-gray-500 hover:text-gray-700" onClick={() => setDocSummary(null)}>Cerrar</button>
+                    </div>
+                    <p className="mt-3 text-gray-700 whitespace-pre-line">{summaryLoading ? 'Procesando...' : docSummary}</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-xl transition-all" onClick={() => handleView(doc)} title="Ver">
-                    <Eye className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-100 rounded-xl transition-all" onClick={() => handleDownload(doc)} title="Descargar">
-                    <Download className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-xl transition-all" onClick={() => handleDelete(doc)} title="Eliminar">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-              </div>
+                )}
+              </>
             )}
           </div>
 

@@ -15,6 +15,18 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
+const OpenAI = require('openai');
+
+// Initialize OpenAI client if key exists (kept local to this router to avoid touching chatController)
+let openaiClient = null;
+if (process.env.OPENAI_API_KEY) {
+  openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const key = process.env.OPENAI_API_KEY;
+  const safeKey = key.length > 8 ? key.substring(0, 4) + '...' + key.substring(key.length - 4) : key;
+  console.log('[DOCUMENTS] OpenAI key detected:', safeKey);
+} else {
+  console.log('[DOCUMENTS] OPENAI_API_KEY NOT FOUND');
+}
 
 // Multer en memoria
 const upload = multer({
@@ -101,6 +113,52 @@ router.post('/', upload.single('file'), async (req, res) => {
     stream.end(req.file.buffer);
   } catch (err) {
     return res.status(500).json({ error: 'Error inesperado', details: err });
+  }
+});
+
+// POST /api/documents/summary
+// Body: { id: '<cloudinary_public_id>' }
+// Returns: { summary: '...' }
+router.post('/summary', async (req, res) => {
+  try {
+    const { id } = req.body || {};
+    if (!id) return res.status(400).json({ error: 'Falta el id del documento' });
+
+    // Buscar en la DB el contenido extraído
+    const doc = await prisma.documentTemplate.findFirst({ where: { cloudinaryId: id } });
+    if (!doc) return res.status(404).json({ error: 'Documento no encontrado en la base de datos' });
+
+    const text = (doc.content || '').trim();
+    if (!text) return res.status(422).json({ error: 'El documento no contiene texto extraído para resumir' });
+
+    if (!openaiClient) {
+      return res.status(503).json({ error: 'Servicio de IA no disponible' });
+    }
+
+    // Truncar texto para no exceder tokens (usar primeros 4000 caracteres)
+    const safeText = text.length > 4000 ? text.substring(0, 4000) : text;
+    const systemPrompt = 'Eres un asistente que resume documentos inmobiliarios en español en 3 líneas concisas y claras.';
+    const userPrompt = `Resume en 3 líneas, en español, lo más relevante de este documento:
+\n${safeText}`;
+
+    console.log('[DOCUMENTS] Llamando a OpenAI para resumir documento', id);
+    const completion = await openaiClient.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 300,
+      temperature: 0.3
+    });
+
+    const summary = completion?.choices?.[0]?.message?.content || null;
+    if (!summary) return res.status(500).json({ error: 'No se obtuvo resumen de OpenAI' });
+
+    return res.json({ summary: summary.trim() });
+  } catch (err) {
+    console.error('[DOCUMENTS] Error en /summary:', err);
+    return res.status(500).json({ error: 'Error al generar el resumen', details: err.message || err });
   }
 });
 
