@@ -3,9 +3,9 @@ import Link from 'next/link';
 
 export default function Creditos() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#000410] flex flex-col">
       {/* Hero / Título */}
-      <section className="w-full" style={{ backgroundColor: '#010413' }}>
+      <section className="w-full" style={{ backgroundColor: '#000410' }}>
         <div className="max-w-4xl mx-auto px-4 py-10 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Calculador de Costos de Garantía de Alquiler</h1>
           <p className="text-gray-200 mb-2">Completá los datos y obtené el mejor precio del mercado.</p>

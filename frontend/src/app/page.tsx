@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { 
+import {
   BookOpen,
   User2,
   Calculator,
@@ -90,7 +90,7 @@ export default function Home() {
     fetchRecent();
   }, []);
 
-  
+
   // Función para scrollear al video demo
   const handleScrollToDemo = () => {
     const el = document.getElementById('demo-video');
@@ -99,14 +99,14 @@ export default function Home() {
 
   // Home pública y privada (misma vista, cambia links y header)
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#000410] flex flex-col">
       {/* Header usuario logueado */}
 
 
       {/* Hero Section */}
       <section className="w-full" style={{ backgroundColor: '#010413' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center" style={{paddingTop: '3vw', paddingBottom: '3vw'}}>
-          <img src="/images/logo.png" alt="Logo RE/MAX" className="w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] object-contain" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, margin: 0}} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center" style={{ paddingTop: '3vw', paddingBottom: '3vw' }}>
+          <img src="/images/logo7.jpeg" alt="Logo RE/MAX" className="w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] object-contain" style={{ background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, margin: 0 }} />
           <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-center">
             <button onClick={() => window.location.href = '/auth/register'} className="px-8 py-3 rounded-lg bg-remax-red text-white font-semibold text-lg shadow hover:bg-red-700 transition-colors">Quiero usarlo</button>
             <button onClick={handleScrollToDemo} className="px-8 py-3 rounded-lg bg-white text-remax-blue font-semibold text-lg shadow hover:bg-blue-100 transition-colors border border-remax-blue">Ver demo</button>
@@ -181,13 +181,13 @@ export default function Home() {
       </section>
 
       {/* Footer Mejorado */}
-      <footer className="text-white py-14 mt-auto" style={{ backgroundColor: '#010413' }}>
+      <footer className="text-white py-14 mt-auto" style={{ backgroundColor: '#000410' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 items-start">
             {/* Brand/Descripción */}
             <div className="md:col-span-1 flex flex-col items-start mb-8 md:mb-0">
               <div className="flex items-center space-x-3 mb-4">
-                <img src="/images/logo.png" alt="Logo Rialtor" className="w-20 h-20 object-contain m-0 p-0" style={{background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, marginTop: 0, marginBottom: 0}} />
+                <img src="/images/logo7.jpeg" alt="Logo Rialtor" className="w-20 h-20 object-contain m-0 p-0" style={{ background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, marginTop: 0, marginBottom: 0 }} />
                 <span className="text-2xl font-bold">RIALTOR</span>
               </div>
               <p className="text-gray-400 mb-4 max-w-xs text-sm">
