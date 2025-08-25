@@ -286,219 +286,7 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
         .replace(/'/g, '&#39;');
     }
 
-    // Factorizamos la creación del SVG para poder testearlo y usar iconos SVG inline
-    function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
-      // Preferir DejaVu Sans. Tamaños dinámicos
-      const precioSize = Math.max(28, Math.floor(width / 25));
-      const infoSize = Math.max(18, Math.floor(width / 40));
-      const contactoSize = Math.max(16, Math.floor(width / 50));
-      const labelSize = Math.max(14, Math.floor(width / 60));
 
-      // Iconos inline SVG (pequeños, sin dependencias)
-      const svgIcons = {
-        ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 8h-3v7h-4v-5H10v5H6v-7H3l9-8z" fill="${textColor}"/></svg>`,
-        superficie: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${textColor}" stroke-width="1.5" fill="none"/></svg>`,
-        ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="${textColor}" stroke-width="1.2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="${textColor}"/></svg>`,
-        contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M7 10l5 4 5-4" stroke="${textColor}" stroke-width="1.2" fill="none"/></svg>`,
-        correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M3 7l9 6 9-6" stroke="${textColor}" stroke-width="1.2" fill="none"/></svg>`,
-        corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="${textColor}"/></svg>`
-      };
-
-      const descripcion = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
-
-      const lines = [];
-      lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
-      lines.push({ text: tipo, cls: 'info', size: infoSize });
-      // Descripción adicional (fila superior)
-      if (descripcion) lines.push({ text: descripcion, cls: 'info', size: Math.max(infoSize - 2, 14) });
-      if (ambientes) lines.push({ icon: svgIcons.ambientes, text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
-      if (superficie) lines.push({ icon: svgIcons.superficie, text: `${superficie} m2`, cls: 'info', size: infoSize });
-      lines.push({ text: 'Ubicación:', cls: 'label', size: labelSize });
-      lines.push({ icon: svgIcons.ubicacion, text: direccion, cls: 'contacto', size: contactoSize });
-      lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
-      lines.push({ icon: svgIcons.contacto, text: contacto, cls: 'contacto', size: contactoSize });
-      if (email) lines.push({ icon: svgIcons.correo, text: email, cls: 'contacto', size: contactoSize });
-
-      // Corredores: se renderizarán en un recuadro separado abajo-izquierda
-      const corredoresText = corredores || null;
-
-      const padding = 18;
-      const boxMaxWidth = Math.min(520, Math.floor(width * 0.45));
-      const baseLineHeight = Math.max(18, Math.floor(width / 75));
-
-      // Truncar líneas largas a un número razonable de caracteres para evitar overflow visual
-      const maxCharsPerLine = Math.floor(boxMaxWidth / (Math.max(10, Math.floor(precioSize / 2))));
-      function wrapOrTruncate(text) {
-        if (!text) return '';
-        if (text.length <= maxCharsPerLine) return text;
-        return text.slice(0, maxCharsPerLine - 1) + '…';
-      }
-
-      const formattedLines = lines.map((ln) => ({ ...ln, text: ln.cls === 'label' ? ln.text : wrapOrTruncate(ln.text) }));
-
-      const lineHeight = baseLineHeight;
-      const boxContentHeight = formattedLines.length * (lineHeight + 8);
-      const boxWidth = boxMaxWidth;
-      const boxHeight = boxContentHeight + padding * 2;
-
-      // Preparar sizing para el recuadro de corredores si existe
-      let corredoresBox = null;
-      if (corredoresText) {
-        const corredorMaxWidth = Math.min(360, Math.floor(width * 0.35));
-        const approxCharWidth = Math.max(7, Math.floor(contactoSize * 0.45));
-        const maxChars = Math.max(20, Math.floor((corredorMaxWidth - padding * 2 - 24) / approxCharWidth));
-        const corredorLines = Math.ceil(corredoresText.length / maxChars);
-        const corredoresLineHeight = Math.max(14, Math.floor(contactoSize * 1.1));
-        const corredoresHeight = Math.max(36, corredorLines * (corredoresLineHeight + 6) + padding);
-        corredoresBox = {
-          width: corredorMaxWidth,
-          height: corredoresHeight,
-          lineHeight: corredoresLineHeight,
-          maxChars
-        };
-      }
-
-      function choosePosition(ubicacion, w, h, bw, bh) {
-        const margin = 20;
-        if (!ubicacion || typeof ubicacion !== 'string') {
-          return { x: w - bw - margin, y: margin };
-        }
-        const u = ubicacion.toLowerCase();
-        const top = u.includes('superior') || u.includes('arriba') || u.includes('top');
-        const bottom = u.includes('inferior') || u.includes('abajo') || u.includes('bottom');
-        const left = u.includes('izquierda') || u.includes('left');
-        const right = u.includes('derecha') || u.includes('right');
-
-        if (top && left) return { x: margin, y: margin };
-        if (top && right) return { x: w - bw - margin, y: margin };
-        if (bottom && left) return { x: margin, y: h - bh - margin };
-        if (bottom && right) return { x: w - bw - margin, y: h - bh - margin };
-        if (left) return { x: margin, y: margin };
-        if (right) return { x: w - bw - margin, y: margin };
-        if (bottom) return { x: Math.floor((w - bw) / 2), y: h - bh - margin };
-        return { x: w - bw - margin, y: margin };
-      }
-
-      let pos = choosePosition(imageAnalysis?.ubicacion_texto, width, height, boxWidth, boxHeight);
-      // Si hay recuadro de corredores en bottom-left, evitar solapamiento moviendo el recuadro principal
-      if (corredoresBox) {
-        const margin = 20;
-        const corredoresPos = { x: margin, y: height - corredoresBox.height - margin };
-        const overlapX = pos.x < corredoresPos.x + corredoresBox.width + 8 && (pos.x + boxWidth) > corredoresPos.x;
-        const overlapY = (pos.y + boxHeight) > corredoresPos.y;
-        if (overlapX && overlapY) {
-          pos.x = Math.min(width - boxWidth - margin, corredoresPos.x + corredoresBox.width + margin + 8);
-        }
-        var corredoresPosFinal = corredoresPos;
-      }
-
-      let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-      svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n`;
-      svg += `  <defs>\n`;
-      svg += `    <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">\n`;
-      svg += `      <stop offset="0%" stop-color="rgba(0,0,0,0.6)" />\n`;
-      svg += `      <stop offset="100%" stop-color="rgba(0,0,0,0.4)" />\n`;
-      svg += `    </linearGradient>\n`;
-      svg += `    <filter id="f1" x="-20%" y="-20%" width="140%" height="140%">\n`;
-      svg += `      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.45" />\n`;
-      svg += `    </filter>\n`;
-      svg += `    <style><![CDATA[\n`;
-      svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: 700; fill: ${textColor}; }\n`;
-      svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${textColor}; font-weight: 500; }\n`;
-      svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${textColor}; }\n`;
-      svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${textColor}; opacity: 0.9; font-weight: 600; }\n`;
-      svg += `    ]]></style>\n`;
-      svg += `  </defs>\n`;
-
-      // Caja con gradiente, blur y sombra (más profesional)
-      svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="${boxHeight}" rx="14" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
-      svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="6" rx="14" fill="rgba(255,255,255,0.06)" />\n`;
-      svg += `  </g>\n`;
-
-      // Texto con iconos inline
-      let currentY = pos.y + padding + Math.floor(precioSize * 0.9);
-      for (let i = 0; i < formattedLines.length; i++) {
-        const ln = formattedLines[i];
-        const safeText = escapeForSvg(ln.text);
-        const textX = pos.x + padding + 8;
-        // Si tiene icon, renderizamos el icono SVG inline como un <g> convertido desde string y ajustamos el texto
-        if (ln.icon) {
-          const iconX = textX;
-          const iconY = currentY - Math.floor(precioSize * 0.6);
-          // Colocar el icono (ya tiene fill="${textColor}")
-          svg += `  <g transform="translate(${iconX}, ${iconY})">${ln.icon}</g>\n`;
-          const textPosX = textX + 22; // ancho estimado del icon + gap
-          if (ln.cls === 'precio') {
-            svg += `  <text x="${textPosX}" y="${currentY}" class="precio">${safeText}</text>\n`;
-            currentY += (lineHeight + 6);
-            continue;
-          }
-          if (ln.cls === 'label') {
-            svg += `  <text x="${textPosX}" y="${currentY}" class="label">${safeText}</text>\n`;
-            currentY += (lineHeight - 2);
-            continue;
-          }
-          svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
-          currentY += (lineHeight + 6);
-          continue;
-        }
-        // Si es precio, colocarlo en una línea más grande
-        if (ln.cls === 'precio') {
-          svg += `  <text x="${textX}" y="${currentY}" class="precio">${safeText}</text>\n`;
-          currentY += (lineHeight + 6);
-          continue;
-        }
-        // Labels en mayúscula ligera
-        if (ln.cls === 'label') {
-          svg += `  <text x="${textX}" y="${currentY}" class="label">${safeText}</text>\n`;
-          currentY += (lineHeight - 2);
-          continue;
-        }
-        svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
-        currentY += (lineHeight + 6);
-      }
-
-      // Origen / marca pequeña fuera del recuadro, abajo a la derecha de la imagen
-      // Render recuadro de corredores (si aplica)
-      if (corredoresBox && typeof corredoresPosFinal !== 'undefined') {
-        const cX = corredoresPosFinal.x;
-        const cY = corredoresPosFinal.y;
-        const cW = corredoresBox.width;
-        const cH = corredoresBox.height;
-        svg += `  <g filter="url(#f1)">\n`;
-        svg += `    <rect x="${cX}" y="${cY}" width="${cW}" height="${cH}" rx="12" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
-        svg += `  </g>\n`;
-        const labelY = cY + padding - 2;
-        svg += `  <text x="${cX + padding}" y="${labelY}" class="label">Corredores:</text>\n`;
-        let cy = labelY + 8 + Math.floor(contactoSize * 0.9);
-        const iconX = cX + padding;
-        svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(contactoSize * 0.9)})">${svgIcons.corredores}</g>\n`;
-        const textX = iconX + 22;
-        const corredorSafe = escapeForSvg(corredoresText);
-        if (corredorSafe.length <= corredoresBox.maxChars) {
-          svg += `  <text x="${textX}" y="${cy}" class="contacto">${corredorSafe}</text>\n`;
-        } else {
-          for (let i = 0; i < corredorSafe.length; i += corredoresBox.maxChars) {
-            const part = corredorSafe.slice(i, i + corredoresBox.maxChars);
-            svg += `  <text x="${textX}" y="${cy}" class="contacto">${part}</text>\n`;
-            cy += corredoresBox.lineHeight + 6;
-          }
-        }
-      }
-
-      // Origen / marca pequeña fuera del recuadro, abajo a la derecha de la imagen
-      const origenText = 'Rialtor.app';
-      const origenSafe = escapeForSvg(origenText);
-      const origenSize = Math.max(12, Math.floor(width / 80));
-      const originMargin = 12;
-      const origenX = width - originMargin;
-      const origenY = height - originMargin;
-      svg += `  <text x="${origenX}" y="${origenY}" text-anchor="end" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: ${textColor}; opacity:0.85;">${origenSafe}</text>\n`;
-
-      svg += `</svg>`;
-      return svg;
-    }
 
     // Generar el SVG llamando a la función factorizada (module-level)
     const svgOverlay = createPlaqueSvgString(width, height, propertyInfo, imageAnalysis);
@@ -588,6 +376,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const email = propertyInfo.email || null;
     const corredores = propertyInfo.corredores || null;
 
+    // Descripción adicional para renderizar abajo-derecha (si existe)
+    const descripcion = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
     const overlayColor = determineOverlayColor(imageAnalysis && imageAnalysis.colores);
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
 
@@ -731,6 +521,15 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const originMargin = 12;
     const origenX = width - originMargin;
     const origenY = height - originMargin;
+    // Render descripcion bottom-right (above logo) if present
+    if (descripcion) {
+      const descSafe = escapeForSvg(descripcion);
+      const descSize = Math.max(12, Math.floor(width / 90));
+      const descX = width - padding - 8;
+      const descY = height - padding - origenSize - 8 - descSize;
+      svg += `  <text x="${descX}" y="${descY}" text-anchor="end" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${descSize}px; fill: ${textColor}; opacity:0.9;">${descSafe}</text>\n`;
+    }
+
     svg += `  <text x="${origenX}" y="${origenY}" text-anchor="end" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: ${textColor}; opacity:0.85;">${origenSafe}</text>\n`;
 
     svg += `</svg>`;
