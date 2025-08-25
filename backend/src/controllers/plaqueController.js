@@ -406,15 +406,15 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
     lines.push({ icon: svgIcons.contacto, text: contacto, cls: 'contacto', size: contactoSize });
     if (email) lines.push({ icon: svgIcons.correo, text: email, cls: 'contacto', size: contactoSize });
-    if (corredores) {
-      lines.push({ text: 'Corredores:', cls: 'label', size: labelSize });
-      // Do not truncate corredores so full names/matriculas remain in the SVG
-      lines.push({ icon: svgIcons.corredores, text: corredores, cls: 'contacto', size: Math.max(12, contactoSize - 2), noTruncate: true });
-    }
+
+    // Corredores will be rendered in a separate box bottom-left
+    const corredoresText = corredores || null;
 
     const padding = 18;
-    const boxMaxWidth = Math.min(420, Math.floor(width * 0.40));
-    const baseLineHeight = Math.max(20, Math.floor(width / 70));
+    // Allow main box to be larger if price or contact need it; default to 40% up to 90% of image
+    const baseBoxMax = Math.max(420, Math.floor(width * 0.40));
+    const boxMaxWidth = Math.min(Math.floor(width * 0.9), baseBoxMax);
+    const baseLineHeight = Math.max(18, Math.floor(width / 75));
 
     const maxCharsPerLine = Math.floor(boxMaxWidth / (Math.max(12, Math.floor(precioSize / 2))));
     function wrapOrTruncate(text) {
@@ -427,8 +427,15 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const formattedLines = lines.map((ln) => ({ ...ln, text: ln.cls === 'label' || ln.noTruncate ? ln.text : wrapOrTruncate(ln.text) }));
 
     const lineHeight = baseLineHeight;
+    // compute content width by estimating longest line length
+    const estChar = Math.max(6, Math.floor(infoSize * 0.5));
+    let longest = 0;
+    for (const ln of formattedLines) {
+      if (ln.text && ln.text.length > longest) longest = ln.text.length;
+    }
+    const estimatedContentWidth = longest * estChar + padding * 2 + 32; // icon gap
+    const boxWidth = Math.max(Math.min(boxMaxWidth, estimatedContentWidth), Math.min(boxMaxWidth, Math.floor(width * 0.28)));
     const boxContentHeight = formattedLines.length * (lineHeight + 8);
-    const boxWidth = boxMaxWidth;
     const boxHeight = boxContentHeight + padding * 2;
 
     function choosePosition(ubicacion, w, h, bw, bh) {
@@ -513,6 +520,37 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       }
       svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
       currentY += (lineHeight + 6);
+    }
+
+    // Render corredores box bottom-left if present
+    if (corredoresText) {
+      const corrFontSize = Math.max(12, Math.floor(contactoSize * 0.75)); // ~25% smaller
+      const corrChar = Math.max(6, Math.floor(corrFontSize * 0.45));
+      const margin = 20;
+      const maxCorrBoxW = Math.min(Math.floor(width * 0.6), 520);
+      const estW = corredoresText.length * corrChar + padding * 2 + 40;
+      const cW = Math.min(maxCorrBoxW, Math.max(260, estW));
+      const cMaxChars = Math.max(20, Math.floor((cW - padding * 2 - 24) / corrChar));
+      // split into parts
+      const safeCorr = escapeForSvg(corredoresText);
+      const corrParts = [];
+      for (let i = 0; i < safeCorr.length; i += cMaxChars) corrParts.push(safeCorr.slice(i, i + cMaxChars));
+      const cH = Math.max(36, corrParts.length * (Math.max(12, corrFontSize) + 6) + padding);
+      const cX = margin;
+      const cY = height - cH - margin;
+      svg += `  <g filter="url(#f1)">\n`;
+      svg += `    <rect x="${cX}" y="${cY}" width="${cW}" height="${cH}" rx="12" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
+      svg += `  </g>\n`;
+      svg += `  <text x="${cX + padding}" y="${cY + padding}" class="label">Corredores:</text>\n`;
+      // icon
+      let cy = cY + padding + Math.floor(corrFontSize * 0.9) + 6;
+      const iconX = cX + padding;
+      svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(corrFontSize * 0.9)})">${svgIcons.corredores}</g>\n`;
+      const textX = iconX + 22;
+      for (let i = 0; i < corrParts.length; i++) {
+        svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px">${corrParts[i]}</text>\n`;
+        cy += Math.max(12, corrFontSize) + 6;
+      }
     }
 
     const origenText = 'Rialtor.app';
