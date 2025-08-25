@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/authContext'
 import { useRouter } from 'next/navigation'
 import { usePermission } from '../../hooks/usePermission'
-import { 
-  Upload, 
-  Image as ImageIcon, 
-  Trash2, 
-  Download, 
-  Eye, 
+import {
+  Upload,
+  Image as ImageIcon,
+  Trash2,
+  Download,
+  Eye,
   Loader2,
   Plus,
   Home,
@@ -31,6 +31,7 @@ interface PropertyData {
   superficie?: string;
   contacto: string;
   email?: string;
+  corredores?: string; // nombre y matrícula de los corredores (puede contener varios, en un mismo campo)
   descripcion?: string;
 }
 
@@ -64,6 +65,7 @@ export default function PlacasPage() {
     ambientes: '',
     superficie: '',
     contacto: '',
+    corredores: '',
     email: '',
     descripcion: ''
   });
@@ -124,7 +126,7 @@ export default function PlacasPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (selectedImages.length === 0) {
       alert('Selecciona al menos una imagen');
       return;
@@ -142,7 +144,7 @@ export default function PlacasPage() {
       formData.append('title', `Placa - ${propertyData.direccion}`);
       formData.append('description', propertyData.descripcion || '');
       formData.append('propertyData', JSON.stringify(propertyData));
-      
+
       selectedImages.forEach(image => {
         formData.append('images', image);
       });
@@ -312,7 +314,7 @@ export default function PlacasPage() {
                       <ImageIcon className="w-12 h-12 text-gray-400" />
                     </div>
                   )}
-                  
+
                   {/* Status overlay */}
                   <div className="absolute top-3 right-3">
                     <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-full text-sm">
@@ -327,7 +329,7 @@ export default function PlacasPage() {
                   <h3 className="font-semibold text-gray-900 mb-2 truncate">
                     {plaque.title}
                   </h3>
-                  
+
                   <div className="space-y-1 text-sm text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
                       <DollarSign className="w-4 h-4" />
@@ -354,7 +356,7 @@ export default function PlacasPage() {
                       <Eye className="w-4 h-4" />
                       Ver
                     </button>
-                    
+
                     {plaque.status === 'COMPLETED' && plaque.generatedImages.length > 0 && (
                       <a
                         href={plaque.generatedImages[0]}
@@ -365,7 +367,7 @@ export default function PlacasPage() {
                         <Download className="w-4 h-4" />
                       </a>
                     )}
-                    
+
                     <button
                       onClick={() => deletePlaque(plaque.id)}
                       className="flex items-center justify-center gap-1 bg-red-100 text-red-700 px-3 py-2 rounded text-sm hover:bg-red-200 transition-colors"
@@ -385,7 +387,7 @@ export default function PlacasPage() {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <h2 className="text-2xl font-bold mb-6">Nueva Placa de Propiedad</h2>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Subida de imágenes */}
                   <div>
@@ -414,7 +416,7 @@ export default function PlacasPage() {
                         </span>
                       </label>
                     </div>
-                    
+
                     {/* Preview de imágenes seleccionadas */}
                     {selectedImages.length > 0 && (
                       <div className="mt-4 grid grid-cols-3 gap-2">
@@ -553,6 +555,19 @@ export default function PlacasPage() {
                       onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       placeholder="agente@remax.com.ar"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Corredores (nombre y matrícula)
+                    </label>
+                    <textarea
+                      value={propertyData.corredores}
+                      onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      rows={2}
+                      placeholder="Ej: Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
                     />
                   </div>
 

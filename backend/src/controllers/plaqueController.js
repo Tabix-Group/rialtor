@@ -18,7 +18,7 @@ if (process.env.OPENAI_API_KEY) {
 
 // Configurar multer para manejo de archivos en memoria
 const storage = multer.memoryStorage();
-const upload = multer({ 
+const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB límite
   fileFilter: (req, file, cb) => {
@@ -91,7 +91,7 @@ const createPropertyPlaque = async (req, res, next) => {
         // Actualizar estado a error
         prisma.propertyPlaque.update({
           where: { id: plaque.id },
-          data: { 
+          data: {
             status: 'ERROR',
             metadata: JSON.stringify({ error: error.message })
           }
@@ -136,7 +136,7 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
     // 2. Actualizar registro con URLs originales
     await prisma.propertyPlaque.update({
       where: { id: plaqueId },
-      data: { 
+      data: {
         originalImages: JSON.stringify(originalImageUrls),
         status: 'GENERATING'
       }
@@ -146,11 +146,11 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
 
     // 3. Generar placas usando OpenAI Vision + diseño
     const generatedImageUrls = [];
-    
+
     for (let i = 0; i < originalImageUrls.length; i++) {
       const originalUrl = originalImageUrls[i];
       console.log(`[PLACAS] Procesando imagen ${i + 1}/${originalImageUrls.length}: ${originalUrl}`);
-      
+
       try {
         // Generar placa para esta imagen
         const plaqueImageUrl = await generatePlaqueForImage(originalUrl, propertyInfo);
@@ -182,7 +182,7 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
     console.error('[PLACAS] Stack trace completo:', error.stack);
     await prisma.propertyPlaque.update({
       where: { id: plaqueId },
-      data: { 
+      data: {
         status: 'ERROR',
         metadata: JSON.stringify({ error: error.message, stack: error.stack })
       }
@@ -195,14 +195,14 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
  */
 async function generatePlaqueForImage(imageUrl, propertyInfo) {
   console.log('[PLACAS] Iniciando generación de placa para:', imageUrl);
-  
+
   if (!openai) {
     throw new Error('OpenAI no está configurado');
   }
 
   try {
     console.log('[PLACAS] Llamando a OpenAI Vision API...');
-    
+
     // 1. Analizar la imagen con OpenAI Vision
     const analysisPrompt = `
 Analiza esta imagen de propiedad inmobiliaria y describe:
@@ -289,31 +289,31 @@ Responde en formato JSON con las claves: tipo, caracteristicas, ubicacion_texto,
 async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
   try {
     console.log('[PLACAS] Descargando imagen de:', imageUrl);
-    
+
     // Descargar imagen original
     const response = await fetch(imageUrl);
     if (!response.ok) {
       throw new Error(`Error descargando imagen: ${response.status} ${response.statusText}`);
     }
-    
+
     const arrayBuffer = await response.arrayBuffer();
     const imageBuffer = Buffer.from(arrayBuffer);
-    
+
     console.log('[PLACAS] Imagen descargada, tamaño:', imageBuffer.length, 'bytes');
 
     // Procesar con Sharp
     const image = sharp(imageBuffer);
     const { width, height } = await image.metadata();
-    
+
     console.log('[PLACAS] Dimensiones de imagen:', width, 'x', height);
 
     // Crear SVG con la información de la propiedad
     const overlayColor = determineOverlayColor(imageAnalysis.colores);
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
-    
+
     console.log('[PLACAS] Generando overlay con color:', overlayColor);
     console.log('[PLACAS] Datos de propiedad:', JSON.stringify(propertyInfo, null, 2));
-    
+
     // Limpiar y preparar textos para evitar problemas de codificación y overlays vacíos
     function cleanText(val, fallback, maxLen = 40) {
       if (!val) return fallback;
@@ -330,10 +330,11 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     const direccion = cleanText(propertyInfo.direccion, 'Ubicación disponible', 40);
     const contacto = cleanText(propertyInfo.contacto, 'Contacto disponible', 30);
     const email = propertyInfo.email ? cleanText(propertyInfo.email, '', 40) : null;
+    const corredores = propertyInfo.corredores ? cleanText(propertyInfo.corredores, '', 80) : null; // nombre y matrícula
 
     // Log para depuración
-    console.log('[PLACAS][DEBUG] Overlay fields:', {precio, moneda, tipo, ambientes, superficie, direccion, contacto, email});
-    
+    console.log('[PLACAS][DEBUG] Overlay fields:', { precio, moneda, tipo, ambientes, superficie, direccion, contacto, email });
+
     // Escapar texto para insertar en SVG y evitar caracteres inválidos
     function escapeForSvg(s) {
       return String(s)
@@ -360,6 +361,8 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
     lines.push({ text: contacto, cls: 'contacto', size: contactoSize });
     if (email) lines.push({ text: email, cls: 'contacto', size: contactoSize });
+    // Agregar corredores si vienen en propertyInfo (aparece en la parte inferior del cuadro)
+    if (corredores) lines.push({ text: corredores, cls: 'contacto', size: Math.max(12, contactoSize - 1) });
 
     const padding = 18;
     const boxMaxWidth = Math.min(420, Math.floor(width * 0.40));
@@ -450,6 +453,14 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
       currentY += (lineHeight + 6);
     }
 
+    // Origen / marca pequeña abajo a la derecha
+    const origenText = 'Rialtor.app';
+    const origenSafe = escapeForSvg(origenText);
+    const origenSize = Math.max(12, Math.floor(width / 80));
+    const origenX = pos.x + boxWidth - padding - 8;
+    const origenY = pos.y + boxHeight - 6; // cerca del borde inferior del recuadro
+    svg += `  <text x="${origenX}" y="${origenY}" text-anchor="end" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: ${textColor}; opacity:0.9;">${origenSafe}</text>\n`;
+
     svg += `</svg>`;
     const svgOverlay = svg;
 
@@ -457,23 +468,23 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
 
     // Aplicar overlay a la imagen con configuración explícita de codificación
     const svgBuffer = Buffer.from(svgOverlay, 'utf8');
-    
+
     console.log('[PLACAS] Tamaño del SVG buffer:', svgBuffer.length, 'bytes');
-    
+
     const processedImage = await image
-      .composite([{ 
-        input: svgBuffer, 
-        top: 0, 
-        left: 0 
+      .composite([{
+        input: svgBuffer,
+        top: 0,
+        left: 0
       }])
-      .png({ 
+      .png({
         quality: 90,
-        compressionLevel: 6 
+        compressionLevel: 6
       })
       .toBuffer();
 
     console.log('[PLACAS] Imagen procesada, tamaño final:', processedImage.length, 'bytes');
-    
+
     return processedImage;
 
   } catch (error) {
@@ -655,7 +666,7 @@ const deletePlaque = async (req, res, next) => {
     try {
       const originalImages = JSON.parse(plaque.originalImages);
       const generatedImages = JSON.parse(plaque.generatedImages);
-      
+
       for (const imageUrl of [...originalImages, ...generatedImages]) {
         const publicId = extractPublicIdFromUrl(imageUrl);
         if (publicId) {
