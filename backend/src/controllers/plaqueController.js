@@ -304,9 +304,13 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
         corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="${textColor}"/></svg>`
       };
 
+      const descripcion = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
+
       const lines = [];
       lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
       lines.push({ text: tipo, cls: 'info', size: infoSize });
+      // Descripción adicional (fila superior)
+      if (descripcion) lines.push({ text: descripcion, cls: 'info', size: Math.max(infoSize - 2, 14) });
       if (ambientes) lines.push({ icon: svgIcons.ambientes, text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
       if (superficie) lines.push({ icon: svgIcons.superficie, text: `${superficie} m2`, cls: 'info', size: infoSize });
       lines.push({ text: 'Ubicación:', cls: 'label', size: labelSize });
@@ -314,18 +318,16 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
       lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
       lines.push({ icon: svgIcons.contacto, text: contacto, cls: 'contacto', size: contactoSize });
       if (email) lines.push({ icon: svgIcons.correo, text: email, cls: 'contacto', size: contactoSize });
-      // Corredores con label y texto más pequeño
-      if (corredores) {
-        lines.push({ text: 'Corredores:', cls: 'label', size: labelSize });
-        lines.push({ icon: svgIcons.corredores, text: corredores, cls: 'contacto', size: Math.max(12, contactoSize - 2) });
-      }
+
+      // Corredores: se renderizarán en un recuadro separado abajo-izquierda
+      const corredoresText = corredores || null;
 
       const padding = 18;
-      const boxMaxWidth = Math.min(420, Math.floor(width * 0.40));
-      const baseLineHeight = Math.max(20, Math.floor(width / 70));
+      const boxMaxWidth = Math.min(520, Math.floor(width * 0.45));
+      const baseLineHeight = Math.max(18, Math.floor(width / 75));
 
       // Truncar líneas largas a un número razonable de caracteres para evitar overflow visual
-      const maxCharsPerLine = Math.floor(boxMaxWidth / (Math.max(12, Math.floor(precioSize / 2))));
+      const maxCharsPerLine = Math.floor(boxMaxWidth / (Math.max(10, Math.floor(precioSize / 2))));
       function wrapOrTruncate(text) {
         if (!text) return '';
         if (text.length <= maxCharsPerLine) return text;
@@ -338,6 +340,23 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
       const boxContentHeight = formattedLines.length * (lineHeight + 8);
       const boxWidth = boxMaxWidth;
       const boxHeight = boxContentHeight + padding * 2;
+
+      // Preparar sizing para el recuadro de corredores si existe
+      let corredoresBox = null;
+      if (corredoresText) {
+        const corredorMaxWidth = Math.min(360, Math.floor(width * 0.35));
+        const approxCharWidth = Math.max(7, Math.floor(contactoSize * 0.45));
+        const maxChars = Math.max(20, Math.floor((corredorMaxWidth - padding * 2 - 24) / approxCharWidth));
+        const corredorLines = Math.ceil(corredoresText.length / maxChars);
+        const corredoresLineHeight = Math.max(14, Math.floor(contactoSize * 1.1));
+        const corredoresHeight = Math.max(36, corredorLines * (corredoresLineHeight + 6) + padding);
+        corredoresBox = {
+          width: corredorMaxWidth,
+          height: corredoresHeight,
+          lineHeight: corredoresLineHeight,
+          maxChars
+        };
+      }
 
       function choosePosition(ubicacion, w, h, bw, bh) {
         const margin = 20;
@@ -360,7 +379,18 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
         return { x: w - bw - margin, y: margin };
       }
 
-      const pos = choosePosition(imageAnalysis?.ubicacion_texto, width, height, boxWidth, boxHeight);
+      let pos = choosePosition(imageAnalysis?.ubicacion_texto, width, height, boxWidth, boxHeight);
+      // Si hay recuadro de corredores en bottom-left, evitar solapamiento moviendo el recuadro principal
+      if (corredoresBox) {
+        const margin = 20;
+        const corredoresPos = { x: margin, y: height - corredoresBox.height - margin };
+        const overlapX = pos.x < corredoresPos.x + corredoresBox.width + 8 && (pos.x + boxWidth) > corredoresPos.x;
+        const overlapY = (pos.y + boxHeight) > corredoresPos.y;
+        if (overlapX && overlapY) {
+          pos.x = Math.min(width - boxWidth - margin, corredoresPos.x + corredoresBox.width + margin + 8);
+        }
+        var corredoresPosFinal = corredoresPos;
+      }
 
       let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n`;
@@ -427,6 +457,34 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
         }
         svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
         currentY += (lineHeight + 6);
+      }
+
+      // Origen / marca pequeña fuera del recuadro, abajo a la derecha de la imagen
+      // Render recuadro de corredores (si aplica)
+      if (corredoresBox && typeof corredoresPosFinal !== 'undefined') {
+        const cX = corredoresPosFinal.x;
+        const cY = corredoresPosFinal.y;
+        const cW = corredoresBox.width;
+        const cH = corredoresBox.height;
+        svg += `  <g filter="url(#f1)">\n`;
+        svg += `    <rect x="${cX}" y="${cY}" width="${cW}" height="${cH}" rx="12" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
+        svg += `  </g>\n`;
+        const labelY = cY + padding - 2;
+        svg += `  <text x="${cX + padding}" y="${labelY}" class="label">Corredores:</text>\n`;
+        let cy = labelY + 8 + Math.floor(contactoSize * 0.9);
+        const iconX = cX + padding;
+        svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(contactoSize * 0.9)})">${svgIcons.corredores}</g>\n`;
+        const textX = iconX + 22;
+        const corredorSafe = escapeForSvg(corredoresText);
+        if (corredorSafe.length <= corredoresBox.maxChars) {
+          svg += `  <text x="${textX}" y="${cy}" class="contacto">${corredorSafe}</text>\n`;
+        } else {
+          for (let i = 0; i < corredorSafe.length; i += corredoresBox.maxChars) {
+            const part = corredorSafe.slice(i, i + corredoresBox.maxChars);
+            svg += `  <text x="${textX}" y="${cy}" class="contacto">${part}</text>\n`;
+            cy += corredoresBox.lineHeight + 6;
+          }
+        }
       }
 
       // Origen / marca pequeña fuera del recuadro, abajo a la derecha de la imagen
