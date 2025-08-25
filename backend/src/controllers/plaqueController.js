@@ -290,12 +290,34 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
   try {
     console.log('[PLACAS] Descargando imagen de:', imageUrl);
 
-    // Descargar imagen original
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Error descargando imagen: ${response.status} ${response.statusText}`);
+    // Descargar imagen original con reintentos para evitar fallos intermitentes (ECONNRESET)
+    async function fetchWithRetry(url, attempts = 3, backoff = 500, timeoutMs = 10000) {
+      for (let i = 0; i < attempts; i++) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const resp = await fetch(url, { signal: controller.signal });
+          clearTimeout(id);
+          if (!resp.ok) throw new Error(`Error descargando imagen: ${resp.status} ${resp.statusText}`);
+          return resp;
+        } catch (err) {
+          clearTimeout(id);
+          const msg = err && err.message ? err.message : String(err);
+          console.warn(`[PLACAS] fetch attempt ${i + 1} failed for ${url}:`, msg);
+          // Si fue aborto por timeout o error de conexión, reintentar
+          if (i === attempts - 1) {
+            // Lanzar error enriquecido
+            const finalErr = new Error(`fetch failed after ${attempts} attempts: ${msg}`);
+            finalErr.cause = err;
+            throw finalErr;
+          }
+          // Esperar backoff exponencial
+          await new Promise(r => setTimeout(r, backoff * (i + 1)));
+        }
+      }
     }
 
+    const response = await fetchWithRetry(imageUrl, 3, 600, 12000);
     const arrayBuffer = await response.arrayBuffer();
     const imageBuffer = Buffer.from(arrayBuffer);
 
@@ -351,16 +373,26 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     const contactoSize = Math.max(16, Math.floor(width / 50));
     const labelSize = Math.max(14, Math.floor(width / 60));
 
+    // Iconos simples (emoji) para dar un estilo similar al ejemplo sin depender de assets externos
+    const icons = {
+      ambientes: '🏠',
+      superficie: '📐',
+      ubicacion: '📍',
+      contacto: '📞',
+      correo: '✉️',
+      corredores: '👥'
+    };
+
     const lines = [];
     lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
     lines.push({ text: tipo, cls: 'info', size: infoSize });
-    if (ambientes) lines.push({ text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
-    if (superficie) lines.push({ text: `${superficie} m2`, cls: 'info', size: infoSize });
+    if (ambientes) lines.push({ text: `${icons.ambientes} ${ambientes} ambientes`, cls: 'info', size: infoSize });
+    if (superficie) lines.push({ text: `${icons.superficie} ${superficie} m2`, cls: 'info', size: infoSize });
     lines.push({ text: 'Ubicación:', cls: 'label', size: labelSize });
-    lines.push({ text: direccion, cls: 'contacto', size: contactoSize });
+    lines.push({ text: `${icons.ubicacion} ${direccion}`, cls: 'contacto', size: contactoSize });
     lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
-    lines.push({ text: contacto, cls: 'contacto', size: contactoSize });
-    if (email) lines.push({ text: email, cls: 'contacto', size: contactoSize });
+    lines.push({ text: `${icons.contacto} ${contacto}`, cls: 'contacto', size: contactoSize });
+    if (email) lines.push({ text: `${icons.correo} ${email}`, cls: 'contacto', size: contactoSize });
     // Agregar corredores si vienen en propertyInfo (aparece en la parte inferior del cuadro)
     if (corredores) lines.push({ text: corredores, cls: 'contacto', size: Math.max(12, contactoSize - 1) });
 
