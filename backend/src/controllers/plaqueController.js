@@ -410,11 +410,11 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="${textColor}"/></svg>`
     };
     const svgIconsMain = {
-      precio: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#16A34A" stroke-width="2" fill="none"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="#16A34A" stroke-width="2" fill="none"/><path d="M12 17h.01" stroke="#16A34A" stroke-width="2" fill="none"/></svg>`,
+      precio: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#16A34A" stroke-width="2" fill="none"/><path d="M12 6v6l4 2" stroke="#16A34A" stroke-width="2" fill="none"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="#16A34A" stroke-width="2" fill="none"/><path d="M12 17h.01" stroke="#16A34A" stroke-width="2" fill="none"/></svg>`,
       ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#3B82F6" stroke-width="2" fill="none"/><polyline points="9,22 9,12 15,12 15,22" stroke="#3B82F6" stroke-width="2" fill="none"/></svg>`,
-      dormitorios: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="12" x="3" y="4" rx="2" stroke="#F59E0B" stroke-width="2" fill="none"/><circle cx="7" cy="7" r="1" fill="#F59E0B"/><path d="m21 16-4-4" stroke="#F59E0B" stroke-width="2" fill="none"/><path d="m17 16 4-4" stroke="#F59E0B" stroke-width="2" fill="none"/><path d="M3 20v-2a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2" stroke="#F59E0B" stroke-width="2" fill="none"/></svg>`,
+      dormitorios: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 7a4 4 0 0 1 8 0v1H7V7z" stroke="#F59E0B" stroke-width="2" fill="none"/><path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9H5z" stroke="#F59E0B" stroke-width="2" fill="none"/><line x1="8" x2="8" y1="15" y2="18" stroke="#F59E0B" stroke-width="2"/><line x1="16" x2="16" y1="15" y2="18" stroke="#F59E0B" stroke-width="2"/></svg>`,
       banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="#06B6D4" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="#06B6D4" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="#06B6D4" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="#06B6D4" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="#06B6D4" stroke-width="2"/></svg>`,
-      cocheras: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 17h4V5H10v12z" stroke="#EF4444" stroke-width="2" fill="none"/><path d="M7 17h10v3a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-3z" stroke="#EF4444" stroke-width="2" fill="none"/><circle cx="8.5" cy="18.5" r="1.5" fill="#EF4444"/><circle cx="15.5" cy="18.5" r="1.5" fill="#EF4444"/><path d="M5 17h2" stroke="#EF4444" stroke-width="2" fill="none"/><path d="M17 17h2" stroke="#EF4444" stroke-width="2" fill="none"/></svg>`,
+      cocheras: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 16H9m10 0V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v10m14 0v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-4m14 0H5m0 0V9a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v7" stroke="#EF4444" stroke-width="2" fill="none"/><circle cx="7" cy="19" r="1" fill="#EF4444"/><circle cx="17" cy="19" r="1" fill="#EF4444"/></svg>`,
       m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="#8B5CF6" stroke-width="2" fill="none"/></svg>`,
       m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="#6366F1" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="#6366F1" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="#6366F1" stroke-width="2" fill="none"/></svg>`,
       m2_descubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="#10B981" stroke-width="2" fill="none"/></svg>`,
@@ -583,7 +583,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         // Handle superscript for m² formatting
         if (ln.superscript) {
           const safeSuffix = escapeForSvg(ln.suffix || '');
-          svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em">${safeSuffix}</tspan></text>\n`;
+          svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em"> ${safeSuffix}</tspan></text>\n`;
         } else {
           svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
         }
@@ -603,7 +603,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       // Handle superscript for m² formatting
       if (ln.superscript) {
         const safeSuffix = escapeForSvg(ln.suffix || '');
-        svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em">${safeSuffix}</tspan></text>\n`;
+        svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em"> ${safeSuffix}</tspan></text>\n`;
       } else {
         svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
       }
@@ -657,10 +657,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       // icon and text without title
       let cy = cY + padding + Math.floor(corrFontSize * 0.9);
       const iconX = cX + padding;
-      const iconY = cy - Math.floor(corrFontSize * 0.75); // Improved alignment
+      const iconY = cy - Math.floor(corrFontSize * 0.6); // Better alignment with text baseline
       // Use main icons (colored) for corredores box to match the top box
       svg += `  <g transform="translate(${iconX}, ${iconY})">${svgIconsMain.corredores}</g>\n`;
-      const textX = iconX + 24; // Slightly more space for better alignment
+      const textX = iconX + 26; // More space for better alignment
       for (let i = 0; i < corrParts.length; i++) {
         svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #000000;">${corrParts[i]}</text>\n`;
         cy += Math.max(12, corrFontSize) + 6;
@@ -713,10 +713,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       // Add description icon and text
       let descCurrentY = descY + descPadding + Math.floor(descSize * 0.9);
       const descIconX = descX + descPadding;
-      const descIconY = descCurrentY - Math.floor(descSize * 0.75);
+      const descIconY = descCurrentY - Math.floor(descSize * 0.6); // Better alignment with text baseline
       svg += `  <g transform="translate(${descIconX}, ${descIconY})">${svgIconsMain.descripcion}</g>\n`;
 
-      const descTextX = descIconX + 24;
+      const descTextX = descIconX + 26; // More space for better alignment
       for (let i = 0; i < descLines.length; i++) {
         svg += `  <text x="${descTextX}" y="${descCurrentY}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${descSize}px; fill: #000000; font-weight: 400;">${descLines[i]}</text>\n`;
         descCurrentY += descSize + 4;
