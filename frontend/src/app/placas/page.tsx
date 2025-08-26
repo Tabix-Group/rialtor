@@ -39,7 +39,6 @@ interface PropertyData {
   m2_totales?: string;
   m2_cubiertos?: string;
   m2_descubiertos?: string;
-  banos?: string;
   contacto: string;
   email?: string;
   corredores?: string; // nombre y matrícula de los corredores (puede contener varios, en un mismo campo)
