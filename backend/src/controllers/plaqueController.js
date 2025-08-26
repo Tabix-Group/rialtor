@@ -12,31 +12,7 @@ const prisma = new PrismaClient();
 let openai = null;
 if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({
-    apiKey: process.env.OP    // compute content width by estimating longest line length more accurately
-    const estChar = Math.max(8, Math.floor(infoSize * 0.6));
-    let longest = 0;
-    let longestPrecio = 0;
-    for(const ln of formattedLines) {
-      if (ln.text) {
-        // For superscript lines, add the length of text + superscript + suffix
-        const totalLength = ln.superscript ?
-          ln.text.length + 1 + (ln.suffix ? ln.suffix.length : 0) :
-          ln.text.length;
-        if (ln.cls === 'precio') {
-          longestPrecio = Math.max(longestPrecio, totalLength);
-        } else {
-          longest = Math.max(longest, totalLength);
-        }
-      }
-    }
-    // Use the larger of precio or regular content for width calculation
-    const maxContentLength = Math.max(longest, longestPrecio);
-    const estimatedContentWidth = maxContentLength * estChar + padding * 2 + 32; // icon gap
-    const boxWidth = Math.max(
-      Math.min(boxMaxWidth, estimatedContentWidth),
-      Math.min(boxMaxWidth, Math.floor(width * 0.32)),
-      320 // minimum width
-    );
+    apiKey: process.env.OPENAI_API_KEY
   });
 }
 
