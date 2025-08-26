@@ -35,7 +35,7 @@ function Navigation() {
         href: '/documents',
         icon: 'FileText',
         dropdown: [
-          { name: 'Resumidor', href: '/api/documents/summary' },
+          { name: 'Resumidor', href: '/documents/summary' },
           { name: 'Generador', href: '/documents/generator' },
         ],
         permission: undefined,
@@ -70,7 +70,7 @@ function Navigation() {
         href: '/documents',
         icon: 'FileText',
         dropdown: [
-          { name: 'Resumidor', href: '/api/documents/summary' },
+          { name: 'Resumidor', href: '/documents/summary' },
           { name: 'Generador', href: '/documents/generator' },
         ],
         permission: undefined,
