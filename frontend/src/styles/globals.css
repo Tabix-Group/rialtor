@@ -125,7 +125,6 @@
     background-position: 200% 0;
   }
 }
-}
 
 @layer base {
   html {
@@ -179,7 +178,7 @@
   }
 
   .badge-red {
-    @apply badge bg-red-100 text-red-800;
+    @apply badge bg-orange-100 text-orange-800;
   }
 
   .badge-green {
@@ -362,6 +361,19 @@
 
 .gradient-remax-secondary {
   background: linear-gradient(135deg, #e31837 0%, #ff4d6d 100%);
+}
+
+/* Orange brand helpers */
+.text-orange-brand {
+  color: #f97316;
+}
+
+.bg-orange-brand {
+  background: linear-gradient(90deg, #ff7a2d 0%, #f97316 100%);
+}
+
+.ring-orange-subtle {
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.06);
 }
 
 /* Efectos de hover mejorados */

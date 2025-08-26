@@ -12,6 +12,18 @@ module.exports = {
         remax: {
           blue: '#003f7f',
           red: '#e31837',
+          orange: {
+            50: '#fff7ed',
+            100: '#ffedd5',
+            200: '#fed7aa',
+            300: '#fdba74',
+            400: '#fb923c',
+            500: '#ff7a2d',
+            600: '#f97316',
+            700: '#ea580c',
+            800: '#c2410c',
+            900: '#9a3412',
+          },
           'blue-light': '#1e5a9e',
           'blue-dark': '#002a5c',
           'red-light': '#ff4d6d',
