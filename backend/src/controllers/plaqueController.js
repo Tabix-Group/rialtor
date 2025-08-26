@@ -185,7 +185,7 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
       where: { id: plaqueId },
       data: {
         generatedImages: JSON.stringify(generatedImageUrls),
-        status: 'DONE'
+        status: 'COMPLETED'
       }
     });
 
@@ -491,7 +491,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const textX = pos.x + padding + 8;
       if (ln.icon) {
         const iconX = textX;
-        const iconY = currentY - Math.floor(precioSize * 0.6);
+        // use the specific line size if provided so the icon centers vertically with the text
+        const lineFont = ln.size || infoSize || precioSize;
+        const iconY = currentY - Math.floor(lineFont * 0.7);
         svg += `  <g transform="translate(${iconX}, ${iconY})">${ln.icon}</g>\n`;
         const textPosX = textX + 22;
         if (ln.cls === 'precio') {
@@ -538,14 +540,20 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const cH = Math.max(36, corrParts.length * (Math.max(12, corrFontSize) + 6) + padding);
       const cX = margin;
       const cY = height - cH - margin;
+      // compute final width to accommodate the longest wrapped part
+      let maxPartLen = 0;
+      for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
+      const neededForParts = maxPartLen * corrChar + padding * 2 + 32;
+      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts));
+      // draw rect with final width
       svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${cX}" y="${cY}" width="${cW}" height="${cH}" rx="12" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
+      svg += `    <rect x="${cX}" y="${cY}" width="${finalCW}" height="${cH}" rx="12" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
       svg += `  </g>\n`;
       svg += `  <text x="${cX + padding}" y="${cY + padding}" class="label">Corredores:</text>\n`;
       // icon
       let cy = cY + padding + Math.floor(corrFontSize * 0.9) + 6;
       const iconX = cX + padding;
-      svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(corrFontSize * 0.9)})">${svgIcons.corredores}</g>\n`;
+      svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(corrFontSize * 0.7)})">${svgIcons.corredores}</g>\n`;
       const textX = iconX + 22;
       for (let i = 0; i < corrParts.length; i++) {
         svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px">${corrParts[i]}</text>\n`;
