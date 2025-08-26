@@ -38,6 +38,11 @@ export default function FloatingAssistant() {
         }
     }, [isOpen, isMinimized, inputRef])
 
+    // Debug: Log state changes
+    useEffect(() => {
+        console.log('FloatingAssistant state:', { isOpen, isMinimized })
+    }, [isOpen, isMinimized])
+
     const handleSendMessage = async () => {
         if (!inputValue.trim() || isLoading) return
 
@@ -92,211 +97,233 @@ export default function FloatingAssistant() {
 
     // Chat window
     return (
-        <motion.div
-            initial={{ scale: 0.8, opacity: 0, y: 20 }}
-            animate={{
-                scale: 1,
-                opacity: 1,
-                y: 0,
-                height: isMinimized ? 'auto' : '600px'
-            }}
-            exit={{ scale: 0.8, opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 z-[9999] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
-            style={{ width: '380px' }}
-        >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 text-white">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <div className="relative">
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                                <Brain className="w-5 h-5" />
-                            </div>
-                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold">RIALTOR</h3>
-                            <p className="text-xs text-red-100">Asistente Inmobiliario IA</p>
-                        </div>
-                    </div>
+        <>
+            {/* Overlay for mobile only */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9998] bg-black/20 md:hidden"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Overlay clicked');
+                    toggleAssistant();
+                }}
+            />
 
-                    <div className="flex items-center space-x-1">
-                        <button
-                            onClick={clearChat}
-                            className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
-                            title="Limpiar chat"
-                        >
-                            <RefreshCw className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={toggleAssistant}
-                            className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
-                            title="Cerrar"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
+            <motion.div
+                initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                animate={{
+                    scale: 1,
+                    opacity: 1,
+                    y: 0,
+                    height: isMinimized ? 'auto' : '600px'
+                }}
+                exit={{ scale: 0.8, opacity: 0, y: 20 }}
+                className="fixed bottom-6 right-6 z-[9999] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+                style={{ width: '380px', maxHeight: 'calc(100vh - 80px)' }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 text-white">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="relative">
+                                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                    <Brain className="w-5 h-5" />
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold">RIALTOR</h3>
+                                <p className="text-xs text-red-100">Asistente Inmobiliario IA</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-1">
+                            <button
+                                onClick={clearChat}
+                                className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                                title="Limpiar chat"
+                            >
+                                <RefreshCw className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Close button clicked');
+                                    toggleAssistant();
+                                }}
+                                className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                                title="Cerrar"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Minimize/Maximize Button - Always visible */}
-            <div className="flex justify-end p-2 bg-gradient-to-r from-red-500 to-red-600 border-t border-red-400/30">
-                <button
-                    onClick={toggleMinimize}
-                    className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-white"
-                    title={isMinimized ? "Expandir chat" : "Minimizar chat"}
-                >
-                    {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
-                </button>
-            </div>
-
-            {/* Chat content */}
-            <AnimatePresence>
-                {!isMinimized && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="flex flex-col h-96"
+                {/* Minimize/Maximize Button - Always visible */}
+                <div className="flex justify-end p-2 bg-gradient-to-r from-red-500 to-red-600 border-t border-red-400/30">
+                    <button
+                        onClick={toggleMinimize}
+                        className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-white"
+                        title={isMinimized ? "Expandir chat" : "Minimizar chat"}
                     >
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/30 to-white">
-                            {messages.map((message, index) => (
-                                <motion.div
-                                    key={message.id}
-                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-                                >
-                                    <div className={`flex items-end space-x-2 max-w-[85%] ${message.isUser ? 'flex-row-reverse space-x-reverse' : 'flex-row'
-                                        }`}>
-                                        {/* Avatar */}
-                                        <motion.div
-                                            whileHover={{ scale: 1.1 }}
-                                            className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${message.isUser
-                                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                                                : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-                                                }`}
-                                        >
-                                            {message.isUser ? <User className="w-4 h-4" /> : <Brain className="w-4 h-4" />}
-                                        </motion.div>
+                        {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                    </button>
+                </div>
 
-                                        {/* Message bubble */}
-                                        <motion.div
-                                            whileHover={{ scale: 1.02 }}
-                                            className={`px-4 py-3 rounded-2xl group ${message.isUser
-                                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md'
-                                                : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-md'
-                                                }`}
-                                        >
-                                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                                {message.content}
-                                            </p>
-                                            <p className={`text-xs mt-1 ${message.isUser ? 'text-blue-100' : 'text-gray-500'
-                                                }`}>
-                                                {new Date(message.timestamp).toLocaleTimeString([], {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}
-                                            </p>
+                {/* Chat content */}
+                <AnimatePresence>
+                    {!isMinimized && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="flex flex-col h-96"
+                        >
+                            {/* Messages */}
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-50/30 to-white max-h-[350px] scrollbar-thin" style={{ scrollBehavior: 'smooth' }}>
+                                {messages.map((message, index) => (
+                                    <motion.div
+                                        key={message.id}
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                                    >
+                                        <div className={`flex items-end space-x-2 max-w-[85%] ${message.isUser ? 'flex-row-reverse space-x-reverse' : 'flex-row'
+                                            }`}>
+                                            {/* Avatar */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${message.isUser
+                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                                                    : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                                                    }`}
+                                            >
+                                                {message.isUser ? <User className="w-4 h-4" /> : <Brain className="w-4 h-4" />}
+                                            </motion.div>
 
-                                            {/* Message Actions */}
-                                            <MessageActions
-                                                content={message.content}
-                                                isUser={message.isUser}
-                                                messageId={message.id}
-                                                onFeedback={sendFeedback}
-                                            />
-                                        </motion.div>
-                                    </div>
-                                </motion.div>
-                            ))}
+                                            {/* Message bubble */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.02 }}
+                                                className={`px-4 py-3 rounded-2xl group ${message.isUser
+                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md'
+                                                    : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-md'
+                                                    }`}
+                                            >
+                                                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                                                    {message.content}
+                                                </p>
+                                                <p className={`text-xs mt-1 ${message.isUser ? 'text-blue-100' : 'text-gray-500'
+                                                    }`}>
+                                                    {new Date(message.timestamp).toLocaleTimeString([], {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </p>
 
-                            {/* Loading indicator */}
-                            {isLoading && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="flex justify-start"
-                                >
-                                    <div className="flex items-end space-x-2">
-                                        <div className="w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
-                                            <Brain className="w-4 h-4 text-white" />
+                                                {/* Message Actions */}
+                                                <MessageActions
+                                                    content={message.content}
+                                                    isUser={message.isUser}
+                                                    messageId={message.id}
+                                                    onFeedback={sendFeedback}
+                                                />
+                                            </motion.div>
                                         </div>
-                                        <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border border-gray-100">
-                                            <div className="flex space-x-1">
-                                                <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce"></div>
-                                                <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                                <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                    </motion.div>
+                                ))}
+
+                                {/* Loading indicator */}
+                                {isLoading && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="flex justify-start"
+                                    >
+                                        <div className="flex items-end space-x-2">
+                                            <div className="w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
+                                                <Brain className="w-4 h-4 text-white" />
+                                            </div>
+                                            <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border border-gray-100">
+                                                <div className="flex space-x-1">
+                                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce"></div>
+                                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                                </div>
                                             </div>
                                         </div>
+                                    </motion.div>
+                                )}
+
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            {/* Quick suggestions */}
+                            <div className="px-4 py-2 bg-gray-50/50 border-t border-gray-100">
+                                <div className="flex flex-wrap gap-2">
+                                    {[
+                                        { icon: '💰', text: 'Calcular honorarios', action: 'Necesito calcular los honorarios para una operación inmobiliaria' },
+                                        { icon: '📋', text: 'Gastos escritura', action: 'Quiero conocer los gastos de escrituración' },
+                                        { icon: '🏠', text: 'Tasación', action: 'Necesito una tasación express de una propiedad' },
+                                        { icon: '⚡', text: 'Consulta rápida', action: 'Tengo una consulta sobre' }
+                                    ].map((suggestion, index) => (
+                                        <motion.button
+                                            key={index}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => handleQuickSuggestion(suggestion.action)}
+                                            className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-white hover:bg-red-50 border border-gray-200 hover:border-red-200 text-gray-600 hover:text-red-600 rounded-full transition-all duration-200"
+                                        >
+                                            <span>{suggestion.icon}</span>
+                                            <span>{suggestion.text}</span>
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Input area */}
+                            <div className="p-3 bg-white border-t border-gray-100">
+                                <div className="flex items-center space-x-2">
+                                    <div className="flex-1 relative">
+                                        <input
+                                            ref={inputRef}
+                                            type="text"
+                                            value={inputValue}
+                                            onChange={(e) => setInputValue(e.target.value)}
+                                            onKeyPress={handleKeyPress}
+                                            placeholder="Escribe tu consulta inmobiliaria..."
+                                            disabled={isLoading}
+                                            className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
+                                        />
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <span className="text-xs">↵</span>
+                                        </div>
                                     </div>
-                                </motion.div>
-                            )}
-
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        {/* Quick suggestions */}
-                        <div className="px-4 py-2 bg-gray-50/50 border-t border-gray-100">
-                            <div className="flex flex-wrap gap-2">
-                                {[
-                                    { icon: '💰', text: 'Calcular honorarios', action: 'Necesito calcular los honorarios para una operación inmobiliaria' },
-                                    { icon: '📋', text: 'Gastos escritura', action: 'Quiero conocer los gastos de escrituración' },
-                                    { icon: '🏠', text: 'Tasación', action: 'Necesito una tasación express de una propiedad' },
-                                    { icon: '⚡', text: 'Consulta rápida', action: 'Tengo una consulta sobre' }
-                                ].map((suggestion, index) => (
                                     <motion.button
-                                        key={index}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleQuickSuggestion(suggestion.action)}
-                                        className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-white hover:bg-red-50 border border-gray-200 hover:border-red-200 text-gray-600 hover:text-red-600 rounded-full transition-all duration-200"
+                                        onClick={handleSendMessage}
+                                        disabled={!inputValue.trim() || isLoading}
+                                        className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
                                     >
-                                        <span>{suggestion.icon}</span>
-                                        <span>{suggestion.text}</span>
+                                        {isLoading ? (
+                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <Send className="w-4 h-4" />
+                                        )}
                                     </motion.button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Input area */}
-                        <div className="p-3 bg-white border-t border-gray-100">
-                            <div className="flex items-center space-x-2">
-                                <div className="flex-1 relative">
-                                    <input
-                                        ref={inputRef}
-                                        type="text"
-                                        value={inputValue}
-                                        onChange={(e) => setInputValue(e.target.value)}
-                                        onKeyPress={handleKeyPress}
-                                        placeholder="Escribe tu consulta inmobiliaria..."
-                                        disabled={isLoading}
-                                        className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
-                                    />
-                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                                        <span className="text-xs">↵</span>
-                                    </div>
                                 </div>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={handleSendMessage}
-                                    disabled={!inputValue.trim() || isLoading}
-                                    className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                                >
-                                    {isLoading ? (
-                                        <RefreshCw className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <Send className="w-4 h-4" />
-                                    )}
-                                </motion.button>
                             </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        </>
     )
 }

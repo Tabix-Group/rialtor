@@ -18,10 +18,12 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     const [isMinimized, setIsMinimized] = useState(false)
 
     const toggleAssistant = () => {
+        console.log('toggleAssistant called, current isOpen:', isOpen)
         setIsOpen(!isOpen)
         if (!isOpen) {
             setIsMinimized(false) // Reset minimize state when opening
         }
+        console.log('toggleAssistant finished, new isOpen:', !isOpen)
     }
 
     const openAssistant = () => {
