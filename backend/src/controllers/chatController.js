@@ -91,9 +91,9 @@ const getChatSession = async (req, res, next) => {
     const userId = req.user.id;
 
     const session = await prisma.chatSession.findFirst({
-      where: { 
+      where: {
         id: sessionId,
-        userId 
+        userId
       },
       include: {
         messages: {
@@ -145,9 +145,9 @@ const sendMessage = async (req, res, next) => {
     } else {
       // Verificar que la sesión existe y pertenece al usuario
       session = await prisma.chatSession.findFirst({
-        where: { 
+        where: {
           id: sessionId,
-          userId 
+          userId
         }
       });
       if (!session) {
@@ -170,7 +170,7 @@ const sendMessage = async (req, res, next) => {
     });
     console.log('[CHAT] Mensaje de usuario guardado:', userMessage.id);
 
-  // Buscar contexto relevante en artículos y documentos (mantener lógica existente)
+    // Buscar contexto relevante en artículos y documentos (mantener lógica existente)
     let contextText = '';
     let foundContext = false;
 
@@ -204,7 +204,7 @@ const sendMessage = async (req, res, next) => {
         }
         const baseUrl = process.env.FRONTEND_URL || 'https://remax.tabix.com.ar';
         const articleUrl = slug ? `${baseUrl}/knowledge/article/${slug}` : '';
-        contextText += `(${idx+1}) Título: ${title}\nResumen: ${excerpt}\nContenido: ${content.substring(0, 800)}\nCategoría: ${category}\nEnlace: ${articleUrl}\n---\n`;
+        contextText += `(${idx + 1}) Título: ${title}\nResumen: ${excerpt}\nContenido: ${content.substring(0, 800)}\nCategoría: ${category}\nEnlace: ${articleUrl}\n---\n`;
       });
     }
 
@@ -227,7 +227,7 @@ const sendMessage = async (req, res, next) => {
       foundContext = true;
       contextText += '\nDocumentos relevantes:\n';
       documents.forEach((d, idx) => {
-        contextText += `(${idx+1}) Título: ${d.title}\nContenido: ${d.content.substring(0, 800)}\n---\n`;
+        contextText += `(${idx + 1}) Título: ${d.title}\nContenido: ${d.content.substring(0, 800)}\n---\n`;
       });
     }
 
@@ -415,9 +415,9 @@ const deleteChatSession = async (req, res, next) => {
     const userId = req.user.id;
 
     const session = await prisma.chatSession.findFirst({
-      where: { 
+      where: {
         id: sessionId,
-        userId 
+        userId
       }
     });
 
@@ -452,9 +452,9 @@ const updateChatSession = async (req, res, next) => {
     const userId = req.user.id;
 
     const session = await prisma.chatSession.findFirst({
-      where: { 
+      where: {
         id: sessionId,
-        userId 
+        userId
       }
     });
 
@@ -482,11 +482,58 @@ const updateChatSession = async (req, res, next) => {
   }
 };
 
+const sendFeedback = async (req, res, next) => {
+  try {
+    const { messageId, feedbackType, sessionId } = req.body;
+    const userId = req.user.id;
+
+    // Verificar que el mensaje pertenece al usuario
+    const message = await prisma.chatMessage.findFirst({
+      where: {
+        id: messageId,
+        session: {
+          userId
+        }
+      }
+    });
+
+    if (!message) {
+      return res.status(404).json({
+        error: 'Message not found',
+        message: 'Message not found or access denied'
+      });
+    }
+
+    // Actualizar el metadata del mensaje con el feedback
+    const currentMetadata = message.metadata ? JSON.parse(message.metadata) : {};
+    const updatedMetadata = {
+      ...currentMetadata,
+      feedback: feedbackType,
+      feedbackAt: new Date().toISOString()
+    };
+
+    await prisma.chatMessage.update({
+      where: { id: messageId },
+      data: {
+        metadata: JSON.stringify(updatedMetadata)
+      }
+    });
+
+    res.json({
+      message: 'Feedback recorded successfully',
+      feedback: feedbackType
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createChatSession,
   getChatSessions,
   getChatSession,
   sendMessage,
   deleteChatSession,
-  updateChatSession
+  updateChatSession,
+  sendFeedback
 };

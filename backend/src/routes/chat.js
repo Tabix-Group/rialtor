@@ -18,4 +18,7 @@ router.delete('/sessions/:sessionId', chatController.deleteChatSession);
 // Envío de mensajes
 router.post('/message', validateChat.message, chatController.sendMessage);
 
+// Feedback de mensajes
+router.post('/feedback', chatController.sendFeedback);
+
 module.exports = router;

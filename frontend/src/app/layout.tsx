@@ -2,8 +2,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '../styles/globals.css';
 import { AuthProvider } from './auth/authContext';
+import { AssistantProvider } from '../contexts/AssistantContext';
+import { NotificationProvider } from '../contexts/NotificationContext';
 import LayoutWithNav from './LayoutWithNav';
 import Footer from '../components/Footer';
+import FloatingAssistant from '../components/FloatingAssistant';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,12 +26,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.className} bg-gray-50 text-gray-900 antialiased`}>
         <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            <LayoutWithNav>
-              <main className="flex-grow">{children}</main>
-            </LayoutWithNav>
-            <Footer />
-          </div>
+          <NotificationProvider>
+            <AssistantProvider>
+              <div className="flex flex-col min-h-screen">
+                <LayoutWithNav>
+                  <main className="flex-grow">{children}</main>
+                </LayoutWithNav>
+                <Footer />
+                <FloatingAssistant />
+              </div>
+            </AssistantProvider>
+          </NotificationProvider>
         </AuthProvider>
       </body>
     </html>
