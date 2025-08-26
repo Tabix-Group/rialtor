@@ -97,9 +97,9 @@ function Navigation() {
                 <Link
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${isActive(item.href)
+                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${isActive(item.href)
                     ? 'bg-orange-100 text-orange-600'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600 hover:underline'
                     }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -116,9 +116,9 @@ function Navigation() {
                   key={sub.name}
                   href={sub.href}
                   onClick={() => setIsOpen(false)}
-                  className={`ml-8 flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${isActive(sub.href)
+                  className={`ml-8 flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${isActive(sub.href)
                     ? 'bg-orange-100 text-orange-600'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600 hover:underline'
                     }`}
                 >
                   {sub.name}
@@ -134,7 +134,7 @@ function Navigation() {
             {item.href ? (
               <Link
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-600 focus:outline-none ${isActive(item.href) || item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-orange-100 text-orange-600' : ''
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-600 focus:outline-none ${isActive(item.href) || item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-orange-100 text-orange-600' : ''
                   }`}
               >
                 <Icon className="w-5 h-5" />
@@ -143,7 +143,7 @@ function Navigation() {
               </Link>
             ) : (
               <button
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-600 focus:outline-none ${item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-orange-100 text-orange-600' : ''
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-600 focus:outline-none ${item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-orange-100 text-orange-600' : ''
                   }`}
                 tabIndex={0}
               >
@@ -174,9 +174,9 @@ function Navigation() {
           key={item.name}
           href={item.href}
           onClick={() => isMobile && setIsOpen(false)}
-          className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${isActive(item.href)
+          className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${isActive(item.href)
             ? 'bg-orange-100 text-orange-600'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600'
+            : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600 hover:underline'
             }`}
         >
           <Icon className="w-5 h-5" />
