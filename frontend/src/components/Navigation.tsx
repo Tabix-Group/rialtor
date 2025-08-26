@@ -32,7 +32,6 @@ function Navigation() {
       },
       {
         name: 'Documentos',
-        href: '/documents',
         icon: 'FileText',
         dropdown: [
           { name: 'Resumidor', href: '/documents/summary' },
@@ -67,7 +66,6 @@ function Navigation() {
       },
       {
         name: 'Documentos',
-        href: '/documents',
         icon: 'FileText',
         dropdown: [
           { name: 'Resumidor', href: '/documents/summary' },
