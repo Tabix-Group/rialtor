@@ -483,16 +483,16 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.45" />\n`;
     svg += `    </filter>\n`;
     svg += `    <style><![CDATA[\n`;
-    svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: 700; fill: ${textColor}; }\n`;
-    svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${textColor}; font-weight: 500; }\n`;
-    svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${textColor}; }\n`;
-    svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${textColor}; opacity: 0.9; font-weight: 600; }\n`;
+    svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: 700; fill: ${mainTextColor}; }\n`;
+    svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${mainTextColor}; font-weight: 500; }\n`;
+    svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${mainTextColor}; }\n`;
+    svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${mainTextColor}; opacity: 0.9; font-weight: 600; }\n`;
     svg += `    ]]></style>\n`;
     svg += `  </defs>\n`;
 
     svg += `  <g filter="url(#f1)">\n`;
-    svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="${boxHeight}" rx="14" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
-    svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="6" rx="14" fill="rgba(255,255,255,0.06)" />\n`;
+    svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="${boxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    svg += `    <rect x="${pos.x}" y="${pos.y}" width="${boxWidth}" height="6" rx="14" fill="rgba(255,255,255,0.95)" />\n`;
     svg += `  </g>\n`;
 
     let currentY = pos.y + padding + Math.floor(precioSize * 0.9);
@@ -574,8 +574,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       // compute final width to accommodate the longest wrapped part (by chars -> pixels estimate)
       let maxPartLen = 0;
       for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
-      const neededForParts = Math.min(maxCorrBoxW, Math.max(cW, maxPartLen * corrChar + padding * 2 + 32));
-      const finalCW = neededForParts;
+      // Use a more generous character width estimate and add extra margin
+      const charWidthGenerous = Math.max(8, Math.floor(corrFontSize * 0.6));
+      const neededForParts = maxPartLen * charWidthGenerous + padding * 2 + 40;
+      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 300)); // minimum 300px width
       // draw rect with final width
       svg += `  <g filter="url(#f1)">\n`;
       svg += `    <rect x="${cX}" y="${cY}" width="${finalCW}" height="${cH}" rx="12" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
