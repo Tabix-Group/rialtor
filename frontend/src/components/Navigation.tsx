@@ -18,39 +18,48 @@ function Navigation() {
 
   const navConfig = isUsuario
     ? [
-        { name: 'Noticias', href: '/knowledge', icon: 'BookOpen', permission: undefined },
-        {
-          name: 'Calculadoras',
-          icon: 'Calculator',
-          dropdown: [
-            { name: 'Gastos Escritura', href: '/calcescritura' },
-            { name: 'Honorarios Inmobiliarios', href: '/calchonorarios' },
-            { name: 'Impuesto Ganancia', href: '/calciigg' },
-            { name: 'Seguros de Caución', href: '/creditos' },
-          ],
-          permission: undefined,
-        },
-  { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
-      ]
+      { name: 'Noticias', href: '/knowledge', icon: 'BookOpen', permission: undefined },
+      {
+        name: 'Calculadoras',
+        href: '/calculadoras',
+        icon: 'Calculator',
+        dropdown: [
+          { name: 'Gastos Escritura', href: '/calcescritura' },
+          { name: 'Honorarios Inmobiliarios', href: '/calchonorarios' },
+          { name: 'Impuesto Ganancia', href: '/calciigg' },
+          { name: 'Seguros de Caución', href: '/creditos' },
+        ],
+        permission: undefined,
+      },
+      { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
+    ]
     : [
-        { name: 'Noticias', href: '/knowledge', icon: 'BookOpen', permission: 'manage_articles' },
-        { name: 'Asistente IA', href: '/chat', icon: 'MessageSquare', permission: 'use_chat' },
-        {
-          name: 'Calculadoras',
-          icon: 'Calculator',
-          dropdown: [
-            { name: 'Gastos Escritura', href: '/calcescritura' },
-            { name: 'Honorarios Inmobiliarios', href: '/calchonorarios' },
-            { name: 'Impuesto Ganancia', href: '/calciigg' },
-            { name: 'Seguros de Caución', href: '/creditos' },
-          ],
-          permission: 'use_calculator',
-        },
-  { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
-  // { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: 'use_placas' }, // OCULTO TEMPORALMENTE
-        { name: 'Archivos', href: '/documents', icon: 'FileText', permission: 'manage_documents' },
-        { name: 'Panel de Control', href: '/admin', icon: 'Shield', permission: 'view_admin' },
-      ]
+      { name: 'Noticias', href: '/knowledge', icon: 'BookOpen', permission: 'manage_articles' },
+      { name: 'Asistente IA', href: '/chat', icon: 'MessageSquare', permission: 'use_chat' },
+      {
+        name: 'Calculadoras',
+        href: '/calculadoras',
+        icon: 'Calculator',
+        dropdown: [
+          { name: 'Gastos Escritura', href: '/calcescritura' },
+          { name: 'Honorarios Inmobiliarios', href: '/calchonorarios' },
+          { name: 'Impuesto Ganancia', href: '/calciigg' },
+          { name: 'Seguros de Caución', href: '/creditos' },
+        ],
+        permission: 'use_calculator',
+      },
+      { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
+      // { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: 'use_placas' }, // OCULTO TEMPORALMENTE
+      {
+        name: 'Panel de Control',
+        href: '/admin',
+        icon: 'Shield',
+        dropdown: [
+          { name: 'Archivos', href: '/documents' },
+        ],
+        permission: 'view_admin',
+      },
+    ]
 
   const icons = {
     BookOpen: require('lucide-react').BookOpen,
@@ -69,25 +78,39 @@ function Navigation() {
       const hasPermission = item.permission ? usePermission(item.permission) : true
       if (!hasPermission) return null
 
-      // Dropdown para Calculadoras
+      // Dropdown  
       if (item.dropdown) {
         if (isMobile) {
           return (
             <div key={item.name} className="flex flex-col">
-              <span className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-gray-700">
-                <Icon className="w-5 h-5" />
-                {item.name}
-              </span>
+              {/* Si tiene href, mostrar como enlace clickeable */}
+              {item.href ? (
+                <Link
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${isActive(item.href)
+                    ? 'bg-red-100 text-red-600'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
+                    }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {item.name}
+                </Link>
+              ) : (
+                <span className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-gray-700">
+                  <Icon className="w-5 h-5" />
+                  {item.name}
+                </span>
+              )}
               {item.dropdown.map((sub) => (
                 <Link
                   key={sub.name}
                   href={sub.href}
                   onClick={() => setIsOpen(false)}
-                  className={`ml-8 flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-                    isActive(sub.href)
-                      ? 'bg-red-100 text-red-600'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
-                  }`}
+                  className={`ml-8 flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${isActive(sub.href)
+                    ? 'bg-red-100 text-red-600'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
+                    }`}
                 >
                   {sub.name}
                 </Link>
@@ -98,24 +121,35 @@ function Navigation() {
         // Desktop dropdown
         return (
           <div key={item.name} className="relative group">
-            <button
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600 focus:outline-none ${
-                item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-red-100 text-red-600' : ''
-              }`}
-              tabIndex={0}
-            >
-              <Icon className="w-5 h-5" />
-              {item.name}
-              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-            </button>
+            {/* Si tiene href, usar Link clickeable, sino button */}
+            {item.href ? (
+              <Link
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600 focus:outline-none ${isActive(item.href) || item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-red-100 text-red-600' : ''
+                  }`}
+              >
+                <Icon className="w-5 h-5" />
+                {item.name}
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </Link>
+            ) : (
+              <button
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-red-600 focus:outline-none ${item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-red-100 text-red-600' : ''
+                  }`}
+                tabIndex={0}
+              >
+                <Icon className="w-5 h-5" />
+                {item.name}
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+            )}
             <div className="absolute left-0 top-12 min-w-[160px] bg-white border rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-50 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
               {item.dropdown.map((sub) => (
                 <Link
                   key={sub.name}
                   href={sub.href}
-                  className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition ${
-                    isActive(sub.href) ? 'bg-red-100 text-red-600' : ''
-                  }`}
+                  className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition ${isActive(sub.href) ? 'bg-red-100 text-red-600' : ''
+                    }`}
                 >
                   {sub.name}
                 </Link>
@@ -131,11 +165,10 @@ function Navigation() {
           key={item.name}
           href={item.href}
           onClick={() => isMobile && setIsOpen(false)}
-          className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
-            isActive(item.href)
-              ? 'bg-red-100 text-red-600'
-              : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
-          }`}
+          className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-sm font-medium ${isActive(item.href)
+            ? 'bg-red-100 text-red-600'
+            : 'text-gray-700 hover:bg-gray-50 hover:text-red-600'
+            }`}
         >
           <Icon className="w-5 h-5" />
           {item.name}
