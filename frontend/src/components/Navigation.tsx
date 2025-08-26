@@ -18,7 +18,6 @@ function Navigation() {
 
   const navConfig = isUsuario
     ? [
-      { name: 'Noticias', href: '/knowledge', icon: 'BookOpen', permission: undefined },
       {
         name: 'Calculadoras',
         href: '/calculadoras',
@@ -32,10 +31,18 @@ function Navigation() {
         permission: undefined,
       },
       { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
+      {
+        name: 'Panel de Control',
+        href: '/admin',
+        icon: 'Shield',
+        dropdown: [
+          { name: 'Noticias', href: '/knowledge' },
+          { name: 'Archivos', href: '/documents' },
+        ],
+        permission: undefined,
+      },
     ]
     : [
-      { name: 'Noticias', href: '/knowledge', icon: 'BookOpen', permission: 'manage_articles' },
-      { name: 'Asistente IA', href: '/chat', icon: 'MessageSquare', permission: 'use_chat' },
       {
         name: 'Calculadoras',
         href: '/calculadoras',
@@ -55,6 +62,8 @@ function Navigation() {
         href: '/admin',
         icon: 'Shield',
         dropdown: [
+          { name: 'Noticias', href: '/knowledge' },
+          { name: 'Asistente IA', href: '/chat' },
           { name: 'Archivos', href: '/documents' },
         ],
         permission: 'view_admin',
