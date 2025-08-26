@@ -58,11 +58,6 @@ export default function FloatingAssistant() {
         inputRef.current?.focus()
     }
 
-    const testMessage = async () => {
-        console.log('[TEST] Testing with simple message...');
-        await sendMessage('Hola, soy una prueba');
-    }
-
     // Floating button
     if (!isOpen) {
         return (
@@ -127,20 +122,6 @@ export default function FloatingAssistant() {
 
                     <div className="flex items-center space-x-1">
                         <button
-                            onClick={testMessage}
-                            className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-xs"
-                            title="Test"
-                        >
-                            🧪
-                        </button>
-                        <button
-                            onClick={toggleMinimize}
-                            className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
-                            title={isMinimized ? "Expandir" : "Minimizar"}
-                        >
-                            {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
-                        </button>
-                        <button
                             onClick={clearChat}
                             className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
                             title="Limpiar chat"
@@ -156,6 +137,17 @@ export default function FloatingAssistant() {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            {/* Minimize/Maximize Button - Always visible */}
+            <div className="flex justify-end p-2 bg-gradient-to-r from-red-500 to-red-600 border-t border-red-400/30">
+                <button
+                    onClick={toggleMinimize}
+                    className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-white"
+                    title={isMinimized ? "Expandir chat" : "Minimizar chat"}
+                >
+                    {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                </button>
             </div>
 
             {/* Chat content */}
@@ -270,7 +262,7 @@ export default function FloatingAssistant() {
                         </div>
 
                         {/* Input area */}
-                        <div className="p-4 bg-white border-t border-gray-100">
+                        <div className="p-3 bg-white border-t border-gray-100">
                             <div className="flex items-center space-x-2">
                                 <div className="flex-1 relative">
                                     <input
@@ -281,7 +273,7 @@ export default function FloatingAssistant() {
                                         onKeyPress={handleKeyPress}
                                         placeholder="Escribe tu consulta inmobiliaria..."
                                         disabled={isLoading}
-                                        className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
+                                        className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
                                     />
                                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                                         <span className="text-xs">↵</span>
@@ -292,7 +284,7 @@ export default function FloatingAssistant() {
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleSendMessage}
                                     disabled={!inputValue.trim() || isLoading}
-                                    className="p-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                                    className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
                                 >
                                     {isLoading ? (
                                         <RefreshCw className="w-4 h-4 animate-spin" />

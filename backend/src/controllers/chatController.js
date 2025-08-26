@@ -126,9 +126,11 @@ const templates = require('../templates/rialtorTemplates');
 const sendMessage = async (req, res, next) => {
   try {
     console.log('[CHAT] sendMessage called');
+    console.log('[CHAT] req.body:', JSON.stringify(req.body, null, 2));
     const { message, sessionId } = req.body;
     const userId = req.user.id;
     console.log('[CHAT] userId:', userId, 'sessionId:', sessionId, 'message:', message);
+    console.log('[CHAT] message type:', typeof message, 'sessionId type:', typeof sessionId);
 
     let session;
 

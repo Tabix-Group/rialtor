@@ -2,8 +2,12 @@ const { body, validationResult } = require('express-validator');
 
 const validateRequest = (req, res, next) => {
   const errors = validationResult(req);
-  
+
   if (!errors.isEmpty()) {
+    console.log('[VALIDATION] Validation failed:', JSON.stringify({
+      body: req.body,
+      errors: errors.array()
+    }, null, 2));
     return res.status(400).json({
       error: 'Validation failed',
       message: 'Invalid input data',
@@ -14,7 +18,7 @@ const validateRequest = (req, res, next) => {
       }))
     });
   }
-  
+
   next();
 };
 
@@ -154,8 +158,17 @@ const validateChat = {
       .isLength({ min: 1, max: 2000 })
       .withMessage('Message must be between 1 and 2000 characters'),
     body('sessionId')
-      .optional()
-      .isUUID()
+      .optional({ nullable: true })
+      .custom((value) => {
+        if (value === null || value === undefined || value === '') {
+          return true; // Allow null/empty for new sessions
+        }
+        // If provided, must be a valid UUID
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+          throw new Error('Invalid session ID format');
+        }
+        return true;
+      })
       .withMessage('Invalid session ID'),
     validateRequest
   ]
