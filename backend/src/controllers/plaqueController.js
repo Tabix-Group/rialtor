@@ -380,14 +380,17 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const descripcion = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
     const overlayColor = determineOverlayColor(imageAnalysis && imageAnalysis.colores);
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
+    // Main box style (top-right): translucent white bg + black text
+    const mainBoxFill = 'rgba(255,255,255,0.90)';
+    const mainTextColor = '#000000';
 
     const precioSize = Math.max(28, Math.floor(width / 25));
     const infoSize = Math.max(18, Math.floor(width / 40));
     const contactoSize = Math.max(16, Math.floor(width / 50));
     const labelSize = Math.max(14, Math.floor(width / 60));
 
-    // Iconos inline SVG
-    const svgIcons = {
+    // Two icon palettes: main (black) for the top-right box, alt (contrast) for the overlay/corredores box
+    const svgIconsAlt = {
       ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 8h-3v7h-4v-5H10v5H6v-7H3l9-8z" fill="${textColor}"/></svg>`,
       superficie: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${textColor}" stroke-width="1.5" fill="none"/></svg>`,
       ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="${textColor}" stroke-width="1.2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="${textColor}"/></svg>`,
@@ -395,17 +398,25 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M3 7l9 6 9-6" stroke="${textColor}" stroke-width="1.2" fill="none"/></svg>`,
       corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="${textColor}"/></svg>`
     };
+    const svgIconsMain = {
+      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 8h-3v7h-4v-5H10v5H6v-7H3l9-8z" fill="${mainTextColor}"/></svg>`,
+      superficie: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${mainTextColor}" stroke-width="1.5" fill="none"/></svg>`,
+      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="${mainTextColor}" stroke-width="1.2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="${mainTextColor}"/></svg>`,
+      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4" stroke="${mainTextColor}" stroke-width="1.2" fill="none"/><path d="M7 10l5 4 5-4" stroke="${mainTextColor}" stroke-width="1.2" fill="none"/></svg>`,
+      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="${mainTextColor}" stroke-width="1.2" fill="none"/><path d="M3 7l9 6 9-6" stroke="${mainTextColor}" stroke-width="1.2" fill="none"/></svg>`,
+      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="${mainTextColor}"/></svg>`
+    };
 
     const lines = [];
     lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
     lines.push({ text: tipo, cls: 'info', size: infoSize });
-    if (ambientes) lines.push({ icon: svgIcons.ambientes, text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
-    if (superficie) lines.push({ icon: svgIcons.superficie, text: `${superficie} m2`, cls: 'info', size: infoSize });
+    if (ambientes) lines.push({ icon: svgIconsMain.ambientes, text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
+    if (superficie) lines.push({ icon: svgIconsMain.superficie, text: `${superficie} m2`, cls: 'info', size: infoSize });
     lines.push({ text: 'Ubicación:', cls: 'label', size: labelSize });
-    lines.push({ icon: svgIcons.ubicacion, text: direccion, cls: 'contacto', size: contactoSize });
+    lines.push({ icon: svgIconsMain.ubicacion, text: direccion, cls: 'contacto', size: contactoSize });
     lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
-    lines.push({ icon: svgIcons.contacto, text: contacto, cls: 'contacto', size: contactoSize });
-    if (email) lines.push({ icon: svgIcons.correo, text: email, cls: 'contacto', size: contactoSize });
+    lines.push({ icon: svgIconsMain.contacto, text: contacto, cls: 'contacto', size: contactoSize });
+    if (email) lines.push({ icon: svgIconsMain.correo, text: email, cls: 'contacto', size: contactoSize });
 
     // Corredores will be rendered in a separate box bottom-left
     const corredoresText = corredores || null;
@@ -493,8 +504,11 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         const iconX = textX;
         // use the specific line size if provided so the icon centers vertically with the text
         const lineFont = ln.size || infoSize || precioSize;
-        const iconY = currentY - Math.floor(lineFont * 0.7);
-        svg += `  <g transform="translate(${iconX}, ${iconY})">${ln.icon}</g>\n`;
+        // center icon vertically relative to font's em-height
+        const iconY = currentY - Math.floor(lineFont * 0.72);
+        // ensure icon uses main set for main box content
+        const iconSvg = ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon] || ln.icon;
+        svg += `  <g transform="translate(${iconX}, ${iconY})">${iconSvg}</g>\n`;
         const textPosX = textX + 22;
         if (ln.cls === 'precio') {
           svg += `  <text x="${textPosX}" y="${currentY}" class="precio">${safeText}</text>\n`;
@@ -535,16 +549,33 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const cMaxChars = Math.max(20, Math.floor((cW - padding * 2 - 24) / corrChar));
       // split into parts
       const safeCorr = escapeForSvg(corredoresText);
+      // word-wrap based on cMaxChars estimate
+      const words = safeCorr.split(/\s+/);
       const corrParts = [];
-      for (let i = 0; i < safeCorr.length; i += cMaxChars) corrParts.push(safeCorr.slice(i, i + cMaxChars));
+      let line = '';
+      for (const w of words) {
+        if ((line + ' ' + w).trim().length <= cMaxChars) {
+          line = (line + ' ' + w).trim();
+        } else {
+          if (line) corrParts.push(line);
+          // if single word longer than cMaxChars, hard-split
+          if (w.length > cMaxChars) {
+            for (let i = 0; i < w.length; i += cMaxChars) corrParts.push(w.slice(i, i + cMaxChars));
+            line = '';
+          } else {
+            line = w;
+          }
+        }
+      }
+      if (line) corrParts.push(line);
       const cH = Math.max(36, corrParts.length * (Math.max(12, corrFontSize) + 6) + padding);
       const cX = margin;
       const cY = height - cH - margin;
-      // compute final width to accommodate the longest wrapped part
+      // compute final width to accommodate the longest wrapped part (by chars -> pixels estimate)
       let maxPartLen = 0;
       for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
-      const neededForParts = maxPartLen * corrChar + padding * 2 + 32;
-      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts));
+      const neededForParts = Math.min(maxCorrBoxW, Math.max(cW, maxPartLen * corrChar + padding * 2 + 32));
+      const finalCW = neededForParts;
       // draw rect with final width
       svg += `  <g filter="url(#f1)">\n`;
       svg += `    <rect x="${cX}" y="${cY}" width="${finalCW}" height="${cH}" rx="12" fill="url(#g1)" opacity="0.95" stroke="rgba(255,255,255,0.08)" stroke-width="1" />\n`;
@@ -553,7 +584,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       // icon
       let cy = cY + padding + Math.floor(corrFontSize * 0.9) + 6;
       const iconX = cX + padding;
-      svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(corrFontSize * 0.7)})">${svgIcons.corredores}</g>\n`;
+      svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(corrFontSize * 0.7)})">${svgIconsAlt.corredores}</g>\n`;
       const textX = iconX + 22;
       for (let i = 0; i < corrParts.length; i++) {
         svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px">${corrParts[i]}</text>\n`;
