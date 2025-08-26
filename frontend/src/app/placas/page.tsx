@@ -22,7 +22,9 @@ import {
   Clock,
   Square,
   Layers,
-  Bath
+  Bath,
+  Bed,
+  Car
 } from 'lucide-react'
 
 interface PropertyData {
@@ -31,6 +33,9 @@ interface PropertyData {
   moneda: string;
   direccion: string;
   ambientes?: string;
+  dormitorios?: string;
+  banos?: string;
+  cocheras?: string;
   m2_totales?: string;
   m2_cubiertos?: string;
   m2_descubiertos?: string;
@@ -69,10 +74,12 @@ export default function PlacasPage() {
     moneda: 'USD',
     direccion: '',
     ambientes: '',
+    dormitorios: '',
+    banos: '',
+    cocheras: '',
     m2_totales: '',
     m2_cubiertos: '',
     m2_descubiertos: '',
-    banos: '',
     contacto: '',
     corredores: '',
     email: '',
@@ -357,6 +364,24 @@ export default function PlacasPage() {
                         {plaque.propertyData.ambientes} ambientes
                       </div>
                     )}
+                    {plaque.propertyData.dormitorios && (
+                      <div className="flex items-center gap-1">
+                        <Bed className="w-4 h-4 text-amber-600" />
+                        {plaque.propertyData.dormitorios} dormitorios
+                      </div>
+                    )}
+                    {plaque.propertyData.banos && (
+                      <div className="flex items-center gap-1">
+                        <Bath className="w-4 h-4 text-cyan-600" />
+                        {plaque.propertyData.banos} baños
+                      </div>
+                    )}
+                    {plaque.propertyData.cocheras && (
+                      <div className="flex items-center gap-1">
+                        <Car className="w-4 h-4 text-red-600" />
+                        {plaque.propertyData.cocheras} cocheras
+                      </div>
+                    )}
                     {plaque.propertyData.m2_totales && (
                       <div className="flex items-center gap-1">
                         <Square className="w-4 h-4 text-purple-600" />
@@ -373,12 +398,6 @@ export default function PlacasPage() {
                       <div className="flex items-center gap-1">
                         <Square className="w-4 h-4 text-emerald-600" />
                         {plaque.propertyData.m2_descubiertos} m² descubiertos
-                      </div>
-                    )}
-                    {plaque.propertyData.banos && (
-                      <div className="flex items-center gap-1">
-                        <Bath className="w-4 h-4 text-cyan-600" />
-                        {plaque.propertyData.banos} baños
                       </div>
                     )}
                   </div>
@@ -541,6 +560,45 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Dormitorios
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.dormitorios}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, dormitorios: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: 2"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Baños
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.banos}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, banos: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: 2"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cocheras
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.cocheras}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, cocheras: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: 1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         M2 Totales
                       </label>
                       <input
@@ -575,19 +633,6 @@ export default function PlacasPage() {
                         onChange={(e) => setPropertyData(prev => ({ ...prev, m2_descubiertos: e.target.value }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         placeholder="Ej: 35"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Baños
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.banos}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, banos: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 2"
                       />
                     </div>
 
@@ -780,6 +825,26 @@ export default function PlacasPage() {
                         <span className="font-medium">Ambientes:</span> {selectedPlaque.propertyData.ambientes}
                       </div>
                     )}
+                    {selectedPlaque.propertyData.ambientes && (
+                      <div>
+                        <span className="font-medium">Ambientes:</span> {selectedPlaque.propertyData.ambientes}
+                      </div>
+                    )}
+                    {selectedPlaque.propertyData.dormitorios && (
+                      <div>
+                        <span className="font-medium">Dormitorios:</span> {selectedPlaque.propertyData.dormitorios}
+                      </div>
+                    )}
+                    {selectedPlaque.propertyData.banos && (
+                      <div>
+                        <span className="font-medium">Baños:</span> {selectedPlaque.propertyData.banos}
+                      </div>
+                    )}
+                    {selectedPlaque.propertyData.cocheras && (
+                      <div>
+                        <span className="font-medium">Cocheras:</span> {selectedPlaque.propertyData.cocheras}
+                      </div>
+                    )}
                     {selectedPlaque.propertyData.m2_totales && (
                       <div>
                         <span className="font-medium">M2 Totales:</span> {selectedPlaque.propertyData.m2_totales} m²
@@ -793,11 +858,6 @@ export default function PlacasPage() {
                     {selectedPlaque.propertyData.m2_descubiertos && (
                       <div>
                         <span className="font-medium">M2 Descubiertos:</span> {selectedPlaque.propertyData.m2_descubiertos} m²
-                      </div>
-                    )}
-                    {selectedPlaque.propertyData.banos && (
-                      <div>
-                        <span className="font-medium">Baños:</span> {selectedPlaque.propertyData.banos}
                       </div>
                     )}
                     {selectedPlaque.propertyData.email && (
