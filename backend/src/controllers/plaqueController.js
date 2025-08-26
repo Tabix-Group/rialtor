@@ -408,28 +408,26 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="${textColor}"/></svg>`
     };
     const svgIconsMain = {
-      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 8h-3v7h-4v-5H10v5H6v-7H3l9-8z" fill="#3B82F6"/></svg>`,
-      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#8B5CF6" stroke-width="1.5" fill="none"/></svg>`,
-      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14z" stroke="#6366F1" stroke-width="1.5" fill="none"/><path d="M7 7h10v10H7V7z" fill="#6366F1" opacity="0.3"/></svg>`,
-      m2_descubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#10B981" stroke-width="1.5" fill="none" stroke-dasharray="4,2"/></svg>`,
-      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#06B6D4" stroke-width="1.5" fill="none"/><circle cx="7" cy="10" r="1.5" fill="#06B6D4"/><path d="M10 8h7" stroke="#06B6D4" stroke-width="1.5"/><path d="M10 12h4" stroke="#06B6D4" stroke-width="1.5"/><path d="M6 18v2" stroke="#06B6D4" stroke-width="1.5"/><path d="M18 18v2" stroke="#06B6D4" stroke-width="1.5"/></svg>`,
-      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#DC2626" stroke-width="1.2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="#DC2626"/></svg>`,
-      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4" stroke="#16A34A" stroke-width="1.2" fill="none"/><path d="M7 10l5 4 5-4" stroke="#16A34A" stroke-width="1.2" fill="none"/></svg>`,
-      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#059669" stroke-width="1.2" fill="none"/><path d="M3 7l9 6 9-6" stroke="#059669" stroke-width="1.2" fill="none"/></svg>`,
-      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="#1F2937"/></svg>`
+      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#3B82F6" stroke-width="2" fill="none"/><polyline points="9,22 9,12 15,12 15,22" stroke="#3B82F6" stroke-width="2" fill="none"/></svg>`,
+      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="#8B5CF6" stroke-width="2" fill="none"/></svg>`,
+      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="#6366F1" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="#6366F1" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="#6366F1" stroke-width="2" fill="none"/></svg>`,
+      m2_descubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="#10B981" stroke-width="2" fill="none"/></svg>`,
+      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="#06B6D4" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="#06B6D4" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="#06B6D4" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="#06B6D4" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="#06B6D4" stroke-width="2"/></svg>`,
+      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" stroke="#DC2626" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="3" stroke="#DC2626" stroke-width="2" fill="none"/></svg>`,
+      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="#16A34A" stroke-width="2" fill="none"/></svg>`,
+      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="16" x="2" y="4" rx="2" stroke="#059669" stroke-width="2" fill="none"/><path d="m22 7-10 5L2 7" stroke="#059669" stroke-width="2" fill="none"/></svg>`,
+      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#1F2937" stroke-width="2" fill="none"/><circle cx="9" cy="7" r="4" stroke="#1F2937" stroke-width="2" fill="none"/><path d="m22 21-3.5-3.5" stroke="#1F2937" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="3" stroke="#1F2937" stroke-width="2" fill="none"/></svg>`
     };
 
     const lines = [];
     lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
     lines.push({ text: tipo, cls: 'info', size: infoSize });
     if (ambientes) lines.push({ icon: svgIconsMain.ambientes, text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
-    if (m2_totales) lines.push({ icon: svgIconsMain.m2_totales, text: `${m2_totales} m2 totales`, cls: 'info', size: infoSize });
-    if (m2_cubiertos) lines.push({ icon: svgIconsMain.m2_cubiertos, text: `${m2_cubiertos} m2 cubiertos`, cls: 'info', size: infoSize });
-    if (m2_descubiertos) lines.push({ icon: svgIconsMain.m2_descubiertos, text: `${m2_descubiertos} m2 descubiertos`, cls: 'info', size: infoSize });
+    if (m2_totales) lines.push({ icon: svgIconsMain.m2_totales, text: `${m2_totales} m`, superscript: '2', suffix: ' totales', cls: 'info', size: infoSize });
+    if (m2_cubiertos) lines.push({ icon: svgIconsMain.m2_cubiertos, text: `${m2_cubiertos} m`, superscript: '2', suffix: ' cubiertos', cls: 'info', size: infoSize });
+    if (m2_descubiertos) lines.push({ icon: svgIconsMain.m2_descubiertos, text: `${m2_descubiertos} m`, superscript: '2', suffix: ' descubiertos', cls: 'info', size: infoSize });
     if (banos) lines.push({ icon: svgIconsMain.banos, text: `${banos} baños`, cls: 'info', size: infoSize });
-    lines.push({ text: 'Ubicación:', cls: 'label', size: labelSize });
     lines.push({ icon: svgIconsMain.ubicacion, text: direccion, cls: 'contacto', size: contactoSize });
-    lines.push({ text: 'Contacto:', cls: 'label', size: labelSize });
     lines.push({ icon: svgIconsMain.contacto, text: contacto, cls: 'contacto', size: contactoSize });
     if (email) lines.push({ icon: svgIconsMain.correo, text: email, cls: 'contacto', size: contactoSize });
 
@@ -450,14 +448,23 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     }
 
     // Avoid truncating lines explicitly marked with noTruncate (e.g., corredores)
-    const formattedLines = lines.map((ln) => ({ ...ln, text: ln.cls === 'label' || ln.noTruncate ? ln.text : wrapOrTruncate(ln.text) }));
+    const formattedLines = lines.map((ln) => ({
+      ...ln,
+      text: ln.cls === 'label' || ln.noTruncate || ln.superscript ? ln.text : wrapOrTruncate(ln.text)
+    }));
 
     const lineHeight = baseLineHeight;
     // compute content width by estimating longest line length
     const estChar = Math.max(6, Math.floor(infoSize * 0.5));
     let longest = 0;
     for (const ln of formattedLines) {
-      if (ln.text && ln.text.length > longest) longest = ln.text.length;
+      if (ln.text) {
+        // For superscript lines, add the length of text + superscript + suffix
+        const totalLength = ln.superscript ?
+          ln.text.length + 1 + (ln.suffix ? ln.suffix.length : 0) :
+          ln.text.length;
+        if (totalLength > longest) longest = totalLength;
+      }
     }
     const estimatedContentWidth = longest * estChar + padding * 2 + 32; // icon gap
     const boxWidth = Math.max(Math.min(boxMaxWidth, estimatedContentWidth), Math.min(boxMaxWidth, Math.floor(width * 0.28)));
@@ -535,7 +542,13 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
           currentY += (lineHeight + 2);
           continue;
         }
-        svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
+        // Handle superscript for m² formatting
+        if (ln.superscript) {
+          const safeSuffix = escapeForSvg(ln.suffix || '');
+          svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em">${safeSuffix}</tspan></text>\n`;
+        } else {
+          svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
+        }
         currentY += (lineHeight + 6);
         continue;
       }
@@ -549,7 +562,13 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         currentY += (lineHeight + 2);
         continue;
       }
-      svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
+      // Handle superscript for m² formatting
+      if (ln.superscript) {
+        const safeSuffix = escapeForSvg(ln.suffix || '');
+        svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em">${safeSuffix}</tspan></text>\n`;
+      } else {
+        svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
+      }
       currentY += (lineHeight + 6);
     }
 
