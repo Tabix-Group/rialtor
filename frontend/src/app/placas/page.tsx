@@ -19,7 +19,10 @@ import {
   Mail,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Square,
+  Layers,
+  Bath
 } from 'lucide-react'
 
 interface PropertyData {
@@ -28,7 +31,10 @@ interface PropertyData {
   moneda: string;
   direccion: string;
   ambientes?: string;
-  superficie?: string;
+  m2_totales?: string;
+  m2_cubiertos?: string;
+  m2_descubiertos?: string;
+  banos?: string;
   contacto: string;
   email?: string;
   corredores?: string; // nombre y matrícula de los corredores (puede contener varios, en un mismo campo)
@@ -63,7 +69,10 @@ export default function PlacasPage() {
     moneda: 'USD',
     direccion: '',
     ambientes: '',
-    superficie: '',
+    m2_totales: '',
+    m2_cubiertos: '',
+    m2_descubiertos: '',
+    banos: '',
     contacto: '',
     corredores: '',
     email: '',
@@ -168,7 +177,10 @@ export default function PlacasPage() {
           moneda: 'USD',
           direccion: '',
           ambientes: '',
-          superficie: '',
+          m2_totales: '',
+          m2_cubiertos: '',
+          m2_descubiertos: '',
+          banos: '',
           contacto: '',
           email: '',
           descripcion: ''
@@ -332,17 +344,41 @@ export default function PlacasPage() {
 
                   <div className="space-y-1 text-sm text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" />
+                      <DollarSign className="w-4 h-4 text-green-600" />
                       {plaque.propertyData.moneda} {parseInt(plaque.propertyData.precio).toLocaleString('es-AR')}
                     </div>
                     <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
+                      <MapPin className="w-4 h-4 text-red-600" />
                       {plaque.propertyData.direccion}
                     </div>
                     {plaque.propertyData.ambientes && (
                       <div className="flex items-center gap-1">
-                        <Home className="w-4 h-4" />
+                        <Home className="w-4 h-4 text-blue-600" />
                         {plaque.propertyData.ambientes} ambientes
+                      </div>
+                    )}
+                    {plaque.propertyData.m2_totales && (
+                      <div className="flex items-center gap-1">
+                        <Square className="w-4 h-4 text-purple-600" />
+                        {plaque.propertyData.m2_totales} m² totales
+                      </div>
+                    )}
+                    {plaque.propertyData.m2_cubiertos && (
+                      <div className="flex items-center gap-1">
+                        <Layers className="w-4 h-4 text-indigo-600" />
+                        {plaque.propertyData.m2_cubiertos} m² cubiertos
+                      </div>
+                    )}
+                    {plaque.propertyData.m2_descubiertos && (
+                      <div className="flex items-center gap-1">
+                        <Square className="w-4 h-4 text-emerald-600" />
+                        {plaque.propertyData.m2_descubiertos} m² descubiertos
+                      </div>
+                    )}
+                    {plaque.propertyData.banos && (
+                      <div className="flex items-center gap-1">
+                        <Bath className="w-4 h-4 text-cyan-600" />
+                        {plaque.propertyData.banos} baños
                       </div>
                     )}
                   </div>
@@ -505,14 +541,53 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Superficie (m²)
+                        M2 Totales
                       </label>
                       <input
                         type="text"
-                        value={propertyData.superficie}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, superficie: e.target.value }))}
+                        value={propertyData.m2_totales}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, m2_totales: e.target.value }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         placeholder="Ej: 120"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        M2 Cubiertos
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.m2_cubiertos}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, m2_cubiertos: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: 85"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        M2 Descubiertos
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.m2_descubiertos}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, m2_descubiertos: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: 35"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Baños
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.banos}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, banos: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: 2"
                       />
                     </div>
 
@@ -705,9 +780,24 @@ export default function PlacasPage() {
                         <span className="font-medium">Ambientes:</span> {selectedPlaque.propertyData.ambientes}
                       </div>
                     )}
-                    {selectedPlaque.propertyData.superficie && (
+                    {selectedPlaque.propertyData.m2_totales && (
                       <div>
-                        <span className="font-medium">Superficie:</span> {selectedPlaque.propertyData.superficie} m²
+                        <span className="font-medium">M2 Totales:</span> {selectedPlaque.propertyData.m2_totales} m²
+                      </div>
+                    )}
+                    {selectedPlaque.propertyData.m2_cubiertos && (
+                      <div>
+                        <span className="font-medium">M2 Cubiertos:</span> {selectedPlaque.propertyData.m2_cubiertos} m²
+                      </div>
+                    )}
+                    {selectedPlaque.propertyData.m2_descubiertos && (
+                      <div>
+                        <span className="font-medium">M2 Descubiertos:</span> {selectedPlaque.propertyData.m2_descubiertos} m²
+                      </div>
+                    )}
+                    {selectedPlaque.propertyData.banos && (
+                      <div>
+                        <span className="font-medium">Baños:</span> {selectedPlaque.propertyData.banos}
                       </div>
                     )}
                     {selectedPlaque.propertyData.email && (
