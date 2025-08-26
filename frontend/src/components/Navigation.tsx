@@ -5,7 +5,7 @@ import { usePermission } from '../hooks/usePermission';
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LogOut, User2 } from 'lucide-react'
+import { Menu, X, LogOut, User2, Home } from 'lucide-react'
 
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -189,8 +189,10 @@ function Navigation() {
     <nav className="bg-white border-b shadow-sm z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo removed entirely (no logo, no 'Inicio') */}
-          <div className="w-8" aria-hidden="true" />
+          {/* Home icon linking to homepage */}
+          <Link href="/" aria-label="Inicio" className="p-2 rounded-full text-gray-700 hover:bg-gray-100 focus:outline-none">
+            <Home className="w-6 h-6" />
+          </Link>
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
