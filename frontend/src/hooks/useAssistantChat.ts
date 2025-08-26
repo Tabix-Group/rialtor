@@ -24,7 +24,17 @@ interface UseAssistantChatReturn {
 
 export function useAssistantChat(): UseAssistantChatReturn {
     const { user } = useAuth()
-    const { showSuccess, showError } = useNotificationContext()
+    // Usar try-catch para el context de notificaciones
+    let showSuccess: (message: string) => void = () => { };
+    let showError: (message: string) => void = () => { };
+
+    try {
+        const notifications = useNotificationContext();
+        showSuccess = notifications.showSuccess;
+        showError = notifications.showError;
+    } catch (error) {
+        console.warn('[ASSISTANT] NotificationContext not available:', error);
+    }
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
@@ -58,6 +68,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
 
         try {
             const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+            console.log('[ASSISTANT] Sending message:', { content: content.trim(), sessionId })
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
@@ -70,8 +82,11 @@ export function useAssistantChat(): UseAssistantChatReturn {
                 })
             })
 
+            console.log('[ASSISTANT] Response status:', response.status)
+
             if (response.ok) {
                 const data = await response.json()
+                console.log('[ASSISTANT] Response data:', data)
 
                 // Update sessionId if this is a new session
                 if (data.sessionId && !sessionId) {
@@ -87,6 +102,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
                 setMessages(prev => [...prev, botMessage])
             } else {
                 const errorData = await response.json()
+                console.error('[ASSISTANT] Error response:', errorData)
+                showError(`Error ${response.status}: ${errorData.message || 'Error al enviar mensaje'}`)
                 throw new Error(errorData.message || 'Error al enviar mensaje')
             }
         } catch (error) {

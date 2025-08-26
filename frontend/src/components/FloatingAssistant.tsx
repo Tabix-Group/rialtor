@@ -5,7 +5,7 @@ import {
     MessageCircle,
     Send,
     X,
-    Bot,
+    Brain,
     User,
     Minimize2,
     Maximize2,
@@ -58,6 +58,11 @@ export default function FloatingAssistant() {
         inputRef.current?.focus()
     }
 
+    const testMessage = async () => {
+        console.log('[TEST] Testing with simple message...');
+        await sendMessage('Hola, soy una prueba');
+    }
+
     // Floating button
     if (!isOpen) {
         return (
@@ -66,14 +71,14 @@ export default function FloatingAssistant() {
                 animate={{ scale: 1, opacity: 1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="fixed bottom-6 right-6 z-50"
+                className="fixed bottom-6 right-6 z-[9999]"
             >
                 <button
                     onClick={toggleAssistant}
                     className="group relative bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out"
                 >
                     <div className="relative">
-                        <MessageCircle className="w-6 h-6" />
+                        <Brain className="w-6 h-6" />
                         {/* Pulse animation */}
                         <div className="absolute -inset-1 bg-red-400 rounded-full animate-ping opacity-20"></div>
                         {/* Sparkles effect */}
@@ -101,7 +106,7 @@ export default function FloatingAssistant() {
                 height: isMinimized ? 'auto' : '600px'
             }}
             exit={{ scale: 0.8, opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 z-50 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+            className="fixed bottom-6 right-6 z-[9999] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
             style={{ width: '380px' }}
         >
             {/* Header */}
@@ -110,7 +115,7 @@ export default function FloatingAssistant() {
                     <div className="flex items-center space-x-3">
                         <div className="relative">
                             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                                <Bot className="w-5 h-5" />
+                                <Brain className="w-5 h-5" />
                             </div>
                             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
                         </div>
@@ -121,6 +126,13 @@ export default function FloatingAssistant() {
                     </div>
 
                     <div className="flex items-center space-x-1">
+                        <button
+                            onClick={testMessage}
+                            className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-xs"
+                            title="Test"
+                        >
+                            🧪
+                        </button>
                         <button
                             onClick={toggleMinimize}
                             className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
@@ -171,19 +183,19 @@ export default function FloatingAssistant() {
                                         <motion.div
                                             whileHover={{ scale: 1.1 }}
                                             className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${message.isUser
-                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                                                    : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                                                : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
                                                 }`}
                                         >
-                                            {message.isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                                            {message.isUser ? <User className="w-4 h-4" /> : <Brain className="w-4 h-4" />}
                                         </motion.div>
 
                                         {/* Message bubble */}
                                         <motion.div
                                             whileHover={{ scale: 1.02 }}
                                             className={`px-4 py-3 rounded-2xl group ${message.isUser
-                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md'
-                                                    : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-md'
+                                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md'
+                                                : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-md'
                                                 }`}
                                         >
                                             <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -218,7 +230,7 @@ export default function FloatingAssistant() {
                                 >
                                     <div className="flex items-end space-x-2">
                                         <div className="w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
-                                            <Bot className="w-4 h-4 text-white" />
+                                            <Brain className="w-4 h-4 text-white" />
                                         </div>
                                         <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border border-gray-100">
                                             <div className="flex space-x-1">
