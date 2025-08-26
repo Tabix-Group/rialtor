@@ -387,7 +387,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const overlayColor = determineOverlayColor(imageAnalysis && imageAnalysis.colores);
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
     // Main box style (top-right): translucent white bg + black text
-    const mainBoxFill = 'rgba(255,255,255,0.85)';
+    const mainBoxFill = 'rgba(255,255,255,0.75)';
     const mainTextColor = '#000000';
 
     const precioSize = Math.max(28, Math.floor(width / 25));
@@ -401,7 +401,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${textColor}" stroke-width="1.5" fill="none"/></svg>`,
       m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14z" stroke="${textColor}" stroke-width="1.5" fill="none"/><path d="M7 7h10v10H7V7z" fill="${textColor}" opacity="0.3"/></svg>`,
       m2_descubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${textColor}" stroke-width="1.5" fill="none" stroke-dasharray="4,2"/></svg>`,
-      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 7h10v10c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V7z" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M5 7h14v2H5V7z" fill="${textColor}"/><circle cx="8" cy="13" r="1" fill="${textColor}"/></svg>`,
+      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="${textColor}" stroke-width="1.5" fill="none"/><path d="M8 12h8" stroke="${textColor}" stroke-width="1.5"/><path d="M12 8v8" stroke="${textColor}" stroke-width="1.5"/><path d="M15 9v6" stroke="${textColor}" stroke-width="1"/><path d="M9 9v6" stroke="${textColor}" stroke-width="1"/></svg>`,
       ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="${textColor}" stroke-width="1.2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="${textColor}"/></svg>`,
       contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M7 10l5 4 5-4" stroke="${textColor}" stroke-width="1.2" fill="none"/></svg>`,
       correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M3 7l9 6 9-6" stroke="${textColor}" stroke-width="1.2" fill="none"/></svg>`,
@@ -412,7 +412,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#8B5CF6" stroke-width="1.5" fill="none"/></svg>`,
       m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14z" stroke="#6366F1" stroke-width="1.5" fill="none"/><path d="M7 7h10v10H7V7z" fill="#6366F1" opacity="0.3"/></svg>`,
       m2_descubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#10B981" stroke-width="1.5" fill="none" stroke-dasharray="4,2"/></svg>`,
-      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 7h10v10c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V7z" stroke="#06B6D4" stroke-width="1.2" fill="none"/><path d="M5 7h14v2H5V7z" fill="#06B6D4"/><circle cx="8" cy="13" r="1" fill="#06B6D4"/></svg>`,
+      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="6" width="18" height="12" rx="2" stroke="#06B6D4" stroke-width="1.5" fill="none"/><circle cx="7" cy="10" r="1.5" fill="#06B6D4"/><path d="M10 8h7" stroke="#06B6D4" stroke-width="1.5"/><path d="M10 12h4" stroke="#06B6D4" stroke-width="1.5"/><path d="M6 18v2" stroke="#06B6D4" stroke-width="1.5"/><path d="M18 18v2" stroke="#06B6D4" stroke-width="1.5"/></svg>`,
       ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#DC2626" stroke-width="1.2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="#DC2626"/></svg>`,
       contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4" stroke="#16A34A" stroke-width="1.2" fill="none"/><path d="M7 10l5 4 5-4" stroke="#16A34A" stroke-width="1.2" fill="none"/></svg>`,
       correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#059669" stroke-width="1.2" fill="none"/><path d="M3 7l9 6 9-6" stroke="#059669" stroke-width="1.2" fill="none"/></svg>`,
@@ -532,7 +532,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         }
         if (ln.cls === 'label') {
           svg += `  <text x="${textPosX}" y="${currentY}" class="label">${safeText}</text>\n`;
-          currentY += (lineHeight - 2);
+          currentY += (lineHeight + 2);
           continue;
         }
         svg += `  <text x="${textPosX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
@@ -546,7 +546,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       }
       if (ln.cls === 'label') {
         svg += `  <text x="${textX}" y="${currentY}" class="label">${safeText}</text>\n`;
-        currentY += (lineHeight - 2);
+        currentY += (lineHeight + 2);
         continue;
       }
       svg += `  <text x="${textX}" y="${currentY}" class="${ln.cls}">${safeText}</text>\n`;
@@ -583,7 +583,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         }
       }
       if (line) corrParts.push(line);
-      const cH = Math.max(36, corrParts.length * (Math.max(12, corrFontSize) + 6) + padding);
+      const cH = Math.max(46, corrParts.length * (Math.max(12, corrFontSize) + 6) + padding + Math.floor(labelSize * 0.9) + 8);
       const cX = margin;
       const cY = height - cH - margin;
       // compute final width to accommodate the longest wrapped part (by chars -> pixels estimate)
@@ -595,15 +595,16 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 300)); // minimum 300px width
       // draw rect with final width - using translucent white background like main box
       svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${cX}" y="${cY}" width="${finalCW}" height="${cH}" rx="12" fill="rgba(255,255,255,0.85)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+      svg += `    <rect x="${cX}" y="${cY}" width="${finalCW}" height="${cH}" rx="12" fill="rgba(255,255,255,0.75)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
       svg += `  </g>\n`;
-      svg += `  <text x="${cX + padding}" y="${cY + padding}" class="label" style="fill: #000000;">Corredores:</text>\n`;
+      svg += `  <text x="${cX + padding}" y="${cY + padding + Math.floor(labelSize * 0.9)}" class="label" style="fill: #000000;">Corredores:</text>\n`;
       // icon
-      let cy = cY + padding + Math.floor(corrFontSize * 0.9) + 6;
+      let cy = cY + padding + Math.floor(labelSize * 0.9) + Math.floor(corrFontSize * 0.9) + 8;
       const iconX = cX + padding;
+      const iconY = cy - Math.floor(corrFontSize * 0.7);
       // Use main icons (colored) for corredores box to match the top box
-      svg += `  <g transform="translate(${iconX}, ${cy - Math.floor(corrFontSize * 0.7)})">${svgIconsMain.corredores}</g>\n`;
-      const textX = iconX + 22;
+      svg += `  <g transform="translate(${iconX}, ${iconY})">${svgIconsMain.corredores}</g>\n`;
+      const textX = iconX + 24;
       for (let i = 0; i < corrParts.length; i++) {
         svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #000000;">${corrParts[i]}</text>\n`;
         cy += Math.max(12, corrFontSize) + 6;
