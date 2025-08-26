@@ -20,7 +20,7 @@ export default function Footer() {
         zIndex: 1201,
       }}
     >
-      \u00a9 {new Date().getFullYear()} {" "}
+      {'\u00a9'} {new Date().getFullYear()}{' '}
       <a
         href="https://www.tabix.app"
         target="_blank"

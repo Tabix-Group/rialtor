@@ -30,6 +30,16 @@ function Navigation() {
         ],
         permission: undefined,
       },
+      {
+        name: 'Documentos',
+        href: '/documents',
+        icon: 'FileText',
+        dropdown: [
+          { name: 'Resumidor', href: '/api/documents/summary' },
+          { name: 'Generador', href: '/documents/generator' },
+        ],
+        permission: undefined,
+      },
       { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
       {
         name: 'Panel de Control',
@@ -54,6 +64,16 @@ function Navigation() {
           { name: 'Seguros de Caución', href: '/creditos' },
         ],
         permission: 'use_calculator',
+      },
+      {
+        name: 'Documentos',
+        href: '/documents',
+        icon: 'FileText',
+        dropdown: [
+          { name: 'Resumidor', href: '/api/documents/summary' },
+          { name: 'Generador', href: '/documents/generator' },
+        ],
+        permission: undefined,
       },
       { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
       // { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: 'use_placas' }, // OCULTO TEMPORALMENTE
