@@ -470,7 +470,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     // Crear dos boxes: uno para precio (arriba derecha) y otro para info (abajo)
     const margin = 20;
     const padding = 18;
-    const lineHeight = Math.max(18, Math.floor(width / 75));
+    const lineHeight = Math.max(24, Math.floor(width / 60)); // Aumentado de 18 a 24 y divisor de 75 a 60 para más espacio
 
     // Calcular tamaño dinámico del box de precio basado en el contenido
     const precioText = `${moneda} ${formatPrice(precio)}`;
@@ -494,7 +494,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (email) infoLineCount++;
 
     const infoBoxWidth = Math.max(350, Math.floor(width * 0.35));
-    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 6) + padding * 2, Math.floor(height * 0.4)));
+    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 12) + padding * 2, Math.floor(height * 0.4)));
     const infoBoxX = width - infoBoxWidth - margin;
     const infoBoxY = precioBoxY + precioBoxHeight + 10;
 
@@ -517,8 +517,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `  </defs>\n`;
 
     svg += `  <g filter="url(#f1)">\n`;
-    // Box para precio (arriba derecha)
-    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    // Box para precio (arriba derecha) - color personalizado #76685d
+    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="14" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
     // Box para información (abajo)
     svg += `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
     svg += `  </g>\n`;
@@ -528,19 +528,15 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const precioCenterX = precioBoxX + precioBoxWidth / 2;
     const precioCenterY = precioBoxY + precioBoxHeight / 2;
 
-    // Mejor diseño del precio con gradiente y sombra
+    // Mejor diseño del precio con color blanco sobre fondo personalizado
     svg += `  <defs>\n`;
-    svg += `    <linearGradient id="precioGradient" x1="0%" y1="0%" x2="100%" y2="0%">\n`;
-    svg += `      <stop offset="0%" stop-color="#16A34A" />\n`;
-    svg += `      <stop offset="100%" stop-color="#059669" />\n`;
-    svg += `    </linearGradient>\n`;
     svg += `    <filter id="precioShadow" x="-20%" y="-20%" width="140%" height="140%">\n`;
     svg += `      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.3" />\n`;
     svg += `    </filter>\n`;
     svg += `  </defs>\n`;
 
-    // Texto del precio centrado con gradiente y mejor tipografía
-    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: url(#precioGradient);">${escapeForSvg(precioText)}</text>\n`;
+    // Texto del precio centrado en blanco con mejor tipografía
+    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: #FFFFFF;">${escapeForSvg(precioText)}</text>\n`;
 
     // Dibujar información en su box
     let infoY = infoBoxY + Math.floor(infoSize * 0.9) + 10;
@@ -561,7 +557,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         const textPosX = textX + 22;
         if (ln.cls === 'label') {
           svg += `  <text x="${textPosX}" y="${infoY}" class="label">${safeText}</text>\n`;
-          infoY += (lineHeight + 2);
+          infoY += (lineHeight + 8); // Más espacio entre líneas
           continue;
         }
         // Handle superscript for m² formatting
@@ -571,12 +567,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         } else {
           svg += `  <text x="${textPosX}" y="${infoY}" class="${ln.cls}">${safeText}</text>\n`;
         }
-        infoY += (lineHeight + 6);
+        infoY += (lineHeight + 12); // Más espacio entre líneas de información
         continue;
       }
       if (ln.cls === 'label') {
         svg += `  <text x="${textX}" y="${infoY}" class="label">${safeText}</text>\n`;
-        infoY += (lineHeight + 2);
+        infoY += (lineHeight + 8); // Más espacio entre líneas
         continue;
       }
       // Handle superscript for m² formatting
@@ -586,12 +582,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       } else {
         svg += `  <text x="${textX}" y="${infoY}" class="${ln.cls}">${safeText}</text>\n`;
       }
-      infoY += (lineHeight + 6);
+      infoY += (lineHeight + 12); // Más espacio entre líneas de información
     }
 
     // Render corredores box bottom-left if present
     if (corredoresText) {
-      const corrFontSize = Math.max(12, Math.floor(contactoSize * 0.75)); // ~25% smaller
+      const corrFontSize = Math.max(12, Math.floor(width / 80)); // Mismo tamaño que Rialtor.app
       const corrChar = Math.max(6, Math.floor(corrFontSize * 0.45));
       const margin = 20;
       const maxCorrBoxW = Math.min(Math.floor(width * 0.6), 520);
@@ -619,26 +615,26 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         }
       }
       if (line) corrParts.push(line);
-      const cH = Math.max(40, corrParts.length * (Math.max(12, corrFontSize) + 6) + padding + 6);
+      const cH = Math.max(30, corrParts.length * (Math.max(12, corrFontSize) + 8) + padding);
       const cX = margin;
-      const cY = height - cH - margin;
+      const cY = height - 12; // Misma coordenada Y que Rialtor.app (height - originMargin)
       // compute final width to accommodate the longest wrapped part (by chars -> pixels estimate)
       let maxPartLen = 0;
       for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
       // Use a more generous character width estimate and add extra margin
       const charWidthGenerous = Math.max(8, Math.floor(corrFontSize * 0.6));
       const neededForParts = maxPartLen * charWidthGenerous + padding * 2;
-      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 300)); // minimum 300px width
+      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 200)); // minimum 200px width, más pequeño
       // draw rect with final width - using more translucent white background
       svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${cX}" y="${cY}" width="${finalCW}" height="${cH}" rx="12" fill="rgba(255,255,255,0.6)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="rgba(255,255,255,0.6)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
       svg += `  </g>\n`;
       // icon and text without title
-      let cy = cY + padding + Math.floor(corrFontSize * 0.9);
+      let cy = cY - cH + padding + Math.floor(corrFontSize * 0.9);
       const textX = cX + padding; // Sin espacio para icono
       for (let i = 0; i < corrParts.length; i++) {
         svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #000000;">${corrParts[i]}</text>\n`;
-        cy += Math.max(12, corrFontSize) + 6;
+        cy += Math.max(12, corrFontSize) + 8; // Más espacio entre líneas
       }
     }
 
@@ -675,7 +671,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       }
       if (currentLine) descLines.push(currentLine);
 
-      const descBoxHeight = Math.max(50, descLines.length * (descSize + 4) + descPadding * 2);
+      const descBoxHeight = Math.max(50, descLines.length * (descSize + 8) + descPadding * 2);
       const descBoxWidth = Math.min(maxDescWidth, Math.max(200, descLines.reduce((max, line) => Math.max(max, line.length * charWidth), 0) + descPadding * 2));
       const descX = width - descBoxWidth - originMargin;
       const descY = height - descBoxHeight - originMargin - origenSize - 8;
@@ -690,7 +686,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const descTextX = descX + descPadding;
       for (let i = 0; i < descLines.length; i++) {
         svg += `  <text x="${descTextX}" y="${descCurrentY}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${descSize}px; fill: #000000; font-weight: 400;">${descLines[i]}</text>\n`;
-        descCurrentY += descSize + 4;
+        descCurrentY += descSize + 8; // Más espacio entre líneas
       }
     }
 
