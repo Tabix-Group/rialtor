@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/authContext'
 import { useRouter } from 'next/navigation'
 import { usePermission } from '../../hooks/usePermission'
+import { authenticatedFetch } from '../../utils/api'
 import {
   Upload,
   Image as ImageIcon,
@@ -114,11 +115,7 @@ export default function PlacasPage() {
 
   const fetchPlaques = async () => {
     try {
-      const res = await fetch('/api/placas', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const res = await authenticatedFetch('/api/placas');
       const data = await res.json();
       if (res.ok) {
         setPlaques(data.plaques || []);
@@ -164,11 +161,8 @@ export default function PlacasPage() {
         formData.append('images', image);
       });
 
-      const res = await fetch('/api/placas', {
+      const res = await authenticatedFetch('/api/placas', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: formData
       });
 
@@ -211,11 +205,8 @@ export default function PlacasPage() {
     if (!confirm('¿Estás seguro de eliminar esta placa?')) return;
 
     try {
-      const res = await fetch(`/api/placas/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const res = await authenticatedFetch(`/api/placas/${id}`, {
+        method: 'DELETE'
       });
 
       if (res.ok) {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield } from 'lucide-react'
 import UserManagement from '../../components/UserManagement'
+import { authenticatedFetch } from '../../utils/api'
 
 interface StatCard {
   title: string
@@ -58,7 +59,7 @@ export default function AdminPage() {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (!token) return;
     setStatsLoading(true);
-    fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${token}` } })
+    authenticatedFetch('/api/admin/stats')
       .then(res => res.json())
       .then(data => {
         setStatsData(data);
@@ -67,7 +68,7 @@ export default function AdminPage() {
       .catch(() => setStatsLoading(false));
 
     // Obtener el total real de documentos subidos
-    fetch('/api/documents?countOnly=1', { headers: { Authorization: `Bearer ${token}` } })
+    authenticatedFetch('/api/documents?countOnly=1')
       .then(res => res.json())
       .then(data => {
         if (typeof data.count === 'number') setDocumentsCount(data.count);
@@ -82,7 +83,7 @@ export default function AdminPage() {
       if (!token) return;
       setRecentLoading(true);
       try {
-        const res = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        const res = await authenticatedFetch('/api/users');
         const data = await res.json();
         setRecentUsersData(data.users || []);
       } catch (error) {

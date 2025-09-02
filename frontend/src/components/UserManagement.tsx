@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Edit, Trash2, X, Check } from 'lucide-react';
+import { authenticatedFetch } from '../utils/api';
 
 export default function UserManagement({ token }: { token: string }) {
   const [users, setUsers] = useState<any[]>([]);
@@ -30,9 +31,7 @@ export default function UserManagement({ token }: { token: string }) {
   // Fetch users
   useEffect(() => {
     setLoading(true);
-    fetch('/api/users', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    authenticatedFetch('/api/users')
       .then(res => res.json())
       .then(data => {
         setUsers(data.users || []);
@@ -73,7 +72,7 @@ export default function UserManagement({ token }: { token: string }) {
   // CRUD actions
   const [roles, setRoles] = useState<any[]>([]);
   useEffect(() => {
-    fetch('/api/roles', { headers: { Authorization: `Bearer ${token}` } })
+    authenticatedFetch('/api/roles')
       .then(res => res.json())
       .then(data => setRoles(data || []));
   }, [token]);
@@ -88,11 +87,10 @@ export default function UserManagement({ token }: { token: string }) {
     if (!form.password) delete payload.password;
     try {
       // Guardar usuario (sin roles)
-      const res = await fetch(url, {
+      const res = await authenticatedFetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       });
@@ -105,15 +103,14 @@ export default function UserManagement({ token }: { token: string }) {
             const hasRole = (form.roles as any[]).includes(role.id);
             const userHasRole = userData.user.roles.some((r: any) => r.id === role.id);
             if (hasRole && !userHasRole) {
-              return fetch(`/api/users/${userData.user.id}/roles`, {
+              return authenticatedFetch(`/api/users/${userData.user.id}/roles`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ roleId: role.id })
               });
             } else if (!hasRole && userHasRole) {
-              return fetch(`/api/users/${userData.user.id}/roles/${role.id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
+              return authenticatedFetch(`/api/users/${userData.user.id}/roles/${role.id}`, {
+                method: 'DELETE'
               });
             }
             return null;
@@ -122,18 +119,18 @@ export default function UserManagement({ token }: { token: string }) {
       }
       // Refrescar usuario editado para asegurar roles correctos
       if (modalType === 'edit' && selectedUser) {
-        const updatedUserRes = await fetch(`/api/users?id=${selectedUser.id}`, { headers: { Authorization: `Bearer ${token}` } });
+        const updatedUserRes = await authenticatedFetch(`/api/users?id=${selectedUser.id}`);
         if (updatedUserRes.ok) {
           const updatedUserData = await updatedUserRes.json();
           setUsers(users => users.map(u => u.id === selectedUser.id ? updatedUserData.user : u));
         } else {
           // fallback: refrescar toda la lista
-          const updated = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+          const updated = await authenticatedFetch('/api/users');
           const data = await updated.json();
           setUsers(data.users || []);
         }
       } else {
-        const updated = await fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } });
+        const updated = await authenticatedFetch('/api/users');
         const data = await updated.json();
         setUsers(data.users || []);
       }
@@ -149,11 +146,8 @@ export default function UserManagement({ token }: { token: string }) {
     setSaving(true);
     try {
       // use query parameter for delete
-      const res = await fetch(`/api/users?id=${user.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const res = await authenticatedFetch(`/api/users?id=${user.id}`, {
+        method: 'DELETE'
       });
       if (!res.ok) throw new Error('Error');
       setUsers(users.filter(u => u.id !== user.id));
