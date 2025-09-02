@@ -31,17 +31,17 @@ interface PropertyData {
   tipo: string;
   precio: string;
   moneda: string;
-  direccion: string;
+  direccion?: string;
   ambientes?: string;
   dormitorios?: string;
   banos?: string;
   cocheras?: string;
   m2_totales?: string;
   m2_cubiertos?: string;
-  m2_descubiertos?: string;
+  antiguedad?: string;
   contacto: string;
   email?: string;
-  corredores?: string; // nombre y matrícula de los corredores (puede contener varios, en un mismo campo)
+  corredores: string; // nombre y matrícula de los corredores (obligatorio)
   descripcion?: string;
 }
 
@@ -78,7 +78,7 @@ export default function PlacasPage() {
     cocheras: '',
     m2_totales: '',
     m2_cubiertos: '',
-    m2_descubiertos: '',
+    antiguedad: '',
     contacto: '',
     corredores: '',
     email: '',
@@ -147,8 +147,8 @@ export default function PlacasPage() {
       return;
     }
 
-    if (!propertyData.precio || !propertyData.direccion || !propertyData.contacto) {
-      alert('Completa los campos obligatorios (precio, dirección, contacto)');
+    if (!propertyData.precio || !propertyData.corredores) {
+      alert('Completa los campos obligatorios (precio, corredores)');
       return;
     }
 
@@ -183,11 +183,14 @@ export default function PlacasPage() {
           moneda: 'USD',
           direccion: '',
           ambientes: '',
+          dormitorios: '',
+          banos: '',
+          cocheras: '',
           m2_totales: '',
           m2_cubiertos: '',
-          m2_descubiertos: '',
-          banos: '',
+          antiguedad: '',
           contacto: '',
+          corredores: '',
           email: '',
           descripcion: ''
         });
@@ -393,10 +396,10 @@ export default function PlacasPage() {
                         {plaque.propertyData.m2_cubiertos} m² cubiertos
                       </div>
                     )}
-                    {plaque.propertyData.m2_descubiertos && (
+                    {plaque.propertyData.antiguedad && (
                       <div className="flex items-center gap-1">
-                        <Square className="w-4 h-4 text-emerald-600" />
-                        {plaque.propertyData.m2_descubiertos} m² descubiertos
+                        <Clock className="w-4 h-4 text-orange-600" />
+                        {plaque.propertyData.antiguedad}
                       </div>
                     )}
                   </div>
@@ -624,39 +627,26 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        M2 Descubiertos
+                        Antigüedad
                       </label>
                       <input
                         type="text"
-                        value={propertyData.m2_descubiertos}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, m2_descubiertos: e.target.value }))}
+                        value={propertyData.antiguedad}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 35"
+                        placeholder="Ej: 5 años"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Teléfono de contacto *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={propertyData.contacto}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, contacto: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: +54 11 1234-5678"
-                      />
-                    </div>
+
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Dirección *
+                      Dirección
                     </label>
                     <input
                       type="text"
-                      required
                       value={propertyData.direccion}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, direccion: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -677,11 +667,12 @@ export default function PlacasPage() {
                     />
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Corredores (nombre y matrícula)
+                      Corredores (nombre y matrícula) *
                     </label>
                     <textarea
+                      required
                       value={propertyData.corredores}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -854,9 +845,9 @@ export default function PlacasPage() {
                         <span className="font-medium">M2 Cubiertos:</span> {selectedPlaque.propertyData.m2_cubiertos} m²
                       </div>
                     )}
-                    {selectedPlaque.propertyData.m2_descubiertos && (
+                    {selectedPlaque.propertyData.antiguedad && (
                       <div>
-                        <span className="font-medium">M2 Descubiertos:</span> {selectedPlaque.propertyData.m2_descubiertos} m²
+                        <span className="font-medium">Antigüedad:</span> {selectedPlaque.propertyData.antiguedad}
                       </div>
                     )}
                     {selectedPlaque.propertyData.email && (

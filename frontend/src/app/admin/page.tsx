@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, UserPlus, Shield } from 'lucide-react'
+import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield } from 'lucide-react'
 import UserManagement from '../../components/UserManagement'
 
 interface StatCard {
@@ -13,28 +13,45 @@ interface StatCard {
 }
 
 import { useAuth } from '../auth/authContext'
-import { usePermission } from '../../hooks/usePermission';
 import { useRouter } from 'next/navigation'
+
+// Función auxiliar para verificar permisos sin usar hooks
+function checkPermission(user: { roles?: { permissions?: string[] }[] }, permission: string): boolean {
+  if (!user || !user.roles) return false;
+  return user.roles.some((role) => role.permissions?.includes(permission));
+}
 
 
 export default function AdminPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-
-  // Proteger ruta: si no está logueado, redirigir a login
-  // Solo ejecutar en el cliente y evitar doble render
-  const hasAdminPerm = usePermission('view_admin');
-  const hasUserMgmtPerm = usePermission('manage_users');
-  if (typeof window !== 'undefined' && !loading && (!user || !hasAdminPerm)) {
-    router.replace('/auth/login');
-    return null;
-  }
-
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [hasAdminPerm, setHasAdminPerm] = useState(false);
+  const [hasUserMgmtPerm, setHasUserMgmtPerm] = useState(false);
+  const [permsLoading, setPermsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
   // Dashboard stats
   const [statsData, setStatsData] = useState<{ totalUsers: number; publishedArticles: number; chatQueries: number; documentsUploaded: number } | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState<number | null>(null);
+  // Recent users state
+  const [recentUsersData, setRecentUsersData] = useState<{ id: string; name: string; email: string; roles: { id: string; name: string }[]; isActive: boolean }[]>([]);
+  const [recentLoading, setRecentLoading] = useState(true);
+
+  // Verificar permisos solo en el cliente
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user) {
+      setHasAdminPerm(checkPermission(user, 'view_admin'));
+      setHasUserMgmtPerm(checkPermission(user, 'manage_users'));
+      setPermsLoading(false);
+    }
+  }, [user]);
+
+  // Proteger ruta: si no está logueado, redirigir a login
+  useEffect(() => {
+    if (!loading && !permsLoading && (!user || !hasAdminPerm)) {
+      router.replace('/auth/login');
+    }
+  }, [user, loading, hasAdminPerm, permsLoading, router]);
 
   // Fetch dashboard stats
   useEffect(() => {
@@ -58,9 +75,7 @@ export default function AdminPage() {
       .catch(() => setDocumentsCount(null));
   }, []);
 
-  // Recent users state
-  const [recentUsersData, setRecentUsersData] = useState<any[]>([]);
-  const [recentLoading, setRecentLoading] = useState(true);
+  // Fetch recent users
   useEffect(() => {
     const fetchRecentUsers = async () => {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -79,15 +94,29 @@ export default function AdminPage() {
     fetchRecentUsers();
   }, []);
 
+  // Mostrar loading mientras se verifica la autenticación
+  if (loading || permsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+      </div>
+    );
+  }
+
+  // Si no está autenticado o no tiene permisos, no renderizar nada
+  if (!user || !hasAdminPerm) {
+    return null;
+  }
+
   // Prepare stats cards
   const stats: StatCard[] = statsLoading || !statsData
     ? []
     : [
-        { title: 'Total Usuarios', value: statsData.totalUsers.toString(), change: '', changeType: 'increase', icon: <Users className="w-6 h-6" /> },
-        { title: 'Artículos Publicados', value: statsData.publishedArticles.toString(), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> },
-        { title: 'Consultas Chat', value: statsData.chatQueries.toString(), change: '', changeType: 'increase', icon: <MessageSquare className="w-6 h-6" /> },
-        { title: 'Documentos Subidos', value: (documentsCount !== null ? documentsCount.toString() : statsData.documentsUploaded.toString()), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> }
-      ]
+      { title: 'Total Usuarios', value: statsData.totalUsers.toString(), change: '', changeType: 'increase', icon: <Users className="w-6 h-6" /> },
+      { title: 'Artículos Publicados', value: statsData.publishedArticles.toString(), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> },
+      { title: 'Consultas Chat', value: statsData.chatQueries.toString(), change: '', changeType: 'increase', icon: <MessageSquare className="w-6 h-6" /> },
+      { title: 'Documentos Subidos', value: (documentsCount !== null ? documentsCount.toString() : statsData.documentsUploaded.toString()), change: '', changeType: 'increase', icon: <FileText className="w-6 h-6" /> }
+    ]
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -103,9 +132,8 @@ export default function AdminPage() {
               <div className="text-red-600">{stat.icon}</div>
             </div>
             <div className="mt-4">
-              <span className={`text-sm font-medium ${
-                stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <span className={`text-sm font-medium ${stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+                }`}>
                 {stat.change}
               </span>
               <span className="text-sm text-gray-500 ml-2">vs mes anterior</span>
@@ -163,7 +191,7 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {recentUsersData.map(user => (
+                {recentUsersData.map((user) => (
                   <tr key={user.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -173,7 +201,7 @@ export default function AdminPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.roles && user.roles.length > 0 ? (
-                        user.roles.map((role: any) => (
+                        user.roles.map((role) => (
                           <span key={role.id} className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-1 mb-1">{role.name}</span>
                         ))
                       ) : (
@@ -258,9 +286,8 @@ export default function AdminPage() {
               <nav className="space-y-3">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
-                    activeTab === 'dashboard' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                 >
                   <BarChart3 className="w-6 h-6" />
                   Dashboard
@@ -268,9 +295,8 @@ export default function AdminPage() {
                 {hasUserMgmtPerm && (
                   <button
                     onClick={() => setActiveTab('users')}
-                    className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
-                      activeTab === 'users' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'users' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                      }`}
                   >
                     <Users className="w-6 h-6" />
                     Usuarios
@@ -278,18 +304,16 @@ export default function AdminPage() {
                 )}
                 <button
                   onClick={() => setActiveTab('content')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
-                    activeTab === 'content' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'content' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                 >
                   <FileText className="w-6 h-6" />
                   Contenido
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${
-                    activeTab === 'settings' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'settings' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
                 >
                   <Settings className="w-6 h-6" />
                   Configuración
