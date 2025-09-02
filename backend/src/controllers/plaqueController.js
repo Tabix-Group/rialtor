@@ -392,11 +392,6 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const mainBoxFill = 'rgba(255,255,255,0.65)';
     const mainTextColor = '#000000';
 
-    const precioSize = Math.max(28, Math.floor(width / 25));
-    const infoSize = Math.max(18, Math.floor(width / 40));
-    const contactoSize = Math.max(16, Math.floor(width / 50));
-    const labelSize = Math.max(14, Math.floor(width / 60));
-
     // Two icon palettes: main (colored) for the top-right box, alt (contrast) for the overlay/corredores box
     const svgIconsAlt = {
       ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 8h-3v7h-4v-5H10v5H6v-7H3l9-8z" fill="${textColor}"/></svg>`,
@@ -449,15 +444,22 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     };
 
     const lines = [];
+    const precioSize = Math.max(28, Math.floor(width / 25));
+    const infoSize = Math.max(18, Math.floor(width / 40));
+    const contactoSize = Math.max(16, Math.floor(width / 50));
+    const labelSize = Math.max(14, Math.floor(width / 60));
     lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize, icon: svgIconsMain.precio });
-    lines.push({ icon: getTipoIcon(tipo), text: tipo, cls: 'info', size: infoSize });
+
+    // Combinar tipo y antigüedad si existe antigüedad
+    const tipoText = antiguedad ? `${tipo} / ${antiguedad}` : tipo;
+    lines.push({ icon: getTipoIcon(tipo), text: tipoText, cls: 'info', size: infoSize });
+
     if (ambientes) lines.push({ icon: svgIconsMain.ambientes, text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
     if (dormitorios) lines.push({ icon: svgIconsMain.dormitorios, text: `${dormitorios} dormitorios`, cls: 'info', size: infoSize });
     if (banos) lines.push({ icon: svgIconsMain.banos, text: `${banos} baños`, cls: 'info', size: infoSize });
     if (cocheras) lines.push({ icon: svgIconsMain.cocheras, text: `${cocheras} cocheras`, cls: 'info', size: infoSize });
     if (m2_totales) lines.push({ icon: svgIconsMain.m2_totales, text: `${m2_totales} m`, superscript: '2', suffix: ' totales', cls: 'info', size: infoSize });
     if (m2_cubiertos) lines.push({ icon: svgIconsMain.m2_cubiertos, text: `${m2_cubiertos} m`, superscript: '2', suffix: ' cubiertos', cls: 'info', size: infoSize });
-    if (antiguedad) lines.push({ icon: svgIconsMain.antiguedad, text: antiguedad, cls: 'info', size: infoSize });
     if (direccion) lines.push({ icon: svgIconsMain.ubicacion, text: direccion, cls: 'contacto', size: contactoSize });
     if (contacto) lines.push({ icon: svgIconsMain.contacto, text: contacto, cls: 'contacto', size: contactoSize });
     if (email) lines.push({ icon: svgIconsMain.correo, text: email, cls: 'contacto', size: contactoSize });
@@ -469,8 +471,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const margin = 20;
     const padding = 18;
     const lineHeight = Math.max(18, Math.floor(width / 75));
-    const precioBoxWidth = Math.max(200, Math.floor(width * 0.25));
-    const precioBoxHeight = Math.max(80, Math.floor(height * 0.15));
+
+    // Calcular tamaño dinámico del box de precio basado en el contenido
+    const precioText = `${moneda} ${formatPrice(precio)}`;
+    const precioTextWidth = precioText.length * Math.floor(precioSize * 0.6) + 44; // 44 para el icono + padding
+    const precioBoxWidth = Math.max(220, Math.min(precioTextWidth + padding * 2, Math.floor(width * 0.35)));
+    const precioBoxHeight = Math.max(90, Math.floor(height * 0.12));
     const precioBoxX = width - precioBoxWidth - margin;
     const precioBoxY = margin;
 
@@ -491,8 +497,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `    </filter>\n`;
     svg += `    <style><![CDATA[\n`;
     svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: 700; fill: ${mainTextColor}; }\n`;
-    svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${mainTextColor}; font-weight: 500; }\n`;
-    svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${mainTextColor}; }\n`;
+    svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${mainTextColor}; font-weight: 600; }\n`;
+    svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${mainTextColor}; font-weight: 500; }\n`;
     svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${mainTextColor}; opacity: 0.9; font-weight: 600; }\n`;
     svg += `    ]]></style>\n`;
     svg += `  </defs>\n`;
@@ -504,12 +510,28 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
     svg += `  </g>\n`;
 
-    // Dibujar precio en su box
-    let precioY = precioBoxY + Math.floor(precioSize * 0.9) + 10;
+    // Dibujar precio en su box con mejor diseño
+    let precioY = precioBoxY + Math.floor(precioSize * 0.9) + 15;
     const precioX = precioBoxX + 20;
     const precioIconY = precioY - Math.floor(precioSize * 0.6);
-    svg += `  <g transform="translate(${precioX}, ${precioIconY})">${svgIconsMain.precio}</g>\n`;
-    svg += `  <text x="${precioX + 24}" y="${precioY}" class="precio">${escapeForSvg(`${moneda} ${formatPrice(precio)}`)}</text>\n`;
+
+    // Mejor diseño del precio con gradiente y sombra
+    svg += `  <defs>\n`;
+    svg += `    <linearGradient id="precioGradient" x1="0%" y1="0%" x2="100%" y2="0%">\n`;
+    svg += `      <stop offset="0%" stop-color="#16A34A" />\n`;
+    svg += `      <stop offset="100%" stop-color="#059669" />\n`;
+    svg += `    </linearGradient>\n`;
+    svg += `    <filter id="precioShadow" x="-20%" y="-20%" width="140%" height="140%">\n`;
+    svg += `      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.3" />\n`;
+    svg += `    </filter>\n`;
+    svg += `  </defs>\n`;
+
+    // Icono del precio con mejor color
+    const precioIconSvg = svgIconsMain.precio.replace('fill="#16A34A"', 'fill="url(#precioGradient)"');
+    svg += `  <g transform="translate(${precioX}, ${precioIconY})" filter="url(#precioShadow)">${precioIconSvg}</g>\n`;
+
+    // Texto del precio con gradiente y mejor tipografía
+    svg += `  <text x="${precioX + 28}" y="${precioY}" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: url(#precioGradient);">${escapeForSvg(precioText)}</text>\n`;
 
     // Dibujar información en su box
     let infoY = infoBoxY + Math.floor(infoSize * 0.9) + 10;
@@ -605,10 +627,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       // icon and text without title
       let cy = cY + padding + Math.floor(corrFontSize * 0.9);
       const iconX = cX + padding;
-      const iconY = cy - Math.floor(corrFontSize * 0.6); // Better alignment with text baseline
+      const iconY = cy - Math.floor(corrFontSize * 0.7); // Mejor alineación con el texto
       // Use main icons (colored) for corredores box to match the top box
       svg += `  <g transform="translate(${iconX}, ${iconY})">${svgIconsMain.corredores}</g>\n`;
-      const textX = iconX + 26; // More space for better alignment
+      const textX = iconX + 28; // Más espacio para mejor alineación
       for (let i = 0; i < corrParts.length; i++) {
         svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #000000;">${corrParts[i]}</text>\n`;
         cy += Math.max(12, corrFontSize) + 6;
