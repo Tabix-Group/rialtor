@@ -407,26 +407,26 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const svgIconsMain = {
       precio: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       // Iconos dinámicos por tipo de propiedad
-      tipo_casa: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#3B82F6" stroke-width="2" fill="none"/><polyline points="9,22 9,12 15,12 15,22" stroke="#3B82F6" stroke-width="2" fill="none"/></svg>`,
-      tipo_departamento: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#3B82F6" stroke-width="2" fill="none"/><path d="M9 9h1v1H9zM14 9h1v1h-1zM9 14h1v1H9zM14 14h1v1h-1z" fill="#3B82F6"/><path d="M7 21v-4M17 21v-4" stroke="#3B82F6" stroke-width="2"/></svg>`,
-      tipo_local: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" stroke="#8B5CF6" stroke-width="2" fill="none"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#8B5CF6" stroke-width="2" fill="none"/><path d="M12 11v6" stroke="#8B5CF6" stroke-width="2" fill="none"/></svg>`,
-      tipo_oficina: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="#6366F1" stroke-width="2" fill="none"/><path d="M5 21V7l8-4v18" stroke="#6366F1" stroke-width="2" fill="none"/><path d="M19 21V11l-6-4" stroke="#6366F1" stroke-width="2" fill="none"/><path d="M9 9v.01M9 12v.01M9 15v.01M13 4v.01M13 7v.01M13 10v.01M13 13v.01M13 16v.01M13 19v.01" stroke="#6366F1" stroke-width="2" fill="none"/></svg>`,
-      tipo_terreno: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 20h18" stroke="#10B981" stroke-width="2" fill="none"/><path d="M7 16l3-6 2 3 4-7" stroke="#10B981" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="5" cy="18" r="1" fill="#10B981"/><circle cx="12" cy="18" r="1" fill="#10B981"/><circle cx="19" cy="18" r="1" fill="#10B981"/></svg>`,
-      tipo_galpon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="#DC2626" stroke-width="2" fill="none"/><path d="M3 7l9-4 9 4v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V7z" stroke="#DC2626" stroke-width="2" fill="none"/><path d="M12 3v18" stroke="#DC2626" stroke-width="1" fill="none"/><path d="M8 14h8" stroke="#DC2626" stroke-width="1" fill="none"/></svg>`,
+      tipo_casa: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#000000" stroke-width="2" fill="none"/><polyline points="9,22 9,12 15,12 15,22" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      tipo_departamento: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#000000" stroke-width="2" fill="none"/><path d="M9 9h1v1H9zM14 9h1v1h-1zM9 14h1v1H9zM14 14h1v1h-1z" fill="#000000"/><path d="M7 21v-4M17 21v-4" stroke="#000000" stroke-width="2"/></svg>`,
+      tipo_local: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" stroke="#000000" stroke-width="2" fill="none"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#000000" stroke-width="2" fill="none"/><path d="M12 11v6" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      tipo_oficina: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="#000000" stroke-width="2" fill="none"/><path d="M5 21V7l8-4v18" stroke="#000000" stroke-width="2" fill="none"/><path d="M19 21V11l-6-4" stroke="#000000" stroke-width="2" fill="none"/><path d="M9 9v.01M9 12v.01M9 15v.01M13 4v.01M13 7v.01M13 10v.01M13 13v.01M13 16v.01M13 19v.01" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      tipo_terreno: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 20h18" stroke="#000000" stroke-width="2" fill="none"/><path d="M7 16l3-6 2 3 4-7" stroke="#000000" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="5" cy="18" r="1" fill="#000000"/><circle cx="12" cy="18" r="1" fill="#000000"/><circle cx="19" cy="18" r="1" fill="#000000"/></svg>`,
+      tipo_galpon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="#000000" stroke-width="2" fill="none"/><path d="M3 7l9-4 9 4v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V7z" stroke="#000000" stroke-width="2" fill="none"/><path d="M12 3v18" stroke="#000000" stroke-width="1" fill="none"/><path d="M8 14h8" stroke="#000000" stroke-width="1" fill="none"/></svg>`,
       // Icono mejorado para ambientes (espacios/habitaciones)
-      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="#3B82F6" stroke-width="2" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="#3B82F6" stroke-width="2" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="#3B82F6" stroke-width="2" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="#3B82F6" stroke-width="2" fill="none"/></svg>`,
+      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
       // Iconos corregidos de Lucide React exactos
-      dormitorios: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4v16" stroke="#D97706" stroke-width="2" stroke-linecap="round"/><path d="M2 8h18a2 2 0 0 1 2 2v10" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17h20" stroke="#D97706" stroke-width="2" stroke-linecap="round"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="#06B6D4" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="#06B6D4" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="#06B6D4" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="#06B6D4" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="#06B6D4" stroke-width="2"/></svg>`,
-      cocheras: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 16H9m10 0h3m-3 0c0-1.1-.9-2-2-2s-2 .9-2 2m5 0v2a1 1 0 0 1-1 1h-2m-3-3V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v9m16 0H6m0 0c0-1.1-.9-2-2-2s-2 .9-2 2m4 0v3" stroke="#DC2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#DC2626" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="#DC2626" stroke-width="2" fill="none"/></svg>`,
-      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="#8B5CF6" stroke-width="2" fill="none"/></svg>`,
-      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="#6366F1" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="#6366F1" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="#6366F1" stroke-width="2" fill="none"/></svg>`,
-      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" stroke="#DC2626" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="3" stroke="#DC2626" stroke-width="2" fill="none"/></svg>`,
-      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="#16A34A" stroke-width="2" fill="none"/></svg>`,
-      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="16" x="2" y="4" rx="2" stroke="#059669" stroke-width="2" fill="none"/><path d="m22 7-10 5L2 7" stroke="#059669" stroke-width="2" fill="none"/></svg>`,
-      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#7C3AED" stroke-width="2" fill="none"/><circle cx="9" cy="7" r="4" stroke="#7C3AED" stroke-width="2" fill="none"/><path d="m22 21-3.5-3.5" stroke="#7C3AED" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="3" stroke="#7C3AED" stroke-width="2" fill="none"/></svg>`,
-      antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#EA580C" stroke-width="2" fill="none"/><polyline points="12,6 12,12 16,14" stroke="#EA580C" stroke-width="2" fill="none"/></svg>`,
-      descripcion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" stroke="#DC2626" stroke-width="2" fill="none"/><path d="M12 9v4" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/><path d="m12 17.02.01 0" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/></svg>`
+      dormitorios: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4v16" stroke="#000000" stroke-width="2" stroke-linecap="round"/><path d="M2 8h18a2 2 0 0 1 2 2v10" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17h20" stroke="#000000" stroke-width="2" stroke-linecap="round"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="#000000" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="#000000" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="#000000" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="#000000" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="#000000" stroke-width="2"/></svg>`,
+      cocheras: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 16H9m10 0h3m-3 0c0-1.1-.9-2-2-2s-2 .9-2 2m5 0v2a1 1 0 0 1-1 1h-2m-3-3V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v9m16 0H6m0 0c0-1.1-.9-2-2-2s-2 .9-2 2m4 0v3" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#000000" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" stroke="#000000" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="3" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="16" x="2" y="4" rx="2" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 7-10 5L2 7" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" fill="none"/><circle cx="9" cy="7" r="4" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 21-3.5-3.5" stroke="#000000" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="3" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#000000" stroke-width="2" fill="none"/><polyline points="12,6 12,12 16,14" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      descripcion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" stroke="#000000" stroke-width="2" fill="none"/><path d="M12 9v4" stroke="#000000" stroke-width="2" stroke-linecap="round"/><path d="m12 17.02.01 0" stroke="#000000" stroke-width="2" stroke-linecap="round"/></svg>`
     };
 
     // Función para obtener el icono según el tipo de propiedad
@@ -448,7 +448,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const infoSize = Math.max(18, Math.floor(width / 40));
     const contactoSize = Math.max(16, Math.floor(width / 50));
     const labelSize = Math.max(14, Math.floor(width / 60));
-    lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize, icon: svgIconsMain.precio });
+    lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
 
     // Combinar tipo y antigüedad si existe antigüedad
     const tipoText = antiguedad ? `${tipo} / ${antiguedad}` : tipo;
@@ -474,14 +474,27 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
 
     // Calcular tamaño dinámico del box de precio basado en el contenido
     const precioText = `${moneda} ${formatPrice(precio)}`;
-    const precioTextWidth = precioText.length * Math.floor(precioSize * 0.6) + 44; // 44 para el icono + padding
-    const precioBoxWidth = Math.max(220, Math.min(precioTextWidth + padding * 2, Math.floor(width * 0.35)));
-    const precioBoxHeight = Math.max(90, Math.floor(height * 0.12));
+    const precioTextWidth = precioText.length * Math.floor(precioSize * 0.6);
+    const precioBoxWidth = Math.max(200, Math.min(precioTextWidth + padding * 2, Math.floor(width * 0.35)));
+    const precioBoxHeight = Math.max(80, Math.floor(height * 0.10));
     const precioBoxX = width - precioBoxWidth - margin;
     const precioBoxY = margin;
 
+    // Calcular el número real de líneas con contenido para ajustar el box
+    let infoLineCount = 0;
+    if (tipo) infoLineCount++;
+    if (ambientes) infoLineCount++;
+    if (dormitorios) infoLineCount++;
+    if (banos) infoLineCount++;
+    if (cocheras) infoLineCount++;
+    if (m2_totales) infoLineCount++;
+    if (m2_cubiertos) infoLineCount++;
+    if (direccion) infoLineCount++;
+    if (contacto) infoLineCount++;
+    if (email) infoLineCount++;
+
     const infoBoxWidth = Math.max(350, Math.floor(width * 0.35));
-    const infoBoxHeight = Math.max(200, Math.floor(height * 0.4));
+    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 6) + padding * 2, Math.floor(height * 0.4)));
     const infoBoxX = width - infoBoxWidth - margin;
     const infoBoxY = precioBoxY + precioBoxHeight + 10;
 
@@ -511,9 +524,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `  </g>\n`;
 
     // Dibujar precio en su box con mejor diseño
-    let precioY = precioBoxY + Math.floor(precioSize * 0.9) + 15;
-    const precioX = precioBoxX + 20;
-    const precioIconY = precioY - Math.floor(precioSize * 0.6);
+    // Centrar el texto del precio en el medio del box
+    const precioCenterX = precioBoxX + precioBoxWidth / 2;
+    const precioCenterY = precioBoxY + precioBoxHeight / 2;
 
     // Mejor diseño del precio con gradiente y sombra
     svg += `  <defs>\n`;
@@ -526,12 +539,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `    </filter>\n`;
     svg += `  </defs>\n`;
 
-    // Icono del precio con mejor color
-    const precioIconSvg = svgIconsMain.precio.replace('fill="#16A34A"', 'fill="url(#precioGradient)"');
-    svg += `  <g transform="translate(${precioX}, ${precioIconY})" filter="url(#precioShadow)">${precioIconSvg}</g>\n`;
-
-    // Texto del precio con gradiente y mejor tipografía
-    svg += `  <text x="${precioX + 28}" y="${precioY}" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: url(#precioGradient);">${escapeForSvg(precioText)}</text>\n`;
+    // Texto del precio centrado con gradiente y mejor tipografía
+    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: url(#precioGradient);">${escapeForSvg(precioText)}</text>\n`;
 
     // Dibujar información en su box
     let infoY = infoBoxY + Math.floor(infoSize * 0.9) + 10;
@@ -586,9 +595,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const corrChar = Math.max(6, Math.floor(corrFontSize * 0.45));
       const margin = 20;
       const maxCorrBoxW = Math.min(Math.floor(width * 0.6), 520);
-      const estW = corredoresText.length * corrChar + padding * 2 + 40;
+      const estW = corredoresText.length * corrChar + padding * 2;
       const cW = Math.min(maxCorrBoxW, Math.max(260, estW));
-      const cMaxChars = Math.max(20, Math.floor((cW - padding * 2 - 24) / corrChar));
+      const cMaxChars = Math.max(20, Math.floor((cW - padding * 2) / corrChar));
       // split into parts
       const safeCorr = escapeForSvg(corredoresText);
       // word-wrap based on cMaxChars estimate
@@ -618,7 +627,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
       // Use a more generous character width estimate and add extra margin
       const charWidthGenerous = Math.max(8, Math.floor(corrFontSize * 0.6));
-      const neededForParts = maxPartLen * charWidthGenerous + padding * 2 + 40;
+      const neededForParts = maxPartLen * charWidthGenerous + padding * 2;
       const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 300)); // minimum 300px width
       // draw rect with final width - using more translucent white background
       svg += `  <g filter="url(#f1)">\n`;
@@ -626,11 +635,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       svg += `  </g>\n`;
       // icon and text without title
       let cy = cY + padding + Math.floor(corrFontSize * 0.9);
-      const iconX = cX + padding;
-      const iconY = cy - Math.floor(corrFontSize * 0.7); // Mejor alineación con el texto
-      // Use main icons (colored) for corredores box to match the top box
-      svg += `  <g transform="translate(${iconX}, ${iconY})">${svgIconsMain.corredores}</g>\n`;
-      const textX = iconX + 28; // Más espacio para mejor alineación
+      const textX = cX + padding; // Sin espacio para icono
       for (let i = 0; i < corrParts.length; i++) {
         svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #000000;">${corrParts[i]}</text>\n`;
         cy += Math.max(12, corrFontSize) + 6;
@@ -653,7 +658,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       // Calculate description box dimensions
       const maxDescWidth = Math.min(Math.floor(width * 0.4), 320);
       const charWidth = Math.max(6, Math.floor(descSize * 0.55));
-      const maxCharsPerLine = Math.floor((maxDescWidth - descPadding * 2 - 24) / charWidth);
+      const maxCharsPerLine = Math.floor((maxDescWidth - descPadding * 2) / charWidth);
 
       // Word wrap description
       const words = descSafe.split(/\s+/);
@@ -671,7 +676,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       if (currentLine) descLines.push(currentLine);
 
       const descBoxHeight = Math.max(50, descLines.length * (descSize + 4) + descPadding * 2);
-      const descBoxWidth = Math.min(maxDescWidth, Math.max(200, descLines.reduce((max, line) => Math.max(max, line.length * charWidth), 0) + descPadding * 2 + 24));
+      const descBoxWidth = Math.min(maxDescWidth, Math.max(200, descLines.reduce((max, line) => Math.max(max, line.length * charWidth), 0) + descPadding * 2));
       const descX = width - descBoxWidth - originMargin;
       const descY = height - descBoxHeight - originMargin - origenSize - 8;
 
@@ -680,13 +685,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       svg += `    <rect x="${descX}" y="${descY}" width="${descBoxWidth}" height="${descBoxHeight}" rx="10" fill="rgba(255,255,255,0.65)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
       svg += `  </g>\n`;
 
-      // Add description icon and text
+      // Add description text without icon
       let descCurrentY = descY + descPadding + Math.floor(descSize * 0.9);
-      const descIconX = descX + descPadding;
-      const descIconY = descCurrentY - Math.floor(descSize * 0.6); // Better alignment with text baseline
-      svg += `  <g transform="translate(${descIconX}, ${descIconY})">${svgIconsMain.descripcion}</g>\n`;
-
-      const descTextX = descIconX + 26; // More space for better alignment
+      const descTextX = descX + descPadding;
       for (let i = 0; i < descLines.length; i++) {
         svg += `  <text x="${descTextX}" y="${descCurrentY}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${descSize}px; fill: #000000; font-weight: 400;">${descLines[i]}</text>\n`;
         descCurrentY += descSize + 4;
