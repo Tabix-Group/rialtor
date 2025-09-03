@@ -43,7 +43,7 @@ export default function Home() {
       name: 'Créditos Hipotecarios',
       description: 'Conocé las opciones vigentes de financiación en bancos públicos y privados; tasas y requisitos.',
       icon: BadgeDollarSign,
-      href: '/creditos', // redirige siempre a la vista creditos
+      href: '/hipotecarios', // redirige a la calculadora de créditos hipotecarios
     },
     {
       name: 'Generador de Placas para Publicar',

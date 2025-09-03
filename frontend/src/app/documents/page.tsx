@@ -1,18 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react'
-import { FileText, Upload, Download, Search, Filter, Eye, Image, FileSpreadsheet, FileArchive, FileVideo, FileAudio, Trash2 } from 'lucide-react'
-
-interface Document {
-  id: string
-  title: string
-  type: string
-  category: string
-  uploadDate: Date
-  size: string
-  url: string
-}
-
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { FileText, Search, Wand2, ArrowRight } from 'lucide-react'
 import { useAuth } from '../auth/authContext'
 import { useRouter } from 'next/navigation'
 
@@ -26,344 +16,89 @@ export default function DocumentsPage() {
     return null;
   }
 
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loadingDocs, setLoadingDocs] = useState(true);
-  const [editingDoc, setEditingDoc] = useState<Document | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
-  const [docSummary, setDocSummary] = useState<string | null>(null);
-  const [summaryLoading, setSummaryLoading] = useState(false);
-
-  // Fetch documents from API
-  const fetchDocuments = async () => {
-    setLoadingDocs(true);
-    try {
-      const res = await fetch('/api/documents');
-      const data = await res.json();
-      setDocuments(data.documents || []);
-    } catch (e) {
-      setDocuments([]);
-    } finally {
-      setLoadingDocs(false);
+  const documentOptions = [
+    {
+      title: 'Resumir Documentos',
+      description: 'Sube tus documentos y obtén resúmenes inteligentes con IA. Analiza contratos, informes y documentos legales de forma rápida y eficiente.',
+      icon: Search,
+      href: '/documents/summary',
+      color: 'from-blue-500 to-blue-700',
+      bgColor: 'from-blue-50 to-blue-100',
+      borderColor: 'border-blue-200'
+    },
+    {
+      title: 'Generar Documentos',
+      description: 'Crea documentos legales profesionales en segundos. Genera modelos de reserva, autorizaciones, boletos y contratos con datos personalizados.',
+      icon: Wand2,
+      href: '/documents/generator',
+      color: 'from-green-500 to-green-700',
+      bgColor: 'from-green-50 to-green-100',
+      borderColor: 'border-green-200'
     }
-  };
-
-  // On mount
-  useEffect(() => { fetchDocuments(); }, []);
-
-
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [uploadCategory, setUploadCategory] = useState('Contratos')
-  const [showCategoryModal, setShowCategoryModal] = useState(false)
-  const [editingCategory, setEditingCategory] = useState<string | null>(null)
-  const [categories, setCategories] = useState<string[]>(['all', 'Contratos', 'Formularios', 'Manuales', 'Checklists'])
-
-  const filteredDocuments = documents.filter(doc => {
-    const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
-
-  const getFileIcon = (doc: Document) => {
-    const ext = doc.title.split('.').pop()?.toLowerCase();
-    if (!ext) return <FileText className="w-8 h-8 text-gray-500" />;
-    switch (ext) {
-      case 'pdf':
-        return <FileText className="w-8 h-8 text-red-500" />;
-      case 'doc':
-      case 'docx':
-        return <FileText className="w-8 h-8 text-blue-700" />;
-      case 'xls':
-      case 'xlsx':
-        return <FileSpreadsheet className="w-8 h-8 text-green-600" />;
-      case 'png':
-      case 'jpg':
-      case 'jpeg':
-        return <Image className="w-8 h-8 text-yellow-500" />;
-      case 'zip':
-      case 'rar':
-        return <FileArchive className="w-8 h-8 text-orange-500" />;
-      case 'mp4':
-      case 'avi':
-        return <FileVideo className="w-8 h-8 text-purple-500" />;
-      case 'mp3':
-      case 'wav':
-        return <FileAudio className="w-8 h-8 text-pink-500" />;
-      default:
-        return <FileText className="w-8 h-8 text-gray-500" />;
-    }
-  }
-
-  // Handlers
-  const handleView = (doc: Document) => {
-    if (doc.url && doc.url !== '#') window.open(doc.url, '_blank');
-  };
-
-  const handleDownload = (doc: Document) => {
-    if (doc.url && doc.url !== '#') {
-      // Forzar descarga y sugerir el nombre original
-      const a = document.createElement('a');
-      a.href = `/api/documents/${doc.id}?download=1`;
-      a.download = doc.title;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-  };
-
-  const handleDelete = async (doc: Document) => {
-    if (!confirm('¿Eliminar este documento?')) return;
-    try {
-      const res = await fetch(`/api/documents/${encodeURIComponent(doc.id)}`, { method: 'DELETE' });
-      if (res.ok) {
-        setUploadSuccess('Documento eliminado correctamente');
-        await fetchDocuments();
-        setTimeout(() => setUploadSuccess(null), 3000);
-      }
-    } catch {
-      setUploadSuccess('Error al eliminar el documento');
-      setTimeout(() => setUploadSuccess(null), 3000);
-    }
-  };
-
-  const fetchSummary = async (doc: Document) => {
-    if (!confirm('Solicitar resumen del documento seleccionado?')) return;
-    setDocSummary(null);
-    setSummaryLoading(true);
-    try {
-      // Call frontend proxy: /api/documents/summary -> backend /documents/summary
-      const res = await fetch(`/api/documents/summary`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: doc.id })
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || 'Error al solicitar resumen');
-      }
-      const data = await res.json();
-      setDocSummary(data.summary || 'No se recibió resumen');
-    } catch (e: any) {
-      setDocSummary(e.message || 'Error desconocido');
-    } finally {
-      setSummaryLoading(false);
-    }
-  };
-
-  const handleEdit = (doc: Document) => {
-    setEditingDoc(doc);
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const categoryToSend = uploadCategory || (categories.find(c => c !== 'all') || 'General');
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('category', categoryToSend);
-    try {
-      const res = await fetch('/api/documents', { method: 'POST', body: formData });
-      if (res.ok) {
-        setUploadSuccess('Archivo subido correctamente');
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        await fetchDocuments();
-        setTimeout(() => setUploadSuccess(null), 3000);
-      } else {
-        setUploadSuccess('Error al subir el archivo');
-        setTimeout(() => setUploadSuccess(null), 3000);
-      }
-    } catch {
-      setUploadSuccess('Error al subir el archivo');
-      setTimeout(() => setUploadSuccess(null), 3000);
-    }
-  };
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50 py-12">
-      {uploadSuccess && (
-        <div className="fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 text-lg font-semibold">
-          {uploadSuccess}
-        </div>
-      )}
       <div className="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="bg-white/90 rounded-3xl shadow-2xl border border-gray-100 backdrop-blur-md">
           {/* Header */}
-          <div className="bg-gradient-to-r from-red-600 to-red-400 text-white p-8 rounded-t-3xl shadow flex flex-col gap-2">
-            <h1 className="text-3xl font-extrabold mb-1 tracking-tight flex items-center gap-3">
+          <div className="bg-gradient-to-r from-red-600 to-red-400 text-white p-8 rounded-t-3xl shadow">
+            <h1 className="text-3xl font-extrabold mb-2 tracking-tight flex items-center gap-3">
               <FileText className="w-8 h-8 text-white/80" />
-              Gestión de Documentos
+              Documentos Inteligentes
             </h1>
             <p className="text-red-100 text-lg">
-              Accede y gestiona todos los documentos importantes de Rialtor
+              Gestiona y crea documentos legales con la ayuda de inteligencia artificial
             </p>
           </div>
 
-          {/* Controls */}
-          <div className="p-8 border-b bg-white/80 rounded-b-none rounded-t-none">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-3 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar documentos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent text-lg shadow-sm"
-                />
-              </div>
-              <div className="flex gap-2 items-center flex-wrap">
-                <div className="relative">
-                  <Filter className="absolute left-4 top-3 w-5 h-5 text-gray-400" />
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="pl-12 pr-8 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent text-lg shadow-sm"
-                  >
-                    {categories.map(cat => (
-                      <option key={cat} value={cat}>
-                        {cat === 'all' ? 'Todas las categorías' : cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {/* Upload controls: select category + file */}
-                <select
-                  value={uploadCategory}
-                  onChange={e => setUploadCategory(e.target.value)}
-                  className="py-3 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent text-lg shadow-sm"
-                >
-                  {categories.filter(cat => cat !== 'all').map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-                <button className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-4 py-3 rounded-xl hover:bg-gray-300 shadow transition-all font-semibold" onClick={() => setShowCategoryModal(true)} type="button">
-                  + Categoría
-                </button>
-                <button className="bg-gradient-to-r from-red-500 to-red-700 text-white px-6 py-3 rounded-xl shadow-lg hover:from-red-600 hover:to-red-800 transition-all flex items-center gap-2 font-bold text-lg" onClick={handleUploadClick} type="button">
-                  <Upload className="w-5 h-5" />
-                  Subir
-                </button>
-                <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
-              </div>
-            </div>
-          </div>
-
-          {/* Documents List */}
+          {/* Options Grid */}
           <div className="p-8">
-            {filteredDocuments.length === 0 ? (
-              <div className="text-center py-16">
-                <FileText className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <p className="text-gray-500 text-lg">No se encontraron documentos</p>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-5">
-                  {filteredDocuments.map((doc) => (
-                    <div key={doc.id} className="border border-gray-100 rounded-2xl p-6 bg-white/80 hover:bg-blue-50 transition-all shadow flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="flex items-center gap-5">
-                        {getFileIcon(doc)}
-                        <div>
-                          <h3 className="font-bold text-gray-800 text-lg">{doc.title}</h3>
-                          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-1">
-                            <span className="bg-gray-100 px-2 py-1 rounded font-medium">
-                              {doc.category}
-                            </span>
-                            <span>{doc.size}</span>
-                            <span>
-                              {typeof doc.uploadDate === 'string' ? new Date(doc.uploadDate).toLocaleDateString('es-AR') : doc.uploadDate.toLocaleDateString('es-AR')}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-xl transition-all" onClick={() => handleView(doc)} title="Ver">
-                          <Eye className="w-5 h-5" />
-                        </button>
-                        <button className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-100 rounded-xl transition-all" onClick={() => handleDownload(doc)} title="Descargar">
-                          <Download className="w-5 h-5" />
-                        </button>
-                        <button className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-xl transition-all" onClick={() => handleDelete(doc)} title="Eliminar">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                        <button className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all" onClick={() => fetchSummary(doc)} title="Resumen">
-                          <span className="sr-only">Resumen</span>
-                          R
-                        </button>
-                      </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {documentOptions.map((option, index) => (
+                <Link
+                  key={index}
+                  href={option.href}
+                  className={`block group bg-gradient-to-br ${option.bgColor} border-2 ${option.borderColor} rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
+                >
+                  <div className="flex flex-col h-full">
+                    <div className={`w-16 h-16 bg-gradient-to-r ${option.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                      <option.icon className="w-8 h-8 text-white" />
                     </div>
-                  ))}
-                </div>
-                {/* Summary panel */}
-                {docSummary && (
-                  <div className="mt-6 p-4 bg-white rounded-xl border border-gray-100 shadow">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-semibold text-lg text-gray-800">Resumen del documento</h4>
-                      <button className="text-sm text-gray-500 hover:text-gray-700" onClick={() => setDocSummary(null)}>Cerrar</button>
-                    </div>
-                    <p className="mt-3 text-gray-700 whitespace-pre-line">{summaryLoading ? 'Procesando...' : docSummary}</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
 
-      {/* Modal para crear/editar categoría */}
-      {showCategoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative border border-gray-100">
-            <button onClick={() => { setEditingCategory(null); setShowCategoryModal(false); }} className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl">✕</button>
-            <h3 className="text-2xl font-bold mb-6 text-gray-800">{editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}</h3>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                const name = (e.currentTarget.elements.namedItem('catname') as HTMLInputElement).value.trim();
-                if (!name) return;
-                if (editingCategory) {
-                  setCategories(prev => prev.map(cat => cat === editingCategory ? name : cat));
-                  if (uploadCategory === editingCategory) setUploadCategory(name);
-                  if (selectedCategory === editingCategory) setSelectedCategory(name);
-                  setEditingCategory(null);
-                } else if (!categories.includes(name)) {
-                  setCategories(prev => [...prev, name]);
-                  setUploadCategory(name);
-                }
-                setShowCategoryModal(false);
-              }}
-              className="space-y-6"
-            >
-              <input name="catname" type="text" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-lg focus:ring-2 focus:ring-red-400 focus:border-transparent" placeholder="Nombre de la categoría" defaultValue={editingCategory || ''} required />
-              <div className="flex justify-end gap-2">
-                <button type="button" className="px-5 py-3 bg-gray-100 rounded-xl font-semibold hover:bg-gray-200" onClick={() => { setEditingCategory(null); setShowCategoryModal(false); }}>Cerrar</button>
-                <button type="submit" className="px-5 py-3 bg-gradient-to-r from-red-500 to-red-700 text-white rounded-xl font-bold hover:from-red-600 hover:to-red-800 transition-all">{editingCategory ? 'Guardar cambios' : 'Agregar'}</button>
-              </div>
-            </form>
-            <div className="mt-8">
-              <h4 className="font-semibold mb-3 text-gray-700">Categorías existentes</h4>
-              <ul className="space-y-2">
-                {categories.filter(cat => cat !== 'all').map(cat => (
-                  <li key={cat} className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-2 bg-gray-50">
-                    <span className="font-medium text-gray-700">{cat}</span>
-                    <div className="flex gap-2">
-                      <button className="text-blue-600 hover:underline text-sm font-semibold" onClick={() => { setEditingCategory(cat); setShowCategoryModal(true); }}>Editar</button>
-                      <button className="text-red-600 hover:underline text-sm font-semibold" onClick={() => {
-                        setCategories(prev => prev.filter(c => c !== cat));
-                        if (uploadCategory === cat) setUploadCategory(categories.find(c => c !== 'all' && c !== cat) || '');
-                        if (selectedCategory === cat) setSelectedCategory('all');
-                      }}>Eliminar</button>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4 group-hover:text-gray-900 transition-colors">
+                      {option.title}
+                    </h3>
+
+                    <p className="text-gray-600 text-lg leading-relaxed mb-6 flex-grow">
+                      {option.description}
+                    </p>
+
+                    <div className={`flex items-center gap-2 text-lg font-semibold bg-gradient-to-r ${option.color} bg-clip-text text-transparent group-hover:gap-3 transition-all duration-300`}>
+                      Comenzar
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                     </div>
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Additional Info */}
+            <div className="mt-12 text-center">
+              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                  ¿Necesitas ayuda?
+                </h4>
+                <p className="text-gray-600">
+                  Si tienes dudas sobre cómo usar estas herramientas, puedes consultar nuestro
+                  <Link href="/knowledge" className="text-red-600 hover:text-red-700 font-medium ml-1">
+                    centro de ayuda
+                  </Link>
+                  o contactar al soporte técnico.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
         </div>
       </div>
     </div>
