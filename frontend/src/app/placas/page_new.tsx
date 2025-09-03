@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/authContext'
@@ -44,7 +44,7 @@ interface PropertyData {
   antiguedad?: string;
   contacto: string;
   email?: string;
-  corredores: string; // nombre y matrícula de los corredores (obligatorio)
+  corredores: string; // nombre y matrÃ­cula de los corredores (obligatorio)
   descripcion?: string;
 }
 
@@ -107,7 +107,7 @@ export default function PlacasPage() {
     }
   }, [user, hasPermission]);
 
-  // Funciones de paginación
+  // Funciones de paginaciÃ³n
   const handlePageChange = (page: number) => {
     fetchPlaques(page);
   };
@@ -154,7 +154,7 @@ export default function PlacasPage() {
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setSelectedImages(files.slice(0, 10)); // Máximo 10 imágenes
+    setSelectedImages(files.slice(0, 10)); // MÃ¡ximo 10 imÃ¡genes
   };
 
   const removeImage = (index: number) => {
@@ -214,7 +214,7 @@ export default function PlacasPage() {
           descripcion: ''
         });
         fetchPlaques(currentPage);
-        alert('Placa creada exitosamente. El procesamiento iniciará en breve.');
+        alert('Placa creada exitosamente. El procesamiento iniciarÃ¡ en breve.');
       } else {
         alert(data.message || 'Error creando la placa');
       }
@@ -227,7 +227,7 @@ export default function PlacasPage() {
   };
 
   const deletePlaque = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar esta placa?')) return;
+    if (!confirm('Â¿EstÃ¡s seguro de eliminar esta placa?')) return;
 
     try {
       const res = await authenticatedFetch(`/api/placas/${id}`, {
@@ -361,7 +361,7 @@ export default function PlacasPage() {
                   </div>
                 </div>
 
-                {/* Información */}
+                {/* InformaciÃ³n */}
                 <div className="p-3">
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm truncate">
                     {plaque.title}
@@ -381,13 +381,13 @@ export default function PlacasPage() {
                     <div className="flex items-center gap-1 text-xs">
                       <Home className="w-3 h-3 text-blue-600" />
                       <span>{plaque.propertyData.ambientes || 0} amb</span>
-                      {plaque.propertyData.dormitorios && <span>• {plaque.propertyData.dormitorios} dorm</span>}
-                      {plaque.propertyData.banos && <span>• {plaque.propertyData.banos} baños</span>}
+                      {plaque.propertyData.dormitorios && <span>â€¢ {plaque.propertyData.dormitorios} dorm</span>}
+                      {plaque.propertyData.banos && <span>â€¢ {plaque.propertyData.banos} baÃ±os</span>}
                     </div>
                     {plaque.propertyData.m2_totales && (
                       <div className="flex items-center gap-1">
                         <Square className="w-3 h-3 text-purple-600" />
-                        <span>{plaque.propertyData.m2_totales} m²</span>
+                        <span>{plaque.propertyData.m2_totales} mÂ²</span>
                       </div>
                     )}
                   </div>
@@ -424,9 +424,8 @@ export default function PlacasPage() {
               </div>
             ))}
           </div>
-        )}
 
-        {/* Paginación */}
+          {/* PaginaciÃ³n */}
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-6">
             <button
@@ -443,10 +442,11 @@ export default function PlacasPage() {
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
+                  className={`px-3 py-2 text-sm font-medium rounded-md ${
+                    currentPage === page
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
+                  }`}
                 >
                   {page}
                 </button>
@@ -464,12 +464,13 @@ export default function PlacasPage() {
           </div>
         )}
 
-        {/* Información de paginación */}
+        {/* InformaciÃ³n de paginaciÃ³n */}
         <div className="text-center text-sm text-gray-500 mt-4">
           Mostrando {plaques.length} de {totalPlaques} placas
         </div>
+        )}
 
-        {/* Modal de creación */}
+        {/* Modal de creaciÃ³n */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -477,10 +478,10 @@ export default function PlacasPage() {
                 <h2 className="text-2xl font-bold mb-6">Nueva Placa de Propiedad</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Subida de imágenes */}
+                  {/* Subida de imÃ¡genes */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Imágenes de la propiedad *
+                      ImÃ¡genes de la propiedad *
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       <input
@@ -497,15 +498,15 @@ export default function PlacasPage() {
                       >
                         <Upload className="w-12 h-12 text-gray-400 mb-4" />
                         <span className="text-sm text-gray-600">
-                          Haz clic para seleccionar imágenes o arrastra aquí
+                          Haz clic para seleccionar imÃ¡genes o arrastra aquÃ­
                         </span>
                         <span className="text-xs text-gray-500 mt-1">
-                          Máximo 10 imágenes
+                          MÃ¡ximo 10 imÃ¡genes
                         </span>
                       </label>
                     </div>
 
-                    {/* Preview de imágenes seleccionadas */}
+                    {/* Preview de imÃ¡genes seleccionadas */}
                     {selectedImages.length > 0 && (
                       <div className="mt-4 grid grid-cols-3 gap-2">
                         {selectedImages.map((image, index) => (
@@ -545,7 +546,7 @@ export default function PlacasPage() {
                         <option value="Local Comercial">Local Comercial</option>
                         <option value="Oficina">Oficina</option>
                         <option value="Terreno">Terreno</option>
-                        <option value="Galpón">Galpón</option>
+                        <option value="GalpÃ³n">GalpÃ³n</option>
                       </select>
                     </div>
 
@@ -606,7 +607,7 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Baños
+                        BaÃ±os
                       </label>
                       <input
                         type="text"
@@ -658,14 +659,14 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Antigüedad
+                        AntigÃ¼edad
                       </label>
                       <input
                         type="text"
                         value={propertyData.antiguedad}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 5 años"
+                        placeholder="Ej: 5 aÃ±os"
                       />
                     </div>
 
@@ -674,7 +675,7 @@ export default function PlacasPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Dirección
+                      DirecciÃ³n
                     </label>
                     <input
                       type="text"
@@ -700,7 +701,7 @@ export default function PlacasPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Corredores (nombre y matrícula) *
+                      Corredores (nombre y matrÃ­cula) *
                     </label>
                     <textarea
                       required
@@ -708,20 +709,20 @@ export default function PlacasPage() {
                       onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       rows={2}
-                      placeholder="Ej: Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
+                      placeholder="Ej: HernÃ¡n Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Descripción adicional
+                      DescripciÃ³n adicional
                     </label>
                     <textarea
                       value={propertyData.descripcion}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, descripcion: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       rows={3}
-                      placeholder="Información adicional sobre la propiedad..."
+                      placeholder="InformaciÃ³n adicional sobre la propiedad..."
                     />
                   </div>
 
@@ -766,7 +767,7 @@ export default function PlacasPage() {
                     onClick={() => setSelectedPlaque(null)}
                     className="text-gray-500 hover:text-gray-700"
                   >
-                    ✕
+                    âœ•
                   </button>
                 </div>
 
@@ -781,7 +782,7 @@ export default function PlacasPage() {
                   </p>
                 </div>
 
-                {/* Imágenes */}
+                {/* ImÃ¡genes */}
                 <div className="space-y-6">
                   {selectedPlaque.generatedImages.length > 0 && (
                     <div>
@@ -810,7 +811,7 @@ export default function PlacasPage() {
 
                   {selectedPlaque.originalImages.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">Imágenes Originales</h3>
+                      <h3 className="text-lg font-semibold mb-3">ImÃ¡genes Originales</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {selectedPlaque.originalImages.map((url, index) => (
                           <img
@@ -836,7 +837,7 @@ export default function PlacasPage() {
                       <span className="font-medium">Precio:</span> {selectedPlaque.propertyData.moneda} {parseInt(selectedPlaque.propertyData.precio).toLocaleString('es-AR')}
                     </div>
                     <div>
-                      <span className="font-medium">Dirección:</span> {selectedPlaque.propertyData.direccion}
+                      <span className="font-medium">DirecciÃ³n:</span> {selectedPlaque.propertyData.direccion}
                     </div>
                     <div>
                       <span className="font-medium">Contacto:</span> {selectedPlaque.propertyData.contacto}
@@ -858,7 +859,7 @@ export default function PlacasPage() {
                     )}
                     {selectedPlaque.propertyData.banos && (
                       <div>
-                        <span className="font-medium">Baños:</span> {selectedPlaque.propertyData.banos}
+                        <span className="font-medium">BaÃ±os:</span> {selectedPlaque.propertyData.banos}
                       </div>
                     )}
                     {selectedPlaque.propertyData.cocheras && (
@@ -868,17 +869,17 @@ export default function PlacasPage() {
                     )}
                     {selectedPlaque.propertyData.m2_totales && (
                       <div>
-                        <span className="font-medium">M2 Totales:</span> {selectedPlaque.propertyData.m2_totales} m²
+                        <span className="font-medium">M2 Totales:</span> {selectedPlaque.propertyData.m2_totales} mÂ²
                       </div>
                     )}
                     {selectedPlaque.propertyData.m2_cubiertos && (
                       <div>
-                        <span className="font-medium">M2 Cubiertos:</span> {selectedPlaque.propertyData.m2_cubiertos} m²
+                        <span className="font-medium">M2 Cubiertos:</span> {selectedPlaque.propertyData.m2_cubiertos} mÂ²
                       </div>
                     )}
                     {selectedPlaque.propertyData.antiguedad && (
                       <div>
-                        <span className="font-medium">Antigüedad:</span> {selectedPlaque.propertyData.antiguedad}
+                        <span className="font-medium">AntigÃ¼edad:</span> {selectedPlaque.propertyData.antiguedad}
                       </div>
                     )}
                     {selectedPlaque.propertyData.email && (
@@ -896,3 +897,4 @@ export default function PlacasPage() {
     </div>
   );
 }
+
