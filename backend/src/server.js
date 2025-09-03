@@ -118,15 +118,29 @@ app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 const rolesRouter = require('./routes/roles');
 const permissionsRouter = require('./routes/permissions');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({
+// Health check with database status
+app.get('/health', async (req, res) => {
+  const healthData = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    version: process.env.npm_package_version || '1.0.0'
-  });
+    version: process.env.npm_package_version || '1.0.0',
+    database: 'unknown'
+  };
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    healthData.database = 'connected';
+  } catch (error) {
+    healthData.database = 'disconnected';
+    healthData.dbError = error.message;
+    healthData.status = 'DEGRADED';
+  }
+
+  res.status(healthData.status === 'OK' ? 200 : 503).json(healthData);
 });
 
 // Log global para cualquier petición DELETE
@@ -160,6 +174,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 API: http://localhost:${PORT}/api`);
   console.log(`💡 Health check: http://localhost:${PORT}/health`);
+  console.log(`🗄️ Database connection: ${process.env.DATABASE_URL ? 'configured' : 'missing'}`);
 });
 
 module.exports = app;
