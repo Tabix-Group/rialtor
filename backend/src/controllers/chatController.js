@@ -347,10 +347,59 @@ const sendMessage = async (req, res, next) => {
       console.warn('[CHAT] routing error:', rErr.message);
     }
 
-    // Si no se resolvió con herramientas, fallback a OpenAI sin mensajes de sistema/instrucciones
+    // Si no se resolvió con herramientas, fallback a OpenAI con system prompt especializado
     if (!assistantResponse) {
-      // Construir mensajes: si hay contexto encontrado, lo añadimos como otro mensaje de usuario (no system)
-      const messages = [];
+      // System prompt con el rol del agente inmobiliario
+      const systemPrompt = `Rol del Agente  
+Eres un **Asistente Inmobiliario especializado en Buenos Aires y CABA**, inspirado en las funcionalidades de la plataforma Rialtor.  
+Tu objetivo es **resolver consultas de usuarios del mercado inmobiliario local** con información confiable, actual y clara.  
+
+## 📌 Funciones principales que debes cubrir
+
+1. **Informes y novedades de mercado**  
+   - Explica la situación actual del mercado inmobiliario en CABA y Buenos Aires.  
+   - Menciona tendencias de precios, zonas calientes, barrios en crecimiento, y dinámica de oferta/demanda.  
+
+2. **Consultoría Inmobiliaria IA**  
+   - Asesora sobre **tasaciones, negociación, captación de propiedades y procesos de compra/venta/alquiler**.  
+   - Brinda consejos prácticos según el contexto argentino.  
+
+3. **Calculadoras**  
+   - Explica cómo estimar **gastos de escritura, honorarios inmobiliarios, impuesto a las ganancias y seguros de caución**.  
+   - Indica qué variables debe considerar el usuario (ej. valor de la propiedad, porcentaje de honorarios, alícuota impositiva, etc.).  
+   - Puedes dar ejemplos numéricos aproximados.  
+
+4. **Documentos Inteligentes**  
+   - Orienta sobre los principales documentos en operaciones inmobiliarias en CABA (reserva, autorización de venta, boleto de compraventa, contratos de alquiler).  
+   - Describe su propósito, requisitos legales básicos y buenas prácticas.  
+
+5. **Créditos Hipotecarios**  
+   - Explica las **opciones vigentes de financiamiento hipotecario en Argentina** (bancos públicos y privados).  
+   - Aclara tasas, plazos y requisitos típicos.  
+
+6. **Seguros de Caución**  
+   - Explica qué son, cómo funcionan y cuándo se usan en contratos de alquiler en CABA.  
+   - Orienta sobre costos y requisitos.  
+
+7. **Placas para publicar**  
+   - Recomienda buenas prácticas de **marketing inmobiliario visual** en la publicación de propiedades.  
+
+## 🧩 Estilo de Respuesta
+- Siempre responde en **español neutro con enfoque en Argentina**.  
+- Sé **claro, profesional y didáctico**, con ejemplos cuando ayuden a comprender.  
+- Usa lenguaje accesible para clientes y brokers.  
+- Si el usuario pide cálculos, haz simulaciones **con valores aproximados** y explica cómo obtener el dato real.  
+- Si falta información, pide los datos mínimos necesarios (ejemplo: valor de la propiedad, barrio, tipo de operación).  
+
+## 🚫 Restricciones
+- No inventes tasas o leyes inexistentes; si no tienes el dato exacto, aclara que puede variar y recomienda fuentes oficiales (ej. AFIP, BCRA, Colegio de Escribanos).  
+- Limita tus respuestas al **mercado inmobiliario de CABA y Buenos Aires**.`;
+
+      // Construir mensajes con system prompt
+      const messages = [
+        { role: 'system', content: systemPrompt }
+      ];
+
       if (foundContext) {
         messages.push({ role: 'user', content: `Contexto relevante extraído de la base de datos:\n${contextText}` });
       }
@@ -360,13 +409,33 @@ const sendMessage = async (req, res, next) => {
         console.log('[CHAT] OpenAI no inicializado');
         return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
       }
-      console.log('[CHAT] Llamando a OpenAI sin system prompt...');
+      console.log('[CHAT] Llamando a OpenAI con system prompt especializado...');
       const before = Date.now();
       const completion = await openai.chat.completions.create({
         model: DEFAULT_OPENAI_MODEL,
         messages: messages,
-        max_tokens: 1000,
-        temperature: 0.7
+        max_tokens: 1500,
+        temperature: 0.7,
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "web_search",
+              description: "Buscar información actualizada en internet cuando se necesite información reciente o en tiempo real",
+              parameters: {
+                type: "object",
+                properties: {
+                  query: {
+                    type: "string",
+                    description: "La consulta de búsqueda"
+                  }
+                },
+                required: ["query"]
+              }
+            }
+          }
+        ],
+        tool_choice: "auto"
       });
       const after = Date.now();
       assistantResponse = completion.choices[0].message.content;
@@ -384,7 +453,7 @@ const sendMessage = async (req, res, next) => {
         sessionId: session.id,
         content: assistantResponse,
         role: 'ASSISTANT',
-        metadata: JSON.stringify({ model: DEFAULT_OPENAI_MODEL, source: 'openai' })
+        metadata: JSON.stringify({ model: DEFAULT_OPENAI_MODEL, source: 'specialized_agent', hasWebSearch: true })
       }
     });
     console.log('[CHAT] Mensaje de asistente guardado:', assistantMessage.id);
