@@ -79,6 +79,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
             if (audioBase64) {
                 requestBody.audioBase64 = audioBase64
                 requestBody.audioFilename = 'audio.webm'
+                console.log('[ASSISTANT] Enviando audio, longitud base64:', audioBase64.length)
             }
 
             if (requestAudioResponse) {

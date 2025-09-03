@@ -133,25 +133,31 @@ const templates = require('../templates/rialtorTemplates');
 const sendMessage = async (req, res, next) => {
   try {
     console.log('[CHAT] sendMessage called');
+    console.log('[CHAT] req.body keys:', Object.keys(req.body));
     console.log('[CHAT] req.body:', JSON.stringify(req.body, null, 2));
     let { message, sessionId, audioBase64, audioFilename, requestAudioResponse } = req.body;
     const userId = req.user.id;
     console.log('[CHAT] userId:', userId, 'sessionId:', sessionId, 'message:', message);
     console.log('[CHAT] message type:', typeof message, 'sessionId type:', typeof sessionId);
+    console.log('[CHAT] audioBase64 length:', audioBase64 ? audioBase64.length : 'null');
+    console.log('[CHAT] audioFilename:', audioFilename);
     console.log('[CHAT] requestAudioResponse:', requestAudioResponse);
 
     let session;
 
     // Si no hay sessionId, crear una nueva sesión
     if (!sessionId) {
+      // Si viene audio, usar un título temporal hasta obtener la transcripción
+      const tempTitle = audioBase64 ? 'Mensaje de voz' : (message.substring(0, 50) + (message.length > 50 ? '...' : ''));
+
       session = await prisma.chatSession.create({
         data: {
           userId,
-          title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+          title: tempTitle,
           isActive: true
         }
       });
-      console.log('[CHAT] Nueva sesión creada:', session.id);
+      console.log('[CHAT] Nueva sesión creada:', session.id, 'con título:', tempTitle);
     } else {
       // Verificar que la sesión existe y pertenece al usuario
       session = await prisma.chatSession.findFirst({
@@ -172,6 +178,8 @@ const sendMessage = async (req, res, next) => {
 
     // Si viene audio en base64, decodificar y transcribir antes de guardar
     if (audioBase64) {
+      console.log('[CHAT] Procesando audio, audioFilename:', audioFilename);
+
       if (!openai) {
         console.log('[CHAT] OpenAI no inicializado para transcripción');
         return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
@@ -200,7 +208,11 @@ const sendMessage = async (req, res, next) => {
         fs.writeFileSync(tmpPath, buffer);
         console.log('[CHAT] Audio guardado temporalmente en:', tmpPath, 'tamaño archivo:', fs.statSync(tmpPath).size);
 
-        // Llamada a la API de transcripción de OpenAI (modelo whisper-1)
+        // Verificar que el archivo se creó correctamente
+        if (!fs.existsSync(tmpPath)) {
+          console.log('[CHAT] Error: archivo temporal no se creó');
+          return res.status(500).json({ error: 'Error interno al procesar audio.' });
+        }        // Llamada a la API de transcripción de OpenAI (modelo whisper-1)
         console.log('[CHAT] Iniciando transcripción con Whisper...');
         const transcription = await openai.audio.transcriptions.create({
           file: fs.createReadStream(tmpPath),
@@ -220,7 +232,10 @@ const sendMessage = async (req, res, next) => {
           console.log('[CHAT] No se obtuvo texto válido de la transcripción');
           // eliminar archivo temporal
           try { fs.unlinkSync(tmpPath); } catch (e) { /* ignore */ }
-          return res.status(400).json({ error: 'No se pudo transcribir el audio. Intenta grabarlo nuevamente.' });
+
+          // En lugar de devolver error 400, devolver un mensaje de error pero continuar
+          console.warn('[CHAT] Transcripción fallida, continuando con mensaje de error');
+          message = '[Error en transcripción: No se pudo procesar el audio. Por favor intenta grabar nuevamente.]';
         }
 
         // eliminar archivo temporal
@@ -232,11 +247,10 @@ const sendMessage = async (req, res, next) => {
         }
       } catch (tErr) {
         console.error('[CHAT] Error transcribiendo audio:', tErr);
-        return res.status(500).json({
-          error: 'Error procesando audio',
-          message: 'Hubo un problema al procesar tu mensaje de voz. Por favor intenta de nuevo.',
-          details: tErr.message
-        });
+
+        // En lugar de devolver error 500, continuar con mensaje de error
+        console.warn('[CHAT] Error en transcripción, continuando con mensaje de error');
+        message = '[Error en transcripción: Hubo un problema procesando tu audio. Por favor intenta grabar nuevamente.]';
       }
     }
 
@@ -258,6 +272,16 @@ const sendMessage = async (req, res, next) => {
       }
     });
     console.log('[CHAT] Mensaje de usuario guardado:', userMessage.id);
+
+    // Actualizar título de la sesión si era temporal y ahora tenemos texto real
+    if (session.title === 'Mensaje de voz' && message && message.trim() && !message.startsWith('[Error')) {
+      const newTitle = message.substring(0, 50) + (message.length > 50 ? '...' : '');
+      await prisma.chatSession.update({
+        where: { id: session.id },
+        data: { title: newTitle }
+      });
+      console.log('[CHAT] Título de sesión actualizado:', newTitle);
+    }
 
     // Buscar contexto relevante en artículos y documentos (mantener lógica existente)
     let contextText = '';
