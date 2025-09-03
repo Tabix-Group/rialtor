@@ -110,14 +110,29 @@ export function useAssistantChat(): UseAssistantChatReturn {
                     content: data.assistantMessage?.content || data.message || 'Lo siento, no pude procesar tu consulta.',
                     isUser: false,
                     timestamp: new Date().toISOString(),
-                    audioBase64: data.audioBase64
+                    audioBase64: data.assistantMessage?.audioBase64 || data.audioBase64
                 }
                 setMessages(prev => [...prev, botMessage])
             } else {
                 const errorData = await response.json()
                 console.error('[ASSISTANT] Error response:', errorData)
-                showError(`Error ${response.status}: ${errorData.message || 'Error al enviar mensaje'}`)
-                throw new Error(errorData.message || 'Error al enviar mensaje')
+
+                // Mostrar error específico del servidor
+                const errorMsg = errorData.message || errorData.error || 'Error al enviar mensaje'
+                showError(`${errorMsg}`)
+
+                // Solo agregar mensaje de error si no es un error 400 (validación)
+                if (response.status !== 400) {
+                    const errorMessage: Message = {
+                        id: (Date.now() + 1).toString(),
+                        content: 'Lo siento, ocurrió un error. Por favor intenta nuevamente.',
+                        isUser: false,
+                        timestamp: new Date().toISOString()
+                    }
+                    setMessages(prev => [...prev, errorMessage])
+                }
+
+                throw new Error(errorMsg)
             }
         } catch (error) {
             console.error('Error sending message:', error)

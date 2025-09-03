@@ -73,8 +73,22 @@ export default function FloatingAssistant() {
                 }
             })
 
+            // Verificar compatibilidad del MediaRecorder
+            let mimeType = 'audio/webm;codecs=opus'
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'audio/webm'
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'audio/mp4'
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = '' // Usar el formato por defecto
+                    }
+                }
+            }
+
+            console.log('Usando MIME type:', mimeType)
+
             const recorder = new MediaRecorder(stream, {
-                mimeType: 'audio/webm;codecs=opus'
+                mimeType: mimeType || undefined
             })
 
             setAudioChunks([])
@@ -87,12 +101,14 @@ export default function FloatingAssistant() {
             setRecordingInterval(interval)
 
             recorder.ondataavailable = (event) => {
+                console.log('Audio chunk recibido, tamaño:', event.data.size)
                 if (event.data.size > 0) {
                     setAudioChunks(prev => [...prev, event.data])
                 }
             }
 
             recorder.onstop = async () => {
+                console.log('Grabación detenida')
                 if (recordingInterval) {
                     clearInterval(recordingInterval)
                     setRecordingInterval(null)
@@ -101,16 +117,19 @@ export default function FloatingAssistant() {
             }
 
             setMediaRecorder(recorder)
-            recorder.start()
+            // Grabar en chunks más pequeños para mejor compatibilidad
+            recorder.start(1000) // Chunk cada segundo
+            console.log('Grabación iniciada')
         } catch (error) {
             console.error('Error accessing microphone:', error)
-            alert('No se pudo acceder al micrófono. Verifica los permisos.')
+            alert('No se pudo acceder al micrófono. Verifica los permisos y que tengas un micrófono conectado.')
         }
     }
 
     const stopRecording = () => {
         if (mediaRecorder && mediaRecorder.state === 'recording') {
             mediaRecorder.stop()
+            console.log('Deteniendo grabación...')
         }
         setIsRecording(false)
         if (recordingInterval) {
@@ -122,7 +141,11 @@ export default function FloatingAssistant() {
     // Efecto para procesar audio cuando termina la grabación
     useEffect(() => {
         if (!isRecording && audioChunks.length > 0) {
-            sendAudioMessage()
+            console.log('Grabación terminada, procesando', audioChunks.length, 'chunks')
+            // Agregar un pequeño delay para asegurar que todos los chunks se han recibido
+            setTimeout(() => {
+                sendAudioMessage()
+            }, 500)
         }
     }, [isRecording, audioChunks])
 
@@ -132,18 +155,42 @@ export default function FloatingAssistant() {
 
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
 
+            // Verificar que el blob tenga un tamaño mínimo
+            if (audioBlob.size < 1000) {
+                alert('La grabación es muy corta. Intenta grabar por más tiempo.')
+                return
+            }
+
+            console.log('Enviando audio, tamaño del blob:', audioBlob.size)
+
             // Convertir blob a base64
             const reader = new FileReader()
             reader.onloadend = async () => {
-                const base64 = reader.result as string
-                const base64Data = base64.split(',')[1] // Remover el prefijo data:audio/webm;base64,
+                try {
+                    const base64 = reader.result as string
+                    const base64Data = base64.split(',')[1] // Remover el prefijo data:audio/webm;base64,
 
-                await sendMessage('', base64Data, true) // Enviar audio con solicitud de respuesta de audio
-                setAudioChunks([]) // Limpiar chunks después de enviar
+                    if (!base64Data || base64Data.length < 100) {
+                        alert('Error al procesar el audio. Intenta nuevamente.')
+                        return
+                    }
+
+                    console.log('Audio convertido a base64, longitud:', base64Data.length)
+                    await sendMessage('', base64Data, true) // Enviar audio con solicitud de respuesta de audio
+                    setAudioChunks([]) // Limpiar chunks después de enviar
+                } catch (error) {
+                    console.error('Error enviando mensaje de audio:', error)
+                    alert('Error al enviar el mensaje de voz. Intenta nuevamente.')
+                }
+            }
+            reader.onerror = () => {
+                console.error('Error leyendo el archivo de audio')
+                alert('Error al procesar el audio. Intenta nuevamente.')
             }
             reader.readAsDataURL(audioBlob)
         } catch (error) {
             console.error('Error sending audio:', error)
+            alert('Error al procesar el audio. Intenta nuevamente.')
         }
     }
 
@@ -431,6 +478,21 @@ export default function FloatingAssistant() {
 
                             {/* Input area */}
                             <div className="p-3 bg-white border-t border-gray-100">
+                                {/* Indicador de grabación */}
+                                {isRecording && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="mb-2 p-2 bg-red-50 border border-red-200 rounded-lg flex items-center justify-center space-x-2"
+                                    >
+                                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                        <span className="text-red-600 text-sm font-medium">
+                                            Grabando... {formatRecordingTime(recordingDuration)}
+                                        </span>
+                                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                    </motion.div>
+                                )}
+
                                 <div className="flex items-center space-x-2">
                                     <div className="flex-1 relative">
                                         <input
@@ -439,7 +501,7 @@ export default function FloatingAssistant() {
                                             value={inputValue}
                                             onChange={(e) => setInputValue(e.target.value)}
                                             onKeyPress={handleKeyPress}
-                                            placeholder={isRecording ? `Grabando... ${formatRecordingTime(recordingDuration)}` : "Escribe tu consulta inmobiliaria..."}
+                                            placeholder={isRecording ? "Mantén presionado el micrófono y habla..." : "Escribe tu consulta inmobiliaria..."}
                                             disabled={isLoading || isRecording}
                                             className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
                                         />
@@ -455,8 +517,8 @@ export default function FloatingAssistant() {
                                         onClick={isRecording ? stopRecording : startRecording}
                                         disabled={isLoading}
                                         className={`p-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl ${isRecording
-                                                ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                                            ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
                                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                                     >
                                         {isRecording ? (

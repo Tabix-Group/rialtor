@@ -177,35 +177,76 @@ const sendMessage = async (req, res, next) => {
         return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
       }
       try {
+        console.log('[CHAT] Procesando audio, tamaño base64:', audioBase64.length);
+
+        // Validar que el base64 no esté vacío
+        if (!audioBase64 || audioBase64.length < 100) {
+          console.log('[CHAT] Audio base64 muy pequeño o vacío');
+          return res.status(400).json({ error: 'Audio inválido o muy corto.' });
+        }
+
         const buffer = Buffer.from(audioBase64, 'base64');
+        console.log('[CHAT] Buffer creado, tamaño:', buffer.length);
+
+        if (buffer.length < 1000) {
+          console.log('[CHAT] Audio muy pequeño después de decodificar');
+          return res.status(400).json({ error: 'Audio muy corto o corrupto.' });
+        }
+
         const tmpDir = os.tmpdir();
         const safeName = (audioFilename && path.basename(audioFilename)) || `audio-${Date.now()}.webm`;
         const tmpPath = path.join(tmpDir, `${Date.now()}-${safeName}`);
+
         fs.writeFileSync(tmpPath, buffer);
-        console.log('[CHAT] Audio guardado temporalmente en:', tmpPath);
+        console.log('[CHAT] Audio guardado temporalmente en:', tmpPath, 'tamaño archivo:', fs.statSync(tmpPath).size);
 
         // Llamada a la API de transcripción de OpenAI (modelo whisper-1)
+        console.log('[CHAT] Iniciando transcripción con Whisper...');
         const transcription = await openai.audio.transcriptions.create({
           file: fs.createReadStream(tmpPath),
-          model: 'whisper-1'
+          model: 'whisper-1',
+          response_format: 'text'
         });
 
-        if (transcription && transcription.text) {
-          message = transcription.text;
-          console.log('[CHAT] Transcripción obtenida:', message.substring(0, 200));
-        } else if (transcription && transcription.data && transcription.data[0] && transcription.data[0].text) {
-          // fallback structure
-          message = transcription.data[0].text;
-          console.log('[CHAT] Transcripción (fallback) obtenida:', message.substring(0, 200));
+        console.log('[CHAT] Respuesta de transcripción:', transcription);
+
+        if (transcription && typeof transcription === 'string' && transcription.trim()) {
+          message = transcription.trim();
+          console.log('[CHAT] Transcripción obtenida:', message);
+        } else if (transcription && transcription.text && transcription.text.trim()) {
+          message = transcription.text.trim();
+          console.log('[CHAT] Transcripción (formato objeto) obtenida:', message);
         } else {
-          console.log('[CHAT] No se obtuvo texto de la transcripción');
+          console.log('[CHAT] No se obtuvo texto válido de la transcripción');
+          // eliminar archivo temporal
+          try { fs.unlinkSync(tmpPath); } catch (e) { /* ignore */ }
+          return res.status(400).json({ error: 'No se pudo transcribir el audio. Intenta grabarlo nuevamente.' });
         }
 
         // eliminar archivo temporal
-        try { fs.unlinkSync(tmpPath); } catch (e) { /* ignore */ }
+        try {
+          fs.unlinkSync(tmpPath);
+          console.log('[CHAT] Archivo temporal eliminado');
+        } catch (e) {
+          console.warn('[CHAT] Error eliminando archivo temporal:', e.message);
+        }
       } catch (tErr) {
-        console.warn('[CHAT] Error transcribiendo audio:', tErr.message);
+        console.error('[CHAT] Error transcribiendo audio:', tErr);
+        return res.status(500).json({
+          error: 'Error procesando audio',
+          message: 'Hubo un problema al procesar tu mensaje de voz. Por favor intenta de nuevo.',
+          details: tErr.message
+        });
       }
+    }
+
+    // Validar que tenemos un mensaje para procesar
+    if (!message || !message.trim()) {
+      console.log('[CHAT] No hay mensaje para procesar');
+      return res.status(400).json({
+        error: 'Mensaje vacío',
+        message: 'No se pudo obtener texto del mensaje de voz. Intenta grabarlo nuevamente.'
+      });
     }
 
     // Guardar mensaje del usuario (texto o transcripción)
@@ -458,10 +499,16 @@ Tu objetivo es **resolver consultas de usuarios del mercado inmobiliario local**
       } else {
         try {
           console.log('[CHAT] Generando respuesta de audio...');
+
+          // Limitar la longitud del texto para TTS (máximo 4096 caracteres según OpenAI)
+          const textForTTS = assistantResponse.length > 4000
+            ? assistantResponse.substring(0, 4000) + '...'
+            : assistantResponse;
+
           const mp3Response = await openai.audio.speech.create({
             model: 'tts-1',
             voice: 'alloy', // Voz femenina clara
-            input: assistantResponse,
+            input: textForTTS,
             response_format: 'mp3'
           });
 
@@ -470,7 +517,9 @@ Tu objetivo es **resolver consultas de usuarios del mercado inmobiliario local**
           audioResponseBase64 = audioBuffer.toString('base64');
           console.log('[CHAT] Audio generado correctamente, tamaño:', audioBuffer.length, 'bytes');
         } catch (audioErr) {
-          console.warn('[CHAT] Error generando audio:', audioErr.message);
+          console.error('[CHAT] Error generando audio:', audioErr);
+          // No fallar la respuesta completa si solo falla el audio
+          console.warn('[CHAT] Continuando sin audio debido a error en TTS');
         }
       }
     }
