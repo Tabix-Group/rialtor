@@ -12,6 +12,7 @@ async function main() {
     { name: 'manage_categories', description: 'Gestionar categorías' },
     { name: 'manage_users', description: 'Gestionar usuarios' },
     { name: 'manage_documents', description: 'Gestionar documentos' },
+    { name: 'manage_system', description: 'Gestionar configuración del sistema' },
     { name: 'use_calculator', description: 'Usar calculadora' },
     { name: 'use_chat', description: 'Usar chat' },
     { name: 'use_placas', description: 'Usar generador de placas' },
@@ -33,7 +34,7 @@ async function main() {
       description: 'Administrador',
       permissions: [
         'view_admin', 'view_broker', 'view_agent', 'view_user',
-        'manage_articles', 'manage_categories', 'manage_users', 'manage_documents', 'use_calculator', 'use_chat', 'use_placas',
+        'manage_articles', 'manage_categories', 'manage_users', 'manage_documents', 'manage_system', 'use_calculator', 'use_chat', 'use_placas',
       ],
     },
     {

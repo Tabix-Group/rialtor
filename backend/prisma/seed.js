@@ -31,7 +31,35 @@ async function main() {
 
 
 
-  // Create calculator configs
+  // Crear usuario admin
+  const hashedPassword = await bcrypt.hash('abcd123', 10);
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'rialtor@rialtor.app' },
+    update: {},
+    create: {
+      email: 'rialtor@rialtor.app',
+      password: hashedPassword,
+      name: 'Admin Rialtor',
+      isActive: true
+    }
+  });
+
+  // Asignar rol admin al usuario
+  await prisma.roleAssignment.upsert({
+    where: {
+      userId_roleId: {
+        userId: adminUser.id,
+        roleId: adminRole.id
+      }
+    },
+    update: {},
+    create: {
+      userId: adminUser.id,
+      roleId: adminRole.id
+    }
+  });
+
+  console.log('✅ Admin user created:', adminUser.email);
   const calculatorConfigs = [
     {
       type: 'COMMISSION',
@@ -142,7 +170,29 @@ async function main() {
     { bankName: 'Banco BBVA', interestRate: 10.2 },
     { bankName: 'Banco HSBC', interestRate: 9.9 },
     { bankName: 'Banco ICBC', interestRate: 8.7 },
-    { bankName: 'Banco Itaú', interestRate: 9.3 }
+    { bankName: 'Banco Itaú', interestRate: 9.3 },
+    { bankName: 'Banco Supervielle', interestRate: 9.7 },
+    { bankName: 'Banco Patagonia', interestRate: 9.1 },
+    { bankName: 'Banco Comafi', interestRate: 10.0 },
+    { bankName: 'Banco Credicoop', interestRate: 8.9 },
+    { bankName: 'Banco Hipotecario', interestRate: 9.4 },
+    { bankName: 'Banco de Córdoba', interestRate: 9.6 },
+    { bankName: 'Banco de San Juan', interestRate: 9.8 },
+    { bankName: 'Banco de Tucumán', interestRate: 9.5 },
+    { bankName: 'Nuevo Banco del Chaco', interestRate: 9.2 },
+    { bankName: 'Banco de Corrientes', interestRate: 9.3 },
+    { bankName: 'Banco de Formosa', interestRate: 9.4 },
+    { bankName: 'Banco de Jujuy', interestRate: 9.1 },
+    { bankName: 'Banco de La Pampa', interestRate: 9.6 },
+    { bankName: 'Banco de La Rioja', interestRate: 9.7 },
+    { bankName: 'Banco de Mendoza', interestRate: 9.8 },
+    { bankName: 'Banco de Neuquén', interestRate: 9.2 },
+    { bankName: 'Banco de Río Negro', interestRate: 9.3 },
+    { bankName: 'Banco de Salta', interestRate: 9.4 },
+    { bankName: 'Banco de Santa Cruz', interestRate: 9.5 },
+    { bankName: 'Banco de Santa Fe', interestRate: 9.6 },
+    { bankName: 'Banco de Santiago del Estero', interestRate: 9.7 },
+    { bankName: 'Banco de Tierra del Fuego', interestRate: 9.8 }
   ];
 
   for (const rate of bankRates) {

@@ -29,7 +29,18 @@ const authenticateToken = async (req, res, next) => {
         name: true,
         // role eliminado
         isActive: true,
-        avatar: true
+        avatar: true,
+        roleAssignments: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                permissions: { select: { name: true } }
+              }
+            }
+          }
+        }
       }
     });
     if (!user) {
@@ -72,7 +83,18 @@ const optionalAuth = async (req, res, next) => {
           name: true,
           // role eliminado
           isActive: true,
-          avatar: true
+          avatar: true,
+          roleAssignments: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                  permissions: { select: { name: true } }
+                }
+              }
+            }
+          }
         }
       });
 
@@ -80,7 +102,7 @@ const optionalAuth = async (req, res, next) => {
         req.user = user;
       }
     }
-    
+
     next();
   } catch (error) {
     // Si hay error en la autenticación opcional, simplemente continúa sin usuario
