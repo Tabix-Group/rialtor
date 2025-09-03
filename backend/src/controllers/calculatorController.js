@@ -161,23 +161,23 @@ const getProvincias = async (req, res) => {
 // Calculadora de comisiones
 const calculateCommission = async (req, res) => {
   try {
-    const { 
-      saleAmount, 
-      commissionRate, 
-      zone, 
+    const {
+      saleAmount,
+      commissionRate,
+      zone,
       isIndependent,
       province,
       stampRate,
       ivaRate,
       incomeTaxRate,
       iibbRate,
-       otherRate,
+      otherRate,
       isOnlyHome,
       cotizacionUsdOficial
     } = req.body;
 
     // Validaciones
-    const { 
+    const {
       dealType,
       buyerType,
       sellerType
@@ -199,9 +199,9 @@ const calculateCommission = async (req, res) => {
     const amount = parseFloat(saleAmount);
     const rate = parseFloat(commissionRate);
     let stampsRate = parseFloat(stampRate) || 0;
-    
+
     console.log('Received saleAmount:', saleAmount, 'Parsed amount:', amount);
-    
+
     // Validar que los porcentajes sean números válidos, usar 0 si no lo son
     const ivaPercentage = isNaN(parseFloat(ivaRate)) ? 0 : parseFloat(ivaRate);
     const incomeTaxPercentage = isNaN(parseFloat(incomeTaxRate)) ? 0 : parseFloat(incomeTaxRate);
@@ -213,16 +213,16 @@ const calculateCommission = async (req, res) => {
 
     // Cálculos de impuestos - Solo calcular si la alícuota es mayor a 0
     const baseForTaxes = amount; // Base para impuestos es el VALOR DE LA OPERACIÓN
-    
+
     // IVA sobre el valor de la operación (solo si factura Y la alícuota es > 0)
     const iva = ivaPercentage > 0 ? (baseForTaxes * (ivaPercentage / 100)) : 0;
-    
+
     // Ganancias sobre el valor de la operación (solo si es independiente Y configura el porcentaje > 0)
     const incomeTax = (isIndependent && incomeTaxPercentage > 0) ? (baseForTaxes * (incomeTaxPercentage / 100)) : 0;
-    
+
     // IIBB sobre el valor de la operación (solo si la alícuota es > 0)
     const iibb = iibbPercentage > 0 ? (baseForTaxes * (iibbPercentage / 100)) : 0;
-    
+
     // Sellos sobre el valor de la operación (solo si la alícuota es > 0)
     let stamps = 0;
     let exencionCabaPesos = 205332000; // Tope de exención en pesos
@@ -260,7 +260,7 @@ const calculateCommission = async (req, res) => {
         stamps = (baseForTaxes * stampsRate) / 100;
       }
     }
-    
+
     // Otros gastos sobre el valor de la operación (solo si la alícuota es > 0)
     const other = otherPercentage > 0 ? (baseForTaxes * (otherPercentage / 100)) : 0;
 
@@ -314,25 +314,26 @@ const calculateCommission = async (req, res) => {
     };
 
     // Guardar en historial si hay usuario logueado
-    if (req.user) {        await prisma.calculatorHistory.create({
-          data: {
-            type: 'COMMISSION',
-            inputs: JSON.stringify({
-              saleAmount: amount,
-              commissionRate: rate,
-              zone,
-              province,
-              stampRate: stampsRate,
-              ivaRate: ivaPercentage,
-              incomeTaxRate: incomeTaxPercentage,
-              iibbRate: iibbPercentage,
-              otherRate: otherPercentage,
-              isIndependent
-            }),
-            result: JSON.stringify(result),
-            userId: req.user.id
-          }
-        });
+    if (req.user) {
+      await prisma.calculatorHistory.create({
+        data: {
+          type: 'COMMISSION',
+          inputs: JSON.stringify({
+            saleAmount: amount,
+            commissionRate: rate,
+            zone,
+            province,
+            stampRate: stampsRate,
+            ivaRate: ivaPercentage,
+            incomeTaxRate: incomeTaxPercentage,
+            iibbRate: iibbPercentage,
+            otherRate: otherPercentage,
+            isIndependent
+          }),
+          result: JSON.stringify(result),
+          userId: req.user.id
+        }
+      });
     }
 
     res.json({
@@ -353,9 +354,9 @@ const calculateCommission = async (req, res) => {
 // Calculadora de impuestos
 const calculateTaxes = async (req, res) => {
   try {
-    const { 
-      amount, 
-      taxType, 
+    const {
+      amount,
+      taxType,
       province,
       stampRate
     } = req.body;
@@ -382,7 +383,7 @@ const calculateTaxes = async (req, res) => {
           total: value + (value * stampsRate) / 100
         };
         break;
-      
+
       case 'ITI':
         const itiRate = 1.5; // 1.5% ITI
         result = {
@@ -392,7 +393,7 @@ const calculateTaxes = async (req, res) => {
           total: value + (value * itiRate) / 100
         };
         break;
-      
+
       case 'REGISTRATION':
         const registrationRate = 0.3; // 0.3% Registro
         result = {
@@ -402,7 +403,7 @@ const calculateTaxes = async (req, res) => {
           total: value + (value * registrationRate) / 100
         };
         break;
-      
+
       default:
         return res.status(400).json({
           success: false,
@@ -486,6 +487,117 @@ const getCalculatorHistory = async (req, res) => {
   }
 };
 
+// Calculadora de créditos hipotecarios
+const calculateMortgage = async (req, res) => {
+  try {
+    const { loanAmount, interestRate, termYears, bankName } = req.body;
+
+    if (!loanAmount || loanAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'El monto del préstamo debe ser mayor a 0' });
+    }
+
+    if (!interestRate || interestRate <= 0) {
+      return res.status(400).json({ success: false, message: 'La tasa de interés debe ser mayor a 0' });
+    }
+
+    if (!termYears || termYears <= 0) {
+      return res.status(400).json({ success: false, message: 'El plazo debe ser mayor a 0' });
+    }
+
+    const principal = parseFloat(loanAmount);
+    const annualRate = parseFloat(interestRate);
+    const monthlyRate = annualRate / 100 / 12; // Convertir a tasa mensual
+    const termMonths = parseInt(termYears) * 12;
+
+    // Fórmula de amortización francesa
+    const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / (Math.pow(1 + monthlyRate, termMonths) - 1);
+
+    // Calcular total a pagar
+    const totalPayment = monthlyPayment * termMonths;
+    const totalInterest = totalPayment - principal;
+
+    // Generar tabla de amortización (primeros 12 meses y último mes)
+    const amortizationTable = [];
+    let remainingBalance = principal;
+
+    for (let month = 1; month <= Math.min(termMonths, 12); month++) {
+      const interestPayment = remainingBalance * monthlyRate;
+      const principalPayment = monthlyPayment - interestPayment;
+      remainingBalance -= principalPayment;
+
+      amortizationTable.push({
+        month,
+        payment: monthlyPayment,
+        principal: principalPayment,
+        interest: interestPayment,
+        balance: Math.max(0, remainingBalance)
+      });
+    }
+
+    // Si el plazo es mayor a 12 meses, agregar el último mes
+    if (termMonths > 12) {
+      let balance = principal;
+      for (let month = 1; month < termMonths; month++) {
+        const interestPayment = balance * monthlyRate;
+        const principalPayment = monthlyPayment - interestPayment;
+        balance -= principalPayment;
+      }
+
+      const lastMonthInterest = balance * monthlyRate;
+      const lastMonthPrincipal = monthlyPayment - lastMonthInterest;
+
+      amortizationTable.push({
+        month: termMonths,
+        payment: monthlyPayment,
+        principal: lastMonthPrincipal,
+        interest: lastMonthInterest,
+        balance: 0
+      });
+    }
+
+    const result = {
+      loanAmount: principal,
+      interestRate: annualRate,
+      termYears: parseInt(termYears),
+      termMonths,
+      monthlyPayment,
+      totalPayment,
+      totalInterest,
+      bankName: bankName || 'Sin especificar',
+      amortizationTable
+    };
+
+    // Guardar en historial si hay usuario logueado
+    if (req.user) {
+      await prisma.calculatorHistory.create({
+        data: {
+          type: 'MORTGAGE',
+          inputs: JSON.stringify({
+            loanAmount: principal,
+            interestRate: annualRate,
+            termYears: parseInt(termYears),
+            bankName
+          }),
+          result: JSON.stringify(result),
+          userId: req.user.id
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error calculating mortgage:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al calcular crédito hipotecario',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getCalculatorConfigs,
   getProvincias,
@@ -494,5 +606,6 @@ module.exports = {
   getCalculatorHistory,
   calculateEscribano,
   calculateOtrosGastos,
-  calculateGananciaInmobiliaria
+  calculateGananciaInmobiliaria,
+  calculateMortgage
 };

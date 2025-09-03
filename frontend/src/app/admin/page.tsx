@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield } from 'lucide-react'
+import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield, Percent } from 'lucide-react'
 import UserManagement from '../../components/UserManagement'
 import { authenticatedFetch } from '../../utils/api'
 
@@ -37,6 +37,12 @@ export default function AdminPage() {
   // Recent users state
   const [recentUsersData, setRecentUsersData] = useState<{ id: string; name: string; email: string; roles: { id: string; name: string }[]; isActive: boolean }[]>([]);
   const [recentLoading, setRecentLoading] = useState(true);
+
+  // Bank rates state
+  const [bankRates, setBankRates] = useState<{ id: string; bankName: string; interestRate: number }[]>([]);
+  const [ratesLoading, setRatesLoading] = useState(false);
+  const [newBankName, setNewBankName] = useState('');
+  const [newRate, setNewRate] = useState('');
 
   // Verificar permisos solo en el cliente
   useEffect(() => {
@@ -94,6 +100,65 @@ export default function AdminPage() {
     };
     fetchRecentUsers();
   }, []);
+
+  // Fetch bank rates
+  useEffect(() => {
+    const fetchBankRates = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) return;
+      setRatesLoading(true);
+      try {
+        const res = await authenticatedFetch('/api/admin/rates');
+        const data = await res.json();
+        if (data.success) {
+          setBankRates(data.data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setRatesLoading(false);
+      }
+    };
+    fetchBankRates();
+  }, []);
+
+  // Save bank rate
+  const saveBankRate = async () => {
+    if (!newBankName.trim() || !newRate.trim()) {
+      alert('Por favor complete todos los campos');
+      return;
+    }
+
+    try {
+      const res = await authenticatedFetch('/api/admin/rates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bankName: newBankName.trim(),
+          interestRate: parseFloat(newRate)
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBankRates(prev => {
+          const existing = prev.find(r => r.bankName === newBankName.trim());
+          if (existing) {
+            return prev.map(r => r.id === existing.id ? data.data : r);
+          } else {
+            return [...prev, data.data];
+          }
+        });
+        setNewBankName('');
+        setNewRate('');
+        alert('Tasa guardada exitosamente');
+      } else {
+        alert('Error al guardar la tasa');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al guardar la tasa');
+    }
+  };
 
   // Mostrar loading mientras se verifica la autenticación
   if (loading || permsLoading) {
@@ -264,6 +329,102 @@ export default function AdminPage() {
     </div>
   )
 
+  const renderRates = () => (
+    <div className="bg-white rounded-lg shadow">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">Gestión de Tasas Bancarias</h3>
+      </div>
+      <div className="p-6">
+        {/* Formulario para agregar/editar tasas */}
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <h4 className="text-md font-semibold text-gray-900 mb-4">Agregar/Editar Tasa</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Banco</label>
+              <input
+                type="text"
+                value={newBankName}
+                onChange={(e) => setNewBankName(e.target.value)}
+                placeholder="Nombre del banco"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tasa de Interés (%)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={newRate}
+                onChange={(e) => setNewRate(e.target.value)}
+                placeholder="Ej: 8.5"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={saveBankRate}
+                className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                Guardar Tasa
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Lista de tasas */}
+        <div>
+          <h4 className="text-md font-semibold text-gray-900 mb-4">Tasas Actuales</h4>
+          {ratesLoading ? (
+            <div className="text-center py-8 text-gray-500">Cargando tasas...</div>
+          ) : bankRates.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No hay tasas configuradas</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Banco
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tasa de Interés
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {bankRates.map((rate) => (
+                    <tr key={rate.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{rate.bankName}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{rate.interestRate}%</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={() => {
+                            setNewBankName(rate.bankName);
+                            setNewRate(rate.interestRate.toString());
+                          }}
+                          className="text-red-600 hover:text-red-900 mr-4"
+                        >
+                          Editar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50">
       {/* Header */}
@@ -312,6 +473,14 @@ export default function AdminPage() {
                   Contenido
                 </button>
                 <button
+                  onClick={() => setActiveTab('rates')}
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'rates' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  <Percent className="w-6 h-6" />
+                  Tasas
+                </button>
+                <button
                   onClick={() => setActiveTab('settings')}
                   className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'settings' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
@@ -328,6 +497,7 @@ export default function AdminPage() {
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'users' && renderUsers()}
             {activeTab === 'content' && renderContent()}
+            {activeTab === 'rates' && renderRates()}
             {activeTab === 'settings' && renderSettings()}
           </div>
         </div>

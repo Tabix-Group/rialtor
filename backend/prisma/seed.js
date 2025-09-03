@@ -85,7 +85,7 @@ async function main() {
 
   for (const config of calculatorConfigs) {
     const calculatorConfig = await prisma.calculatorConfig.upsert({
-      where: { 
+      where: {
         type: config.type
       },
       update: {},
@@ -129,6 +129,29 @@ async function main() {
       create: config
     });
     console.log('✅ System config created:', systemConfig.key);
+  }
+
+  // Create bank rates
+  const bankRates = [
+    { bankName: 'Banco Nación', interestRate: 8.5 },
+    { bankName: 'Banco Provincia', interestRate: 9.2 },
+    { bankName: 'Banco Ciudad', interestRate: 8.8 },
+    { bankName: 'Banco Santander', interestRate: 10.5 },
+    { bankName: 'Banco Galicia', interestRate: 9.8 },
+    { bankName: 'Banco Macro', interestRate: 9.5 },
+    { bankName: 'Banco BBVA', interestRate: 10.2 },
+    { bankName: 'Banco HSBC', interestRate: 9.9 },
+    { bankName: 'Banco ICBC', interestRate: 8.7 },
+    { bankName: 'Banco Itaú', interestRate: 9.3 }
+  ];
+
+  for (const rate of bankRates) {
+    const bankRate = await prisma.bankRate.upsert({
+      where: { bankName: rate.bankName },
+      update: {},
+      create: rate
+    });
+    console.log('✅ Bank rate created:', bankRate.bankName);
   }
 
   console.log('🎉 Seed completed successfully!');

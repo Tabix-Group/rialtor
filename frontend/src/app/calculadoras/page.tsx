@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { Calculator, FileText, Percent, ShieldCheck } from 'lucide-react'
+import { Calculator, FileText, Percent, ShieldCheck, Home } from 'lucide-react'
 import { useAuth } from '../auth/authContext'
 
 export default function CalculadorasPage() {
@@ -28,6 +28,13 @@ export default function CalculadorasPage() {
       description: 'Estimá el impuesto cedular sobre la ganancia inmobiliaria y cómo impacta en tu operación.',
       color: 'bg-green-50',
       icon: Percent,
+    },
+    {
+      name: 'Créditos Hipotecarios',
+      href: '/hipotecarios',
+      description: 'Calculá las cuotas de tu crédito hipotecario usando el sistema de amortización francés.',
+      color: 'bg-purple-50',
+      icon: Home,
     },
     {
       name: 'Seguro de Caución',
