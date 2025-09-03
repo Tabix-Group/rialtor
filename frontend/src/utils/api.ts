@@ -5,7 +5,7 @@ const getApiUrl = () => {
         const hostname = window.location.hostname;
         if (hostname === 'rialtor.app' || hostname === 'www.rialtor.app') {
             // point to backend host (no trailing /api)
-            return 'https://rialtor-production.up.railway.app';
+            return 'https://remax-be-production.up.railway.app';
         }
     }
     // Fallback to environment variable or localhost (expect full host without /api)
