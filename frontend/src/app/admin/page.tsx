@@ -147,41 +147,26 @@ export default function AdminPage() {
     fetchBankRates();
   }, []);
 
-  // Save bank rate
-  const saveBankRate = async () => {
-    if (!newBankName.trim() || !newRate.trim()) {
-      alert('Por favor complete todos los campos');
+  // Delete bank rate
+  const deleteBankRate = async (rateId: string, bankName: string) => {
+    if (!confirm(`¿Está seguro de que desea eliminar la tasa del banco "${bankName}"?`)) {
       return;
     }
 
     try {
-      const res = await authenticatedFetch('/api/admin/rates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bankName: newBankName.trim(),
-          interestRate: parseFloat(newRate)
-        })
+      const res = await authenticatedFetch(`/api/admin/rates/${rateId}`, {
+        method: 'DELETE'
       });
       const data = await res.json();
       if (data.success) {
-        setBankRates(prev => {
-          const existing = prev.find(r => r.bankName === newBankName.trim());
-          if (existing) {
-            return prev.map(r => r.id === existing.id ? data.data : r);
-          } else {
-            return [...prev, data.data];
-          }
-        });
-        setNewBankName('');
-        setNewRate('');
-        alert('Tasa guardada exitosamente');
+        setBankRates(prev => prev.filter(rate => rate.id !== rateId));
+        alert('Tasa eliminada exitosamente');
       } else {
-        alert('Error al guardar la tasa');
+        alert('Error al eliminar la tasa');
       }
     } catch (error) {
       console.error(error);
-      alert('Error al guardar la tasa');
+      alert('Error al eliminar la tasa');
     }
   };
 
@@ -434,9 +419,15 @@ export default function AdminPage() {
                             setNewBankName(rate.bankName);
                             setNewRate(rate.interestRate.toString());
                           }}
-                          className="text-red-600 hover:text-red-900 mr-4"
+                          className="text-blue-600 hover:text-blue-900 mr-4"
                         >
                           Editar
+                        </button>
+                        <button
+                          onClick={() => deleteBankRate(rate.id, rate.bankName)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Eliminar
                         </button>
                       </td>
                     </tr>
