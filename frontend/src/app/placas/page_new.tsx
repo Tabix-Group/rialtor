@@ -659,6 +659,7 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <Clock className="w-4 h-4 inline mr-1" />
                         AntigÃ¼edad
                       </label>
                       <input
@@ -670,33 +671,33 @@ export default function PlacasPage() {
                       />
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <MapPin className="w-4 h-4 inline mr-1" />
+                        DirecciÃ³n
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.direccion}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, direccion: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: Av. Libertador 1234, Palermo, CABA"
+                      />
+                    </div>
 
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      DirecciÃ³n
-                    </label>
-                    <input
-                      type="text"
-                      value={propertyData.direccion}
-                      onChange={(e) => setPropertyData(prev => ({ ...prev, direccion: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      placeholder="Ej: Av. Libertador 1234, Palermo, CABA"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email de contacto
-                    </label>
-                    <input
-                      type="email"
-                      value={propertyData.email}
-                      onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      placeholder="agente@remax.com.ar"
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <Mail className="w-4 h-4 inline mr-1" />
+                        Email de contacto
+                      </label>
+                      <input
+                        type="email"
+                        value={propertyData.email}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="agente@remax.com.ar"
+                      />
+                    </div>
                   </div>
 
                   <div>
