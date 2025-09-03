@@ -9,13 +9,14 @@ interface Message {
     content: string
     isUser: boolean
     timestamp: string
+    audioBase64?: string
 }
 
 interface UseAssistantChatReturn {
     messages: Message[]
     isLoading: boolean
     sessionId: string | null
-    sendMessage: (message: string) => Promise<void>
+    sendMessage: (message: string, audioBase64?: string, requestAudioResponse?: boolean) => Promise<void>
     clearChat: () => void
     inputRef: React.RefObject<HTMLInputElement>
     messagesEndRef: React.RefObject<HTMLDivElement>
@@ -53,12 +54,12 @@ export function useAssistantChat(): UseAssistantChatReturn {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages, isLoading])
 
-    const sendMessage = useCallback(async (content: string) => {
-        if (!content.trim() || isLoading) return
+    const sendMessage = useCallback(async (content: string, audioBase64?: string, requestAudioResponse?: boolean) => {
+        if ((!content.trim() && !audioBase64) || isLoading) return
 
         const userMessage: Message = {
             id: Date.now().toString(),
-            content: content.trim(),
+            content: content.trim() || (audioBase64 ? '[Mensaje de voz]' : ''),
             isUser: true,
             timestamp: new Date().toISOString()
         }
@@ -68,7 +69,21 @@ export function useAssistantChat(): UseAssistantChatReturn {
 
         try {
             const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-            console.log('[ASSISTANT] Sending message:', { content: content.trim(), sessionId })
+            console.log('[ASSISTANT] Sending message:', { content: content.trim(), sessionId, hasAudio: !!audioBase64 })
+
+            const requestBody: any = {
+                message: content.trim(),
+                sessionId
+            }
+
+            if (audioBase64) {
+                requestBody.audioBase64 = audioBase64
+                requestBody.audioFilename = 'audio.webm'
+            }
+
+            if (requestAudioResponse) {
+                requestBody.requestAudioResponse = true
+            }
 
             const response = await fetch('/api/chat', {
                 method: 'POST',
@@ -76,10 +91,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
                     'Content-Type': 'application/json',
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                 },
-                body: JSON.stringify({
-                    message: content.trim(),
-                    sessionId
-                })
+                body: JSON.stringify(requestBody)
             })
 
             console.log('[ASSISTANT] Response status:', response.status)
@@ -97,7 +109,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
                     id: (Date.now() + 1).toString(),
                     content: data.assistantMessage?.content || data.message || 'Lo siento, no pude procesar tu consulta.',
                     isUser: false,
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    audioBase64: data.audioBase64
                 }
                 setMessages(prev => [...prev, botMessage])
             } else {

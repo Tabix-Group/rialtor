@@ -134,10 +134,11 @@ const sendMessage = async (req, res, next) => {
   try {
     console.log('[CHAT] sendMessage called');
     console.log('[CHAT] req.body:', JSON.stringify(req.body, null, 2));
-    let { message, sessionId, audioBase64, audioFilename } = req.body;
+    let { message, sessionId, audioBase64, audioFilename, requestAudioResponse } = req.body;
     const userId = req.user.id;
     console.log('[CHAT] userId:', userId, 'sessionId:', sessionId, 'message:', message);
     console.log('[CHAT] message type:', typeof message, 'sessionId type:', typeof sessionId);
+    console.log('[CHAT] requestAudioResponse:', requestAudioResponse);
 
     let session;
 
@@ -448,12 +449,43 @@ Tu objetivo es **resolver consultas de usuarios del mercado inmobiliario local**
     }
 
     // Guardar respuesta del asistente
+    let audioResponseBase64 = null;
+
+    // Generar respuesta de audio si se solicita
+    if (requestAudioResponse && assistantResponse) {
+      if (!openai) {
+        console.log('[CHAT] OpenAI no inicializado para síntesis de voz');
+      } else {
+        try {
+          console.log('[CHAT] Generando respuesta de audio...');
+          const mp3Response = await openai.audio.speech.create({
+            model: 'tts-1',
+            voice: 'alloy', // Voz femenina clara
+            input: assistantResponse,
+            response_format: 'mp3'
+          });
+
+          // Convertir respuesta a buffer y luego a base64
+          const audioBuffer = Buffer.from(await mp3Response.arrayBuffer());
+          audioResponseBase64 = audioBuffer.toString('base64');
+          console.log('[CHAT] Audio generado correctamente, tamaño:', audioBuffer.length, 'bytes');
+        } catch (audioErr) {
+          console.warn('[CHAT] Error generando audio:', audioErr.message);
+        }
+      }
+    }
+
     const assistantMessage = await prisma.chatMessage.create({
       data: {
         sessionId: session.id,
         content: assistantResponse,
         role: 'ASSISTANT',
-        metadata: JSON.stringify({ model: DEFAULT_OPENAI_MODEL, source: 'specialized_agent', hasWebSearch: true })
+        metadata: JSON.stringify({
+          model: DEFAULT_OPENAI_MODEL,
+          source: 'specialized_agent',
+          hasWebSearch: true,
+          hasAudioResponse: !!audioResponseBase64
+        })
       }
     });
     console.log('[CHAT] Mensaje de asistente guardado:', assistantMessage.id);
@@ -469,7 +501,10 @@ Tu objetivo es **resolver consultas de usuarios del mercado inmobiliario local**
       message: 'Message sent successfully',
       sessionId: session.id,
       userMessage,
-      assistantMessage
+      assistantMessage: {
+        ...assistantMessage,
+        audioBase64: audioResponseBase64 // Incluir audio en la respuesta
+      }
     });
     console.log('[CHAT] Respuesta enviada al frontend');
   } catch (error) {

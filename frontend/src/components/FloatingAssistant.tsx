@@ -11,7 +11,11 @@ import {
     Maximize2,
     Sparkles,
     RefreshCw,
-    Zap
+    Zap,
+    Mic,
+    MicOff,
+    Volume2,
+    VolumeX
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAssistant } from '../contexts/AssistantContext'
@@ -30,6 +34,13 @@ export default function FloatingAssistant() {
         sendFeedback
     } = useAssistantChat()
     const [inputValue, setInputValue] = useState('')
+    const [isRecording, setIsRecording] = useState(false)
+    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
+    const [audioChunks, setAudioChunks] = useState<Blob[]>([])
+    const [recordingDuration, setRecordingDuration] = useState(0)
+    const [recordingInterval, setRecordingInterval] = useState<NodeJS.Timeout | null>(null)
+    const [audioResponse, setAudioResponse] = useState<string | null>(null)
+    const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
     // Focus input when chat opens
     useEffect(() => {
@@ -48,7 +59,115 @@ export default function FloatingAssistant() {
 
         const message = inputValue
         setInputValue('')
-        await sendMessage(message)
+        await sendMessage(message, undefined, true) // Solicitar respuesta de audio
+    }
+
+    // Función para manejar grabación de audio
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 44100
+                }
+            })
+
+            const recorder = new MediaRecorder(stream, {
+                mimeType: 'audio/webm;codecs=opus'
+            })
+
+            setAudioChunks([])
+            setIsRecording(true)
+            setRecordingDuration(0)
+
+            const interval = setInterval(() => {
+                setRecordingDuration(prev => prev + 1)
+            }, 1000)
+            setRecordingInterval(interval)
+
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    setAudioChunks(prev => [...prev, event.data])
+                }
+            }
+
+            recorder.onstop = async () => {
+                if (recordingInterval) {
+                    clearInterval(recordingInterval)
+                    setRecordingInterval(null)
+                }
+                stream.getTracks().forEach(track => track.stop())
+            }
+
+            setMediaRecorder(recorder)
+            recorder.start()
+        } catch (error) {
+            console.error('Error accessing microphone:', error)
+            alert('No se pudo acceder al micrófono. Verifica los permisos.')
+        }
+    }
+
+    const stopRecording = () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop()
+        }
+        setIsRecording(false)
+        if (recordingInterval) {
+            clearInterval(recordingInterval)
+            setRecordingInterval(null)
+        }
+    }
+
+    // Efecto para procesar audio cuando termina la grabación
+    useEffect(() => {
+        if (!isRecording && audioChunks.length > 0) {
+            sendAudioMessage()
+        }
+    }, [isRecording, audioChunks])
+
+    const sendAudioMessage = async () => {
+        try {
+            if (audioChunks.length === 0) return
+
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+
+            // Convertir blob a base64
+            const reader = new FileReader()
+            reader.onloadend = async () => {
+                const base64 = reader.result as string
+                const base64Data = base64.split(',')[1] // Remover el prefijo data:audio/webm;base64,
+
+                await sendMessage('', base64Data, true) // Enviar audio con solicitud de respuesta de audio
+                setAudioChunks([]) // Limpiar chunks después de enviar
+            }
+            reader.readAsDataURL(audioBlob)
+        } catch (error) {
+            console.error('Error sending audio:', error)
+        }
+    }
+
+    const playAudioResponse = (base64Audio: string) => {
+        try {
+            const audioData = `data:audio/mp3;base64,${base64Audio}`
+            const audio = new Audio(audioData)
+
+            setIsPlayingAudio(true)
+            audio.onended = () => setIsPlayingAudio(false)
+            audio.onerror = () => setIsPlayingAudio(false)
+
+            audio.play()
+        } catch (error) {
+            console.error('Error playing audio:', error)
+            setIsPlayingAudio(false)
+        }
+    }
+
+    // Agregar formato de tiempo para la duración de grabación
+    const formatRecordingTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     }
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -219,6 +338,29 @@ export default function FloatingAssistant() {
                                                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                                                     {message.content}
                                                 </p>
+
+                                                {/* Audio controls para respuestas del asistente */}
+                                                {!message.isUser && message.audioBase64 && (
+                                                    <div className="mt-2 flex items-center space-x-2">
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => playAudioResponse(message.audioBase64!)}
+                                                            disabled={isPlayingAudio}
+                                                            className="flex items-center space-x-1 px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors disabled:opacity-50"
+                                                        >
+                                                            {isPlayingAudio ? (
+                                                                <VolumeX className="w-3 h-3" />
+                                                            ) : (
+                                                                <Volume2 className="w-3 h-3" />
+                                                            )}
+                                                            <span className="text-xs">
+                                                                {isPlayingAudio ? 'Reproduciendo...' : 'Escuchar respuesta'}
+                                                            </span>
+                                                        </motion.button>
+                                                    </div>
+                                                )}
+
                                                 <p className={`text-xs mt-1 ${message.isUser ? 'text-blue-100' : 'text-gray-500'
                                                     }`}>
                                                     {new Date(message.timestamp).toLocaleTimeString([], {
@@ -297,19 +439,38 @@ export default function FloatingAssistant() {
                                             value={inputValue}
                                             onChange={(e) => setInputValue(e.target.value)}
                                             onKeyPress={handleKeyPress}
-                                            placeholder="Escribe tu consulta inmobiliaria..."
-                                            disabled={isLoading}
+                                            placeholder={isRecording ? `Grabando... ${formatRecordingTime(recordingDuration)}` : "Escribe tu consulta inmobiliaria..."}
+                                            disabled={isLoading || isRecording}
                                             className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
                                         />
                                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                                             <span className="text-xs">↵</span>
                                         </div>
                                     </div>
+
+                                    {/* Botón del micrófono */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={isRecording ? stopRecording : startRecording}
+                                        disabled={isLoading}
+                                        className={`p-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl ${isRecording
+                                                ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+                                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                    >
+                                        {isRecording ? (
+                                            <MicOff className="w-4 h-4" />
+                                        ) : (
+                                            <Mic className="w-4 h-4" />
+                                        )}
+                                    </motion.button>
+
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={handleSendMessage}
-                                        disabled={!inputValue.trim() || isLoading}
+                                        disabled={!inputValue.trim() || isLoading || isRecording}
                                         className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
                                     >
                                         {isLoading ? (
