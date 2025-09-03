@@ -141,10 +141,16 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
         headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(url, {
+    // Build full URL if relative
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+    console.log('🌐 Making request to:', fullUrl);
+
+    const response = await fetch(fullUrl, {
         ...options,
         headers,
     });
+
+    console.log('📡 Response status:', response.status);
 
     if (response.status === 401) {
         // Token expired - clear localStorage and redirect
