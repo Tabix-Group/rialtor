@@ -142,9 +142,13 @@ export default function Home() {
                   </p>
                 </div>
               );
-              // Si es la card de Créditos Hipotecarios, nunca tiene link
+              // Si es la card de Créditos Hipotecarios, solo tiene link si está logueado
               if (isCreditos) {
-                return <div key={feature.name} className="h-full">{content}</div>;
+                if (user) {
+                  return <Link key={feature.name} href={feature.href} className="block h-full">{content}</Link>;
+                } else {
+                  return <div key={feature.name} className="h-full">{content}</div>;
+                }
               }
               // Si es la card de Seguro de Caución, solo tiene link si está logueado
               if (isCaucion) {
