@@ -4,11 +4,12 @@ const getApiUrl = () => {
     if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
         if (hostname === 'rialtor.app' || hostname === 'www.rialtor.app') {
-            return 'https://rialtor-production.up.railway.app/api';
+            // point to backend host (no trailing /api)
+            return 'https://rialtor-production.up.railway.app';
         }
     }
-    // Fallback to environment variable or localhost
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    // Fallback to environment variable or localhost (expect full host without /api)
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 };
 
 const API_BASE_URL = getApiUrl();

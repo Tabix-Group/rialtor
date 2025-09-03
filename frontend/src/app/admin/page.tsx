@@ -114,28 +114,31 @@ export default function AdminPage() {
       if (!token) return;
       setRatesLoading(true);
       try {
-        console.log('Fetching bank rates...');
-        // Usar endpoint de testing temporalmente
-        const res = await authenticatedFetch('/api/admin/rates-test');
+        console.log('Fetching bank rates from /api/admin/rates (primary)...');
+        const res = await authenticatedFetch('/api/admin/rates');
+        console.log('Bank rates primary response status:', res.status);
         const data = await res.json();
-        console.log('Bank rates response:', data);
-        if (data.success) {
+        console.log('Bank rates primary response body:', data);
+        if (data && data.success) {
           setBankRates(data.data);
         } else {
-          console.error('Error in bank rates response:', data);
+          console.warn('Primary rates endpoint returned no data, trying test endpoint...');
+          // Try test endpoint
+          const res2 = await authenticatedFetch('/api/admin/rates-test');
+          console.log('Bank rates test response status:', res2.status);
+          const data2 = await res2.json();
+          console.log('Bank rates test response body:', data2);
+          if (data2 && data2.success) setBankRates(data2.data);
         }
       } catch (error) {
         console.error('Error fetching bank rates:', error);
-        // Fallback: intentar con el endpoint normal
+        // Try rates-test as last resort
         try {
-          const res = await authenticatedFetch('/api/admin/rates');
+          const res = await authenticatedFetch('/api/admin/rates-test');
           const data = await res.json();
-          console.log('Fallback bank rates response:', data);
-          if (data.success) {
-            setBankRates(data.data);
-          }
-        } catch (fallbackError) {
-          console.error('Fallback also failed:', fallbackError);
+          if (data && data.success) setBankRates(data.data);
+        } catch (e) {
+          console.error('rates-test also failed:', e);
         }
       } finally {
         setRatesLoading(false);
