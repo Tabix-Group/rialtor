@@ -451,8 +451,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
 
     // Combinar tipo y antigüedad si existe antigüedad
-    const tipoText = antiguedad ? `${tipo} / ${antiguedad}` : tipo;
+    const tipoText = tipo; // Solo tipo, antigüedad separada
     lines.push({ icon: getTipoIcon(tipo), text: tipoText, cls: 'info', size: infoSize });
+
+    if (antiguedad) lines.push({ icon: svgIconsMain.antiguedad, text: `${antiguedad} años`, cls: 'info', size: infoSize });
 
     if (ambientes) lines.push({ icon: svgIconsMain.ambientes, text: `${ambientes} ambientes`, cls: 'info', size: infoSize });
     if (dormitorios) lines.push({ icon: svgIconsMain.dormitorios, text: `${dormitorios} dormitorios`, cls: 'info', size: infoSize });
@@ -463,6 +465,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (direccion) lines.push({ icon: svgIconsMain.ubicacion, text: direccion, cls: 'contacto', size: contactoSize });
     if (contacto) lines.push({ icon: svgIconsMain.contacto, text: contacto, cls: 'contacto', size: contactoSize });
     if (email) lines.push({ icon: svgIconsMain.correo, text: email, cls: 'contacto', size: contactoSize });
+
+    // Calcular ancho máximo para el box
+    let maxLineWidth = 0;
+    for (const ln of lines) {
+      if (ln.cls === 'precio') continue;
+      const textWidth = ln.text.length * (ln.size * 0.6) + (ln.icon ? 22 : 0) + 40;
+      if (textWidth > maxLineWidth) maxLineWidth = textWidth;
+    }
 
     // Corredores will be rendered in a separate box bottom-left
     const corredoresText = corredores || null;
@@ -483,6 +493,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     // Calcular el número real de líneas con contenido para ajustar el box
     let infoLineCount = 0;
     if (tipo) infoLineCount++;
+    if (antiguedad) infoLineCount++;
     if (ambientes) infoLineCount++;
     if (dormitorios) infoLineCount++;
     if (banos) infoLineCount++;
@@ -493,7 +504,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (contacto) infoLineCount++;
     if (email) infoLineCount++;
 
-    const infoBoxWidth = Math.max(350, Math.floor(width * 0.35));
+    const infoBoxWidth = Math.max(350, Math.min(maxLineWidth, Math.floor(width * 0.5)));
     const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 12) + padding * 2, Math.floor(height * 0.4)));
     const infoBoxX = width - infoBoxWidth - margin;
     const infoBoxY = precioBoxY + precioBoxHeight + 10;
@@ -627,13 +638,13 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 200)); // minimum 200px width, más pequeño
       // draw rect with final width - using more translucent white background
       svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="rgba(255,255,255,0.6)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
       svg += `  </g>\n`;
       // icon and text without title
       let cy = cY - cH + padding + Math.floor(corrFontSize * 0.9);
       const textX = cX + padding; // Sin espacio para icono
       for (let i = 0; i < corrParts.length; i++) {
-        svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #000000;">${corrParts[i]}</text>\n`;
+        svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #FFFFFF;">${corrParts[i]}</text>\n`;
         cy += Math.max(12, corrFontSize) + 8; // Más espacio entre líneas
       }
     }
@@ -690,7 +701,16 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       }
     }
 
-    svg += `  <text x="${origenX}" y="${origenY}" text-anchor="end" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: ${textColor}; opacity:0.85;">${origenSafe}</text>\n`;
+    // Box para origen bottom-right
+    const origenBoxWidth = origenText.length * (origenSize * 0.6) + 20;
+    const origenBoxHeight = origenSize + 10;
+    const origenBoxX = width - origenBoxWidth - originMargin;
+    const origenBoxY = height - origenBoxHeight - originMargin;
+    svg += `  <g filter="url(#f1)">\n`;
+    svg += `    <rect x="${origenBoxX}" y="${origenBoxY}" width="${origenBoxWidth}" height="${origenBoxHeight}" rx="6" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    svg += `  </g>\n`;
+
+    svg += `  <text x="${origenBoxX + 10}" y="${origenBoxY + origenSize * 0.9}" text-anchor="start" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: #FFFFFF; opacity:0.85;">${origenSafe}</text>\n`;
 
     svg += `</svg>`;
     return svg;
