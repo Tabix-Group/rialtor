@@ -549,51 +549,83 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     // Texto del precio centrado en blanco con mejor tipografía
     svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: #FFFFFF;">${escapeForSvg(precioText)}</text>\n`;
 
-    // Dibujar información en su box
-    let infoY = infoBoxY + Math.floor(infoSize * 0.9) + 10;
+    // Dibujar información en su box (ahora con wrapping y cálculo de alto dinámico)
     const infoX = infoBoxX + 20;
-
     // Filtrar líneas que no son precio
     const infoLines = lines.filter(ln => ln.cls !== 'precio');
 
-    for (let i = 0; i < infoLines.length; i++) {
-      const ln = infoLines[i];
-      const safeText = escapeForSvg(ln.text);
-      const textX = infoX + 8;
-      if (ln.icon) {
-        const iconX = textX;
-        const iconY = infoY - Math.floor(ln.size * 0.72);
-        const iconSvg = ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon] || ln.icon;
-        svg += `  <g transform="translate(${iconX}, ${iconY})">${iconSvg}</g>\n`;
-        const textPosX = textX + 22;
-        if (ln.cls === 'label') {
-          svg += `  <text x="${textPosX}" y="${infoY}" class="label">${safeText}</text>\n`;
-          infoY += (lineHeight + 8); // Más espacio entre líneas
-          continue;
-        }
-        // Handle superscript for m² formatting
-        if (ln.superscript) {
-          const safeSuffix = escapeForSvg(ln.suffix || '');
-          svg += `  <text x="${textPosX}" y="${infoY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em" dx="2">${safeSuffix}</tspan></text>\n`;
+    // Calcular ancho útil para texto dentro del box (restar padding y espacio para icono)
+    const maxInfoWidthCap = Math.floor(width * 0.55);
+    const effectiveInfoBoxWidth = Math.max(350, Math.min(maxLineWidth, maxInfoWidthCap));
+    const maxTextWidth = Math.max(80, effectiveInfoBoxWidth - padding * 2 - 28);
+
+    // Calcular cuántas líneas renderizadas ocupará realmente el contenido (considerando wrapping)
+    let renderedLinesCount = 0;
+    const linesWrapCache = []; // store wrapped parts per line
+    for (const ln of infoLines) {
+      const fontApprox = Math.max(10, Math.floor((ln.size || infoSize) * 0.6));
+      const estPixels = String(ln.text || '').length * fontApprox;
+      const estLines = Math.max(1, Math.ceil(estPixels / maxTextWidth));
+      // perform an actual word-wrap by chars approximation to render later
+      const maxCharsPerLine = Math.max(8, Math.floor(maxTextWidth / Math.max(6, fontApprox)));
+      const words = String(ln.text || '').split(/\s+/);
+      const parts = [];
+      let cur = '';
+      for (const w of words) {
+        if ((cur + ' ' + w).trim().length <= maxCharsPerLine) {
+          cur = (cur + ' ' + w).trim();
         } else {
-          svg += `  <text x="${textPosX}" y="${infoY}" class="${ln.cls}">${safeText}</text>\n`;
+          if (cur) parts.push(cur);
+          if (w.length > maxCharsPerLine) {
+            for (let i = 0; i < w.length; i += maxCharsPerLine) parts.push(w.slice(i, i + maxCharsPerLine));
+            cur = '';
+          } else {
+            cur = w;
+          }
         }
-        infoY += (lineHeight + 12); // Más espacio entre líneas de información
-        continue;
       }
-      if (ln.cls === 'label') {
-        svg += `  <text x="${textX}" y="${infoY}" class="label">${safeText}</text>\n`;
-        infoY += (lineHeight + 8); // Más espacio entre líneas
-        continue;
+      if (cur) parts.push(cur);
+      if (parts.length === 0) parts.push('');
+      linesWrapCache.push({ ln, parts });
+      renderedLinesCount += parts.length;
+    }
+
+    // Recalculate final infoBoxHeight based on renderedLinesCount
+    const computedInfoBoxHeight = Math.max(80, renderedLinesCount * (lineHeight + 8) + padding * 2);
+    const maxAllowedHeight = Math.max(Math.floor(height * 0.75), computedInfoBoxHeight);
+    const infoBoxHeightFinal = Math.min(computedInfoBoxHeight, height - precioBoxHeight - margin - 10);
+    // Use final effective width as earlier computed
+    const finalInfoBoxWidth = effectiveInfoBoxWidth;
+    const finalInfoBoxX = width - finalInfoBoxWidth - margin;
+    const finalInfoBoxY = precioBoxY + precioBoxHeight + 10;
+
+    // Replace previous box rect if width/height changed
+    svg = svg.replace(`    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`, `    <rect x="${finalInfoBoxX}" y="${finalInfoBoxY}" width="${finalInfoBoxWidth}" height="${infoBoxHeightFinal}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`);
+
+    // Ahora renderizamos las líneas envueltas dentro del box
+    let cursorY = finalInfoBoxY + padding + Math.floor(lineHeight / 2);
+    const baseTextX = finalInfoBoxX + 20;
+    for (let idx = 0; idx < linesWrapCache.length; idx++) {
+      const { ln, parts } = linesWrapCache[idx];
+      const iconSvg = ln.icon && (ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon]) ? (ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon]) : null;
+      for (let p = 0; p < parts.length; p++) {
+        const part = escapeForSvg(parts[p]);
+        const textX = baseTextX + (iconSvg && p === 0 ? 22 : 0);
+        if (iconSvg && p === 0) {
+          const iconX = baseTextX;
+          const iconY = cursorY - Math.floor((ln.size || infoSize) * 0.72);
+          svg += `  <g transform="translate(${iconX}, ${iconY})">${iconSvg}</g>\n`;
+        }
+        if (ln.cls === 'label') {
+          svg += `  <text x="${textX}" y="${cursorY}" class="label">${part}</text>\n`;
+        } else if (ln.superscript && p === 0) {
+          const safeSuffix = escapeForSvg(ln.suffix || '');
+          svg += `  <text x="${textX}" y="${cursorY}" class="${ln.cls}">${part}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em" dx="2">${safeSuffix}</tspan></text>\n`;
+        } else {
+          svg += `  <text x="${textX}" y="${cursorY}" class="${ln.cls}">${part}</text>\n`;
+        }
+        cursorY += (lineHeight + 8);
       }
-      // Handle superscript for m² formatting
-      if (ln.superscript) {
-        const safeSuffix = escapeForSvg(ln.suffix || '');
-        svg += `  <text x="${textX}" y="${infoY}" class="${ln.cls}">${safeText}<tspan dy="-0.3em" font-size="0.7em">${ln.superscript}</tspan><tspan dy="0.3em" dx="2">${safeSuffix}</tspan></text>\n`;
-      } else {
-        svg += `  <text x="${textX}" y="${infoY}" class="${ln.cls}">${safeText}</text>\n`;
-      }
-      infoY += (lineHeight + 12); // Más espacio entre líneas de información
     }
 
     // Render corredores box bottom-left if present
@@ -640,12 +672,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       svg += `  <g filter="url(#f1)">\n`;
       svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
       svg += `  </g>\n`;
-      // icon and text without title
-      let cy = cY - cH + padding + Math.floor(corrFontSize * 0.9);
-      const textX = cX + padding; // Sin espacio para icono
+      // icon and text centered horizontally and vertically
+      const centerY = cY - cH + cH / 2;
+      const totalLinesHeight = (corrParts.length - 1) * (lineHeight + 8);
+      let startY = Math.floor(centerY - totalLinesHeight / 2);
       for (let i = 0; i < corrParts.length; i++) {
-        svg += `  <text x="${textX}" y="${cy}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: #FFFFFF;">${corrParts[i]}</text>\n`;
-        cy += Math.max(12, corrFontSize) + 8; // Más espacio entre líneas
+        const lineY = startY + i * (lineHeight + 8);
+        const textCenterX = cX + finalCW / 2;
+        svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: #FFFFFF;">${corrParts[i]}</text>\n`;
       }
     }
 
