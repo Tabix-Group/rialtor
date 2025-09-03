@@ -504,7 +504,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (contacto) infoLineCount++;
     if (email) infoLineCount++;
 
-    const infoBoxWidth = Math.max(350, Math.min(maxLineWidth, Math.floor(width * 0.5)));
+    const infoBoxWidth = Math.max(350, maxLineWidth);
     const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 12) + padding * 2, Math.floor(height * 0.4)));
     const infoBoxX = width - infoBoxWidth - margin;
     const infoBoxY = precioBoxY + precioBoxHeight + 10;
@@ -599,11 +599,11 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     // Render corredores box bottom-left if present
     if (corredoresText) {
       const corrFontSize = Math.max(12, Math.floor(width / 80)); // Mismo tamaño que Rialtor.app
-      const corrChar = Math.max(6, Math.floor(corrFontSize * 0.45));
+      const corrChar = Math.max(6, Math.floor(corrFontSize * 0.6)); // Cambiado a 0.6 para consistencia
       const margin = 20;
       const maxCorrBoxW = Math.min(Math.floor(width * 0.6), 520);
       const estW = corredoresText.length * corrChar + padding * 2;
-      const cW = Math.min(maxCorrBoxW, Math.max(260, estW));
+      const cW = Math.min(maxCorrBoxW, Math.max(200, estW));
       const cMaxChars = Math.max(20, Math.floor((cW - padding * 2) / corrChar));
       // split into parts
       const safeCorr = escapeForSvg(corredoresText);
@@ -644,7 +644,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       let cy = cY - cH + padding + Math.floor(corrFontSize * 0.9);
       const textX = cX + padding; // Sin espacio para icono
       for (let i = 0; i < corrParts.length; i++) {
-        svg += `  <text x="${textX}" y="${cy}" class="contacto" style="font-size:${corrFontSize}px; fill: #FFFFFF;">${corrParts[i]}</text>\n`;
+        svg += `  <text x="${textX}" y="${cy}" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: #FFFFFF;">${corrParts[i]}</text>\n`;
         cy += Math.max(12, corrFontSize) + 8; // Más espacio entre líneas
       }
     }
@@ -702,15 +702,15 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     }
 
     // Box para origen bottom-right
-    const origenBoxWidth = origenText.length * (origenSize * 0.6) + 20;
-    const origenBoxHeight = origenSize + 10;
+    const origenBoxWidth = origenText.length * (origenSize * 0.6) + 36;
+    const origenBoxHeight = Math.max(30, origenSize + 18);
     const origenBoxX = width - origenBoxWidth - originMargin;
     const origenBoxY = height - origenBoxHeight - originMargin;
     svg += `  <g filter="url(#f1)">\n`;
-    svg += `    <rect x="${origenBoxX}" y="${origenBoxY}" width="${origenBoxWidth}" height="${origenBoxHeight}" rx="6" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    svg += `    <rect x="${origenBoxX}" y="${origenBoxY}" width="${origenBoxWidth}" height="${origenBoxHeight}" rx="8" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
     svg += `  </g>\n`;
 
-    svg += `  <text x="${origenBoxX + 10}" y="${origenBoxY + origenSize * 0.9}" text-anchor="start" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: #FFFFFF; opacity:0.85;">${origenSafe}</text>\n`;
+    svg += `  <text x="${origenBoxX + 10}" y="${origenBoxY + origenSize * 0.9}" text-anchor="start" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: #FFFFFF;">${origenSafe}</text>\n`;
 
     svg += `</svg>`;
     return svg;
