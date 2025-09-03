@@ -164,24 +164,10 @@ export default function HipotecariosPage() {
                                     <option value="">Seleccionar banco</option>
                                     {bankRates.map((bank) => (
                                         <option key={bank.id} value={bank.bankName}>
-                                            {bank.bankName} ({bank.interestRate}%)
+                                            {bank.bankName}
                                         </option>
                                     ))}
                                 </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Tasa de Interés Anual (%)
-                                </label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    value={interestRate}
-                                    onChange={(e) => setInterestRate(e.target.value)}
-                                    placeholder="Ej: 8.5"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                                />
                             </div>
 
                             <div>
