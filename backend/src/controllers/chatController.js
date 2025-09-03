@@ -18,6 +18,10 @@ if (process.env.OPENAI_API_KEY) {
   console.log('[DEBUG] OPENAI_API_KEY NOT FOUND');
 }
 
+// Modelo OpenAI configurable por variable de entorno. Usa GPT-4o por defecto (último modelo)
+const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
+console.log('[DEBUG] OPENAI model configured as:', DEFAULT_OPENAI_MODEL);
+
 const createChatSession = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -120,6 +124,9 @@ const getChatSession = async (req, res, next) => {
 
 const { kb_lookup, tasador_express, calc_gastos_escritura, calc_honorarios } = require('../services/rialtorTools');
 const { saveSlots, getSlots } = require('../services/sessionStore');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const metrics = require('../instrumentation/rialtorMetrics');
 const templates = require('../templates/rialtorTemplates');
 
@@ -127,7 +134,7 @@ const sendMessage = async (req, res, next) => {
   try {
     console.log('[CHAT] sendMessage called');
     console.log('[CHAT] req.body:', JSON.stringify(req.body, null, 2));
-    const { message, sessionId } = req.body;
+    let { message, sessionId, audioBase64, audioFilename } = req.body;
     const userId = req.user.id;
     console.log('[CHAT] userId:', userId, 'sessionId:', sessionId, 'message:', message);
     console.log('[CHAT] message type:', typeof message, 'sessionId type:', typeof sessionId);
@@ -162,7 +169,45 @@ const sendMessage = async (req, res, next) => {
       console.log('[CHAT] Sesión encontrada:', session.id);
     }
 
-    // Guardar mensaje del usuario
+    // Si viene audio en base64, decodificar y transcribir antes de guardar
+    if (audioBase64) {
+      if (!openai) {
+        console.log('[CHAT] OpenAI no inicializado para transcripción');
+        return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
+      }
+      try {
+        const buffer = Buffer.from(audioBase64, 'base64');
+        const tmpDir = os.tmpdir();
+        const safeName = (audioFilename && path.basename(audioFilename)) || `audio-${Date.now()}.webm`;
+        const tmpPath = path.join(tmpDir, `${Date.now()}-${safeName}`);
+        fs.writeFileSync(tmpPath, buffer);
+        console.log('[CHAT] Audio guardado temporalmente en:', tmpPath);
+
+        // Llamada a la API de transcripción de OpenAI (modelo whisper-1)
+        const transcription = await openai.audio.transcriptions.create({
+          file: fs.createReadStream(tmpPath),
+          model: 'whisper-1'
+        });
+
+        if (transcription && transcription.text) {
+          message = transcription.text;
+          console.log('[CHAT] Transcripción obtenida:', message.substring(0, 200));
+        } else if (transcription && transcription.data && transcription.data[0] && transcription.data[0].text) {
+          // fallback structure
+          message = transcription.data[0].text;
+          console.log('[CHAT] Transcripción (fallback) obtenida:', message.substring(0, 200));
+        } else {
+          console.log('[CHAT] No se obtuvo texto de la transcripción');
+        }
+
+        // eliminar archivo temporal
+        try { fs.unlinkSync(tmpPath); } catch (e) { /* ignore */ }
+      } catch (tErr) {
+        console.warn('[CHAT] Error transcribiendo audio:', tErr.message);
+      }
+    }
+
+    // Guardar mensaje del usuario (texto o transcripción)
     const userMessage = await prisma.chatMessage.create({
       data: {
         sessionId: session.id,
@@ -302,31 +347,23 @@ const sendMessage = async (req, res, next) => {
       console.warn('[CHAT] routing error:', rErr.message);
     }
 
-    // Si no se resolvió con herramientas, fallback a la lógica anterior (OpenAI con contexto si existe)
+    // Si no se resolvió con herramientas, fallback a OpenAI sin mensajes de sistema/instrucciones
     if (!assistantResponse) {
-      // Construir prompt para OpenAI
-      let systemPrompt = '';
+      // Construir mensajes: si hay contexto encontrado, lo añadimos como otro mensaje de usuario (no system)
+      const messages = [];
       if (foundContext) {
-        systemPrompt = `Eres RIALTOR, un consultor de IA especializado EXCLUSIVAMENTE en el sector inmobiliario argentino (AMBA). El siguiente CONTEXTO contiene artículos y documentos extraídos de la base de datos interna. Prioriza responder usando este contexto y especifica si la info no está en KB interna. CONTEXT:\n${contextText}`;
-      } else {
-        // System prompt inmutable (short) as requested by config
-        systemPrompt = `Eres RIALTOR, un consultor de IA especializado EXCLUSIVAMENTE en el sector inmobiliario argentino, con foco en AMBA. Responde brevemente y con pasos accionables.`;
+        messages.push({ role: 'user', content: `Contexto relevante extraído de la base de datos:\n${contextText}` });
       }
-      console.log('[CHAT] Prompt generado para OpenAI:', systemPrompt.substring(0, 300));
-
-      const messages = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: message }
-      ];
+      messages.push({ role: 'user', content: message });
 
       if (!openai) {
         console.log('[CHAT] OpenAI no inicializado');
         return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
       }
-      console.log('[CHAT] Llamando a OpenAI...');
+      console.log('[CHAT] Llamando a OpenAI sin system prompt...');
       const before = Date.now();
       const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: DEFAULT_OPENAI_MODEL,
         messages: messages,
         max_tokens: 1000,
         temperature: 0.7
@@ -347,7 +384,7 @@ const sendMessage = async (req, res, next) => {
         sessionId: session.id,
         content: assistantResponse,
         role: 'ASSISTANT',
-        metadata: JSON.stringify({ model: 'hybrid-rialtor', source: 'internal' })
+        metadata: JSON.stringify({ model: DEFAULT_OPENAI_MODEL, source: 'openai' })
       }
     });
     console.log('[CHAT] Mensaje de asistente guardado:', assistantMessage.id);
