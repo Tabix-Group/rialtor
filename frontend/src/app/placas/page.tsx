@@ -25,7 +25,9 @@ import {
   Layers,
   Bath,
   Bed,
-  Car
+  Car,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 
 interface PropertyData {
@@ -66,6 +68,9 @@ export default function PlacasPage() {
   // Estados
   const [plaques, setPlaques] = useState<PropertyPlaque[]>([]);
   const [loadingPlaques, setLoadingPlaques] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPlaques, setTotalPlaques] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [propertyData, setPropertyData] = useState<PropertyData>({
@@ -102,6 +107,23 @@ export default function PlacasPage() {
     }
   }, [user, hasPermission]);
 
+  // Funciones de paginación
+  const handlePageChange = (page: number) => {
+    fetchPlaques(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
   // Polling para actualizaciones en tiempo real
   useEffect(() => {
     const interval = setInterval(() => {
@@ -113,12 +135,15 @@ export default function PlacasPage() {
     return () => clearInterval(interval);
   }, [plaques]);
 
-  const fetchPlaques = async () => {
+  const fetchPlaques = async (page = 1, limit = 10) => {
     try {
-      const res = await authenticatedFetch('/api/placas');
+      const res = await authenticatedFetch(`/api/placas?page=${page}&limit=${limit}`);
       const data = await res.json();
       if (res.ok) {
         setPlaques(data.plaques || []);
+        setTotalPages(data.pagination?.pages || 1);
+        setTotalPlaques(data.pagination?.total || 0);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Error cargando placas:', error);
@@ -188,7 +213,7 @@ export default function PlacasPage() {
           email: '',
           descripcion: ''
         });
-        fetchPlaques();
+        fetchPlaques(currentPage);
         alert('Placa creada exitosamente. El procesamiento iniciará en breve.');
       } else {
         alert(data.message || 'Error creando la placa');
@@ -210,7 +235,7 @@ export default function PlacasPage() {
       });
 
       if (res.ok) {
-        fetchPlaques();
+        fetchPlaques(currentPage);
         alert('Placa eliminada exitosamente');
       } else {
         alert('Error eliminando la placa');
@@ -304,11 +329,11 @@ export default function PlacasPage() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {plaques.map((plaque) => (
-              <div key={plaque.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div key={plaque.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                 {/* Preview de imagen */}
-                <div className="h-48 bg-gray-200 relative">
+                <div className="h-32 bg-gray-200 relative">
                   {plaque.generatedImages.length > 0 ? (
                     <img
                       src={plaque.generatedImages[0]}
@@ -323,85 +348,57 @@ export default function PlacasPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <ImageIcon className="w-12 h-12 text-gray-400" />
+                      <ImageIcon className="w-8 h-8 text-gray-400" />
                     </div>
                   )}
 
                   {/* Status overlay */}
-                  <div className="absolute top-3 right-3">
-                    <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-full text-sm">
+                  <div className="absolute top-2 right-2">
+                    <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs">
                       {getStatusIcon(plaque.status)}
-                      {getStatusText(plaque.status)}
+                      <span className="hidden sm:inline">{getStatusText(plaque.status)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Información */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 truncate">
+                <div className="p-3">
+                  <h3 className="font-semibold text-gray-900 mb-2 text-sm truncate">
                     {plaque.title}
                   </h3>
 
-                  <div className="space-y-1 text-sm text-gray-600 mb-3">
+                  <div className="space-y-1 text-xs text-gray-600 mb-3">
                     <div className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4 text-green-600" />
-                      {plaque.propertyData.moneda} {parseInt(plaque.propertyData.precio).toLocaleString('es-AR')}
+                      <DollarSign className="w-3 h-3 text-green-600" />
+                      <span className="font-medium">{plaque.propertyData.moneda} {parseInt(plaque.propertyData.precio).toLocaleString('es-AR')}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4 text-red-600" />
-                      {plaque.propertyData.direccion}
+                    {plaque.propertyData.direccion && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-red-600" />
+                        <span className="truncate">{plaque.propertyData.direccion}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1 text-xs">
+                      <Home className="w-3 h-3 text-blue-600" />
+                      <span>{plaque.propertyData.ambientes || 0} amb</span>
+                      {plaque.propertyData.dormitorios && <span>• {plaque.propertyData.dormitorios} dorm</span>}
+                      {plaque.propertyData.banos && <span>• {plaque.propertyData.banos} baños</span>}
                     </div>
-                    {plaque.propertyData.ambientes && (
-                      <div className="flex items-center gap-1">
-                        <Home className="w-4 h-4 text-blue-600" />
-                        {plaque.propertyData.ambientes} ambientes
-                      </div>
-                    )}
-                    {plaque.propertyData.dormitorios && (
-                      <div className="flex items-center gap-1">
-                        <Bed className="w-4 h-4 text-amber-600" />
-                        {plaque.propertyData.dormitorios} dormitorios
-                      </div>
-                    )}
-                    {plaque.propertyData.banos && (
-                      <div className="flex items-center gap-1">
-                        <Bath className="w-4 h-4 text-cyan-600" />
-                        {plaque.propertyData.banos} baños
-                      </div>
-                    )}
-                    {plaque.propertyData.cocheras && (
-                      <div className="flex items-center gap-1">
-                        <Car className="w-4 h-4 text-red-600" />
-                        {plaque.propertyData.cocheras} cocheras
-                      </div>
-                    )}
                     {plaque.propertyData.m2_totales && (
                       <div className="flex items-center gap-1">
-                        <Square className="w-4 h-4 text-purple-600" />
-                        {plaque.propertyData.m2_totales} m² totales
-                      </div>
-                    )}
-                    {plaque.propertyData.m2_cubiertos && (
-                      <div className="flex items-center gap-1">
-                        <Layers className="w-4 h-4 text-indigo-600" />
-                        {plaque.propertyData.m2_cubiertos} m² cubiertos
-                      </div>
-                    )}
-                    {plaque.propertyData.antiguedad && (
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4 text-orange-600" />
-                        {plaque.propertyData.antiguedad}
+                        <Square className="w-3 h-3 text-purple-600" />
+                        <span>{plaque.propertyData.m2_totales} m²</span>
                       </div>
                     )}
                   </div>
 
                   {/* Acciones */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <button
                       onClick={() => setSelectedPlaque(plaque)}
-                      className="flex-1 flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-200 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition-colors"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3 h-3" />
                       Ver
                     </button>
 
@@ -410,23 +407,66 @@ export default function PlacasPage() {
                         href={plaque.generatedImages[0]}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1 bg-blue-100 text-blue-700 px-3 py-2 rounded text-sm hover:bg-blue-200 transition-colors"
+                        className="flex items-center justify-center gap-1 bg-blue-100 text-blue-700 px-2 py-1.5 rounded text-xs hover:bg-blue-200 transition-colors"
                       >
-                        <Download className="w-4 h-4" />
+                        <Download className="w-3 h-3" />
                       </a>
                     )}
 
                     <button
                       onClick={() => deletePlaque(plaque.id)}
-                      className="flex items-center justify-center gap-1 bg-red-100 text-red-700 px-3 py-2 rounded text-sm hover:bg-red-200 transition-colors"
+                      className="flex items-center justify-center gap-1 bg-red-100 text-red-700 px-2 py-1.5 rounded text-xs hover:bg-red-200 transition-colors"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Anterior
+            </button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Información de paginación */}
+        <div className="text-center text-sm text-gray-500 mt-4">
+          Mostrando {plaques.length} de {totalPlaques} placas
+        </div>
         )}
 
         {/* Modal de creación */}
