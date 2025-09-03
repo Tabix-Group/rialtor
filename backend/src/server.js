@@ -73,8 +73,9 @@ const corsOptions = {
     try {
       const parsed = new URL(origin);
       const hostname = parsed.hostname || '';
-      if (hostname.endsWith('.rialtor.app')) {
-        console.log(`[CORS] Allowed origin by suffix rule: ${origin}`);
+      // Allow the root domain and any subdomain of rialtor.app
+      if (hostname === 'rialtor.app' || hostname === 'www.rialtor.app' || hostname.endsWith('.rialtor.app')) {
+        console.log(`[CORS] Allowed origin by domain rule: ${origin}`);
         return callback(null, true);
       }
     } catch (e) {
