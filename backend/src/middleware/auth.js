@@ -7,7 +7,7 @@ const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
-    console.log('[AUTH] Authorization header:', authHeader);
+    console.log('[AUTH] Authorization header:', authHeader ? 'Present' : 'Missing');
     if (!token) {
       console.log('[AUTH] No token found');
       return res.status(401).json({ error: 'Access token required' });
@@ -15,9 +15,9 @@ const authenticateToken = async (req, res, next) => {
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('[AUTH] Token decoded:', decoded);
+      console.log('[AUTH] Token decoded successfully for user:', decoded.userId);
     } catch (jwtErr) {
-      console.log('[AUTH] JWT error:', jwtErr);
+      console.log('[AUTH] JWT error:', jwtErr.message);
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
     // Verificar si el usuario existe y está activo
@@ -51,7 +51,8 @@ const authenticateToken = async (req, res, next) => {
       console.log('[AUTH] User is not active:', user.email);
       return res.status(401).json({ error: 'Account deactivated' });
     }
-    console.log('[AUTH] User authenticated:', user.email);
+    console.log('[AUTH] User authenticated successfully:', user.email);
+    console.log('[AUTH] User has', user.roleAssignments.length, 'role assignments');
     req.user = user;
     next();
   } catch (error) {

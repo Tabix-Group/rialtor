@@ -44,13 +44,29 @@ export default function HipotecariosPage() {
     useEffect(() => {
         const fetchBankRates = async () => {
             try {
-                const res = await authenticatedFetch('/api/admin/rates')
-                const data = await res.json()
+                console.log('Fetching bank rates for mortgage calculator...');
+                // Usar endpoint de testing temporalmente
+                const res = await authenticatedFetch('/api/admin/rates-test');
+                const data = await res.json();
+                console.log('Mortgage bank rates response:', data);
                 if (data.success) {
-                    setBankRates(data.data)
+                    setBankRates(data.data);
+                } else {
+                    console.error('Error in mortgage bank rates response:', data);
                 }
             } catch (error) {
-                console.error('Error fetching bank rates:', error)
+                console.error('Error fetching bank rates for mortgage:', error);
+                // Fallback: intentar con el endpoint normal
+                try {
+                    const res = await authenticatedFetch('/api/admin/rates');
+                    const data = await res.json();
+                    console.log('Fallback mortgage bank rates response:', data);
+                    if (data.success) {
+                        setBankRates(data.data);
+                    }
+                } catch (fallbackError) {
+                    console.error('Fallback also failed for mortgage:', fallbackError);
+                }
             }
         }
         fetchBankRates()

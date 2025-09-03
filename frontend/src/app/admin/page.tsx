@@ -47,8 +47,14 @@ export default function AdminPage() {
   // Verificar permisos solo en el cliente
   useEffect(() => {
     if (typeof window !== 'undefined' && user) {
-      setHasAdminPerm(checkPermission(user, 'view_admin'));
-      setHasUserMgmtPerm(checkPermission(user, 'manage_users'));
+      console.log('User data:', user);
+      console.log('User roles:', user.roles);
+      const adminPerm = checkPermission(user, 'view_admin');
+      const userMgmtPerm = checkPermission(user, 'manage_users');
+      console.log('Has admin permission:', adminPerm);
+      console.log('Has user management permission:', userMgmtPerm);
+      setHasAdminPerm(adminPerm);
+      setHasUserMgmtPerm(userMgmtPerm);
       setPermsLoading(false);
     }
   }, [user]);
@@ -108,13 +114,29 @@ export default function AdminPage() {
       if (!token) return;
       setRatesLoading(true);
       try {
-        const res = await authenticatedFetch('/api/admin/rates');
+        console.log('Fetching bank rates...');
+        // Usar endpoint de testing temporalmente
+        const res = await authenticatedFetch('/api/admin/rates-test');
         const data = await res.json();
+        console.log('Bank rates response:', data);
         if (data.success) {
           setBankRates(data.data);
+        } else {
+          console.error('Error in bank rates response:', data);
         }
       } catch (error) {
-        console.error(error);
+        console.error('Error fetching bank rates:', error);
+        // Fallback: intentar con el endpoint normal
+        try {
+          const res = await authenticatedFetch('/api/admin/rates');
+          const data = await res.json();
+          console.log('Fallback bank rates response:', data);
+          if (data.success) {
+            setBankRates(data.data);
+          }
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+        }
       } finally {
         setRatesLoading(false);
       }

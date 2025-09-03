@@ -1,5 +1,19 @@
 // API utilities with automatic token refresh and error handling
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const getApiUrl = () => {
+    // Check if we're in production
+    if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname === 'rialtor.app' || hostname === 'www.rialtor.app') {
+            return 'https://rialtor-production.up.railway.app/api';
+        }
+    }
+    // Fallback to environment variable or localhost
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+};
+
+const API_BASE_URL = getApiUrl();
+
+console.log('🔗 API Base URL:', API_BASE_URL);
 
 class ApiClient {
     private baseURL: string;
