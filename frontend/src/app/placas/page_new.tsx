@@ -328,147 +328,149 @@ export default function PlacasPage() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {plaques.map((plaque) => (
-              <div key={plaque.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                {/* Preview de imagen */}
-                <div className="h-32 bg-gray-200 relative">
-                  {plaque.generatedImages.length > 0 ? (
-                    <img
-                      src={plaque.generatedImages[0]}
-                      alt={plaque.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : plaque.originalImages.length > 0 ? (
-                    <img
-                      src={plaque.originalImages[0]}
-                      alt={plaque.title}
-                      className="w-full h-full object-cover opacity-50"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-gray-400" />
-                    </div>
-                  )}
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {plaques.map((plaque) => (
+                <div key={plaque.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                  {/* Preview de imagen */}
+                  <div className="h-32 bg-gray-200 relative">
+                    {plaque.generatedImages.length > 0 ? (
+                      <img
+                        src={plaque.generatedImages[0]}
+                        alt={plaque.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : plaque.originalImages.length > 0 ? (
+                      <img
+                        src={plaque.originalImages[0]}
+                        alt={plaque.title}
+                        className="w-full h-full object-cover opacity-50"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
 
-                  {/* Status overlay */}
-                  <div className="absolute top-2 right-2">
-                    <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs">
-                      {getStatusIcon(plaque.status)}
-                      <span className="hidden sm:inline">{getStatusText(plaque.status)}</span>
+                    {/* Status overlay */}
+                    <div className="absolute top-2 right-2">
+                      <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs">
+                        {getStatusIcon(plaque.status)}
+                        <span className="hidden sm:inline">{getStatusText(plaque.status)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* InformaciÃ³n */}
-                <div className="p-3">
-                  <h3 className="font-semibold text-gray-900 mb-2 text-sm truncate">
-                    {plaque.title}
-                  </h3>
+                  {/* InformaciÃ³n */}
+                  <div className="p-3">
+                    <h3 className="font-semibold text-gray-900 mb-2 text-sm truncate">
+                      {plaque.title}
+                    </h3>
 
-                  <div className="space-y-1 text-xs text-gray-600 mb-3">
+                    <div className="space-y-1 text-xs text-gray-600 mb-3">
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="w-3 h-3 text-green-600" />
+                        <span className="font-medium">{plaque.propertyData.moneda} {parseInt(plaque.propertyData.precio).toLocaleString('es-AR')}</span>
+                      </div>
+                      {plaque.propertyData.direccion && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-red-600" />
+                          <span className="truncate">{plaque.propertyData.direccion}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1 text-xs">
+                        <Home className="w-3 h-3 text-blue-600" />
+                        <span>{plaque.propertyData.ambientes || 0} amb</span>
+                        {plaque.propertyData.dormitorios && <span>â€¢ {plaque.propertyData.dormitorios} dorm</span>}
+                        {plaque.propertyData.banos && <span>â€¢ {plaque.propertyData.banos} baÃ±os</span>}
+                      </div>
+                      {plaque.propertyData.m2_totales && (
+                        <div className="flex items-center gap-1">
+                          <Square className="w-3 h-3 text-purple-600" />
+                          <span>{plaque.propertyData.m2_totales} mÂ²</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Acciones */}
                     <div className="flex items-center gap-1">
-                      <DollarSign className="w-3 h-3 text-green-600" />
-                      <span className="font-medium">{plaque.propertyData.moneda} {parseInt(plaque.propertyData.precio).toLocaleString('es-AR')}</span>
-                    </div>
-                    {plaque.propertyData.direccion && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-red-600" />
-                        <span className="truncate">{plaque.propertyData.direccion}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1 text-xs">
-                      <Home className="w-3 h-3 text-blue-600" />
-                      <span>{plaque.propertyData.ambientes || 0} amb</span>
-                      {plaque.propertyData.dormitorios && <span>â€¢ {plaque.propertyData.dormitorios} dorm</span>}
-                      {plaque.propertyData.banos && <span>â€¢ {plaque.propertyData.banos} baÃ±os</span>}
-                    </div>
-                    {plaque.propertyData.m2_totales && (
-                      <div className="flex items-center gap-1">
-                        <Square className="w-3 h-3 text-purple-600" />
-                        <span>{plaque.propertyData.m2_totales} mÂ²</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Acciones */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => setSelectedPlaque(plaque)}
-                      className="flex-1 flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition-colors"
-                    >
-                      <Eye className="w-3 h-3" />
-                      Ver
-                    </button>
-
-                    {plaque.status === 'COMPLETED' && plaque.generatedImages.length > 0 && (
-                      <a
-                        href={plaque.generatedImages[0]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1 bg-blue-100 text-blue-700 px-2 py-1.5 rounded text-xs hover:bg-blue-200 transition-colors"
+                      <button
+                        onClick={() => setSelectedPlaque(plaque)}
+                        className="flex-1 flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition-colors"
                       >
-                        <Download className="w-3 h-3" />
-                      </a>
-                    )}
+                        <Eye className="w-3 h-3" />
+                        Ver
+                      </button>
 
-                    <button
-                      onClick={() => deletePlaque(plaque.id)}
-                      className="flex items-center justify-center gap-1 bg-red-100 text-red-700 px-2 py-1.5 rounded text-xs hover:bg-red-200 transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                      {plaque.status === 'COMPLETED' && plaque.generatedImages.length > 0 && (
+                        <a
+                          href={plaque.generatedImages[0]}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1 bg-blue-100 text-blue-700 px-2 py-1.5 rounded text-xs hover:bg-blue-200 transition-colors"
+                        >
+                          <Download className="w-3 h-3" />
+                        </a>
+                      )}
+
+                      <button
+                        onClick={() => deletePlaque(plaque.id)}
+                        className="flex items-center justify-center gap-1 bg-red-100 text-red-700 px-2 py-1.5 rounded text-xs hover:bg-red-200 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* PaginaciÃ³n */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <button
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </button>
-
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                  {page}
-                </button>
               ))}
             </div>
 
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Siguiente
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+            {/* PaginaciÃ³n */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Anterior
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Siguiente
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {/* Información de paginación */}
+            <div className="text-center text-sm text-gray-500 mt-4">
+              Mostrando {plaques.length} de {totalPlaques} placas
+            </div>
+          </>
         )}
 
-        {/* InformaciÃ³n de paginaciÃ³n */}
-        <div className="text-center text-sm text-gray-500 mt-4">
-          Mostrando {plaques.length} de {totalPlaques} placas
-        </div>
-        )}
-
-        {/* Modal de creaciÃ³n */}
+        {/* Modal de creación */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
