@@ -170,6 +170,44 @@ export default function AdminPage() {
     }
   };
 
+  // Save bank rate
+  const saveBankRate = async () => {
+    if (!newBankName.trim() || !newRate.trim()) {
+      alert('Por favor complete todos los campos');
+      return;
+    }
+
+    try {
+      const res = await authenticatedFetch('/api/admin/rates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bankName: newBankName.trim(),
+          interestRate: parseFloat(newRate)
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBankRates(prev => {
+          const existing = prev.find(r => r.bankName === newBankName.trim());
+          if (existing) {
+            return prev.map(r => r.id === existing.id ? data.data : r);
+          } else {
+            return [...prev, data.data];
+          }
+        });
+        setNewBankName('');
+        setNewRate('');
+        alert('Tasa guardada exitosamente');
+      } else {
+        alert('Error al guardar la tasa');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al guardar la tasa');
+    }
+  };
+
   // Mostrar loading mientras se verifica la autenticación
   if (loading || permsLoading) {
     return (
