@@ -387,11 +387,49 @@ const getFile = async (req, res, next) => {
     }
 };
 
+// Descargar archivo (proxy para evitar problemas de CORS)
+const downloadFile = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const file = await prisma.fileUpload.findUnique({
+            where: { id }
+        });
+
+        if (!file) {
+            return res.status(404).json({ success: false, message: 'Archivo no encontrado' });
+        }
+
+        // Fetch del archivo desde Cloudinary
+        const axios = require('axios');
+        const response = await axios.get(file.cloudinaryUrl, {
+            responseType: 'stream'
+        });
+
+        // Configurar headers para descarga
+        res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
+        res.setHeader('Content-Type', file.mimeType);
+        res.setHeader('Content-Length', file.size);
+
+        // Pipe el stream del archivo
+        response.data.pipe(res);
+
+    } catch (error) {
+        console.error('Error al descargar archivo:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al descargar el archivo',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     upload,
     uploadFile,
     getFiles,
     getFolders,
     deleteFile,
-    getFile
+    getFile,
+    downloadFile
 };

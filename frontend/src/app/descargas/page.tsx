@@ -148,14 +148,29 @@ export default function DownloadsPage() {
     }
 
     // Descargar archivo
-    const downloadFile = (file: FileUpload) => {
-        const link = document.createElement('a')
-        link.href = file.cloudinaryUrl
-        link.download = file.originalName
-        link.target = '_blank'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+    const downloadFile = async (file: FileUpload) => {
+        try {
+            console.log('📥 Downloading file:', file.originalName)
+
+            // Usar el endpoint de descarga del backend
+            const downloadUrl = `/api/files/public/download/${file.id}`
+
+            // Crear un link temporal para la descarga
+            const link = document.createElement('a')
+            link.href = downloadUrl
+            link.download = file.originalName
+            link.style.display = 'none'
+
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            console.log('✅ File download initiated')
+        } catch (error) {
+            console.error('❌ Error downloading file:', error)
+            // Fallback: open cloudinary URL in new tab
+            window.open(file.cloudinaryUrl, '_blank')
+        }
     }
 
     return (

@@ -10,7 +10,8 @@ const {
     getFiles,
     getFolders,
     deleteFile,
-    getFile
+    getFile,
+    downloadFile
 } = require('../controllers/fileController');
 
 const { authenticateToken } = require('../middleware/auth');
@@ -60,6 +61,7 @@ router.get('/health', async (req, res) => {
 router.get('/public/folders', getFolders);
 router.get('/public/files', getFiles);
 router.get('/public/:id', getFile);
+router.get('/public/download/:id', downloadFile);  // Nueva ruta para descarga
 
 // Middleware de autenticación para todas las rutas siguientes
 router.use(authenticateToken);
