@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Newspaper, ExternalLink, Calendar, User } from 'lucide-react'
-import { authenticatedFetch } from '../../utils/api'
+import { authenticatedFetch } from '@/utils/api'
 
 interface NewsItem {
     id: string

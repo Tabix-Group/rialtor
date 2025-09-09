@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield, Percent } from 'lucide-react'
 import UserManagement from '../../components/UserManagement'
 import NewsManagement from '../../components/NewsManagement'
-import { authenticatedFetch } from '../../utils/api'
+import { authenticatedFetch } from '@/utils/api'
 
 interface StatCard {
   title: string

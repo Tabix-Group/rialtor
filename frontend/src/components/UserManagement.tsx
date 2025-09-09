@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Edit, Trash2, X, Check } from 'lucide-react';
-import { authenticatedFetch } from '../utils/api';
+import { authenticatedFetch } from '@/utils/api';
 
 export default function UserManagement({ token }: { token: string }) {
   const [users, setUsers] = useState<any[]>([]);

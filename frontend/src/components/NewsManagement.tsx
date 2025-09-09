@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Edit, Trash2, ExternalLink, Calendar, Eye, EyeOff } from 'lucide-react'
-import { authenticatedFetch } from '../utils/api'
+import { authenticatedFetch } from '@/utils/api'
 
 interface NewsItem {
     id: string
@@ -411,8 +411,8 @@ export default function NewsManagement() {
                                     key={pageNum}
                                     onClick={() => setCurrentPage(pageNum)}
                                     className={`px-3 py-1 border rounded-md text-sm ${currentPage === pageNum
-                                            ? 'bg-blue-600 text-white border-blue-600'
-                                            : 'border-gray-300 hover:bg-gray-50'
+                                        ? 'bg-blue-600 text-white border-blue-600'
+                                        : 'border-gray-300 hover:bg-gray-50'
                                         }`}
                                 >
                                     {pageNum}

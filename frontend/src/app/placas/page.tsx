@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/authContext'
-import { authenticatedFetch } from '../../utils/api'
+import { authenticatedFetch } from '@/utils/api'
 import {
   Upload,
   Image as ImageIcon,

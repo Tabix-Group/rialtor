@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Newspaper, ExternalLink, Calendar, ArrowLeft, Share2 } from 'lucide-react'
-import { authenticatedFetch } from '../../utils/api'
+import { authenticatedFetch } from '@/utils/api'
 
 interface NewsItem {
     id: string

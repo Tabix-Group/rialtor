@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Calculator, TrendingUp, DollarSign, Calendar, Banknote } from 'lucide-react'
-import { authenticatedFetch } from '../../utils/api'
+import { authenticatedFetch } from '@/utils/api'
 import { useAuth } from '../auth/authContext'
 
 interface BankRate {
