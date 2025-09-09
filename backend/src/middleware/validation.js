@@ -236,6 +236,61 @@ const validateCalculator = {
   ]
 };
 
+const validateNews = {
+  create: [
+    body('title')
+      .trim()
+      .isLength({ min: 3, max: 200 })
+      .withMessage('Title must be between 3 and 200 characters'),
+    body('synopsis')
+      .trim()
+      .isLength({ min: 10, max: 500 })
+      .withMessage('Synopsis must be between 10 and 500 characters'),
+    body('source')
+      .trim()
+      .isLength({ min: 2, max: 100 })
+      .withMessage('Source must be between 2 and 100 characters'),
+    body('externalUrl')
+      .isURL()
+      .withMessage('External URL must be a valid URL'),
+    body('publishedAt')
+      .optional()
+      .isISO8601()
+      .withMessage('Published date must be a valid ISO date'),
+    validateRequest
+  ],
+  update: [
+    body('title')
+      .optional()
+      .trim()
+      .isLength({ min: 3, max: 200 })
+      .withMessage('Title must be between 3 and 200 characters'),
+    body('synopsis')
+      .optional()
+      .trim()
+      .isLength({ min: 10, max: 500 })
+      .withMessage('Synopsis must be between 10 and 500 characters'),
+    body('source')
+      .optional()
+      .trim()
+      .isLength({ min: 2, max: 100 })
+      .withMessage('Source must be between 2 and 100 characters'),
+    body('externalUrl')
+      .optional()
+      .isURL()
+      .withMessage('External URL must be a valid URL'),
+    body('publishedAt')
+      .optional()
+      .isISO8601()
+      .withMessage('Published date must be a valid ISO date'),
+    body('isActive')
+      .optional()
+      .isBoolean()
+      .withMessage('isActive must be a boolean'),
+    validateRequest
+  ]
+};
+
 module.exports = {
   validateRequest,
   validateAuth,
@@ -243,5 +298,6 @@ module.exports = {
   validateCategory,
   validateComment,
   validateChat,
-  validateCalculator
+  validateCalculator,
+  validateNews
 };

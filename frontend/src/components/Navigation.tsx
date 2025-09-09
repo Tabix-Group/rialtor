@@ -1,94 +1,97 @@
 'use client'
 
 import { useAuth } from '../app/auth/authContext'
-import { usePermission } from '../hooks/usePermission';
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, LogOut, User2, Home } from 'lucide-react'
+import {
+  Menu,
+  X,
+  LogOut,
+  User2,
+  Home,
+  ChevronDown,
+  Bell,
+  Settings
+} from 'lucide-react'
 
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const pathname = usePathname()
   const { user, logout } = useAuth()
 
-  if (!user) return null
+  const isAdmin = user && Array.isArray(user.roles) && user.roles.includes('ADMIN' as any)
 
-  const isUsuario = Array.isArray(user.roles) && user.roles.includes('USUARIO' as any)
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      const isDropdownButton = target.closest('[data-dropdown-button]');
+      const isDropdown = target.closest('[data-dropdown]');
 
-  const navConfig = isUsuario
-    ? [
-      {
-        name: 'Calculadoras',
-        href: '/calculadoras',
-        icon: 'Calculator',
-        dropdown: [
-          { name: 'Gastos Escritura', href: '/calcescritura' },
-          { name: 'Honorarios Inmobiliarios', href: '/calchonorarios' },
-          { name: 'Impuesto Ganancia', href: '/calciigg' },
-          { name: 'Seguros de Caución', href: '/creditos' },
-          { name: 'Créditos Hipotecarios', href: '/hipotecarios' },
-        ],
-        permission: undefined,
-      },
-      {
-        name: 'Documentos',
-        icon: 'FileText',
-        dropdown: [
-          { name: 'Resumidor', href: '/documents/summary' },
-          { name: 'Generador', href: '/documents/generator' },
-        ],
-        permission: undefined,
-      },
-      { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
-      {
-        name: 'Panel de Control',
-        href: '/admin',
-        icon: 'Shield',
-        dropdown: [
-          { name: 'Noticias', href: '/knowledge' },
-          { name: 'Archivos', href: '/documents' },
-        ],
-        permission: undefined,
-      },
-    ]
-    : [
-      {
-        name: 'Calculadoras',
-        href: '/calculadoras',
-        icon: 'Calculator',
-        dropdown: [
-          { name: 'Gastos Escritura', href: '/calcescritura' },
-          { name: 'Honorarios Inmobiliarios', href: '/calchonorarios' },
-          { name: 'Impuesto Ganancia', href: '/calciigg' },
-          { name: 'Seguros de Caución', href: '/creditos' },
-          { name: 'Créditos Hipotecarios', href: '/hipotecarios' },
-        ],
-        permission: 'use_calculator',
-      },
-      {
-        name: 'Documentos',
-        icon: 'FileText',
-        dropdown: [
-          { name: 'Resumidor', href: '/documents/summary' },
-          { name: 'Generador', href: '/documents/generator' },
-        ],
-        permission: undefined,
-      },
-      { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: undefined },
-      // { name: 'Placas', href: '/placas', icon: 'ImageIcon', permission: 'use_placas' }, // OCULTO TEMPORALMENTE
-      {
-        name: 'Panel de Control',
-        href: '/admin',
-        icon: 'Shield',
-        dropdown: [
-          { name: 'Noticias', href: '/knowledge' },
-          { name: 'Asistente IA', href: '/chat' },
-          { name: 'Archivos', href: '/documents' },
-        ],
-        permission: 'view_admin',
-      },
-    ]
+      // Solo cerrar si el click no fue dentro de un dropdown o botón de dropdown
+      if (!isDropdownButton && !isDropdown) {
+        setActiveDropdown(null);
+      }
+    };
+
+    // Usar mousedown en lugar de click para mejor responsiveness
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);;
+
+  const navConfig = [
+    {
+      name: 'Calculadoras',
+      href: '/calculadoras',
+      icon: 'Calculator',
+      dropdown: [
+        { name: 'Gastos de Escritura', href: '/calcescritura', description: 'Calcula costos de escrituración' },
+        { name: 'Honorarios Inmobiliarios', href: '/calchonorarios', description: 'Simula honorarios por operación' },
+        { name: 'Impuesto Ganancia', href: '/calciigg', description: 'Calcula impuesto a las ganancias' },
+        { name: 'Seguros de Caución', href: '/creditos', description: 'Compara seguros de caución' },
+        { name: 'Créditos Hipotecarios', href: '/hipotecarios', description: 'Simula créditos hipotecarios' },
+      ],
+    },
+    {
+      name: 'Documentos',
+      href: '/documents',
+      icon: 'FileText',
+      dropdown: [
+        { name: 'Generador de Documentos', href: '/documents/generator', description: 'Crea contratos y reservas' },
+        { name: 'Resumidor Inteligente', href: '/documents/summary', description: 'Resume documentos extensos' },
+      ],
+    },
+    {
+      name: 'Placas',
+      href: '/placas',
+      icon: 'ImageIcon',
+      description: 'Genera placas profesionales'
+    },
+    {
+      name: 'Noticias',
+      href: '/news',
+      icon: 'Newspaper',
+      description: 'Últimas noticias del mercado inmobiliario'
+    },
+    {
+      name: 'Asistente IA',
+      href: '/chat',
+      icon: 'MessageSquare',
+      description: 'Consultor inmobiliario 24/7'
+    },
+    ...(isAdmin ? [{
+      name: 'Admin',
+      href: '/admin',
+      icon: 'Shield',
+      dropdown: [
+        { name: 'Panel de Control', href: '/admin', description: 'Gestión general' },
+        { name: 'Usuarios', href: '/admin/users', description: 'Administrar usuarios' },
+        { name: 'Contenido', href: '/admin/content', description: 'Gestionar contenido' },
+      ],
+    }] : []),
+  ]
 
   const icons = {
     BookOpen: require('lucide-react').BookOpen,
@@ -97,156 +100,273 @@ function Navigation() {
     FileText: require('lucide-react').FileText,
     Shield: require('lucide-react').Shield,
     ImageIcon: require('lucide-react').Image,
+    Newspaper: require('lucide-react').Newspaper,
   }
 
   const isActive = (href: string) => pathname?.startsWith(href)
 
-  const renderLinks = (isMobile = false) =>
-    navConfig.map((item) => {
-      const Icon = icons[item.icon as keyof typeof icons]
-      const hasPermission = item.permission ? usePermission(item.permission) : true
-      if (!hasPermission) return null
+  const handleDropdownClick = (e: React.MouseEvent, itemName: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setActiveDropdown(activeDropdown === itemName ? null : itemName);
+  }
 
-      // Dropdown  
-      if (item.dropdown) {
-        if (isMobile) {
+  const renderDesktopNav = () => (
+    <div className="hidden lg:flex items-center space-x-1">
+      {navConfig.map((item) => {
+        const Icon = icons[item.icon as keyof typeof icons]
+        const hasDropdown = item.dropdown && item.dropdown.length > 0
+
+        if (hasDropdown) {
           return (
-            <div key={item.name} className="flex flex-col">
-              {/* Si tiene href, mostrar como enlace clickeable */}
-              {item.href ? (
-                <Link
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${isActive(item.href)
-                    ? 'bg-orange-100 text-orange-600'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600 hover:underline'
-                    }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  {item.name}
-                </Link>
-              ) : (
-                <span className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-gray-700">
-                  <Icon className="w-5 h-5" />
-                  {item.name}
-                </span>
+            <div key={item.name} className="relative" data-dropdown>
+              <button
+                data-dropdown-button
+                onClick={(e) => handleDropdownClick(e, item.name)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) || item.dropdown?.some(sub => isActive(sub.href))
+                  ? 'bg-blue-50 text-blue-600 border border-blue-100'
+                  : 'text-gray-700 hover:text-blue-600'
+                  }`}
+              >
+                <Icon className="w-4 h-4" />
+                {item.name}
+                <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === item.name ? 'rotate-180' : ''
+                  }`} />
+              </button>
+
+              {activeDropdown === item.name && (
+                <div className="absolute top-12 left-0 min-w-[280px] bg-white border border-gray-200 rounded-2xl shadow-xl z-50 py-2" data-dropdown>
+                  {item.href && (
+                    <>
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        <Icon className="w-4 h-4 text-gray-400" />
+                        <div>
+                          <div className="font-medium">Ver Todos</div>
+                          <div className="text-xs text-gray-500">Vista general de {item.name.toLowerCase()}</div>
+                        </div>
+                      </Link>
+                      <hr className="my-2" />
+                    </>
+                  )}
+                  {item.dropdown?.map((sub) => (
+                    <Link
+                      key={sub.name}
+                      href={sub.href}
+                      className={`block px-4 py-3 text-sm hover:bg-gray-50 transition-colors ${isActive(sub.href) ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                        }`}
+                      onClick={() => setActiveDropdown(null)}
+                    >
+                      <div className="font-medium">{sub.name}</div>
+                      {sub.description && (
+                        <div className="text-xs text-gray-500 mt-1">{sub.description}</div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
               )}
-              {item.dropdown.map((sub) => (
-                <Link
-                  key={sub.name}
-                  href={sub.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`ml-8 flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${isActive(sub.href)
-                    ? 'bg-orange-100 text-orange-600'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600 hover:underline'
-                    }`}
-                >
-                  {sub.name}
-                </Link>
-              ))}
             </div>
           )
         }
-        // Desktop dropdown
+
         return (
-          <div key={item.name} className="relative group">
-            {/* Si tiene href, usar Link clickeable, sino button */}
-            {item.href ? (
-              <Link
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-600 focus:outline-none ${isActive(item.href) || item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-orange-100 text-orange-600' : ''
-                  }`}
-              >
-                <Icon className="w-5 h-5" />
-                {item.name}
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </Link>
-            ) : (
-              <button
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-orange-600 focus:outline-none ${item.dropdown.some((sub) => isActive(sub.href)) ? 'bg-orange-100 text-orange-600' : ''
-                  }`}
-                tabIndex={0}
-              >
-                <Icon className="w-5 h-5" />
-                {item.name}
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </button>
-            )}
-            <div className="absolute left-0 top-12 min-w-[160px] bg-white border rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-50 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
-              {item.dropdown.map((sub) => (
-                <Link
-                  key={sub.name}
-                  href={sub.href}
-                  className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition ${isActive(sub.href) ? 'bg-orange-100 text-orange-600' : ''
+          <Link
+            key={item.name}
+            href={item.href}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href)
+              ? 'bg-blue-50 text-blue-600 border border-blue-100'
+              : 'text-gray-700 hover:text-blue-600'
+              }`}
+          >
+            <Icon className="w-4 h-4" />
+            {item.name}
+          </Link>
+        )
+      })}
+    </div>
+  )
+
+  const renderMobileNav = () => (
+    <div className="lg:hidden space-y-1 px-4 py-6 bg-white">
+      {navConfig.map((item) => {
+        const Icon = icons[item.icon as keyof typeof icons]
+        const hasDropdown = item.dropdown && item.dropdown.length > 0
+
+        return (
+          <div key={item.name} data-dropdown>
+            {hasDropdown ? (
+              <>
+                <button
+                  data-dropdown-button
+                  onClick={(e) => handleDropdownClick(e, item.name)}
+                  className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive(item.href) || item.dropdown?.some(sub => isActive(sub.href))
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-50'
                     }`}
                 >
-                  {sub.name}
-                </Link>
-              ))}
-            </div>
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-5 h-5" />
+                    {item.name}
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === item.name ? 'rotate-180' : ''
+                    }`} />
+                </button>
+
+                {activeDropdown === item.name && (
+                  <div className="ml-4 mt-2 space-y-1" data-dropdown>
+                    {item.href && (
+                      <Link
+                        href={item.href}
+                        className="block px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        onClick={() => {
+                          setActiveDropdown(null)
+                          setIsOpen(false)
+                        }}
+                      >
+                        Ver Todos
+                      </Link>
+                    )}
+                    {item.dropdown?.map((sub) => (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className={`block px-4 py-2 text-sm rounded-lg transition-colors ${isActive(sub.href)
+                          ? 'bg-blue-50 text-blue-600'
+                          : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                          }`}
+                        onClick={() => {
+                          setActiveDropdown(null)
+                          setIsOpen(false)
+                        }}
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive(item.href)
+                  ? 'bg-blue-50 text-blue-600'
+                  : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                onClick={() => setIsOpen(false)}
+              >
+                <Icon className="w-5 h-5" />
+                {item.name}
+              </Link>
+            )}
           </div>
         )
-      }
-
-      // Link normal
-      return (
-        <Link
-          key={item.name}
-          href={item.href}
-          onClick={() => isMobile && setIsOpen(false)}
-          className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium ${isActive(item.href)
-            ? 'bg-orange-100 text-orange-600'
-            : 'text-gray-700 hover:bg-gray-50 hover:text-orange-600 hover:underline'
-            }`}
-        >
-          <Icon className="w-5 h-5" />
-          {item.name}
-        </Link>
-      )
-    })
+      })}
+    </div>
+  )
 
   return (
-    <nav className="bg-white border-b shadow-sm z-50">
+    <nav className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Home icon linking to homepage */}
-          <Link href="/" aria-label="Inicio" className="p-2 rounded-full text-gray-700 hover:bg-gray-100 focus:outline-none">
-            <Home className="w-6 h-6" />
+          {/* Logo y Home */}
+          <Link
+            href="/"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Home className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hidden sm:block">
+              RIALTOR
+            </span>
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6">
-            {renderLinks()}
-          </div>
+          {/* Desktop Navigation */}
+          {renderDesktopNav()}
 
-          {/* Compact User Icon Dropdown */}
-          <div className="hidden md:flex items-center gap-2 relative group">
-            <button
-              aria-label="Usuario"
-              className="p-2 rounded-full text-gray-700 hover:bg-gray-100 focus:outline-none"
-              tabIndex={0}
-            >
-              <User2 className="w-5 h-5" />
-            </button>
-            <div className="absolute right-0 top-12 min-w-[180px] bg-white border rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-50 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
-              <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                <div className="font-medium">{user.name}</div>
-              </div>
-              <button
-                onClick={logout}
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition rounded-b-lg"
-              >
-                <LogOut className="w-5 h-5" />
-                Cerrar sesión
+          {/* User Menu & Mobile Toggle */}
+          <div className="flex items-center gap-3">
+            {/* Notifications (solo si hay usuario) */}
+            {user && (
+              <button className="relative p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors">
+                <Bell className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                </span>
               </button>
-            </div>
-          </div>
+            )}
 
-          {/* Mobile toggle */}
-          <div className="md:hidden">
+            {/* User Dropdown (solo si hay usuario) */}
+            {user && (
+              <div className="relative hidden lg:block" data-dropdown>
+                <button
+                  data-dropdown-button
+                  onClick={(e) => handleDropdownClick(e, 'user')}
+                  className="flex items-center gap-2 p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                    <User2 className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium">{user.name}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {activeDropdown === 'user' && (
+                  <div className="absolute right-0 top-12 min-w-[200px] bg-white border border-gray-200 rounded-2xl shadow-xl z-50 py-2" data-dropdown>
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <div className="font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+
+                    <Link
+                      href="/profile"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setActiveDropdown(null)}
+                    >
+                      <Settings className="w-4 h-4" />
+                      Configuración
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        logout()
+                        setActiveDropdown(null)
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* CTA Button (solo si no hay usuario) */}
+            {!user && (
+              <div className="hidden lg:flex items-center gap-2">
+                <Link
+                  href="/auth/login"
+                  className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  Iniciar Sesión
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  Comenzar Gratis
+                </Link>
+              </div>
+            )}
+
+            {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-gray-700 hover:text-orange-600 focus:outline-none"
+              className="lg:hidden p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -256,18 +376,60 @@ function Navigation() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden border-t bg-white px-4 py-3 space-y-2">
-          {renderLinks(true)}
-          <button
-            onClick={() => {
-              setIsOpen(false)
-              logout()
-            }}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition"
-          >
-            <LogOut className="w-5 h-5" />
-            Cerrar sesión
-          </button>
+        <div className="lg:hidden border-t border-gray-200 bg-white">
+          {renderMobileNav()}
+
+          {/* Mobile user section */}
+          {user ? (
+            <div className="px-4 py-4 border-t border-gray-200 space-y-2">
+              <div className="flex items-center gap-3 px-4 py-2">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                  <User2 className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900">{user.name}</div>
+                  <div className="text-sm text-gray-500">{user.email}</div>
+                </div>
+              </div>
+
+              <Link
+                href="/profile"
+                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <Settings className="w-4 h-4" />
+                Configuración
+              </Link>
+
+              <button
+                onClick={() => {
+                  logout()
+                  setIsOpen(false)
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Cerrar Sesión
+              </button>
+            </div>
+          ) : (
+            <div className="px-4 py-4 border-t border-gray-200 space-y-2">
+              <Link
+                href="/auth/login"
+                className="block w-full px-4 py-2 text-center text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                Iniciar Sesión
+              </Link>
+              <Link
+                href="/auth/register"
+                className="block w-full px-4 py-2 text-center text-white font-medium bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-lg transition-all"
+                onClick={() => setIsOpen(false)}
+              >
+                Comenzar Gratis
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </nav>

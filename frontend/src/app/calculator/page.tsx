@@ -8,7 +8,6 @@ import EscribanoCalculator from '../../components/EscribanoCalculator'
 import OtrosGastosCalculator from '../../components/OtrosGastosCalculator'
 import GananciaInmobiliariaCalculator from '../../components/GananciaInmobiliariaCalculator'
 import { useAuth } from '../auth/authContext'
-import { useRouter } from 'next/navigation'
 
 interface CalculationResult {
   saleAmount: number
@@ -48,14 +47,7 @@ interface Province {
 }
 
 export default function CalculatorPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  // Proteger ruta: si no está logueado, redirigir a login
-  if (!loading && !user && typeof window !== 'undefined') {
-    router.replace('/auth/login');
-    return null;
-  }
+  const { user } = useAuth();
 
   // --- STATES ---
   const [saleAmount, setSaleAmount] = useState('')
@@ -218,19 +210,19 @@ export default function CalculatorPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Form & Results */}
           <div className="lg:col-span-2">
-          {/* Comisión */}
-          <section id="comision" className="mb-12">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
-              <div className="flex items-center gap-3 mb-4">
-                <Calculator className="w-8 h-8 text-red-500" />
-                <h2 className="text-2xl font-bold tracking-tight text-red-700">Cálculo de Comisión</h2>
-              </div>
-              <p className="text-base text-gray-500 max-w-2xl mb-2">
-                Calculá comisiones, impuestos y gastos asociados a operaciones inmobiliarias en Argentina. Incluye cálculo de comisión, honorarios de escribano, otros gastos y ganancia inmobiliaria, todo en un solo lugar.
-              </p>
-              <div className="flex flex-col md:flex-row gap-10 items-start">
-                {/* Formulario */}
-                <form className="w-full max-w-2xl mx-auto space-y-7" onSubmit={e => { e.preventDefault(); calculateCommission(); setShowSummary(true); }}>
+            {/* Comisión */}
+            <section id="comision" className="mb-12">
+              <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <Calculator className="w-8 h-8 text-red-500" />
+                  <h2 className="text-2xl font-bold tracking-tight text-red-700">Cálculo de Comisión</h2>
+                </div>
+                <p className="text-base text-gray-500 max-w-2xl mb-2">
+                  Calculá comisiones, impuestos y gastos asociados a operaciones inmobiliarias en Argentina. Incluye cálculo de comisión, honorarios de escribano, otros gastos y ganancia inmobiliaria, todo en un solo lugar.
+                </p>
+                <div className="flex flex-col md:flex-row gap-10 items-start">
+                  {/* Formulario */}
+                  <form className="w-full max-w-2xl mx-auto space-y-7" onSubmit={e => { e.preventDefault(); calculateCommission(); setShowSummary(true); }}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-1">
@@ -485,31 +477,31 @@ export default function CalculatorPage() {
             </section>
             {/* Calculadoras adicionales */}
             <section id="escribano" className="mb-12">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
-              <div className="flex items-center gap-3 mb-4">
-                <Receipt className="w-8 h-8 text-blue-500" />
-                <h2 className="text-2xl font-bold tracking-tight text-blue-700">Gastos de Escritura</h2>
+              <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <Receipt className="w-8 h-8 text-blue-500" />
+                  <h2 className="text-2xl font-bold tracking-tight text-blue-700">Gastos de Escritura</h2>
+                </div>
+                <EscribanoCalculator />
               </div>
-              <EscribanoCalculator />
-            </div>
             </section>
             <section id="otros" className="mb-12">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
-              <div className="flex items-center gap-3 mb-4">
-                <Percent className="w-8 h-8 text-yellow-500" />
-                <h2 className="text-2xl font-bold tracking-tight text-yellow-700">Otros Gastos</h2>
+              <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <Percent className="w-8 h-8 text-yellow-500" />
+                  <h2 className="text-2xl font-bold tracking-tight text-yellow-700">Otros Gastos</h2>
+                </div>
+                <OtrosGastosCalculator />
               </div>
-              <OtrosGastosCalculator />
-            </div>
             </section>
             <section id="ganancia" className="mb-12">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
-              <div className="flex items-center gap-3 mb-4">
-                <TrendingUp className="w-8 h-8 text-green-500" />
-                <h2 className="text-2xl font-bold tracking-tight text-green-700">Impuesto cedular en ganancia Inmobiliaria (iigg)</h2>
+              <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <TrendingUp className="w-8 h-8 text-green-500" />
+                  <h2 className="text-2xl font-bold tracking-tight text-green-700">Impuesto cedular en ganancia Inmobiliaria (iigg)</h2>
+                </div>
+                <GananciaInmobiliariaCalculator />
               </div>
-              <GananciaInmobiliariaCalculator />
-            </div>
             </section>
           </div>
           {/* Resumen lateral fijo */}

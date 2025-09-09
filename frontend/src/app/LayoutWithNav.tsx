@@ -5,7 +5,9 @@ export default function LayoutWithNav({ children }: { children: React.ReactNode 
   return (
     <>
       <Navigation />
-      {children}
+      <div className="flex-grow">
+        {children}
+      </div>
     </>
   );
 }

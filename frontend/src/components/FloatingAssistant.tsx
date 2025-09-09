@@ -241,12 +241,12 @@ export default function FloatingAssistant() {
             >
                 <button
                     onClick={toggleAssistant}
-                    className="group relative bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out"
+                    className="group relative bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out"
                 >
                     <div className="relative">
                         <Brain className="w-6 h-6" />
                         {/* Pulse animation */}
-                        <div className="absolute -inset-1 bg-red-400 rounded-full animate-ping opacity-20"></div>
+                        <div className="absolute -inset-1 bg-blue-400 rounded-full animate-ping opacity-20"></div>
                         {/* Sparkles effect */}
                         <Sparkles className="absolute -top-1 -right-1 w-3 h-3 text-yellow-300 animate-pulse" />
                     </div>
@@ -292,7 +292,7 @@ export default function FloatingAssistant() {
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 text-white">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                             <div className="relative">
@@ -303,7 +303,7 @@ export default function FloatingAssistant() {
                             </div>
                             <div>
                                 <h3 className="font-semibold">RIALTOR</h3>
-                                <p className="text-xs text-red-100">Asistente Inmobiliario IA</p>
+                                <p className="text-xs text-blue-100">Asistente Inmobiliario IA</p>
                             </div>
                         </div>
 
@@ -332,7 +332,7 @@ export default function FloatingAssistant() {
                 </div>
 
                 {/* Minimize/Maximize Button - Always visible */}
-                <div className="flex justify-end p-2 bg-gradient-to-r from-red-500 to-red-600 border-t border-red-400/30">
+                <div className="flex justify-end p-2 bg-gradient-to-r from-blue-500 to-indigo-600 border-t border-blue-400/30">
                     <button
                         onClick={toggleMinimize}
                         className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-white"
@@ -368,7 +368,7 @@ export default function FloatingAssistant() {
                                                 whileHover={{ scale: 1.1 }}
                                                 className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${message.isUser
                                                     ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                                                    : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                                                    : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
                                                     }`}
                                             >
                                                 {message.isUser ? <User className="w-4 h-4" /> : <Brain className="w-4 h-4" />}
@@ -378,7 +378,7 @@ export default function FloatingAssistant() {
                                             <motion.div
                                                 whileHover={{ scale: 1.02 }}
                                                 className={`px-4 py-3 rounded-2xl group ${message.isUser
-                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md'
+                                                    ? 'bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-br-md'
                                                     : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-bl-md'
                                                     }`}
                                             >
@@ -394,7 +394,7 @@ export default function FloatingAssistant() {
                                                             whileTap={{ scale: 0.95 }}
                                                             onClick={() => playAudioResponse(message.audioBase64!)}
                                                             disabled={isPlayingAudio}
-                                                            className="flex items-center space-x-1 px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors disabled:opacity-50"
+                                                            className="flex items-center space-x-1 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors disabled:opacity-50"
                                                         >
                                                             {isPlayingAudio ? (
                                                                 <VolumeX className="w-3 h-3" />
@@ -436,14 +436,14 @@ export default function FloatingAssistant() {
                                         className="flex justify-start"
                                     >
                                         <div className="flex items-end space-x-2">
-                                            <div className="w-7 h-7 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center">
+                                            <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                                                 <Brain className="w-4 h-4 text-white" />
                                             </div>
                                             <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border border-gray-100">
                                                 <div className="flex space-x-1">
-                                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce"></div>
-                                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                                                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -467,7 +467,7 @@ export default function FloatingAssistant() {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => handleQuickSuggestion(suggestion.action)}
-                                            className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-white hover:bg-red-50 border border-gray-200 hover:border-red-200 text-gray-600 hover:text-red-600 rounded-full transition-all duration-200"
+                                            className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-200 text-gray-600 hover:text-blue-600 rounded-full transition-all duration-200"
                                         >
                                             <span>{suggestion.icon}</span>
                                             <span>{suggestion.text}</span>
@@ -483,13 +483,13 @@ export default function FloatingAssistant() {
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="mb-2 p-2 bg-red-50 border border-red-200 rounded-lg flex items-center justify-center space-x-2"
+                                        className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-center space-x-2"
                                     >
-                                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                                        <span className="text-red-600 text-sm font-medium">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                        <span className="text-blue-600 text-sm font-medium">
                                             Grabando... {formatRecordingTime(recordingDuration)}
                                         </span>
-                                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                     </motion.div>
                                 )}
 
@@ -503,7 +503,7 @@ export default function FloatingAssistant() {
                                             onKeyPress={handleKeyPress}
                                             placeholder={isRecording ? "Mantén presionado el micrófono y habla..." : "Escribe tu consulta inmobiliaria..."}
                                             disabled={isLoading || isRecording}
-                                            className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
+                                            className="w-full px-4 py-2.5 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400"
                                         />
                                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                                             <span className="text-xs">↵</span>
@@ -517,7 +517,7 @@ export default function FloatingAssistant() {
                                         onClick={isRecording ? stopRecording : startRecording}
                                         disabled={isLoading}
                                         className={`p-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl ${isRecording
-                                            ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                                            ? 'bg-blue-500 hover:bg-blue-600 text-white animate-pulse'
                                             : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
                                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                                     >
@@ -533,7 +533,7 @@ export default function FloatingAssistant() {
                                         whileTap={{ scale: 0.95 }}
                                         onClick={handleSendMessage}
                                         disabled={!inputValue.trim() || isLoading || isRecording}
-                                        className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                                        className="p-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
                                     >
                                         {isLoading ? (
                                             <RefreshCw className="w-4 h-4 animate-spin" />

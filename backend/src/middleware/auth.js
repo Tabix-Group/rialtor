@@ -111,7 +111,27 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
+// Middleware para autorizar roles específicos
+const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const userRoles = req.user.roleAssignments?.map(ra => ra.role.name) || [];
+
+    const hasRequiredRole = allowedRoles.some(role => userRoles.includes(role));
+
+    if (!hasRequiredRole) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+
+    next();
+  };
+};
+
 module.exports = {
   authenticateToken,
-  optionalAuth
+  optionalAuth,
+  authorizeRoles
 };

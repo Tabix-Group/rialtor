@@ -1,0 +1,366 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Plus, Edit, Trash2, ExternalLink, Calendar, Eye, EyeOff } from 'lucide-react'
+import { authenticatedFetch } from '../utils/api'
+
+interface NewsItem {
+    id: string
+    title: string
+    synopsis: string
+    source: string
+    externalUrl: string
+    publishedAt: string
+    isActive: boolean
+    createdAt: string
+    updatedAt: string
+}
+
+interface NewsResponse {
+    news: NewsItem[]
+    pagination: {
+        page: number
+        limit: number
+        total: number
+        pages: number
+    }
+}
+
+export default function NewsManagement() {
+    const [news, setNews] = useState<NewsItem[]>([])
+    const [loading, setLoading] = useState(true)
+    const [showForm, setShowForm] = useState(false)
+    const [editingNews, setEditingNews] = useState<NewsItem | null>(null)
+    const [formData, setFormData] = useState({
+        title: '',
+        synopsis: '',
+        source: '',
+        externalUrl: '',
+        publishedAt: ''
+    })
+
+    useEffect(() => {
+        fetchNews()
+    }, [])
+
+    const fetchNews = async () => {
+        try {
+            setLoading(true)
+            const response = await authenticatedFetch('/api/news/admin/all')
+            const data: NewsResponse = await response.json()
+            setNews(data.news)
+        } catch (error) {
+            console.error('Error fetching news:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        try {
+            const url = editingNews ? `/api/news/${editingNews.id}` : '/api/news'
+            const method = editingNews ? 'PUT' : 'POST'
+
+            const response = await authenticatedFetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...formData,
+                    publishedAt: formData.publishedAt || new Date().toISOString()
+                })
+            })
+
+            if (response.ok) {
+                await fetchNews()
+                setShowForm(false)
+                setEditingNews(null)
+                resetForm()
+                alert(editingNews ? 'Noticia actualizada exitosamente' : 'Noticia creada exitosamente')
+            } else {
+                alert('Error al guardar la noticia')
+            }
+        } catch (error) {
+            console.error('Error saving news:', error)
+            alert('Error al guardar la noticia')
+        }
+    }
+
+    const handleEdit = (newsItem: NewsItem) => {
+        setEditingNews(newsItem)
+        setFormData({
+            title: newsItem.title,
+            synopsis: newsItem.synopsis,
+            source: newsItem.source,
+            externalUrl: newsItem.externalUrl,
+            publishedAt: new Date(newsItem.publishedAt).toISOString().slice(0, 16)
+        })
+        setShowForm(true)
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('¿Estás seguro de que quieres eliminar esta noticia?')) return
+
+        try {
+            const response = await authenticatedFetch(`/api/news/${id}`, {
+                method: 'DELETE'
+            })
+
+            if (response.ok) {
+                await fetchNews()
+                alert('Noticia eliminada exitosamente')
+            } else {
+                alert('Error al eliminar la noticia')
+            }
+        } catch (error) {
+            console.error('Error deleting news:', error)
+            alert('Error al eliminar la noticia')
+        }
+    }
+
+    const toggleActive = async (id: string, currentStatus: boolean) => {
+        try {
+            const response = await authenticatedFetch(`/api/news/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isActive: !currentStatus })
+            })
+
+            if (response.ok) {
+                await fetchNews()
+            } else {
+                alert('Error al cambiar el estado de la noticia')
+            }
+        } catch (error) {
+            console.error('Error toggling news status:', error)
+            alert('Error al cambiar el estado de la noticia')
+        }
+    }
+
+    const resetForm = () => {
+        setFormData({
+            title: '',
+            synopsis: '',
+            source: '',
+            externalUrl: '',
+            publishedAt: ''
+        })
+    }
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+    }
+
+    if (loading) {
+        return (
+            <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Cargando noticias...</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="space-y-6">
+            {/* Header with Add Button */}
+            <div className="flex justify-between items-center">
+                <h4 className="text-lg font-semibold text-gray-900">Noticias ({news.length})</h4>
+                <button
+                    onClick={() => {
+                        setEditingNews(null)
+                        resetForm()
+                        setShowForm(true)
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                    <Plus className="w-4 h-4" />
+                    Agregar Noticia
+                </button>
+            </div>
+
+            {/* Form Modal */}
+            {showForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <h3 className="text-xl font-semibold mb-4">
+                            {editingNews ? 'Editar Noticia' : 'Agregar Nueva Noticia'}
+                        </h3>
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Título *
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Título de la noticia"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Sinopsis *
+                                </label>
+                                <textarea
+                                    required
+                                    rows={4}
+                                    value={formData.synopsis}
+                                    onChange={(e) => setFormData({ ...formData, synopsis: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Breve descripción de la noticia"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Fuente *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.source}
+                                        onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Ej: Reuters, Bloomberg"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Fecha de Publicación
+                                    </label>
+                                    <input
+                                        type="datetime-local"
+                                        value={formData.publishedAt}
+                                        onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    URL Externa *
+                                </label>
+                                <input
+                                    type="url"
+                                    required
+                                    value={formData.externalUrl}
+                                    onChange={(e) => setFormData({ ...formData, externalUrl: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="https://ejemplo.com/noticia"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowForm(false)
+                                        setEditingNews(null)
+                                        resetForm()
+                                    }}
+                                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    {editingNews ? 'Actualizar' : 'Crear'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* News List */}
+            {news.length === 0 ? (
+                <div className="text-center py-8">
+                    <p className="text-gray-500">No hay noticias. Crea la primera noticia.</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {news.map((item) => (
+                        <div key={item.id} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                                        {item.isActive ? (
+                                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                                Activa
+                                            </span>
+                                        ) : (
+                                            <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                                Inactiva
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">{item.synopsis}</p>
+
+                                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                                        <span>Fuente: {item.source}</span>
+                                        <div className="flex items-center gap-1">
+                                            <Calendar className="w-4 h-4" />
+                                            <span>{formatDate(item.publishedAt)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 ml-4">
+                                    <button
+                                        onClick={() => window.open(item.externalUrl, '_blank')}
+                                        className="p-2 text-gray-500 hover:text-blue-600"
+                                        title="Ver noticia externa"
+                                    >
+                                        <ExternalLink className="w-4 h-4" />
+                                    </button>
+
+                                    <button
+                                        onClick={() => toggleActive(item.id, item.isActive)}
+                                        className={`p-2 ${item.isActive ? 'text-green-600 hover:text-green-800' : 'text-gray-400 hover:text-gray-600'}`}
+                                        title={item.isActive ? 'Desactivar' : 'Activar'}
+                                    >
+                                        {item.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleEdit(item)}
+                                        className="p-2 text-blue-600 hover:text-blue-800"
+                                        title="Editar"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleDelete(item.id)}
+                                        className="p-2 text-red-600 hover:text-red-800"
+                                        title="Eliminar"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}

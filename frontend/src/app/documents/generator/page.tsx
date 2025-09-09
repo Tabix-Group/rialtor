@@ -4,17 +4,9 @@ import { useState } from 'react'
 import { FileText, Download, Wand2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '../../auth/authContext'
-import { useRouter } from 'next/navigation'
 
 export default function DocumentGeneratorPage() {
-    const { user, loading } = useAuth();
-    const router = useRouter();
-
-    // Proteger ruta: si no está logueado, redirigir a login
-    if (!loading && !user && typeof window !== 'undefined') {
-        router.replace('/auth/login');
-        return null;
-    }
+    const { user } = useAuth();
 
     const [documentType, setDocumentType] = useState('')
     const [propertyData, setPropertyData] = useState({
@@ -72,12 +64,12 @@ export default function DocumentGeneratorPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50 py-12">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12">
             <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-8">
                 <div className="bg-white/90 rounded-3xl shadow-2xl border border-gray-100 backdrop-blur-md">
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-red-600 to-red-400 text-white p-8 rounded-t-3xl shadow flex flex-col gap-2">
-                        <Link href="/documents" className="flex items-center gap-2 text-red-100 hover:text-white transition-colors mb-2 w-fit">
+                    <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-8 rounded-t-3xl shadow flex flex-col gap-2">
+                        <Link href="/documents" className="flex items-center gap-2 text-blue-100 hover:text-white transition-colors mb-2 w-fit">
                             <ArrowLeft className="w-5 h-5" />
                             Volver a Documentos
                         </Link>
@@ -85,7 +77,7 @@ export default function DocumentGeneratorPage() {
                             <Wand2 className="w-8 h-8 text-white/80" />
                             Generador de Documentos Inteligentes
                         </h1>
-                        <p className="text-red-100 text-lg">
+                        <p className="text-blue-100 text-lg">
                             Crea documentos legales profesionales en segundos
                         </p>
                     </div>
@@ -101,8 +93,8 @@ export default function DocumentGeneratorPage() {
                                         <div
                                             key={type.value}
                                             className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${documentType === type.value
-                                                    ? 'border-red-500 bg-red-50'
-                                                    : 'border-gray-200 hover:border-red-300'
+                                                ? 'border-blue-500 bg-blue-50'
+                                                : 'border-gray-200 hover:border-blue-300'
                                                 }`}
                                             onClick={() => setDocumentType(type.value)}
                                         >
@@ -125,7 +117,7 @@ export default function DocumentGeneratorPage() {
                                             type="text"
                                             value={propertyData.address}
                                             onChange={(e) => setPropertyData({ ...propertyData, address: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="Dirección completa de la propiedad"
                                         />
                                     </div>
@@ -138,7 +130,7 @@ export default function DocumentGeneratorPage() {
                                             type="text"
                                             value={propertyData.price}
                                             onChange={(e) => setPropertyData({ ...propertyData, price: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="Precio de la propiedad"
                                         />
                                     </div>
@@ -151,7 +143,7 @@ export default function DocumentGeneratorPage() {
                                             type="text"
                                             value={propertyData.owner}
                                             onChange={(e) => setPropertyData({ ...propertyData, owner: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="Nombre del propietario"
                                         />
                                     </div>
@@ -164,7 +156,7 @@ export default function DocumentGeneratorPage() {
                                             type="text"
                                             value={propertyData.buyer}
                                             onChange={(e) => setPropertyData({ ...propertyData, buyer: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="Nombre del comprador o inquilino"
                                         />
                                     </div>
@@ -177,7 +169,7 @@ export default function DocumentGeneratorPage() {
                                             value={propertyData.description}
                                             onChange={(e) => setPropertyData({ ...propertyData, description: e.target.value })}
                                             rows={4}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="Descripción detallada de la propiedad"
                                         />
                                     </div>
@@ -190,7 +182,7 @@ export default function DocumentGeneratorPage() {
                             <button
                                 onClick={handleGenerate}
                                 disabled={isGenerating || !documentType}
-                                className="bg-gradient-to-r from-red-500 to-red-700 text-white px-8 py-4 rounded-xl shadow-lg hover:from-red-600 hover:to-red-800 transition-all flex items-center gap-3 font-bold text-lg mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center gap-3 font-bold text-lg mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Wand2 className="w-6 h-6" />
                                 {isGenerating ? 'Generando...' : 'Generar Documento'}

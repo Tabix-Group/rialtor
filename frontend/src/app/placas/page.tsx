@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/authContext'
-import { useRouter } from 'next/navigation'
-import { usePermission } from '../../hooks/usePermission'
 import { authenticatedFetch } from '../../utils/api'
 import {
   Upload,
@@ -61,9 +59,7 @@ interface PropertyPlaque {
 }
 
 export default function PlacasPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const hasPermission = usePermission('use_placas');
+  const { user } = useAuth();
 
   // Estados
   const [plaques, setPlaques] = useState<PropertyPlaque[]>([]);
@@ -93,19 +89,10 @@ export default function PlacasPage() {
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
 
-  // Proteger ruta
-  useEffect(() => {
-    if (!loading && (!user || !hasPermission)) {
-      router.replace('/auth/login');
-    }
-  }, [user, loading, hasPermission, router]);
-
   // Cargar placas
   useEffect(() => {
-    if (user && hasPermission) {
-      fetchPlaques();
-    }
-  }, [user, hasPermission]);
+    fetchPlaques();
+  }, []);
 
   // Funciones de paginación
   const handlePageChange = (page: number) => {
@@ -275,16 +262,8 @@ export default function PlacasPage() {
     }
   };
 
-  if (loading || !hasPermission) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -299,7 +278,7 @@ export default function PlacasPage() {
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-colors font-medium"
             >
               <Plus className="w-5 h-5" />
               Nueva Placa
@@ -323,7 +302,7 @@ export default function PlacasPage() {
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-colors"
             >
               Crear Primera Placa
             </button>
@@ -444,8 +423,8 @@ export default function PlacasPage() {
                   key={page}
                   onClick={() => handlePageChange(page)}
                   className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
                     }`}
                 >
                   {page}
@@ -537,7 +516,7 @@ export default function PlacasPage() {
                       <select
                         value={propertyData.tipo}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, tipo: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="">Seleccionar</option>
                         <option value="Casa">Casa</option>
@@ -556,7 +535,7 @@ export default function PlacasPage() {
                       <select
                         value={propertyData.moneda}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, moneda: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="USD">USD</option>
                         <option value="ARS">ARS</option>
@@ -573,7 +552,7 @@ export default function PlacasPage() {
                         required
                         value={propertyData.precio}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, precio: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 350000"
                       />
                     </div>
@@ -586,7 +565,7 @@ export default function PlacasPage() {
                         type="text"
                         value={propertyData.ambientes}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, ambientes: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 3"
                       />
                     </div>
@@ -599,7 +578,7 @@ export default function PlacasPage() {
                         type="text"
                         value={propertyData.dormitorios}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, dormitorios: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 2"
                       />
                     </div>
@@ -612,7 +591,7 @@ export default function PlacasPage() {
                         type="text"
                         value={propertyData.banos}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, banos: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 2"
                       />
                     </div>
@@ -625,7 +604,7 @@ export default function PlacasPage() {
                         type="text"
                         value={propertyData.cocheras}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, cocheras: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 1"
                       />
                     </div>
@@ -638,7 +617,7 @@ export default function PlacasPage() {
                         type="text"
                         value={propertyData.m2_totales}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, m2_totales: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 120"
                       />
                     </div>
@@ -651,7 +630,7 @@ export default function PlacasPage() {
                         type="text"
                         value={propertyData.m2_cubiertos}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, m2_cubiertos: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 85"
                       />
                     </div>
@@ -664,7 +643,7 @@ export default function PlacasPage() {
                         type="text"
                         value={propertyData.antiguedad}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 5 años"
                       />
                     </div>
@@ -680,7 +659,7 @@ export default function PlacasPage() {
                       type="text"
                       value={propertyData.direccion}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, direccion: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Ej: Av. Libertador 1234, Palermo, CABA"
                     />
                   </div>
@@ -693,7 +672,7 @@ export default function PlacasPage() {
                       type="email"
                       value={propertyData.email}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="agente@remax.com.ar"
                     />
                   </div>
@@ -706,7 +685,7 @@ export default function PlacasPage() {
                       required
                       value={propertyData.corredores}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       rows={2}
                       placeholder="Ej: Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
                     />
@@ -719,7 +698,7 @@ export default function PlacasPage() {
                     <textarea
                       value={propertyData.descripcion}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, descripcion: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       rows={3}
                       placeholder="Información adicional sobre la propiedad..."
                     />
@@ -737,7 +716,7 @@ export default function PlacasPage() {
                     <button
                       type="submit"
                       disabled={creating}
-                      className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-md hover:from-blue-600 hover:to-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {creating ? (
                         <>

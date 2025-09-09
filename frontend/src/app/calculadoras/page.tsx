@@ -2,10 +2,8 @@
 
 import Link from 'next/link'
 import { Calculator, FileText, Percent, ShieldCheck, Home } from 'lucide-react'
-import { useAuth } from '../auth/authContext'
 
 export default function CalculadorasPage() {
-  const { user } = useAuth()
 
   const calculators = [
     {
@@ -40,7 +38,7 @@ export default function CalculadorasPage() {
       name: 'Seguro de Caución',
       href: '/creditos',
       description: 'Accedé a la calculadora de costo de caución (seguros) para operaciones de alquiler y garantías.',
-      color: 'bg-red-50',
+      color: 'bg-blue-50',
       icon: ShieldCheck,
     },
   ]
@@ -56,7 +54,6 @@ export default function CalculadorasPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {calculators.map((c) => {
             const Icon = c.icon
-            const locked = c.name === 'Seguro de Caución' && !user
             return (
               <div key={c.name} className={`p-6 rounded-lg border ${c.color} shadow-sm hover:shadow-lg transition`}>
                 <div className="flex items-start gap-4">
@@ -67,11 +64,7 @@ export default function CalculadorasPage() {
                     <h3 className="text-lg font-semibold text-gray-900">{c.name}</h3>
                     <p className="text-sm text-gray-600 mt-1">{c.description}</p>
                     <div className="mt-4">
-                      {locked ? (
-                        <button disabled className="px-4 py-2 rounded bg-gray-200 text-gray-500">Ingresá para usar</button>
-                      ) : (
-                        <Link href={c.href} className="inline-block px-4 py-2 rounded bg-remax-red text-white hover:bg-red-600">Ir a calculadora</Link>
-                      )}
+                      <Link href={c.href} className="inline-block px-4 py-2 rounded bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700">Ir a calculadora</Link>
                     </div>
                   </div>
                 </div>

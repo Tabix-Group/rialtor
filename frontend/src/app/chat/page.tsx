@@ -11,7 +11,6 @@ interface Message {
 }
 
 import { useAuth } from '../auth/authContext'
-import { useRouter } from 'next/navigation'
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([
@@ -24,14 +23,7 @@ export default function ChatPage() {
   ])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  // Proteger ruta: si no está logueado, redirigir a login
-  if (!loading && !user && typeof window !== 'undefined') {
-    router.replace('/auth/login');
-    return null;
-  }
+  const { user } = useAuth();
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
@@ -98,15 +90,15 @@ export default function ChatPage() {
   }, [messages, isLoading]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50 py-10 flex flex-col items-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-10 flex flex-col items-center">
       <div className="w-full max-w-2xl flex flex-col flex-1 rounded-3xl shadow-2xl border border-gray-100 bg-white/90 backdrop-blur-md overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-600 to-red-400 text-white p-6 rounded-t-3xl shadow flex flex-col gap-1">
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-t-3xl shadow flex flex-col gap-1">
           <h1 className="text-2xl font-extrabold flex items-center gap-3">
             <Bot className="w-7 h-7" />
             Asistente Rialtor
           </h1>
-          <p className="text-red-100 text-base">
+          <p className="text-blue-100 text-base">
             Pregúntame sobre propiedades, procesos o cualquier duda de Rialtor
           </p>
         </div>
@@ -119,7 +111,7 @@ export default function ChatPage() {
               className={`chat-message ${message.isUser ? 'user' : 'assistant'}`}
             >
               <div className={`chat-bubble ${message.isUser ? 'user' : 'assistant'} shadow-sm flex items-end gap-2`}>
-                {!message.isUser && <Bot className="w-5 h-5 text-red-500 flex-shrink-0" />}
+                {!message.isUser && <Bot className="w-5 h-5 text-blue-500 flex-shrink-0" />}
                 <div className="flex-1">
                   <p className="whitespace-pre-wrap text-base leading-relaxed">{message.content}</p>
                   <span className={`block text-xs mt-1 ${message.isUser ? 'text-blue-200' : 'text-gray-500'}`}>
@@ -133,7 +125,7 @@ export default function ChatPage() {
           {isLoading && (
             <div className="chat-message assistant">
               <div className="chat-bubble assistant flex items-center gap-2 shadow-sm">
-                <Bot className="w-5 h-5 text-red-500" />
+                <Bot className="w-5 h-5 text-blue-500" />
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>

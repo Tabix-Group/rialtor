@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Receipt, DollarSign, Percent, Calculator, MapPin } from 'lucide-react'
 import { useAuth } from '../../auth/authContext'
-import { useRouter } from 'next/navigation'
 
 interface Province {
   key: string
@@ -20,14 +19,7 @@ interface StampCalculationResult {
 }
 
 export default function StampCalculatorPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  // Proteger ruta: si no está logueado, redirigir a login
-  if (!loading && !user && typeof window !== 'undefined') {
-    router.replace('/auth/login');
-    return null;
-  }
+  const { user } = useAuth();
 
   const [amount, setAmount] = useState('')
   const [province, setProvince] = useState('caba')
@@ -65,7 +57,7 @@ export default function StampCalculatorPage() {
     if (!amount || !stampRate) return;
 
     setLoading2(true);
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/calculator/taxes`, {
         method: 'POST',
@@ -197,30 +189,30 @@ export default function StampCalculatorPage() {
                     <Calculator className="w-5 h-5" />
                     Resultado del Cálculo
                   </h3>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-gray-600">Monto de la operación:</span>
                         <span className="font-medium">{formatCurrency(result.amount)}</span>
                       </div>
-                      
+
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-gray-600">Provincia:</span>
                         <span className="font-medium">{provinces.find(p => p.key === result.province)?.name || result.province}</span>
                       </div>
-                      
+
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm text-gray-600">Alícuota de sellos:</span>
                         <span className="font-medium">{formatPercentage(result.stampRate)}</span>
                       </div>
-                      
+
                       <div className="border-t pt-2 mt-2">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-gray-600">Impuesto de sellos:</span>
                           <span className="font-bold text-blue-600">{formatCurrency(result.stamps)}</span>
                         </div>
-                        
+
                         <div className="flex justify-between items-center">
                           <span className="text-base font-medium text-gray-800">Total a pagar:</span>
                           <span className="text-xl font-bold text-green-600">{formatCurrency(result.total)}</span>

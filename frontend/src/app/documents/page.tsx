@@ -3,18 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { FileText, Search, Wand2, ArrowRight } from 'lucide-react'
-import { useAuth } from '../auth/authContext'
-import { useRouter } from 'next/navigation'
 
 export default function DocumentsPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  // Proteger ruta: si no está logueado, redirigir a login
-  if (!loading && !user && typeof window !== 'undefined') {
-    router.replace('/auth/login');
-    return null;
-  }
 
   const documentOptions = [
     {
@@ -38,16 +28,16 @@ export default function DocumentsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12">
       <div className="max-w-5xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="bg-white/90 rounded-3xl shadow-2xl border border-gray-100 backdrop-blur-md">
           {/* Header */}
-          <div className="bg-gradient-to-r from-red-600 to-red-400 text-white p-8 rounded-t-3xl shadow">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-8 rounded-t-3xl shadow">
             <h1 className="text-3xl font-extrabold mb-2 tracking-tight flex items-center gap-3">
               <FileText className="w-8 h-8 text-white/80" />
               Documentos Inteligentes
             </h1>
-            <p className="text-red-100 text-lg">
+            <p className="text-blue-100 text-lg">
               Gestiona y crea documentos legales con la ayuda de inteligencia artificial
             </p>
           </div>
@@ -91,7 +81,7 @@ export default function DocumentsPage() {
                 </h4>
                 <p className="text-gray-600">
                   Si tienes dudas sobre cómo usar estas herramientas, puedes consultar nuestro
-                  <Link href="/knowledge" className="text-red-600 hover:text-red-700 font-medium ml-1">
+                  <Link href="/knowledge" className="text-blue-600 hover:text-blue-700 font-medium ml-1">
                     centro de ayuda
                   </Link>
                   o contactar al soporte técnico.

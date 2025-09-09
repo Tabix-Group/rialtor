@@ -6,11 +6,11 @@ const nextConfig = {
     domains: ['localhost', 'via.placeholder.com'],
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL 
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
       || (process.env.NODE_ENV === 'production'
-          ? 'https://remax-be-production.up.railway.app/api'
-          : 'http://localhost:3001/api'
-        ),
+        ? 'https://remax-be-production.up.railway.app/api'
+        : 'http://localhost:3003/api'
+      ),
   },
   async rewrites() {
     return [
@@ -19,16 +19,16 @@ const nextConfig = {
         destination: process.env.NEXT_PUBLIC_API_URL
           ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}/roles`
           : (process.env.NODE_ENV === 'production'
-              ? 'https://remax-be-production.up.railway.app/api/roles'
-              : 'http://localhost:3001/api/roles'),
+            ? 'https://remax-be-production.up.railway.app/api/roles'
+            : 'http://localhost:3003/api/roles'),
       },
       {
         source: '/api/permissions',
         destination: process.env.NEXT_PUBLIC_API_URL
           ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}/permissions`
           : (process.env.NODE_ENV === 'production'
-              ? 'https://remax-be-production.up.railway.app/api/permissions'
-              : 'http://localhost:3001/api/permissions'),
+            ? 'https://remax-be-production.up.railway.app/api/permissions'
+            : 'http://localhost:3003/api/permissions'),
       },
     ];
   },
