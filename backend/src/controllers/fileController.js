@@ -38,19 +38,63 @@ const upload = multer({
 // Subir archivo
 const uploadFile = async (req, res, next) => {
     try {
+        console.log('📁 Upload request received:', {
+            file: req.file ? {
+                originalname: req.file.originalname,
+                mimetype: req.file.mimetype,
+                size: req.file.size
+            } : 'No file',
+            body: req.body,
+            user: req.user ? req.user.id : 'No user'
+        });
+
+        // Verificar configuración de Cloudinary
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            console.error('❌ Cloudinary configuration missing');
+            return res.status(500).json({
+                success: false,
+                message: 'Configuración de Cloudinary incompleta',
+                error: 'CLOUDINARY_CONFIG_MISSING'
+            });
+        }
+
         if (!req.file) {
-            return res.status(400).json({ success: false, message: 'No se encontró ningún archivo' });
+            console.log('❌ No file found in request');
+            return res.status(400).json({
+                success: false,
+                message: 'No se encontró ningún archivo',
+                error: 'MISSING_FILE'
+            });
+        }
+
+        if (!req.user || !req.user.id) {
+            console.log('❌ No user found in request');
+            return res.status(401).json({
+                success: false,
+                message: 'Usuario no autenticado',
+                error: 'UNAUTHENTICATED'
+            });
         }
 
         const { folder = 'Contenido', subfolder } = req.body;
         const userId = req.user.id;
 
+        console.log('📁 Processing upload:', { folder, subfolder, userId });
+
         // Generar nombre único para el archivo
         const fileExtension = req.file.originalname.split('.').pop();
         const uniqueFilename = `${uuidv4()}.${fileExtension}`;
 
+        console.log('📁 Generated filename:', uniqueFilename);
+
         // Subir a Cloudinary
         const cloudinaryFolder = subfolder ? `${folder}/${subfolder}` : folder;
+
+        console.log('☁️ Uploading to Cloudinary:', {
+            folder: cloudinaryFolder,
+            filename: uniqueFilename,
+            size: req.file.size
+        });
 
         const uploadResult = await new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
@@ -60,12 +104,19 @@ const uploadFile = async (req, res, next) => {
                     folder: cloudinaryFolder,
                 },
                 (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
+                    if (error) {
+                        console.error('❌ Cloudinary upload error:', error);
+                        reject(error);
+                    } else {
+                        console.log('✅ Cloudinary upload success:', result.secure_url);
+                        resolve(result);
+                    }
                 }
             );
             stream.end(req.file.buffer);
         });
+
+        console.log('💾 Saving to database...');
 
         // Guardar en base de datos
         const fileUpload = await prisma.fileUpload.create({
@@ -91,6 +142,8 @@ const uploadFile = async (req, res, next) => {
             }
         });
 
+        console.log('✅ File upload completed successfully');
+
         res.json({
             success: true,
             message: 'Archivo subido exitosamente',
@@ -98,8 +151,39 @@ const uploadFile = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error('Error al subir archivo:', error);
-        next(error);
+        console.error('❌ Error al subir archivo:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+            code: error.code
+        });
+
+        // Manejar errores específicos de Cloudinary
+        if (error.http_code) {
+            return res.status(error.http_code).json({
+                success: false,
+                message: 'Error en el servicio de almacenamiento',
+                error: error.message,
+                code: 'CLOUDINARY_ERROR'
+            });
+        }
+
+        // Manejar errores de validación de multer
+        if (error.message === 'Tipo de archivo no permitido') {
+            return res.status(400).json({
+                success: false,
+                message: 'Tipo de archivo no permitido',
+                error: 'INVALID_FILE_TYPE'
+            });
+        }
+
+        // Devolver respuesta JSON directamente en lugar de usar next()
+        res.status(500).json({
+            success: false,
+            message: 'Error al subir el archivo',
+            error: error.message,
+            code: error.code || 'UPLOAD_ERROR'
+        });
     }
 };
 

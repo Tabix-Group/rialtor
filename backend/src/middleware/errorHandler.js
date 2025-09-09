@@ -63,6 +63,24 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
+  // Multer errors
+  if (err.name === 'MulterError') {
+    return res.status(400).json({
+      error: 'File upload error',
+      message: err.message,
+      code: err.code
+    });
+  }
+
+  // Cloudinary errors
+  if (err.http_code) {
+    return res.status(err.http_code).json({
+      error: 'Cloudinary error',
+      message: err.message,
+      code: err.error?.type || 'CLOUDINARY_ERROR'
+    });
+  }
+
   // OpenAI errors
   if (err.type === 'insufficient_quota') {
     return res.status(503).json({

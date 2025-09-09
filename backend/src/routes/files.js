@@ -1,20 +1,42 @@
-const express = require('express');
-const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
+// Health check para el servicio de archivos
+router.get('/health', async (req, res) => {
+    try {
+        const healthData = {
+            status: 'OK',
+            service: 'files',
+            timestamp: new Date().toISOString(),
+            cloudinary: {
+                configured: !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET),
+                cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'configured' : 'missing'
+            },
+            database: 'unknown'
+        };
 
-const prisma = new PrismaClient();
+        // Verificar conexión a base de datos
+        try {
+            await prisma.fileUpload.count();
+            healthData.database = 'connected';
+        } catch (error) {
+            healthData.database = 'disconnected';
+            healthData.dbError = error.message;
+            healthData.status = 'DEGRADED';
+        }
 
-const {
-    upload,
-    uploadFile,
-    getFiles,
-    getFolders,
-    deleteFile,
-    getFile
-} = require('../controllers/fileController');
+        // Verificar configuración de Cloudinary
+        if (!healthData.cloudinary.configured) {
+            healthData.status = 'DEGRADED';
+            healthData.cloudinary.error = 'Cloudinary configuration incomplete';
+        }
 
-const { authenticateToken } = require('../middleware/auth');
-const { checkPermission } = require('../middleware/permissions');
+        res.status(healthData.status === 'OK' ? 200 : 503).json(healthData);
+    } catch (error) {
+        res.status(503).json({
+            status: 'ERROR',
+            service: 'files',
+            error: error.message
+        });
+    }
+});
 
 // Rutas públicas para descargas (sin requerir permisos específicos)
 router.get('/public/folders', getFolders);

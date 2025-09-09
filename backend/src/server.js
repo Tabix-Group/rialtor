@@ -109,11 +109,6 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Middleware para archivos multipart (multer)
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
-app.use(upload.any());
-
 // Compression
 app.use(compression());
 
