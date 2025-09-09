@@ -361,19 +361,6 @@ export default function AdminPage() {
           <NewsManagement />
         </div>
       </div>
-
-      {/* Articles Management */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Gestión de Artículos</h3>
-        </div>
-        <div className="p-6">
-          <div className="text-center py-8">
-            <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Funcionalidad de gestión de artículos en desarrollo</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 

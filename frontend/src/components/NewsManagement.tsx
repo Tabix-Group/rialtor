@@ -31,6 +31,9 @@ export default function NewsManagement() {
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [editingNews, setEditingNews] = useState<NewsItem | null>(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+    const [pagination, setPagination] = useState<NewsResponse['pagination'] | null>(null)
     const [formData, setFormData] = useState({
         title: '',
         synopsis: '',
@@ -40,15 +43,16 @@ export default function NewsManagement() {
     })
 
     useEffect(() => {
-        fetchNews()
-    }, [])
+        fetchNews(currentPage, pageSize)
+    }, [currentPage, pageSize])
 
-    const fetchNews = async () => {
+    const fetchNews = async (page: number = 1, limit: number = 10) => {
         try {
             setLoading(true)
-            const response = await authenticatedFetch('/api/news/admin/all')
+            const response = await authenticatedFetch(`/api/news/admin/all?page=${page}&limit=${limit}`)
             const data: NewsResponse = await response.json()
             setNews(data.news)
+            setPagination(data.pagination)
         } catch (error) {
             console.error('Error fetching news:', error)
         } finally {
@@ -73,7 +77,7 @@ export default function NewsManagement() {
             })
 
             if (response.ok) {
-                await fetchNews()
+                await fetchNews(currentPage, pageSize)
                 setShowForm(false)
                 setEditingNews(null)
                 resetForm()
@@ -108,7 +112,7 @@ export default function NewsManagement() {
             })
 
             if (response.ok) {
-                await fetchNews()
+                await fetchNews(currentPage, pageSize)
                 alert('Noticia eliminada exitosamente')
             } else {
                 alert('Error al eliminar la noticia')
@@ -128,7 +132,7 @@ export default function NewsManagement() {
             })
 
             if (response.ok) {
-                await fetchNews()
+                await fetchNews(currentPage, pageSize)
             } else {
                 alert('Error al cambiar el estado de la noticia')
             }
@@ -359,6 +363,71 @@ export default function NewsManagement() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {pagination && pagination.pages > 1 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200">
+                    {/* Page Size Selector */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-gray-700">Mostrar:</label>
+                        <select
+                            value={pageSize}
+                            onChange={(e) => {
+                                const newSize = parseInt(e.target.value)
+                                setPageSize(newSize)
+                                setCurrentPage(1) // Reset to first page when changing page size
+                            }}
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value={10}>10</option>
+                            <option value={25}>25</option>
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                        </select>
+                        <span className="text-sm text-gray-500">
+                            de {pagination.total} noticias
+                        </span>
+                    </div>
+
+                    {/* Page Navigation */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Anterior
+                        </button>
+
+                        {/* Page Numbers */}
+                        {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
+                            const pageNum = Math.max(1, Math.min(pagination.pages - 4, currentPage - 2)) + i
+                            if (pageNum > pagination.pages) return null
+
+                            return (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`px-3 py-1 border rounded-md text-sm ${currentPage === pageNum
+                                            ? 'bg-blue-600 text-white border-blue-600'
+                                            : 'border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            )
+                        })}
+
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))}
+                            disabled={currentPage === pagination.pages}
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
