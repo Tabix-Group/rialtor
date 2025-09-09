@@ -12,7 +12,8 @@ import {
   Home,
   ChevronDown,
   Bell,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react'
 
 function Navigation() {
@@ -268,7 +269,7 @@ function Navigation() {
   )
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+    <nav className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 backdrop-blur-sm bg-white/95" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo y Home */}
@@ -320,6 +321,17 @@ function Navigation() {
                       <div className="font-medium text-gray-900">{user.name}</div>
                       <div className="text-sm text-gray-500">{user.email}</div>
                     </div>
+
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
+                        onClick={() => setActiveDropdown(null)}
+                      >
+                        <Shield className="w-4 h-4" />
+                        Panel de Administración
+                      </Link>
+                    )}
 
                     <Link
                       href="/profile"
@@ -391,6 +403,17 @@ function Navigation() {
                   <div className="text-sm text-gray-500">{user.email}</div>
                 </div>
               </div>
+
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-3 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Shield className="w-4 h-4" />
+                  Panel de Administración
+                </Link>
+              )}
 
               <Link
                 href="/profile"

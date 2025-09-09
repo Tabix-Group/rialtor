@@ -56,7 +56,7 @@ app.use(limiter);
 // CORS configuration
 // Support multiple frontend origins via FRONTEND_URLS (comma separated) or single FRONTEND_URL
 const getAllowedOrigins = () => {
-  const env = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000';
+  const env = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003';
   return env.split(',').map(s => s.trim()).filter(Boolean);
 };
 

@@ -9,7 +9,7 @@ const getApiUrl = () => {
         }
     }
     // Fallback to environment variable or localhost (expect full host without /api)
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
 };
 
 const API_BASE_URL = getApiUrl();

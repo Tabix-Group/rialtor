@@ -41,7 +41,7 @@ export default function NewsPage() {
     const fetchNews = async (page: number) => {
         try {
             setLoading(true)
-            const response = await fetch(`/api/news?page=${page}&limit=12`)
+            const response = await authenticatedFetch(`/api/news?page=${page}&limit=12`)
             if (!response.ok) {
                 throw new Error('Failed to fetch news')
             }
@@ -175,8 +175,8 @@ export default function NewsPage() {
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
                                         className={`px-4 py-2 border rounded-lg ${currentPage === page
-                                                ? 'bg-blue-600 text-white border-blue-600'
-                                                : 'border-gray-300 hover:bg-gray-50'
+                                            ? 'bg-blue-600 text-white border-blue-600'
+                                            : 'border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
                                         {page}

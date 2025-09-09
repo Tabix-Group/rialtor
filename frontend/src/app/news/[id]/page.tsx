@@ -33,7 +33,7 @@ export default function NewsDetailPage() {
     const fetchNewsDetail = async (id: string) => {
         try {
             setLoading(true)
-            const response = await fetch(`/api/news/${id}`)
+            const response = await authenticatedFetch(`/api/news/${id}`)
             if (!response.ok) {
                 if (response.status === 404) {
                     throw new Error('Noticia no encontrada')
