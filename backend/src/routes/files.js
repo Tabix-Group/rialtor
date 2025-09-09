@@ -1,3 +1,21 @@
+const express = require('express');
+const router = express.Router();
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
+
+const {
+    upload,
+    uploadFile,
+    getFiles,
+    getFolders,
+    deleteFile,
+    getFile
+} = require('../controllers/fileController');
+
+const { authenticateToken } = require('../middleware/auth');
+const { checkPermission } = require('../middleware/permissions');
+
 // Health check para el servicio de archivos
 router.get('/health', async (req, res) => {
     try {
