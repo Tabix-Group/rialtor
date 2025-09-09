@@ -294,7 +294,7 @@ function Navigation() {
             {user && (
               <button className="relative p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors">
                 <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
                   <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
                 </span>
               </button>
@@ -334,12 +334,12 @@ function Navigation() {
                     )}
 
                     <Link
-                      href="/profile"
+                      href="/admin"
                       className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => setActiveDropdown(null)}
                     >
                       <Settings className="w-4 h-4" />
-                      Configuración
+                      Panel de Administración
                     </Link>
 
                     <button
@@ -347,7 +347,7 @@ function Navigation() {
                         logout()
                         setActiveDropdown(null)
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       Cerrar Sesión
@@ -416,12 +416,12 @@ function Navigation() {
               )}
 
               <Link
-                href="/profile"
+                href="/admin"
                 className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <Settings className="w-4 h-4" />
-                Configuración
+                Panel de Administración
               </Link>
 
               <button
@@ -429,7 +429,7 @@ function Navigation() {
                   logout()
                   setIsOpen(false)
                 }}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Cerrar Sesión

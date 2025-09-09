@@ -161,14 +161,14 @@ export default function UserManagement({ token }: { token: string }) {
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
         <h2 className="text-xl font-bold">Usuarios</h2>
-        <button onClick={openCreateModal} className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-700 transition-colors">
+        <button onClick={openCreateModal} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors">
           <UserPlus className="w-5 h-5" /> Nuevo Usuario
         </button>
       </div>
       {loading ? (
         <div className="text-center py-8 text-gray-500">Cargando usuarios...</div>
       ) : error ? (
-        <div className="text-center py-8 text-red-500">{error}</div>
+        <div className="text-center py-8 text-blue-500">{error}</div>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -212,7 +212,7 @@ export default function UserManagement({ token }: { token: string }) {
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap flex gap-2">
                     <button onClick={() => openEditModal(user)} className="text-blue-600 hover:text-blue-900"><Edit className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-900"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(user)} className="text-gray-600 hover:text-gray-900"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}
@@ -278,7 +278,7 @@ export default function UserManagement({ token }: { token: string }) {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button type="button" onClick={closeModal} className="px-4 py-2 rounded bg-gray-200 text-gray-700">Cancelar</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 flex items-center gap-2">
+                <button type="submit" disabled={saving} className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2">
                   <Check className="w-4 h-4" /> {saving ? 'Guardando...' : 'Guardar'}
                 </button>
               </div>

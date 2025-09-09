@@ -34,8 +34,8 @@ export default function LoginPage() {
             localStorage.setItem('user', JSON.stringify(data.user));
           }
         }
-        // Redirigir a knowledge
-        window.location.href = '/knowledge';
+        // Redirigir a news
+        window.location.href = '/news';
       } else {
         const data = await response.json()
         setError(data.message || 'Error al iniciar sesión')
@@ -111,7 +111,7 @@ export default function LoginPage() {
 
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <p className="text-sm text-blue-600">{error}</p>
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 

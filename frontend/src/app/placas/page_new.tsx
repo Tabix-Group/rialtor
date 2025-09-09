@@ -250,7 +250,7 @@ export default function PlacasPage() {
       case 'COMPLETED':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'ERROR':
-        return <XCircle className="w-5 h-5 text-red-500" />;
+        return <XCircle className="w-5 h-5 text-orange-500" />;
       case 'PROCESSING':
       case 'GENERATING':
         return <Clock className="w-5 h-5 text-yellow-500 animate-pulse" />;
@@ -298,7 +298,7 @@ export default function PlacasPage() {
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
+              className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               <Plus className="w-5 h-5" />
               Nueva Placa
@@ -322,7 +322,7 @@ export default function PlacasPage() {
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
               Crear Primera Placa
             </button>
@@ -374,7 +374,7 @@ export default function PlacasPage() {
                       </div>
                       {plaque.propertyData.direccion && (
                         <div className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-red-600" />
+                          <MapPin className="w-3 h-3 text-blue-600" />
                           <span className="truncate">{plaque.propertyData.direccion}</span>
                         </div>
                       )}
@@ -415,7 +415,7 @@ export default function PlacasPage() {
 
                       <button
                         onClick={() => deletePlaque(plaque.id)}
-                        className="flex items-center justify-center gap-1 bg-red-100 text-red-700 px-2 py-1.5 rounded text-xs hover:bg-red-200 transition-colors"
+                        className="flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition-colors"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -519,7 +519,7 @@ export default function PlacasPage() {
                             <button
                               type="button"
                               onClick={() => removeImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                              className="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full p-1 hover:bg-gray-600"
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
@@ -538,7 +538,7 @@ export default function PlacasPage() {
                       <select
                         value={propertyData.tipo}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, tipo: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="">Seleccionar</option>
                         <option value="Casa">Casa</option>
@@ -557,7 +557,7 @@ export default function PlacasPage() {
                       <select
                         value={propertyData.moneda}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, moneda: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option value="USD">USD</option>
                         <option value="ARS">ARS</option>
@@ -574,7 +574,7 @@ export default function PlacasPage() {
                         required
                         value={propertyData.precio}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, precio: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Ej: 350000"
                       />
                     </div>
@@ -739,7 +739,7 @@ export default function PlacasPage() {
                     <button
                       type="submit"
                       disabled={creating}
-                      className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {creating ? (
                         <>

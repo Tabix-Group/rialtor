@@ -96,8 +96,8 @@ export default function NewsDetailPage() {
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
                 <div className="max-w-4xl mx-auto px-4 py-12">
                     <div className="text-center">
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-                            <p className="text-red-600">{error || 'Noticia no encontrada'}</p>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                            <p className="text-blue-600">{error || 'Noticia no encontrada'}</p>
                         </div>
                         <Link
                             href="/news"

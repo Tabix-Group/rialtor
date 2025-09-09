@@ -354,7 +354,7 @@ export default function NewsManagement() {
 
                                     <button
                                         onClick={() => handleDelete(item.id)}
-                                        className="p-2 text-red-600 hover:text-red-800"
+                                        className="p-2 text-gray-600 hover:text-gray-800"
                                         title="Eliminar"
                                     >
                                         <Trash2 className="w-4 h-4" />

@@ -213,7 +213,7 @@ export default function AdminPage() {
   if (loading || permsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -244,10 +244,10 @@ export default function AdminPage() {
                 <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                 <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
-              <div className="text-red-600">{stat.icon}</div>
+              <div className="text-blue-600">{stat.icon}</div>
             </div>
             <div className="mt-4">
-              <span className={`text-sm font-medium ${stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+              <span className={`text-sm font-medium ${stat.changeType === 'increase' ? 'text-green-600' : 'text-orange-600'
                 }`}>
                 {stat.change}
               </span>
@@ -327,7 +327,7 @@ export default function AdminPage() {
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-500'}`}>{user.isActive ? 'Activo' : 'Inactivo'}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button className="text-red-600 hover:text-red-900">Editar</button>
+                      <button className="text-blue-600 hover:text-blue-900">Editar</button>
                     </td>
                   </tr>
                 ))}
@@ -341,7 +341,7 @@ export default function AdminPage() {
 
   const renderUsers = () => {
     if (!hasUserMgmtPerm) {
-      return <div className="p-6 text-center text-red-500">No autorizado</div>;
+      return <div className="p-6 text-center text-blue-500">No autorizado</div>;
     }
     return (
       <div className="bg-white rounded-lg shadow">
@@ -395,7 +395,7 @@ export default function AdminPage() {
                 value={newBankName}
                 onChange={(e) => setNewBankName(e.target.value)}
                 placeholder="Nombre del banco"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -406,13 +406,13 @@ export default function AdminPage() {
                 value={newRate}
                 onChange={(e) => setNewRate(e.target.value)}
                 placeholder="Ej: 8.5"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="flex items-end">
               <button
                 onClick={saveBankRate}
-                className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 Guardar Tasa
               </button>
@@ -464,7 +464,7 @@ export default function AdminPage() {
                         </button>
                         <button
                           onClick={() => deleteBankRate(rate.id, rate.bankName)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-gray-600 hover:text-gray-900"
                         >
                           Eliminar
                         </button>
@@ -481,16 +481,16 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-400 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-8 flex items-center gap-5">
           <span className="inline-flex items-center justify-center bg-white/20 rounded-full p-3 shadow">
             <Shield className="w-10 h-10 text-white/90" />
           </span>
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight">Panel de Administración</h1>
-            <p className="text-red-100 text-lg">Gestión y control de la plataforma Rialtor</p>
+            <p className="text-blue-100 text-lg">Gestión y control de la plataforma Rialtor</p>
           </div>
         </div>
       </div>
@@ -503,7 +503,7 @@ export default function AdminPage() {
               <nav className="space-y-3">
                 <button
                   onClick={() => setActiveTab('dashboard')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   <BarChart3 className="w-6 h-6" />
@@ -512,7 +512,7 @@ export default function AdminPage() {
                 {hasUserMgmtPerm && (
                   <button
                     onClick={() => setActiveTab('users')}
-                    className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'users' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                    className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'users' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                       }`}
                   >
                     <Users className="w-6 h-6" />
@@ -521,7 +521,7 @@ export default function AdminPage() {
                 )}
                 <button
                   onClick={() => setActiveTab('content')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'content' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'content' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   <FileText className="w-6 h-6" />
@@ -529,7 +529,7 @@ export default function AdminPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('rates')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'rates' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'rates' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   <Percent className="w-6 h-6" />
@@ -537,7 +537,7 @@ export default function AdminPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'settings' ? 'bg-red-100 text-red-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'settings' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
                 >
                   <Settings className="w-6 h-6" />
