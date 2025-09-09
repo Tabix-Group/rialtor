@@ -16,7 +16,12 @@ const {
 const { authenticateToken } = require('../middleware/auth');
 const { checkPermission } = require('../middleware/permissions');
 
-// Middleware de autenticación para todas las rutas
+// Rutas públicas para descargas (sin requerir permisos específicos)
+router.get('/public/folders', getFolders);
+router.get('/public/files', getFiles);
+router.get('/public/:id', getFile);
+
+// Middleware de autenticación para todas las rutas siguientes
 router.use(authenticateToken);
 
 // Subir archivo (requiere permisos de admin o usuario autenticado)
@@ -49,10 +54,5 @@ router.delete('/:id',
     checkPermission('manage_system'),
     deleteFile
 );
-
-// Rutas públicas para descargas (sin requerir permisos específicos)
-router.get('/public/folders', getFolders);
-router.get('/public/files', getFiles);
-router.get('/public/:id', getFile);
 
 module.exports = router;

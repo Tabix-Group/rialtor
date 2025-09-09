@@ -135,7 +135,8 @@ export default function FileManagement() {
             // Crear una carpeta temporal subiendo un archivo dummy
             const formData = new FormData()
             const dummyBlob = new Blob([''], { type: 'text/plain' })
-            formData.append('file', dummyBlob, 'dummy.txt')
+            const dummyFile = new File([dummyBlob], 'dummy.txt', { type: 'text/plain' })
+            formData.append('file', dummyFile)
             formData.append('folder', selectedFolder)
             formData.append('subfolder', newSubfolder.trim())
 
@@ -401,8 +402,8 @@ export default function FileManagement() {
                                 key={page}
                                 onClick={() => handlePageChange(page)}
                                 className={`px-3 py-1 border rounded-md ${page === currentPage
-                                        ? 'bg-blue-600 text-white border-blue-600'
-                                        : 'border-gray-300 hover:bg-gray-50'
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'border-gray-300 hover:bg-gray-50'
                                     }`}
                             >
                                 {page}
