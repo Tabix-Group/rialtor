@@ -30,6 +30,24 @@ const nextConfig = {
             ? 'https://remax-be-production.up.railway.app/api/permissions'
             : 'http://localhost:3003/api/permissions'),
       },
+      // File management endpoints
+      {
+        source: '/api/files/:path*',
+        destination: process.env.NEXT_PUBLIC_API_URL
+          ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}/files/:path*`
+          : (process.env.NODE_ENV === 'production'
+            ? 'https://remax-be-production.up.railway.app/api/files/:path*'
+            : 'http://localhost:3003/api/files/:path*'),
+      },
+      // Catch-all for other API routes
+      {
+        source: '/api/:path*',
+        destination: process.env.NEXT_PUBLIC_API_URL
+          ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}/:path*`
+          : (process.env.NODE_ENV === 'production'
+            ? 'https://remax-be-production.up.railway.app/api/:path*'
+            : 'http://localhost:3003/api/:path*'),
+      },
     ];
   },
 }
