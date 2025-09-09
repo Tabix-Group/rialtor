@@ -7,10 +7,6 @@ const prisma = new PrismaClient();
 // Inicializar OpenAI
 let openai = null;
 if (process.env.OPENAI_API_KEY) {
-  // Log para debug: mostrar parte de la key (no toda por seguridad)
-  const key = process.env.OPENAI_API_KEY;
-  const safeKey = key.length > 8 ? key.substring(0, 4) + '...' + key.substring(key.length - 4) : key;
-  console.log('[DEBUG] OPENAI_API_KEY detected:', safeKey);
   openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
   });
@@ -18,7 +14,7 @@ if (process.env.OPENAI_API_KEY) {
   console.log('[DEBUG] OPENAI_API_KEY NOT FOUND');
 }
 
-// Modelo OpenAI configurable por variable de entorno. Usa GPT-4o por defecto (último modelo)
+// Modelo OpenAI configurable
 const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
 console.log('[DEBUG] OPENAI model configured as:', DEFAULT_OPENAI_MODEL);
 
@@ -122,42 +118,22 @@ const getChatSession = async (req, res, next) => {
   }
 };
 
-const { kb_lookup, tasador_express, calc_gastos_escritura, calc_honorarios } = require('../services/rialtorTools');
-const { saveSlots, getSlots } = require('../services/sessionStore');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const metrics = require('../instrumentation/rialtorMetrics');
-const templates = require('../templates/rialtorTemplates');
-
 const sendMessage = async (req, res, next) => {
   try {
-    console.log('[CHAT] sendMessage called');
-    console.log('[CHAT] req.body keys:', Object.keys(req.body));
-    console.log('[CHAT] req.body:', JSON.stringify(req.body, null, 2));
-    let { message, sessionId, audioBase64, audioFilename, requestAudioResponse } = req.body;
+    const { message, sessionId } = req.body;
     const userId = req.user.id;
-    console.log('[CHAT] userId:', userId, 'sessionId:', sessionId, 'message:', message);
-    console.log('[CHAT] message type:', typeof message, 'sessionId type:', typeof sessionId);
-    console.log('[CHAT] audioBase64 length:', audioBase64 ? audioBase64.length : 'null');
-    console.log('[CHAT] audioFilename:', audioFilename);
-    console.log('[CHAT] requestAudioResponse:', requestAudioResponse);
 
     let session;
 
     // Si no hay sessionId, crear una nueva sesión
     if (!sessionId) {
-      // Si viene audio, usar un título temporal hasta obtener la transcripción
-      const tempTitle = audioBase64 ? 'Mensaje de voz' : (message.substring(0, 50) + (message.length > 50 ? '...' : ''));
-
       session = await prisma.chatSession.create({
         data: {
           userId,
-          title: tempTitle,
+          title: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
           isActive: true
         }
       });
-      console.log('[CHAT] Nueva sesión creada:', session.id, 'con título:', tempTitle);
     } else {
       // Verificar que la sesión existe y pertenece al usuario
       session = await prisma.chatSession.findFirst({
@@ -167,103 +143,14 @@ const sendMessage = async (req, res, next) => {
         }
       });
       if (!session) {
-        console.log('[CHAT] Sesión no encontrada o acceso denegado:', sessionId);
         return res.status(404).json({
           error: 'Session not found',
           message: 'Chat session not found or access denied'
         });
       }
-      console.log('[CHAT] Sesión encontrada:', session.id);
     }
 
-    // Si viene audio en base64, decodificar y transcribir antes de guardar
-    if (audioBase64) {
-      console.log('[CHAT] Procesando audio, audioFilename:', audioFilename);
-
-      if (!openai) {
-        console.log('[CHAT] OpenAI no inicializado para transcripción');
-        return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
-      }
-      try {
-        console.log('[CHAT] Procesando audio, tamaño base64:', audioBase64.length);
-
-        // Validar que el base64 no esté vacío
-        if (!audioBase64 || audioBase64.length < 100) {
-          console.log('[CHAT] Audio base64 muy pequeño o vacío');
-          return res.status(400).json({ error: 'Audio inválido o muy corto.' });
-        }
-
-        const buffer = Buffer.from(audioBase64, 'base64');
-        console.log('[CHAT] Buffer creado, tamaño:', buffer.length);
-
-        if (buffer.length < 1000) {
-          console.log('[CHAT] Audio muy pequeño después de decodificar');
-          return res.status(400).json({ error: 'Audio muy corto o corrupto.' });
-        }
-
-        const tmpDir = os.tmpdir();
-        const safeName = (audioFilename && path.basename(audioFilename)) || `audio-${Date.now()}.webm`;
-        const tmpPath = path.join(tmpDir, `${Date.now()}-${safeName}`);
-
-        fs.writeFileSync(tmpPath, buffer);
-        console.log('[CHAT] Audio guardado temporalmente en:', tmpPath, 'tamaño archivo:', fs.statSync(tmpPath).size);
-
-        // Verificar que el archivo se creó correctamente
-        if (!fs.existsSync(tmpPath)) {
-          console.log('[CHAT] Error: archivo temporal no se creó');
-          return res.status(500).json({ error: 'Error interno al procesar audio.' });
-        }        // Llamada a la API de transcripción de OpenAI (modelo whisper-1)
-        console.log('[CHAT] Iniciando transcripción con Whisper...');
-        const transcription = await openai.audio.transcriptions.create({
-          file: fs.createReadStream(tmpPath),
-          model: 'whisper-1',
-          response_format: 'text'
-        });
-
-        console.log('[CHAT] Respuesta de transcripción:', transcription);
-
-        if (transcription && typeof transcription === 'string' && transcription.trim()) {
-          message = transcription.trim();
-          console.log('[CHAT] Transcripción obtenida:', message);
-        } else if (transcription && transcription.text && transcription.text.trim()) {
-          message = transcription.text.trim();
-          console.log('[CHAT] Transcripción (formato objeto) obtenida:', message);
-        } else {
-          console.log('[CHAT] No se obtuvo texto válido de la transcripción');
-          // eliminar archivo temporal
-          try { fs.unlinkSync(tmpPath); } catch (e) { /* ignore */ }
-
-          // En lugar de devolver error 400, devolver un mensaje de error pero continuar
-          console.warn('[CHAT] Transcripción fallida, continuando con mensaje de error');
-          message = '[Error en transcripción: No se pudo procesar el audio. Por favor intenta grabar nuevamente.]';
-        }
-
-        // eliminar archivo temporal
-        try {
-          fs.unlinkSync(tmpPath);
-          console.log('[CHAT] Archivo temporal eliminado');
-        } catch (e) {
-          console.warn('[CHAT] Error eliminando archivo temporal:', e.message);
-        }
-      } catch (tErr) {
-        console.error('[CHAT] Error transcribiendo audio:', tErr);
-
-        // En lugar de devolver error 500, continuar con mensaje de error
-        console.warn('[CHAT] Error en transcripción, continuando con mensaje de error');
-        message = '[Error en transcripción: Hubo un problema procesando tu audio. Por favor intenta grabar nuevamente.]';
-      }
-    }
-
-    // Validar que tenemos un mensaje para procesar
-    if (!message || !message.trim()) {
-      console.log('[CHAT] No hay mensaje para procesar');
-      return res.status(400).json({
-        error: 'Mensaje vacío',
-        message: 'No se pudo obtener texto del mensaje de voz. Intenta grabarlo nuevamente.'
-      });
-    }
-
-    // Guardar mensaje del usuario (texto o transcripción)
+    // Guardar mensaje del usuario
     const userMessage = await prisma.chatMessage.create({
       data: {
         sessionId: session.id,
@@ -271,357 +158,52 @@ const sendMessage = async (req, res, next) => {
         role: 'USER'
       }
     });
-    console.log('[CHAT] Mensaje de usuario guardado:', userMessage.id);
 
-    // Actualizar título de la sesión si era temporal y ahora tenemos texto real
-    if (session.title === 'Mensaje de voz' && message && message.trim() && !message.startsWith('[Error')) {
-      const newTitle = message.substring(0, 50) + (message.length > 50 ? '...' : '');
-      await prisma.chatSession.update({
-        where: { id: session.id },
-        data: { title: newTitle }
-      });
-      console.log('[CHAT] Título de sesión actualizado:', newTitle);
-    }
+    // Generar respuesta con OpenAI
+    let assistantResponse = 'Lo siento, el servicio de IA no está disponible.';
+    if (openai) {
+      const systemPrompt = 'Eres un asistente útil y amigable. Responde de manera clara y concisa.';
 
-    // Buscar contexto relevante en artículos y documentos (mantener lógica existente)
-    let contextText = '';
-    let foundContext = false;
-
-    // Buscar artículos relevantes
-    const articles = await prisma.article.findMany({
-      where: {
-        status: 'PUBLISHED',
-        OR: [
-          { title: { contains: message, mode: 'insensitive' } },
-          { content: { contains: message, mode: 'insensitive' } },
-          { excerpt: { contains: message, mode: 'insensitive' } }
-        ]
-      },
-      include: { category: true },
-      take: 3,
-      orderBy: { views: 'desc' }
-    });
-    console.log('[CHAT] Artículos encontrados:', articles.length);
-
-    if (articles.length > 0) {
-      foundContext = true;
-      contextText += 'Artículos relevantes:\n';
-      articles.forEach((a, idx) => {
-        let slug = a.slug;
-        let title = a.title || a.name || '';
-        let excerpt = a.excerpt || a.summary || '';
-        let content = a.content || a.text || '';
-        let category = (a.category && a.category.name) || a.category || 'Sin categoría';
-        if (!slug && a.id) {
-          slug = a.id;
-        }
-        const baseUrl = process.env.FRONTEND_URL || 'https://remax.tabix.com.ar';
-        const articleUrl = slug ? `${baseUrl}/knowledge/article/${slug}` : '';
-        contextText += `(${idx + 1}) Título: ${title}\nResumen: ${excerpt}\nContenido: ${content.substring(0, 800)}\nCategoría: ${category}\nEnlace: ${articleUrl}\n---\n`;
-      });
-    }
-
-    // Buscar documentos relevantes (DocumentTemplate)
-    const documents = await prisma.documentTemplate.findMany({
-      where: {
-        OR: [
-          { name: { contains: message, mode: 'insensitive' } },
-          { description: { contains: message, mode: 'insensitive' } },
-          { category: { contains: message, mode: 'insensitive' } },
-          { template: { contains: message, mode: 'insensitive' } }
-        ]
-      },
-      take: 2,
-      orderBy: { createdAt: 'desc' }
-    });
-    console.log('[CHAT] Documentos encontrados:', documents.length);
-
-    if (documents.length > 0) {
-      foundContext = true;
-      contextText += '\nDocumentos relevantes:\n';
-      documents.forEach((d, idx) => {
-        contextText += `(${idx + 1}) Título: ${d.title}\nContenido: ${d.content.substring(0, 800)}\n---\n`;
-      });
-    }
-
-    // Persistir slots mínimos si vienen en el mensaje (ej: zona, tipo, superficie)
-    try {
-      const possibleSlots = {};
-      // Intent: simple extracción con regexes para capturar m2, barrio, tipo
-      const m2Match = message.match(/(\d{2,4})\s?m\s?\b|(\d{2,4})\s?m2\b/i);
-      if (m2Match) {
-        const m2 = Number((m2Match[1] || m2Match[2]));
-        if (!isNaN(m2)) possibleSlots.superficie = m2;
-      }
-      const barrioMatch = message.match(/(Caballito|Palermo|Belgrano|Recoleta|[A-Z][a-z]+)\b/);
-      if (barrioMatch) possibleSlots.zona = barrioMatch[1];
-      const tipoMatch = message.match(/(dept|departamento|ph|casa|monoamb|2 amb|3 amb|local)/i);
-      if (tipoMatch) possibleSlots.tipo_propiedad = tipoMatch[1];
-      if (Object.keys(possibleSlots).length > 0) {
-        saveSlots(session.id, possibleSlots);
-        console.log('[CHAT] Slots guardados:', possibleSlots);
-      }
-    } catch (e) {
-      console.warn('[CHAT] No se pudieron extraer slots:', e.message);
-    }
-
-    // Ruteo simplificado: si la consulta parece de tasación/gastos/honorarios, usar herramientas internas.
-    let assistantResponse = null;
-    let usedSource = 'openai';
-    try {
-      const lower = message.toLowerCase();
-      if (lower.includes('valor') || lower.includes('tasac') || lower.match(/\d+m2|m\b|m2\b/)) {
-        // Extraer slots y llamar a tasador
-        const slots = getSlots(session.id) || {};
-        const barrio = slots.zona || (message.match(/(Caballito|Palermo|Belgrano|Recoleta)/) || [])[0];
-        const superficie = slots.superficie || (message.match(/(\d{2,4})\s?m2|m\b/) || [])[1];
-        try {
-          const tas = await tasador_express({ barrio, tipo_propiedad: slots.tipo_propiedad || 'departamento', superficie_m2: Number(superficie) || slots.superficie });
-          assistantResponse = templates.formatTasacion(Object.assign({}, tas, { barrio, tipo_propiedad: slots.tipo_propiedad }));
-          usedSource = 'tools:tasador_express';
-        } catch (tErr) {
-          console.warn('[CHAT] tasador_express failed:', tErr.message);
-        }
-      }
-
-      if (!assistantResponse && (lower.includes('honorari') || lower.includes('quien paga') || lower.includes('paga'))) {
-        const slots = getSlots(session.id) || {};
-        const jurisdiccion = slots.jurisdiccion || (message.match(/CABA|PBA/) || [])[0];
-        const precio = (message.match(/\$?\s?(\d+[\.,]?\d+)/) || [])[1];
-        try {
-          const h = await calc_honorarios({ jurisdiccion: jurisdiccion || 'CABA', tipo_operacion: 'venta', precio_operacion: Number(precio) || 0 });
-          assistantResponse = `Honorarios: ${h.porcentaje * 100}% = ${h.total} (formula: ${h.formula})\nNota: ${h.quien_paga}`;
-          usedSource = 'tools:calc_honorarios';
-        } catch (hErr) {
-          console.warn('[CHAT] calc_honorarios failed:', hErr.message);
-        }
-      }
-
-      if (!assistantResponse && (lower.includes('gastos') || lower.includes('sellos') || lower.includes('escritura'))) {
-        const jurisdiccion = (message.match(/CABA|PBA/) || [])[0] || 'PBA';
-        const precio_match = message.match(/(\d+[\.,]?\d+)/);
-        const precio_val = precio_match ? Number(precio_match[1].replace(/\./g, '')) : null;
-        try {
-          const g = await calc_gastos_escritura({ jurisdiccion, precio_operacion: precio_val || 0, primera_vivienda: false, tiene_otra_propiedad: lower.includes('otra propiedad') });
-          assistantResponse = `Gastos (${g.jurisdiccion}): total ARS ${g.total_comprador_ars}. Desglose: impuestos ${g.desglose.impuestos_sellos}, aranceles ${g.desglose.aranceles_notariales}. ${g.observaciones}`;
-          usedSource = 'tools:calc_gastos_escritura';
-        } catch (gErr) {
-          console.warn('[CHAT] calc_gastos_escritura failed:', gErr.message);
-        }
-      }
-    } catch (rErr) {
-      console.warn('[CHAT] routing error:', rErr.message);
-    }
-
-    // Si no se resolvió con herramientas, fallback a OpenAI con system prompt especializado
-    if (!assistantResponse) {
-      // System prompt con el rol del agente inmobiliario
-      const systemPrompt = `Rol del Agente  
-Eres un **Asistente Inmobiliario especializado en Buenos Aires y CABA**, inspirado en las funcionalidades de la plataforma Rialtor.  
-Tu objetivo es **resolver consultas de usuarios del mercado inmobiliario local** con información confiable, actual y clara.  
-
-## 📌 Funciones principales que debes cubrir
-
-1. **Informes y novedades de mercado**  
-   - Explica la situación actual del mercado inmobiliario en CABA y Buenos Aires.  
-   - Menciona tendencias de precios, zonas calientes, barrios en crecimiento, y dinámica de oferta/demanda.  
-
-2. **Consultoría Inmobiliaria IA**  
-   - Asesora sobre **tasaciones, negociación, captación de propiedades y procesos de compra/venta/alquiler**.  
-   - Brinda consejos prácticos según el contexto argentino.  
-
-3. **Calculadoras**  
-   - Explica cómo estimar **gastos de escritura, honorarios inmobiliarios, impuesto a las ganancias y seguros de caución**.  
-   - Indica qué variables debe considerar el usuario (ej. valor de la propiedad, porcentaje de honorarios, alícuota impositiva, etc.).  
-   - Puedes dar ejemplos numéricos aproximados.  
-
-4. **Documentos Inteligentes**  
-   - Orienta sobre los principales documentos en operaciones inmobiliarias en CABA (reserva, autorización de venta, boleto de compraventa, contratos de alquiler).  
-   - Describe su propósito, requisitos legales básicos y buenas prácticas.  
-
-5. **Créditos Hipotecarios**  
-   - Explica las **opciones vigentes de financiamiento hipotecario en Argentina** (bancos públicos y privados).  
-   - Aclara tasas, plazos y requisitos típicos.  
-
-6. **Seguros de Caución**  
-   - Explica qué son, cómo funcionan y cuándo se usan en contratos de alquiler en CABA.  
-   - Orienta sobre costos y requisitos.  
-
-7. **Placas para publicar**  
-   - Recomienda buenas prácticas de **marketing inmobiliario visual** en la publicación de propiedades.  
-
-## 🧩 Estilo de Respuesta
-- Siempre responde en **español neutro con enfoque en Argentina**.  
-- Sé **claro, profesional y didáctico**, con ejemplos cuando ayuden a comprender.  
-- Usa lenguaje accesible para clientes y brokers.  
-- Si el usuario pide cálculos, haz simulaciones **con valores aproximados** y explica cómo obtener el dato real.  
-- Si falta información, pide los datos mínimos necesarios (ejemplo: valor de la propiedad, barrio, tipo de operación).  
-
-## 🚫 Restricciones
-- No inventes tasas o leyes inexistentes; si no tienes el dato exacto, aclara que puede variar y recomienda fuentes oficiales (ej. AFIP, BCRA, Colegio de Escribanos).  
-- Limita tus respuestas al **mercado inmobiliario de CABA y Buenos Aires**.`;
-
-      // Construir mensajes con system prompt
-      const messages = [
-        { role: 'system', content: systemPrompt }
-      ];
-
-      if (foundContext) {
-        messages.push({ role: 'user', content: `Contexto relevante extraído de la base de datos:\n${contextText}` });
-      }
-      messages.push({ role: 'user', content: message });
-
-      if (!openai) {
-        console.log('[CHAT] OpenAI no inicializado');
-        return res.status(503).json({ error: 'El servicio de IA no está disponible temporalmente.' });
-      }
-      console.log('[CHAT] Llamando a OpenAI con system prompt especializado...');
-      const before = Date.now();
       const completion = await openai.chat.completions.create({
         model: DEFAULT_OPENAI_MODEL,
-        messages: messages,
-        max_tokens: 1500,
-        temperature: 0.7,
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "web_search",
-              description: "Buscar información actualizada en internet cuando se necesite información reciente o en tiempo real",
-              parameters: {
-                type: "object",
-                properties: {
-                  query: {
-                    type: "string",
-                    description: "La consulta de búsqueda"
-                  }
-                },
-                required: ["query"]
-              }
-            }
-          }
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
         ],
-        tool_choice: "auto"
+        max_tokens: 1000,
+        temperature: 0.7
       });
-      const after = Date.now();
+
       assistantResponse = completion.choices[0].message.content;
-      metrics.record({ source_used: usedSource === 'openai' ? 'openai' : usedSource, tool_used: usedSource, latency_ms: after - before, tokens_out: completion.usage?.total_tokens, fallback_reason: null });
-      console.log('[CHAT] Respuesta OpenAI:', assistantResponse.substring(0, 200));
-      usedSource = 'openai';
-    } else {
-      // Record metric for tool usage
-      metrics.record({ source_used: usedSource, tool_used: usedSource, latency_ms: 0, tokens_out: 0, fallback_reason: null });
     }
 
     // Guardar respuesta del asistente
-    let audioResponseBase64 = null;
-
-    // Generar respuesta de audio si se solicita
-    if (requestAudioResponse && assistantResponse) {
-      if (!openai) {
-        console.log('[CHAT] OpenAI no inicializado para síntesis de voz');
-      } else {
-        try {
-          console.log('[CHAT] Generando respuesta de audio...');
-
-          // Limitar la longitud del texto para TTS (máximo 4096 caracteres según OpenAI)
-          const textForTTS = assistantResponse.length > 4000
-            ? assistantResponse.substring(0, 4000) + '...'
-            : assistantResponse;
-
-          const mp3Response = await openai.audio.speech.create({
-            model: 'tts-1',
-            voice: 'alloy', // Voz femenina clara
-            input: textForTTS,
-            response_format: 'mp3'
-          });
-
-          // Convertir respuesta a buffer y luego a base64
-          const audioBuffer = Buffer.from(await mp3Response.arrayBuffer());
-          audioResponseBase64 = audioBuffer.toString('base64');
-          console.log('[CHAT] Audio generado correctamente, tamaño:', audioBuffer.length, 'bytes');
-        } catch (audioErr) {
-          console.error('[CHAT] Error generando audio:', audioErr);
-          // No fallar la respuesta completa si solo falla el audio
-          console.warn('[CHAT] Continuando sin audio debido a error en TTS');
-        }
-      }
-    }
-
     const assistantMessage = await prisma.chatMessage.create({
       data: {
         sessionId: session.id,
         content: assistantResponse,
-        role: 'ASSISTANT',
-        metadata: JSON.stringify({
-          model: DEFAULT_OPENAI_MODEL,
-          source: 'specialized_agent',
-          hasWebSearch: true,
-          hasAudioResponse: !!audioResponseBase64
-        })
+        role: 'ASSISTANT'
       }
     });
-    console.log('[CHAT] Mensaje de asistente guardado:', assistantMessage.id);
 
     // Actualizar la sesión
     await prisma.chatSession.update({
       where: { id: session.id },
       data: { updatedAt: new Date() }
     });
-    console.log('[CHAT] Sesión actualizada:', session.id);
 
     res.json({
       message: 'Message sent successfully',
       sessionId: session.id,
       userMessage,
-      assistantMessage: {
-        ...assistantMessage,
-        audioBase64: audioResponseBase64 // Incluir audio en la respuesta
-      }
+      assistantMessage
     });
-    console.log('[CHAT] Respuesta enviada al frontend');
   } catch (error) {
-    // Log completo del error para debug
     console.error('[ERROR][sendMessage]', error);
-    if (error.code === 'insufficient_quota' || error.status === 503) {
-      return res.status(503).json({
-        error: 'Service temporarily unavailable',
-        message: error.message || 'AI service is currently unavailable. Please try again later.'
-      });
-    }
-    // Responder con el mensaje de error si existe
     return res.status(500).json({
       error: 'Internal server error',
-      message: error.message || 'Unexpected error',
-      details: error
+      message: error.message || 'Unexpected error'
     });
-  }
-};
-
-const getRelevantContext = async (query) => {
-  try {
-    // Búsqueda simple por coincidencia de texto
-    // En producción, se podría usar búsqueda vectorial o Elasticsearch
-    const articles = await prisma.article.findMany({
-      where: {
-        status: 'PUBLISHED',
-        OR: [
-          { title: { contains: query } },
-          { content: { contains: query } },
-          { excerpt: { contains: query } }
-        ]
-      },
-      include: {
-        category: true
-      },
-      take: 3,
-      orderBy: { views: 'desc' }
-    });
-
-    return articles;
-  } catch (error) {
-    console.error('Error getting relevant context:', error);
-    return [];
   }
 };
 
