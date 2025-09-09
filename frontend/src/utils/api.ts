@@ -165,3 +165,23 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
 
     return response;
 }
+
+// Public fetch wrapper for routes that don't require authentication
+export async function publicFetch(url: string, options: RequestInit = {}): Promise<Response> {
+    const headers: Record<string, string> = {
+        ...(options.headers as Record<string, string>),
+    };
+
+    // Build full URL if relative
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+    console.log('🌐 Making public request to:', fullUrl);
+
+    const response = await fetch(fullUrl, {
+        ...options,
+        headers,
+    });
+
+    console.log('📡 Response status:', response.status);
+
+    return response;
+}

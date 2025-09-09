@@ -77,10 +77,10 @@ function Navigation() {
       description: 'Últimas noticias del mercado inmobiliario'
     },
     {
-      name: 'Asistente IA',
-      href: '/chat',
-      icon: 'MessageSquare',
-      description: 'Consultor inmobiliario 24/7'
+      name: 'Descargas',
+      href: '/descargas',
+      icon: 'Download',
+      description: 'Archivos y contenido descargable'
     },
     ...(isAdmin ? [{
       name: 'Admin',
@@ -102,6 +102,7 @@ function Navigation() {
     Shield: require('lucide-react').Shield,
     ImageIcon: require('lucide-react').Image,
     Newspaper: require('lucide-react').Newspaper,
+    Download: require('lucide-react').Download,
   }
 
   const isActive = (href: string) => pathname?.startsWith(href)

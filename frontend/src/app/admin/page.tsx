@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield, Percent } from 'lucide-react'
+import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield, Percent, File } from 'lucide-react'
 import UserManagement from '../../components/UserManagement'
 import NewsManagement from '../../components/NewsManagement'
+import FileManagement from '../../components/FileManagement'
 import { authenticatedFetch } from '@/utils/api'
 
 interface StatCard {
@@ -364,6 +365,17 @@ export default function AdminPage() {
     </div>
   )
 
+  const renderFiles = () => (
+    <div className="bg-white rounded-lg shadow">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">Gestión de Archivos</h3>
+      </div>
+      <div className="p-6">
+        <FileManagement />
+      </div>
+    </div>
+  )
+
   const renderSettings = () => (
     <div className="bg-white rounded-lg shadow">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -528,6 +540,14 @@ export default function AdminPage() {
                   Contenido
                 </button>
                 <button
+                  onClick={() => setActiveTab('files')}
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'files' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  <File className="w-6 h-6" />
+                  Archivos
+                </button>
+                <button
                   onClick={() => setActiveTab('rates')}
                   className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'rates' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
@@ -552,6 +572,7 @@ export default function AdminPage() {
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'users' && renderUsers()}
             {activeTab === 'content' && renderContent()}
+            {activeTab === 'files' && renderFiles()}
             {activeTab === 'rates' && renderRates()}
             {activeTab === 'settings' && renderSettings()}
           </div>

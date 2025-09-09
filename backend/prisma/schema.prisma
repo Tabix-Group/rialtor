@@ -28,6 +28,7 @@ model User {
   documentRequests DocumentRequest[]
   calculatorHistory CalculatorHistory[]
   propertyPlaques PropertyPlaque[]
+  fileUploads     FileUpload[]
 
   // Roles y permisos
   roleAssignments RoleAssignment[]
@@ -303,4 +304,23 @@ model News {
   updatedAt   DateTime @updatedAt
 
   @@map("news")
+}
+
+// Sistema de archivos para contenido de redes sociales
+model FileUpload {
+  id          String   @id @default(uuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  cloudinaryUrl String
+  cloudinaryId String
+  folder      String   @default("Contenido")
+  subfolder   String?
+  uploadedBy  String
+  user        User     @relation(fields: [uploadedBy], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("file_uploads")
 }
