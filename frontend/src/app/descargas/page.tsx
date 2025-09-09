@@ -33,13 +33,23 @@ export default function DownloadsPage() {
     // Cargar estructura de carpetas
     const loadFolders = async () => {
         try {
+            setLoading(true)
+            console.log('🔄 Loading folders...')
             const response = await publicFetch('/api/files/public/folders')
+            console.log('📦 Folders response:', response.status)
             const data = await response.json()
+            console.log('📁 Folders data:', data)
             if (data.success) {
                 setFolders(data.data)
+                console.log('✅ Folders loaded successfully:', data.data.length)
+            } else {
+                console.error('❌ Failed to load folders:', data)
             }
         } catch (error) {
-            console.error('Error loading folders:', error)
+            console.error('❌ Error loading folders:', error)
+        } finally {
+            setLoading(false)
+            console.log('🏁 Loading complete')
         }
     }
 
@@ -47,21 +57,28 @@ export default function DownloadsPage() {
     const loadFiles = async (folder: string, subfolder?: string) => {
         try {
             setLoading(true)
+            console.log('🔄 Loading files for:', { folder, subfolder })
             const params = new URLSearchParams({
                 folder,
                 ...(subfolder && { subfolder })
             })
 
             const response = await publicFetch(`/api/files/public/files?${params}`)
+            console.log('📦 Files response:', response.status)
             const data = await response.json()
+            console.log('📄 Files data:', data)
 
             if (data.success) {
                 setFiles(data.data)
+                console.log('✅ Files loaded successfully:', data.data.length)
+            } else {
+                console.error('❌ Failed to load files:', data)
             }
         } catch (error) {
-            console.error('Error loading files:', error)
+            console.error('❌ Error loading files:', error)
         } finally {
             setLoading(false)
+            console.log('🏁 Files loading complete')
         }
     }
 
