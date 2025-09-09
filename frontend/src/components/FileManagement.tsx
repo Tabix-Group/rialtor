@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Upload, File, Folder, Trash2, Download, Search, Plus, X } from 'lucide-react'
+import { File, Trash2, Download, Search, Plus, X } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 
 interface FileUpload {
@@ -84,7 +84,7 @@ export default function FileManagement() {
     useEffect(() => {
         loadFolders()
         loadFiles()
-    }, [selectedFolder, selectedSubfolder])
+    }, [selectedFolder, selectedSubfolder]) // loadFiles no se incluye porque es una función que cambia en cada render
 
     // Manejar subida de archivo
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,8 +134,8 @@ export default function FileManagement() {
         try {
             // Crear una carpeta temporal subiendo un archivo dummy
             const formData = new FormData()
-            const dummyFile = new File([''], 'dummy.txt', { type: 'text/plain' })
-            formData.append('file', dummyFile)
+            const dummyBlob = new Blob([''], { type: 'text/plain' })
+            formData.append('file', dummyBlob, 'dummy.txt')
             formData.append('folder', selectedFolder)
             formData.append('subfolder', newSubfolder.trim())
 
