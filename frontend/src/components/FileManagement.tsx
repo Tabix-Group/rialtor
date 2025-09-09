@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { File, Trash2, Download, Search, Plus, X } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { Upload, File, Trash2, Download, Search, Plus, X } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 
 interface FileUpload {
@@ -42,7 +42,7 @@ export default function FileManagement() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Cargar archivos
-    const loadFiles = async (page = 1, search = '') => {
+    const loadFiles = useCallback(async (page = 1, search = '') => {
         try {
             setLoading(true)
             const params = new URLSearchParams({
@@ -66,10 +66,10 @@ export default function FileManagement() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [selectedFolder, selectedSubfolder])
 
     // Cargar estructura de carpetas
-    const loadFolders = async () => {
+    const loadFolders = useCallback(async () => {
         try {
             const response = await authenticatedFetch('/api/files/folders')
             const data = await response.json()
@@ -79,12 +79,12 @@ export default function FileManagement() {
         } catch (error) {
             console.error('Error loading folders:', error)
         }
-    }
+    }, [])
 
     useEffect(() => {
         loadFolders()
         loadFiles()
-    }, [selectedFolder, selectedSubfolder]) // loadFiles no se incluye porque es una función que cambia en cada render
+    }, [loadFolders, loadFiles, selectedFolder, selectedSubfolder])
 
     // Manejar subida de archivo
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,7 +135,7 @@ export default function FileManagement() {
             // Crear una carpeta temporal subiendo un archivo dummy
             const formData = new FormData()
             const dummyBlob = new Blob([''], { type: 'text/plain' })
-            const dummyFile = new File([dummyBlob], 'dummy.txt', { type: 'text/plain' })
+            const dummyFile = new (globalThis.File as any)([dummyBlob], 'dummy.txt', { type: 'text/plain' })
             formData.append('file', dummyFile)
             formData.append('folder', selectedFolder)
             formData.append('subfolder', newSubfolder.trim())
