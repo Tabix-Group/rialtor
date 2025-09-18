@@ -38,7 +38,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             method,
             headers: headersProxy,
             body: bodyBuffer,
+            signal: AbortSignal.timeout(60000), // 60 segundos timeout
         });
+
+        console.log(`[PROXY] Respuesta del backend - Status: ${response.status}`);
 
         // Copy response headers
         response.headers.forEach((value, key) => {
@@ -47,10 +50,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         res.status(response.status);
+
+        if (!response.ok) {
+            console.error(`[PROXY] Error del backend - Status: ${response.status}`);
+            const errorText = await response.text();
+            console.error(`[PROXY] Error details:`, errorText);
+            res.end(errorText);
+            return;
+        }
+
         const respBuffer = Buffer.from(await response.arrayBuffer());
+        console.log(`[PROXY] Respuesta exitosa - Tamaño: ${respBuffer.length} bytes`);
         res.end(respBuffer);
     } catch (error) {
         console.error('Error proxying generate-reserva API:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+
+        const err = error as any; // Type assertion for error handling
+
+        if (err.name === 'AbortError') {
+            return res.status(408).json({
+                error: 'Timeout',
+                details: 'La solicitud tardó demasiado tiempo en procesarse'
+            });
+        }
+
+        if (err.code === 'ECONNREFUSED') {
+            return res.status(503).json({
+                error: 'Servicio no disponible',
+                details: 'No se pudo conectar al servidor backend'
+            });
+        }
+
+        return res.status(500).json({
+            error: 'Error interno del servidor',
+            details: err.message || 'Error desconocido'
+        });
     }
 }
