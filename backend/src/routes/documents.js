@@ -559,6 +559,7 @@ router.get('/', async (req, res) => {
 // Body: { campos del formulario de reserva }
 // Returns: { documentUrl: 'url del documento generado' }
 router.post('/generate-reserva', async (req, res) => {
+  console.log('[GENERATE-RESERVA] ===== STARTING REQUEST =====');
   console.log('[GENERATE-RESERVA] Request received:', {
     method: req.method,
     url: req.originalUrl,
@@ -618,6 +619,7 @@ router.post('/generate-reserva', async (req, res) => {
     // Usar ruta absoluta directa que sabemos que funciona
     const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
     console.log('[GENERATE-RESERVA] Using direct path:', modeloPath);
+    console.log('[GENERATE-RESERVA] File exists check:', fs.existsSync(modeloPath));
 
     if (!fs.existsSync(modeloPath)) {
       console.error('[GENERATE-RESERVA] Model document NOT found at:', modeloPath);
@@ -632,6 +634,7 @@ router.post('/generate-reserva', async (req, res) => {
     let documentoTexto = modeloResult.value;
 
     console.log('[GENERATE-RESERVA] Content extracted, length:', documentoTexto.length);
+    console.log('[GENERATE-RESERVA] First 200 chars of document:', documentoTexto.substring(0, 200));
 
     // Función para convertir números a letras (mejorada)
     function numeroALetras(num) {
@@ -744,6 +747,9 @@ ${documentoTexto}
 DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por la información correspondiente. Mantén toda la estructura, formato y contenido legal intacto.`;
 
     console.log('[GENERATE-RESERVA] Processing document with OpenAI...');
+    console.log('[GENERATE-RESERVA] System prompt length:', systemPrompt.length);
+    console.log('[GENERATE-RESERVA] User prompt length:', userPrompt.length);
+
     const completion = await openaiClient.chat.completions.create({
       model: 'gpt-4',
       messages: [
@@ -753,6 +759,10 @@ DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por
       max_tokens: 4000,
       temperature: 0.1
     });
+
+    console.log('[GENERATE-RESERVA] OpenAI response received');
+    console.log('[GENERATE-RESERVA] Completion object:', !!completion);
+    console.log('[GENERATE-RESERVA] Choices exist:', !!completion.choices);
 
     if (!completion.choices || !completion.choices[0] || !completion.choices[0].message) {
       console.error('[GENERATE-RESERVA] Invalid response from OpenAI');
@@ -781,6 +791,8 @@ DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por
     // Por ahora, devolver el documento como texto
     // En una implementación completa, generaríamos un archivo Word real
     console.log('[GENERATE-RESERVA] Sending response to client');
+    console.log('[GENERATE-RESERVA] ===== REQUEST COMPLETED =====');
+
     res.json({
       success: true,
       documentContent: documentoCompletado,
@@ -797,5 +809,115 @@ DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por
   }
 });
 
+// POST /api/documents/test-generate - endpoint de prueba para generar
+router.post('/test-generate', async (req, res) => {
+  console.log('[TEST-GENERATE] Test endpoint called');
+  try {
+    // Simular datos de prueba
+    const testData = {
+      nombreComprador: 'Juan Pérez',
+      dniComprador: '12345678',
+      estadoCivilComprador: 'soltero',
+      domicilioComprador: 'Calle Falsa 123',
+      emailComprador: 'juan@test.com',
+      direccionInmueble: 'Av. Siempre Viva 742',
+      montoReserva: '10000',
+      montoTotal: '200000',
+      montoRefuerzo: '5000',
+      nombreCorredor: 'María García',
+      matriculaCucicba: '12345',
+      matriculaCmcpci: '67890',
+      nombreInmobiliaria: 'Inmobiliaria Test',
+      dia: '15',
+      mes: 'octubre',
+      anio: '2024'
+    };
+
+    console.log('[TEST-GENERATE] Using test data:', testData);
+
+    // Verificar OpenAI
+    if (!openaiClient) {
+      return res.status(503).json({ error: 'OpenAI client not configured' });
+    }
+
+    // Verificar archivo modelo
+    const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
+    if (!fs.existsSync(modeloPath)) {
+      return res.status(404).json({ error: 'Model file not found' });
+    }
+
+    console.log('[TEST-GENERATE] All checks passed, attempting to generate...');
+
+    // Extraer contenido del modelo
+    const modeloBuffer = fs.readFileSync(modeloPath);
+    const modeloResult = await mammoth.extractRawText({ buffer: modeloBuffer });
+    const documentoTexto = modeloResult.value;
+
+    console.log('[TEST-GENERATE] Document content extracted, length:', documentoTexto.length);
+
+    // Llamada simple a OpenAI
+    const completion = await openaiClient.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'Eres un asistente que completa documentos legales.' },
+        { role: 'user', content: `Completa este documento con los datos: ${JSON.stringify(testData)}\n\nDocumento:\n${documentoTexto.substring(0, 1000)}` }
+      ],
+      max_tokens: 1000,
+      temperature: 0.1
+    });
+
+    const result = completion.choices[0].message.content;
+
+    console.log('[TEST-GENERATE] Generation completed successfully');
+
+    res.json({
+      success: true,
+      message: 'Test generation successful',
+      result: result ? result.substring(0, 200) + '...' : 'No content'
+    });
+
+  } catch (error) {
+    console.error('[TEST-GENERATE] Error:', error);
+    res.status(500).json({
+      error: 'Test generation failed',
+      details: error.message
+    });
+  }
+});
+
+
 module.exports = router;
 
+// POST /api/documents/diagnose - endpoint de diagn�stico
+router.post('/diagnose', (req, res) => {
+  console.log('[DIAGNOSE] ===== DIAGNOSTIC REQUEST =====');
+  console.log('[DIAGNOSE] Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('[DIAGNOSE] Body:', JSON.stringify(req.body, null, 2));
+  console.log('[DIAGNOSE] Method:', req.method);
+  console.log('[DIAGNOSE] URL:', req.originalUrl);
+  console.log('[DIAGNOSE] OpenAI configured:', !!openaiClient);
+  console.log('[DIAGNOSE] Model file exists:', fs.existsSync('C:\\\\Users\\\\Hernan\\\\Desktop\\\\TRABAJO\\\\Rialtor\\\\remax\\\\frontend\\\\public\\\\docs\\\\MODELO_RESERVA Y OFERTA DE COMPRA.docx'));
+
+  res.json({
+    success: true,
+    message: 'Diagnostic completed',
+    timestamp: new Date().toISOString(),
+    server: {
+      nodeVersion: process.version,
+      platform: process.platform,
+      uptime: process.uptime()
+    },
+    config: {
+      openaiConfigured: !!openaiClient,
+      modelFileExists: fs.existsSync('C:\\\\Users\\\\Hernan\\\\Desktop\\\\TRABAJO\\\\Rialtor\\\\remax\\\\frontend\\\\public\\\\docs\\\\MODELO_RESERVA Y OFERTA DE COMPRA.docx'),
+      port: process.env.PORT || 3003,
+      nodeEnv: process.env.NODE_ENV
+    },
+    request: {
+      method: req.method,
+      url: req.originalUrl,
+      hasAuth: !!req.headers.authorization,
+      contentType: req.headers['content-type']
+    }
+  });
+});
