@@ -15,13 +15,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');    // Leer el documento modelo
-const fs = require('fs');
-const path = require('path');
-const mammoth = require('mammoth');
-
-// Usar ruta absoluta directa que sabemos que funciona
-const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
-console.log('[GENERATE-RESERVA] Using direct path:', modeloPath); OpenAI = require('openai');
+const { OpenAI } = require('openai');
 
 // Initialize OpenAI client if key exists (kept local to this router to avoid touching chatController)
 let openaiClient = null;
@@ -620,11 +614,6 @@ router.post('/generate-reserva', async (req, res) => {
     console.log('[GENERATE-RESERVA] OpenAI client verified successfully');
 
     console.log('[GENERATE-RESERVA] Starting document processing...');
-
-    // Leer el documento modelo
-    const fs = require('fs');
-    const path = require('path');
-    const mammoth = require('mammoth');
 
     // Usar ruta absoluta directa que sabemos que funciona
     const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
