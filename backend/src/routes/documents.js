@@ -120,9 +120,293 @@ router.post('/', upload.single('file'), async (req, res) => {
   }
 });
 
+// Función para identificar el tipo de documento basado en su contenido
+function identifyDocumentType(text) {
+  const lowerText = text.toLowerCase();
+
+  // Verificar cada tipo de documento en orden de prioridad
+  if (lowerText.includes('crédito hipotecario') || lowerText.includes('credito hipotecario')) {
+    return 'Reserva Compra c/ Crédito Hipotecario';
+  }
+
+  if (lowerText.includes('locación temporario') || lowerText.includes('locacion temporario') ||
+    lowerText.includes('alquiler temporario')) {
+    return 'Reserva Locación Temporario';
+  }
+
+  if (lowerText.includes('caba') && (lowerText.includes('locación') || lowerText.includes('locacion') ||
+    lowerText.includes('alquiler'))) {
+    return 'Reserva Locación en CABA';
+  }
+
+  if ((lowerText.includes('provincia') || lowerText.includes('buenos aires')) &&
+    (lowerText.includes('locación') || lowerText.includes('locacion') || lowerText.includes('alquiler'))) {
+    return 'Reserva Locación en Provincia';
+  }
+
+  if (lowerText.includes('oferta de compra') || lowerText.includes('reserva y oferta') ||
+    (lowerText.includes('compra') && lowerText.includes('venta'))) {
+    return 'Reserva y Oferta de Compra';
+  }
+
+  return 'Documento Desconocido';
+}
+
+// Función para extraer datos específicos según el tipo de documento
+async function extractDocumentData(text, documentType) {
+  console.log(`[EXTRACT] Extrayendo datos para tipo: ${documentType}`);
+
+  const systemPrompt = `Eres un asistente especializado en la extracción de datos de documentos legales inmobiliarios argentinos.
+Tu tarea es analizar el texto de un documento y extraer únicamente la información específica solicitada.
+Devuelve SOLO un objeto JSON válido sin texto adicional.`;
+
+  let userPrompt = '';
+
+  switch (documentType) {
+    case 'Reserva y Oferta de Compra':
+      userPrompt = `Del siguiente documento de Reserva y Oferta de Compra, extrae ÚNICAMENTE esta información en formato JSON:
+
+{
+  "dadorReserva": {
+    "nombre": "Nombre completo del comprador",
+    "dni": "Número de DNI",
+    "estadoCivil": "Estado civil",
+    "domicilio": "Dirección completa",
+    "email": "Correo electrónico"
+  },
+  "inmueble": {
+    "direccion": "Dirección del inmueble"
+  },
+  "montos": {
+    "reserva": "Monto de reserva en USD (solo números)",
+    "totalVenta": "Monto total de venta en USD (solo números)",
+    "refuerzo": "Monto de refuerzo en USD (solo números)"
+  },
+  "corredor": {
+    "nombre": "Nombre del corredor inmobiliario",
+    "matriculaCucicba": "Matrícula CUCICBA",
+    "matriculaCmcp": "Matrícula CMCP"
+  },
+  "inmobiliaria": {
+    "nombre": "Nombre de la inmobiliaria"
+  },
+  "plazos": {
+    "aceptacionOferta": "Plazo para aceptar la oferta (días hábiles)",
+    "firmaBoleto": "Plazo para firma del boleto/escritura (días)",
+    "devolucionReserva": "Plazo para devolver reserva si no se aprueba (horas)",
+    "entregaRefuerzo": "Plazo para entregar refuerzo (días hábiles)"
+  },
+  "penalidades": {
+    "desistimientoDador": "Consecuencias si desiste el dador",
+    "desistimientoVendedor": "Consecuencias si desiste el vendedor"
+  }
+}
+
+Si no encuentras algún dato, usa null o string vacío.`;
+      break;
+
+    case 'Reserva Compra c/ Crédito Hipotecario':
+      userPrompt = `Del siguiente documento de Reserva de Compra con Crédito Hipotecario, extrae ÚNICAMENTE esta información en formato JSON:
+
+{
+  "dadorReserva": {
+    "nombre": "Nombre completo",
+    "dni": "Número de DNI",
+    "domicilio": "Dirección",
+    "email": "Correo electrónico"
+  },
+  "inmueble": {
+    "direccion": "Dirección del inmueble"
+  },
+  "creditoHipotecario": {
+    "banco": "Nombre del banco",
+    "sucursal": "Sucursal del banco",
+    "condicionSuspensiva": "Descripción de la condición suspensiva",
+    "plazoAprobacion": "Plazo para aprobación (días)",
+    "plazoProrroga": "Posibilidad de prórroga"
+  },
+  "montos": {
+    "reserva": "Monto de reserva en USD",
+    "totalVenta": "Monto total de venta en USD",
+    "refuerzo": "Monto de refuerzo en USD"
+  },
+  "plazos": {
+    "aceptacion": "Plazo para aceptación (días hábiles)",
+    "escritura": "Plazo para escritura (días)",
+    "tramitesCredito": "Plazo para iniciar trámites (horas)",
+    "notificacionAprobacion": "Plazo para notificar aprobación (horas)"
+  },
+  "penalidades": {
+    "desistimientoDador": "Consecuencias por desistimiento del dador",
+    "desistimientoVendedor": "Consecuencias por desistimiento del vendedor"
+  }
+}
+
+Si no encuentras algún dato, usa null o string vacío.`;
+      break;
+
+    case 'Reserva Locación en CABA':
+      userPrompt = `Del siguiente documento de Reserva de Locación en CABA, extrae ÚNICAMENTE esta información en formato JSON:
+
+{
+  "interesado": {
+    "nombre": "Nombre completo",
+    "dni": "Número de DNI",
+    "domicilio": "Dirección",
+    "telefono": "Número de teléfono",
+    "email": "Correo electrónico"
+  },
+  "inmueble": {
+    "direccion": "Dirección del departamento en CABA"
+  },
+  "condicionesAlquiler": {
+    "duracion": "Duración del contrato",
+    "fechaInicio": "Fecha de inicio",
+    "fechaVencimiento": "Fecha de vencimiento",
+    "alquilerInicial": "Monto del alquiler inicial",
+    "actualizacion": "Tipo de actualización (IPC, etc.)",
+    "garantia": "Tipo de garantía",
+    "depositoGarantia": "Monto del depósito de garantía"
+  },
+  "plazos": {
+    "presentacionDocumentacion": "Plazo para presentar documentación (horas)",
+    "aceptacionPropietario": "Plazo para aceptación del propietario (días hábiles)",
+    "firmaContrato": "Plazo para firma del contrato"
+  },
+  "penalidades": {
+    "noAceptacionPropietario": "Consecuencias si no acepta el propietario",
+    "informesInsatisfactorios": "Consecuencias si informes no son satisfactorios",
+    "arrepentimientoInteresado": "Consecuencias si se arrepiente el interesado"
+  }
+}
+
+Si no encuentras algún dato, usa null o string vacío.`;
+      break;
+
+    case 'Reserva Locación en Provincia':
+      userPrompt = `Del siguiente documento de Reserva de Locación en Provincia, extrae ÚNICAMENTE esta información en formato JSON:
+
+{
+  "interesado": {
+    "nombre": "Nombre completo",
+    "dni": "Número de DNI",
+    "domicilio": "Dirección",
+    "telefono": "Número de teléfono celular",
+    "email": "Correo electrónico"
+  },
+  "inmueble": {
+    "direccion": "Dirección del departamento en Buenos Aires"
+  },
+  "condicionesAlquiler": {
+    "duracion": "Duración del contrato (meses)",
+    "fechaInicio": "Fecha estimada de inicio",
+    "fechaVencimiento": "Fecha estimada de vencimiento",
+    "alquilerInicial": "Monto del alquiler inicial en pesos",
+    "actualizacion": "Tipo de actualización (IPC, etc.)",
+    "garantia": "Tipo de garantía (seguro de caución)",
+    "depositoGarantia": "Monto del depósito de garantía en USD"
+  },
+  "plazos": {
+    "presentacionDocumentacion": "Plazo para entregar documentación (horas)",
+    "aceptacionPropietario": "Plazo para aceptación (días hábiles)",
+    "firmaContrato": "Plazo para firma del contrato"
+  },
+  "penalidades": {
+    "noAceptacionPropietario": "Consecuencias si no acepta el propietario",
+    "informesInsatisfactorios": "Consecuencias si informes no son satisfactorios",
+    "arrepentimientoInteresado": "Consecuencias si se arrepiente el interesado"
+  },
+  "gastos": {
+    "honorariosMartillero": "Porcentaje de honorarios del martillero"
+  }
+}
+
+Si no encuentras algún dato, usa null o string vacío.`;
+      break;
+
+    case 'Reserva Locación Temporario':
+      userPrompt = `Del siguiente documento de Reserva de Locación Temporario, extrae ÚNICAMENTE esta información en formato JSON:
+
+{
+  "huesped": {
+    "nombre": "Nombre completo",
+    "dni": "Número de DNI",
+    "domicilio": "Dirección"
+  },
+  "propiedad": {
+    "direccion": "Dirección del inmueble"
+  },
+  "fechasDuracion": {
+    "ingresoDiaHora": "Día y hora de ingreso",
+    "egresoDiaHora": "Día y hora de egreso",
+    "duracionTotal": "Duración total del contrato"
+  },
+  "condicionesEconomicas": {
+    "reserva": "Monto de la reserva",
+    "alquilerTotal": "Monto total del alquiler",
+    "arba": "Monto correspondiente a ARBA",
+    "jardineroPiletero": "Monto por jardinero/piletero",
+    "honorariosInmobiliaria": "Monto de honorarios de la inmobiliaria",
+    "depositoGarantia": "Monto del depósito de garantía",
+    "saldoFirma": "Saldo a pagar en la firma del contrato"
+  },
+  "lugarFirma": "Lugar donde se firmará el contrato",
+  "penalidades": {
+    "arrepentimientoHuesped": "Consecuencias si se arrepiente el huésped"
+  },
+  "condicionesDevolucion": {
+    "depositoGarantia": "Condiciones para devolución del depósito de garantía"
+  }
+}
+
+Si no encuentras algún dato, usa null o string vacío.`;
+      break;
+
+    default:
+      return {
+        tipo: 'Desconocido',
+        mensaje: 'No se pudo identificar el tipo de documento específico'
+      };
+  }
+
+  try {
+    const completion = await openaiClient.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt + '\n\nDOCUMENTO:\n' + text }
+      ],
+      max_tokens: 2000,
+      temperature: 0.1
+    });
+
+    const content = completion?.choices?.[0]?.message?.content || '{}';
+
+    // Intentar parsear el JSON
+    try {
+      const extractedData = JSON.parse(content);
+      console.log(`[EXTRACT] Datos extraídos exitosamente para ${documentType}`);
+      return extractedData;
+    } catch (parseError) {
+      console.error('[EXTRACT] Error parseando JSON:', parseError);
+      return {
+        error: 'Error al parsear la respuesta de OpenAI',
+        rawResponse: content
+      };
+    }
+
+  } catch (error) {
+    console.error('[EXTRACT] Error en extracción de datos:', error);
+    return {
+      error: 'Error al procesar el documento',
+      details: error.message
+    };
+  }
+}
+
 // POST /api/documents/summary
 // Body: { id: '<cloudinary_public_id>' }
-// Returns: { summary: '...' }
+// Returns: { summary: '...', documentType: '...', extractedData: {...} }
 router.post('/summary', async (req, res) => {
   try {
     const { id } = req.body || {};
@@ -139,14 +423,19 @@ router.post('/summary', async (req, res) => {
       return res.status(503).json({ error: 'Servicio de IA no disponible' });
     }
 
+    // Identificar el tipo de documento
+    const documentType = identifyDocumentType(text);
+    console.log('[DOCUMENTS] Tipo de documento identificado:', documentType);
+
+    // Extraer datos específicos según el tipo
+    const extractedData = await extractDocumentData(text, documentType);
+
     // Truncar texto para no exceder tokens (usar primeros 4000 caracteres)
     const safeText = text.length > 4000 ? text.substring(0, 4000) : text;
 
-    // Pedimos al modelo un JSON estricto con resumen + entidades para extraer montos,
-    // personas, direcciones, fechas y otros datos relevantes. Si no puede devolver JSON,
-    // hacemos fallback a la respuesta de texto simple para mantener compatibilidad.
+    // Generar resumen general
     const systemPrompt = 'Eres un asistente experto en documentos legales e inmobiliarios. ' +
-      'Resumes y extraes datos importantes en español.';
+      'Resume y extraes datos importantes en español.';
 
     const userPrompt = `A partir del siguiente texto de un documento, devuelve ÚNICAMENTE un objeto JSON válido con esta estructura:
 {
@@ -176,31 +465,7 @@ ${safeText}`;
     const content = completion?.choices?.[0]?.message?.content || null;
     if (!content) return res.status(500).json({ error: 'No se obtuvo respuesta de OpenAI' });
 
-    // Helper: buscar montos, cuotas y porcentajes directamente en el texto como respaldo
-    const extractAmountsFromText = (txt) => {
-      if (!txt) return [];
-      const out = new Set();
-      const patterns = [
-        /(?:USD|US\$|U\$S|US\$)\s?[\d\.,]+/gi,
-        /\b[\d\.,]+\s?(?:USD|US\$|U\$S|ARS|AR\$|pesos|d[oó]lares|dolares)\b/gi,
-        /\$\s?[\d\.,]+/g,
-        /\b[\d\.,]+\s?(?:pesos|peso|d[oó]lar|dolares|cuotas|cuota)\b/gi,
-        /(?:en\s)?[0-9]{1,3}\s?(?:cuotas|cuota)\b/gi,
-        /[0-9]+(?:[\.,][0-9]{1,2})?\s?%/g
-      ];
-      for (const re of patterns) {
-        let m;
-        while ((m = re.exec(txt)) !== null) {
-          let val = m[0].trim();
-          // Normalize separators: keep original but collapse multiple spaces
-          val = val.replace(/\s+/g, ' ');
-          out.add(val);
-        }
-      }
-      return Array.from(out);
-    };
-
-    // Intentar parsear JSON estricto. Si falla, buscar un JSON dentro del texto.
+    // Intentar parsear JSON estricto
     let parsed = null;
     try {
       parsed = JSON.parse(content);
@@ -215,37 +480,16 @@ ${safeText}`;
       }
     }
 
-    // Si tenemos parsed, asegurarnos de que amounts contenga valores (si no, extraerlos del texto)
-    if (parsed && parsed.summary) {
-      try {
-        parsed.amounts = Array.isArray(parsed.amounts) ? parsed.amounts : [];
-        if (parsed.amounts.length === 0) {
-          const found = extractAmountsFromText(text);
-          if (found.length) parsed.amounts = parsed.amounts.concat(found);
-        }
-      } catch (e) {
-        // noop
-      }
-      return res.json({ summary: String(parsed.summary).trim(), extracted: parsed });
-    }
+    // Preparar respuesta final
+    const response = {
+      summary: parsed?.summary || content.trim(),
+      documentType: documentType,
+      extractedData: extractedData,
+      extracted: parsed || {}
+    };
 
-    // Si no pudimos parsear JSON del modelo, construimos un objeto extraído mínimo usando regex
-    const fallbackAmounts = extractAmountsFromText(text);
-    if (fallbackAmounts.length) {
-      const built = {
-        summary: content.trim().split('\n').slice(0, 3).join(' '),
-        amounts: fallbackAmounts,
-        persons: [],
-        addresses: [],
-        dates: [],
-        relevant: []
-      };
-      return res.json({ summary: built.summary, extracted: built });
-    }
+    return res.json(response);
 
-    // Fallback final: devolver el texto completo que haya devuelto el modelo como summary
-    console.warn('[DOCUMENTS] No se pudo parsear JSON de OpenAI y no se detectaron montos por regex. Devolviendo texto crudo.');
-    return res.json({ summary: content.trim() });
   } catch (err) {
     console.error('[DOCUMENTS] Error en /summary:', err);
     return res.status(500).json({ error: 'Error al generar el resumen', details: err.message || err });
