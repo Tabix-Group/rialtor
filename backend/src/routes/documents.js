@@ -443,22 +443,22 @@ Mantén el lenguaje formal y legal del documento.`;
     const userPrompt = `Completa el siguiente documento de Reserva y Oferta de Compra con los datos proporcionados:
 
 DATOS A COMPLETAR:
-- Nombre del comprador: ${datosReemplazo.nombre_comprador}
-- DNI del comprador: ${datosReemplazo.dni_comprador}
-- Estado civil del comprador: ${datosReemplazo.estado_civil_comprador}
-- Domicilio del comprador: ${datosReemplazo.domicilio_comprador}
-- Email del comprador: ${datosReemplazo.email_comprador}
-- Dirección del inmueble: ${datosReemplazo.direccion_inmueble}
-- Monto de reserva: ${datosReemplazo.monto_reserva_texto} (${datosReemplazo.monto_reserva_numero})
-- Monto total de venta: ${datosReemplazo.monto_total_texto} (${datosReemplazo.monto_total_numero})
-- Monto de refuerzo: ${datosReemplazo.monto_refuerzo_texto} (${datosReemplazo.monto_refuerzo_numero})
-- Nombre del corredor: ${datosReemplazo.nombre_corredor}
-- Matrícula CUCICBA: ${datosReemplazo.matricula_cucicba}
-- Matrícula CMCP: ${datosReemplazo.matricula_cmcpci}
-- Nombre de la inmobiliaria: ${datosReemplazo.nombre_inmobiliaria}
-- Fecha - Día: ${datosReemplazo.dia}
-- Fecha - Mes: ${datosReemplazo.mes}
-- Fecha - Año: ${datosReemplazo.anio}
+- Nombre del comprador: ${nombreComprador}
+- DNI del comprador: ${dniComprador}
+- Estado civil del comprador: ${estadoCivilComprador}
+- Domicilio del comprador: ${domicilioComprador}
+- Email del comprador: ${emailComprador}
+- Dirección del inmueble: ${direccionInmueble}
+- Monto de reserva: ${numeroALetras(montoReserva)} (${montoReserva})
+- Monto total de venta: ${numeroALetras(montoTotal)} (${montoTotal})
+- Monto de refuerzo: ${numeroALetras(montoRefuerzo)} (${montoRefuerzo})
+- Nombre del corredor: ${nombreCorredor}
+- Matrícula CUCICBA: ${matriculaCucicba}
+- Matrícula CMCP: ${matriculaCmcpci}
+- Nombre de la inmobiliaria: ${nombreInmobiliaria}
+- Fecha - Día: ${dia}
+- Fecha - Mes: ${mes}
+- Fecha - Año: ${anio}
 
 DOCUMENTO MODELO:
 ${documentoTexto}
@@ -516,4 +516,6 @@ function numeroALetras(num) {
   // Para simplificar, devolver una representación básica
   return `DÓLARES ESTADOUNIDENSES ${num}`;
 }
+
+module.exports = router;
 
