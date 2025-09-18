@@ -16,11 +16,30 @@ export default function DocumentGeneratorPage() {
         buyer: '',
         description: ''
     })
+    const [reservaData, setReservaData] = useState({
+        nombreComprador: '',
+        dniComprador: '',
+        estadoCivilComprador: '',
+        domicilioComprador: '',
+        emailComprador: '',
+        direccionInmueble: '',
+        montoReserva: '',
+        montoTotal: '',
+        montoRefuerzo: '',
+        nombreCorredor: '',
+        matriculaCucicba: '',
+        matriculaCmcpci: '',
+        nombreInmobiliaria: '',
+        dia: '',
+        mes: '',
+        anio: ''
+    })
     const [isGenerating, setIsGenerating] = useState(false)
     const [generatedDocument, setGeneratedDocument] = useState<string | null>(null)
 
     const documentTypes = [
-        { value: 'reserva', label: 'Modelo de Reserva', description: 'Documento de reserva de propiedad' },
+        { value: 'reserva', label: 'Modelo de Reserva y Oferta de Compra', description: 'Documento completo de reserva y oferta de compra inmobiliaria', hasForm: true },
+        { value: 'reserva_simple', label: 'Modelo de Reserva', description: 'Documento de reserva de propiedad' },
         { value: 'autorizacion', label: 'Autorización de Publicación', description: 'Autorización para publicar la propiedad' },
         { value: 'boleto', label: 'Boleto de Compra-Venta', description: 'Boleto de compra-venta preliminar' },
         { value: 'contrato', label: 'Contrato de Locación', description: 'Contrato de alquiler de propiedad' }
@@ -34,16 +53,33 @@ export default function DocumentGeneratorPage() {
 
         setIsGenerating(true)
         try {
-            // Aquí iría la llamada a la API para generar el documento
-            // Por ahora simulamos la generación
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            if (documentType === 'reserva') {
+                // Usar el nuevo endpoint para reserva
+                const response = await fetch('/api/documents/generate-reserva', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(reservaData)
+                })
 
-            // Simular documento generado
-            const mockDocument = `DOCUMENTO GENERADO\n\nTipo: ${documentType}\nDirección: ${propertyData.address}\nPrecio: ${propertyData.price}\nPropietario: ${propertyData.owner}\nComprador: ${propertyData.buyer}\nDescripción: ${propertyData.description}\n\nFecha: ${new Date().toLocaleDateString('es-AR')}`
+                if (!response.ok) {
+                    throw new Error('Error al generar el documento')
+                }
 
-            setGeneratedDocument(mockDocument)
+                const result = await response.json()
+                setGeneratedDocument(result.documentContent)
+            } else {
+                // Lógica existente para otros documentos
+                await new Promise(resolve => setTimeout(resolve, 2000))
+
+                const mockDocument = `DOCUMENTO GENERADO\n\nTipo: ${documentType}\nDirección: ${propertyData.address}\nPrecio: ${propertyData.price}\nPropietario: ${propertyData.owner}\nComprador: ${propertyData.buyer}\nDescripción: ${propertyData.description}\n\nFecha: ${new Date().toLocaleDateString('es-AR')}`
+
+                setGeneratedDocument(mockDocument)
+            }
         } catch (error) {
-            alert('Error al generar el documento')
+            alert('Error al generar el documento: ' + (error instanceof Error ? error.message : 'Error desconocido'))
         } finally {
             setIsGenerating(false)
         }
@@ -52,15 +88,29 @@ export default function DocumentGeneratorPage() {
     const handleDownload = () => {
         if (!generatedDocument) return
 
-        const blob = new Blob([generatedDocument], { type: 'text/plain' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `documento-${documentType}-${Date.now()}.txt`
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
+        if (documentType === 'reserva') {
+            // Para documentos de reserva, descargar como archivo de texto por ahora
+            const blob = new Blob([generatedDocument], { type: 'text/plain;charset=utf-8' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `Reserva_Oferta_Compra_${Date.now()}.txt`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+        } else {
+            // Para otros documentos, usar el método anterior
+            const blob = new Blob([generatedDocument], { type: 'text/plain' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `documento-${documentType}-${Date.now()}.txt`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+        }
     }
 
     return (
@@ -105,75 +155,317 @@ export default function DocumentGeneratorPage() {
                                 </div>
                             </div>
 
-                            {/* Datos de la propiedad */}
+                            {/* Datos de la propiedad o reserva */}
                             <div className="space-y-4">
-                                <h3 className="text-xl font-bold text-gray-800 mb-4">Datos de la Propiedad</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Dirección
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={propertyData.address}
-                                            onChange={(e) => setPropertyData({ ...propertyData, address: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Dirección completa de la propiedad"
-                                        />
-                                    </div>
+                                {documentType === 'reserva' ? (
+                                    <>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-4">Datos de la Reserva y Oferta de Compra</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Nombre del Comprador *
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.nombreComprador}
+                                                    onChange={(e) => setReservaData({ ...reservaData, nombreComprador: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Nombre completo del comprador"
+                                                    required
+                                                />
+                                            </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Precio
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={propertyData.price}
-                                            onChange={(e) => setPropertyData({ ...propertyData, price: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Precio de la propiedad"
-                                        />
-                                    </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    DNI del Comprador *
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.dniComprador}
+                                                    onChange={(e) => setReservaData({ ...reservaData, dniComprador: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Número de DNI"
+                                                    required
+                                                />
+                                            </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Propietario
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={propertyData.owner}
-                                            onChange={(e) => setPropertyData({ ...propertyData, owner: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Nombre del propietario"
-                                        />
-                                    </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Estado Civil
+                                                </label>
+                                                <select
+                                                    value={reservaData.estadoCivilComprador}
+                                                    onChange={(e) => setReservaData({ ...reservaData, estadoCivilComprador: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Seleccionar...</option>
+                                                    <option value="soltero">Soltero/a</option>
+                                                    <option value="casado">Casado/a</option>
+                                                    <option value="divorciado">Divorciado/a</option>
+                                                    <option value="viudo">Viudo/a</option>
+                                                </select>
+                                            </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Comprador/Inquilino
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={propertyData.buyer}
-                                            onChange={(e) => setPropertyData({ ...propertyData, buyer: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Nombre del comprador o inquilino"
-                                        />
-                                    </div>
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Domicilio del Comprador
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.domicilioComprador}
+                                                    onChange={(e) => setReservaData({ ...reservaData, domicilioComprador: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Dirección completa"
+                                                />
+                                            </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Descripción
-                                        </label>
-                                        <textarea
-                                            value={propertyData.description}
-                                            onChange={(e) => setPropertyData({ ...propertyData, description: e.target.value })}
-                                            rows={4}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Descripción detallada de la propiedad"
-                                        />
-                                    </div>
-                                </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Email del Comprador
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    value={reservaData.emailComprador}
+                                                    onChange={(e) => setReservaData({ ...reservaData, emailComprador: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="email@ejemplo.com"
+                                                />
+                                            </div>
+
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Dirección del Inmueble *
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.direccionInmueble}
+                                                    onChange={(e) => setReservaData({ ...reservaData, direccionInmueble: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Dirección completa del inmueble"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Monto de Reserva (USD) *
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={reservaData.montoReserva}
+                                                    onChange={(e) => setReservaData({ ...reservaData, montoReserva: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="0"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Monto Total de Venta (USD) *
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={reservaData.montoTotal}
+                                                    onChange={(e) => setReservaData({ ...reservaData, montoTotal: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="0"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Monto de Refuerzo (USD)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={reservaData.montoRefuerzo}
+                                                    onChange={(e) => setReservaData({ ...reservaData, montoRefuerzo: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="0"
+                                                />
+                                            </div>
+
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Nombre del Corredor Inmobiliario
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.nombreCorredor}
+                                                    onChange={(e) => setReservaData({ ...reservaData, nombreCorredor: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Nombre completo del corredor"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Matrícula CUCICBA
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.matriculaCucicba}
+                                                    onChange={(e) => setReservaData({ ...reservaData, matriculaCucicba: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Número de matrícula"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Matrícula CMCP
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.matriculaCmcpci}
+                                                    onChange={(e) => setReservaData({ ...reservaData, matriculaCmcpci: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Número de matrícula"
+                                                />
+                                            </div>
+
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Nombre de la Inmobiliaria
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={reservaData.nombreInmobiliaria}
+                                                    onChange={(e) => setReservaData({ ...reservaData, nombreInmobiliaria: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Nombre de la inmobiliaria"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Día
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="31"
+                                                    value={reservaData.dia}
+                                                    onChange={(e) => setReservaData({ ...reservaData, dia: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="DD"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Mes
+                                                </label>
+                                                <select
+                                                    value={reservaData.mes}
+                                                    onChange={(e) => setReservaData({ ...reservaData, mes: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                >
+                                                    <option value="">Seleccionar...</option>
+                                                    <option value="enero">Enero</option>
+                                                    <option value="febrero">Febrero</option>
+                                                    <option value="marzo">Marzo</option>
+                                                    <option value="abril">Abril</option>
+                                                    <option value="mayo">Mayo</option>
+                                                    <option value="junio">Junio</option>
+                                                    <option value="julio">Julio</option>
+                                                    <option value="agosto">Agosto</option>
+                                                    <option value="septiembre">Septiembre</option>
+                                                    <option value="octubre">Octubre</option>
+                                                    <option value="noviembre">Noviembre</option>
+                                                    <option value="diciembre">Diciembre</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Año
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    min="2020"
+                                                    max="2030"
+                                                    value={reservaData.anio}
+                                                    onChange={(e) => setReservaData({ ...reservaData, anio: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="AAAA"
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-4">Datos de la Propiedad</h3>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Dirección
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={propertyData.address}
+                                                    onChange={(e) => setPropertyData({ ...propertyData, address: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Dirección completa de la propiedad"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Precio
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={propertyData.price}
+                                                    onChange={(e) => setPropertyData({ ...propertyData, price: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Precio de la propiedad"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Propietario
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={propertyData.owner}
+                                                    onChange={(e) => setPropertyData({ ...propertyData, owner: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Nombre del propietario"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Comprador/Inquilino
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={propertyData.buyer}
+                                                    onChange={(e) => setPropertyData({ ...propertyData, buyer: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Nombre del comprador o inquilino"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Descripción
+                                                </label>
+                                                <textarea
+                                                    value={propertyData.description}
+                                                    onChange={(e) => setPropertyData({ ...propertyData, description: e.target.value })}
+                                                    rows={4}
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    placeholder="Descripción detallada de la propiedad"
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -181,12 +473,17 @@ export default function DocumentGeneratorPage() {
                         <div className="mt-8 text-center">
                             <button
                                 onClick={handleGenerate}
-                                disabled={isGenerating || !documentType}
+                                disabled={isGenerating || !documentType || (documentType === 'reserva' && (!reservaData.nombreComprador || !reservaData.dniComprador || !reservaData.direccionInmueble || !reservaData.montoReserva || !reservaData.montoTotal))}
                                 className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center gap-3 font-bold text-lg mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Wand2 className="w-6 h-6" />
                                 {isGenerating ? 'Generando...' : 'Generar Documento'}
                             </button>
+                            {documentType === 'reserva' && (
+                                <p className="text-sm text-gray-500 mt-2">
+                                    * Campos obligatorios para generar el documento
+                                </p>
+                            )}
                         </div>
 
                         {/* Documento generado */}

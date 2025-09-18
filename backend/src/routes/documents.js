@@ -233,7 +233,7 @@ ${safeText}`;
     const fallbackAmounts = extractAmountsFromText(text);
     if (fallbackAmounts.length) {
       const built = {
-        summary: content.trim().split('\n').slice(0,3).join(' '),
+        summary: content.trim().split('\n').slice(0, 3).join(' '),
         amounts: fallbackAmounts,
         persons: [],
         addresses: [],
@@ -290,7 +290,7 @@ router.get('/', async (req, res) => {
     // Buscar archivos en la carpeta 'documents' de Cloudinary
     const result = await cloudinary.search
       .expression('folder:documents')
-      .sort_by('created_at','desc')
+      .sort_by('created_at', 'desc')
       .max_results(100)
       .execute();
     const documents = result.resources.map(file => ({
@@ -311,23 +311,209 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/documents/:id - redirect to Cloudinary URL
-router.get('/:id', async (req, res) => {
-  let { id } = req.params;
-  id = decodeURIComponent(id);
+// POST /api/documents/generate-reserva
+// Body: { campos del formulario de reserva }
+// Returns: { documentUrl: 'url del documento generado' }
+router.post('/generate-reserva', async (req, res) => {
   try {
-    const resource = await cloudinary.api.resource(id, { resource_type: 'auto' });
-    if (!resource || !resource.secure_url) return res.status(404).json({ error: 'Archivo no encontrado' });
-    if (req.query.download === '1') {
-      const filename = id.split('/').pop();
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-      return res.redirect(resource.secure_url + '?fl_attachment');
+    const {
+      nombreComprador,
+      dniComprador,
+      estadoCivilComprador,
+      domicilioComprador,
+      emailComprador,
+      direccionInmueble,
+      montoReserva,
+      montoTotal,
+      montoRefuerzo,
+      nombreCorredor,
+      matriculaCucicba,
+      matriculaCmcpci,
+      nombreInmobiliaria,
+      dia,
+      mes,
+      anio
+    } = req.body;
+
+    // Validar campos requeridos
+    if (!nombreComprador || !dniComprador || !direccionInmueble || !montoReserva || !montoTotal) {
+      return res.status(400).json({
+        error: 'Faltan campos requeridos',
+        required: ['nombreComprador', 'dniComprador', 'direccionInmueble', 'montoReserva', 'montoTotal']
+      });
     }
-    return res.redirect(resource.secure_url);
-  } catch (err) {
-    return res.status(404).json({ error: 'Archivo no encontrado', details: err });
+
+    if (!openaiClient) {
+      return res.status(503).json({ error: 'Servicio de IA no disponible' });
+    }
+
+    // Leer el documento modelo
+    const fs = require('fs');
+    const path = require('path');
+    const mammoth = require('mammoth');
+
+    const modeloPath = path.join(__dirname, '../../frontend/public/docs/MODELO_RESERVA Y OFERTA DE COMPRA.docx');
+
+    if (!fs.existsSync(modeloPath)) {
+      return res.status(404).json({ error: 'Documento modelo no encontrado' });
+    }
+
+    // Extraer el contenido del documento modelo
+    const modeloBuffer = fs.readFileSync(modeloPath);
+    const modeloResult = await mammoth.extractRawText({ buffer: modeloBuffer });
+    let documentoTexto = modeloResult.value;
+
+    // Función para convertir números a letras (mejorada)
+    function numeroALetras(num) {
+      if (!num || isNaN(num)) return '';
+      const numero = parseInt(num);
+      if (numero === 0) return 'cero';
+
+      const unidades = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+      const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+      const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+      let letras = '';
+
+      // Centenas
+      const centena = Math.floor(numero / 100);
+      if (centena > 0) {
+        if (centena === 1 && numero !== 100) letras += 'ciento ';
+        else letras += centenas[centena] + ' ';
+      }
+
+      // Decenas y unidades
+      const resto = numero % 100;
+      if (resto > 0) {
+        if (resto < 10) {
+          letras += unidades[resto];
+        } else if (resto < 20) {
+          const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve'];
+          letras += especiales[resto - 10];
+        } else {
+          const decena = Math.floor(resto / 10);
+          const unidad = resto % 10;
+          letras += decenas[decena];
+          if (unidad > 0) {
+            letras += ' y ' + unidades[unidad];
+          }
+        }
+      }
+
+      return letras.trim().toUpperCase();
+    }
+
+    // Aplicar reemplazos directos usando expresiones regulares más flexibles
+    documentoTexto = documentoTexto.replace(/__________________/g, (match, offset, string) => {
+      // Determinar qué campo reemplazar basado en el contexto
+      const context = string.substring(Math.max(0, offset - 50), offset + 50);
+
+      if (context.includes('DNI')) return dniComprador || '__________________';
+      if (context.includes('estado civil')) return estadoCivilComprador || '__________________';
+      if (context.includes('domicilio') || context.includes('calle')) return domicilioComprador || direccionInmueble || '__________________';
+      if (context.includes('email')) return emailComprador || '__________________';
+      if (context.includes('DÓLARES ESTADOUNIDENSES BILLETES') && context.includes('reserva')) return numeroALetras(montoReserva) || '__________________';
+      if (context.includes('DÓLARES ESTADOUNIDENSES BILLETES') && context.includes('venta')) return numeroALetras(montoTotal) || '__________________';
+      if (context.includes('refuerzo')) return numeroALetras(montoRefuerzo) || '__________________';
+      if (context.includes('Sr.') || context.includes('Corredor')) return nombreCorredor || '__________________';
+      if (context.includes('CUCICBA')) return matriculaCucicba || '_____';
+      if (context.includes('CMCP')) return matriculaCmcpci || '________________';
+      if (context.includes('días del mes')) return dia || '___';
+      if (context.includes('mes de')) return mes || '___________';
+      if (context.includes('de ______')) return anio || '______';
+
+      // Fallback
+      return nombreComprador || direccionInmueble || nombreInmobiliaria || '__________________';
+    });
+
+    // Reemplazos específicos para montos numéricos
+    documentoTexto = documentoTexto.replace(/U\$D ___________/g, `U$D ${montoReserva || '___________'}`);
+    documentoTexto = documentoTexto.replace(/U\$D __________\.-\)/g, `U$D ${montoTotal || '__________'}.-)`);
+    documentoTexto = documentoTexto.replace(/U\$D _________/g, `U$D ${montoRefuerzo || '_________'}`);
+
+    console.log('[RESERVA] Documento procesado exitosamente');
+
+    // Usar OpenAI para procesar el documento con los datos proporcionados
+    const systemPrompt = `Eres un asistente especializado en la creación de documentos legales inmobiliarios.
+Tu tarea es tomar un documento modelo de Reserva y Oferta de Compra y completarlo con los datos proporcionados por el usuario.
+Debes mantener el formato legal y la estructura del documento original, solo reemplazando los campos vacíos con la información proporcionada.
+Si algún campo no está disponible, deja el placeholder original.
+Mantén el lenguaje formal y legal del documento.`;
+
+    const userPrompt = `Completa el siguiente documento de Reserva y Oferta de Compra con los datos proporcionados:
+
+DATOS A COMPLETAR:
+- Nombre del comprador: ${datosReemplazo.nombre_comprador}
+- DNI del comprador: ${datosReemplazo.dni_comprador}
+- Estado civil del comprador: ${datosReemplazo.estado_civil_comprador}
+- Domicilio del comprador: ${datosReemplazo.domicilio_comprador}
+- Email del comprador: ${datosReemplazo.email_comprador}
+- Dirección del inmueble: ${datosReemplazo.direccion_inmueble}
+- Monto de reserva: ${datosReemplazo.monto_reserva_texto} (${datosReemplazo.monto_reserva_numero})
+- Monto total de venta: ${datosReemplazo.monto_total_texto} (${datosReemplazo.monto_total_numero})
+- Monto de refuerzo: ${datosReemplazo.monto_refuerzo_texto} (${datosReemplazo.monto_refuerzo_numero})
+- Nombre del corredor: ${datosReemplazo.nombre_corredor}
+- Matrícula CUCICBA: ${datosReemplazo.matricula_cucicba}
+- Matrícula CMCP: ${datosReemplazo.matricula_cmcpci}
+- Nombre de la inmobiliaria: ${datosReemplazo.nombre_inmobiliaria}
+- Fecha - Día: ${datosReemplazo.dia}
+- Fecha - Mes: ${datosReemplazo.mes}
+- Fecha - Año: ${datosReemplazo.anio}
+
+DOCUMENTO MODELO:
+${documentoTexto}
+
+INSTRUCCIONES:
+1. Reemplaza todos los campos marcados con __________________ con la información correspondiente
+2. Mantén la estructura y formato legal del documento
+3. Si un campo no tiene información, deja el placeholder original
+4. Asegúrate de que los montos aparezcan tanto en números como en letras
+5. Mantén el lenguaje formal y legal`;
+
+    console.log('[RESERVA] Procesando documento con OpenAI...');
+    const completion = await openaiClient.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 4000,
+      temperature: 0.1
+    });
+
+    const documentoCompletado = completion.choices[0].message.content;
+
+    // Crear un nombre único para el documento
+    const timestamp = Date.now();
+    const nombreArchivo = `Reserva_Oferta_Compra_${timestamp}.docx`;
+
+    // Por ahora, devolver el documento como texto
+    // En una implementación completa, generaríamos un archivo Word real
+    res.json({
+      success: true,
+      documentContent: documentoCompletado,
+      fileName: nombreArchivo,
+      message: 'Documento generado exitosamente'
+    });
+
+  } catch (error) {
+    console.error('[RESERVA] Error generando documento:', error);
+    res.status(500).json({
+      error: 'Error al generar el documento',
+      details: error.message
+    });
   }
 });
-// (Eliminada la ruta DELETE por query para mantener solo la RESTful y evitar ambigüedades)
-module.exports = router;
+
+// Función auxiliar para convertir números a letras (simplificada)
+function numeroALetras(num) {
+  if (!num || isNaN(num)) return '';
+  // Implementación básica - en producción usar una librería más completa
+  const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+  const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciseis', 'diecisiete', 'dieciocho', 'diecinueve'];
+  const decenas = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+
+  // Para simplificar, devolver una representación básica
+  return `DÓLARES ESTADOUNIDENSES ${num}`;
+}
 
