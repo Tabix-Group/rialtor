@@ -40,20 +40,61 @@ export default function DocumentSummaryPage() {
         throw new Error(err.error || 'Error al generar resumen');
       }
       const sumData = await sumRes.json();
-      // If backend returns structured extraction, show readable summary plus extracted fields
+      // Mostrar toda la información estructurada del backend
+      const displayParts: string[] = [];
+
+      // Tipo de documento identificado
+      if (sumData.documentType) {
+        displayParts.push(`📄 Tipo de documento: ${sumData.documentType}`);
+      }
+
+      // Resumen general
+      if (sumData.summary) {
+        displayParts.push(`\n📝 Resumen: ${sumData.summary}`);
+      }
+
+      // Datos específicos extraídos según el tipo
+      if (sumData.extractedData && typeof sumData.extractedData === 'object') {
+        displayParts.push('\n📊 Datos específicos extraídos:');
+
+        // Función recursiva para mostrar objetos anidados
+        const formatObject = (obj: any, prefix = ''): string[] => {
+          const lines: string[] = [];
+          for (const [key, value] of Object.entries(obj)) {
+            if (value && typeof value === 'object') {
+              lines.push(`${prefix}${key}:`);
+              lines.push(...formatObject(value, prefix + '  '));
+            } else if (value !== null && value !== '') {
+              lines.push(`${prefix}${key}: ${value}`);
+            }
+          }
+          return lines;
+        };
+
+        displayParts.push(...formatObject(sumData.extractedData, '  '));
+      }
+
+      // Datos adicionales del modelo general
       if (sumData.extracted) {
         const ex = sumData.extracted;
-        const parts: string[] = [];
-        if (ex.summary) parts.push(String(ex.summary));
-        if (Array.isArray(ex.amounts) && ex.amounts.length) parts.push('\nMontos: ' + ex.amounts.join('; '));
-        if (Array.isArray(ex.persons) && ex.persons.length) parts.push('\nPersonas: ' + ex.persons.join('; '));
-        if (Array.isArray(ex.addresses) && ex.addresses.length) parts.push('\nDirecciones: ' + ex.addresses.join('; '));
-        if (Array.isArray(ex.dates) && ex.dates.length) parts.push('\nFechas: ' + ex.dates.join('; '));
-        if (Array.isArray(ex.relevant) && ex.relevant.length) parts.push('\nOtros: ' + ex.relevant.join('; '));
-        setSummary(parts.join('\n'));
-      } else {
-        setSummary(sumData.summary || 'No se recibió resumen');
+        if (Array.isArray(ex.amounts) && ex.amounts.length) {
+          displayParts.push(`\n💰 Montos: ${ex.amounts.join('; ')}`);
+        }
+        if (Array.isArray(ex.persons) && ex.persons.length) {
+          displayParts.push(`👥 Personas: ${ex.persons.join('; ')}`);
+        }
+        if (Array.isArray(ex.addresses) && ex.addresses.length) {
+          displayParts.push(`📍 Direcciones: ${ex.addresses.join('; ')}`);
+        }
+        if (Array.isArray(ex.dates) && ex.dates.length) {
+          displayParts.push(`📅 Fechas: ${ex.dates.join('; ')}`);
+        }
+        if (Array.isArray(ex.relevant) && ex.relevant.length) {
+          displayParts.push(`📋 Otros datos relevantes: ${ex.relevant.join('; ')}`);
+        }
       }
+
+      setSummary(displayParts.join('\n'));
     } catch (e: any) {
       setError(e.message || 'Error desconocido');
     } finally {
@@ -64,8 +105,8 @@ export default function DocumentSummaryPage() {
   return (
     <div className="min-h-screen flex items-start justify-center p-8">
       <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow">
-        <h2 className="text-2xl font-semibold mb-4">Subir documento y obtener resumen</h2>
-        <p className="text-sm text-gray-600 mb-4">Sube un PDF o Word y obtén un resumen breve (3 líneas).</p>
+        <h2 className="text-2xl font-semibold mb-4">Procesamiento inteligente de documentos</h2>
+        <p className="text-sm text-gray-600 mb-4">Sube un PDF o Word y obtén un análisis completo con identificación de tipo y extracción de datos específicos.</p>
 
         <div className="mb-4">
           <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" />
@@ -73,14 +114,14 @@ export default function DocumentSummaryPage() {
 
         <div className="flex gap-2">
           <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={handleUploadAndSummarize} disabled={loading}>
-            {loading ? 'Procesando...' : 'Subir y resumir'}
+            {loading ? 'Procesando...' : 'Analizar documento'}
           </button>
         </div>
 
         {error && <div className="mt-4 text-red-600">{error}</div>}
         {summary && (
           <div className="mt-6 p-4 bg-gray-50 rounded">
-            <h3 className="font-semibold mb-2">Resumen</h3>
+            <h3 className="font-semibold mb-2">Análisis del documento</h3>
             <p className="whitespace-pre-line">{summary}</p>
           </div>
         )}
