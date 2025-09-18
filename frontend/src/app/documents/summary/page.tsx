@@ -53,27 +53,6 @@ export default function DocumentSummaryPage() {
         displayParts.push(`\n📝 Resumen: ${sumData.summary}`);
       }
 
-      // Datos específicos extraídos según el tipo
-      if (sumData.extractedData && typeof sumData.extractedData === 'object') {
-        displayParts.push('\n📊 Datos específicos extraídos:');
-
-        // Función recursiva para mostrar objetos anidados
-        const formatObject = (obj: any, prefix = ''): string[] => {
-          const lines: string[] = [];
-          for (const [key, value] of Object.entries(obj)) {
-            if (value && typeof value === 'object') {
-              lines.push(`${prefix}${key}:`);
-              lines.push(...formatObject(value, prefix + '  '));
-            } else if (value !== null && value !== '') {
-              lines.push(`${prefix}${key}: ${value}`);
-            }
-          }
-          return lines;
-        };
-
-        displayParts.push(...formatObject(sumData.extractedData, '  '));
-      }
-
       // Datos adicionales del modelo general
       if (sumData.extracted) {
         const ex = sumData.extracted;
@@ -92,6 +71,48 @@ export default function DocumentSummaryPage() {
         if (Array.isArray(ex.relevant) && ex.relevant.length) {
           displayParts.push(`📋 Otros datos relevantes: ${ex.relevant.join('; ')}`);
         }
+      }
+
+      // Datos específicos extraídos según el tipo (al final, más amigable)
+      if (sumData.extractedData && typeof sumData.extractedData === 'object') {
+        displayParts.push('\n\n📊 DETALLES ESPECÍFICOS DEL DOCUMENTO');
+
+        // Función para mostrar datos de manera amigable
+        const formatFriendly = (obj: any, sectionName = ''): string[] => {
+          const lines: string[] = [];
+
+          if (sectionName) {
+            lines.push(`\n🔸 ${sectionName.toUpperCase()}`);
+          }
+
+          for (const [key, value] of Object.entries(obj)) {
+            if (value && typeof value === 'object') {
+              // Para objetos anidados, crear secciones
+              const friendlyName = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+              lines.push(...formatFriendly(value, friendlyName));
+            } else if (value !== null && value !== '' && value !== undefined) {
+              // Para valores simples, formatear de manera legible
+              const friendlyKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+              let displayValue = String(value);
+
+              // Formatear montos
+              if (key.toLowerCase().includes('monto') || key.toLowerCase().includes('reserva') ||
+                key.toLowerCase().includes('total') || key.toLowerCase().includes('refuerzo')) {
+                displayValue = displayValue.replace(/U\$D\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)/g, 'U$D $1');
+              }
+
+              // Formatear plazos
+              if (key.toLowerCase().includes('plazo') && /^\d+$/.test(displayValue)) {
+                displayValue = `${displayValue} días`;
+              }
+
+              lines.push(`  • ${friendlyKey}: ${displayValue}`);
+            }
+          }
+          return lines;
+        };
+
+        displayParts.push(...formatFriendly(sumData.extractedData));
       }
 
       setSummary(displayParts.join('\n'));
