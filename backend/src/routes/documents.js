@@ -14,8 +14,14 @@ const cloudinary = require('../cloudinary');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');    // Leer el documento modelo
+const fs = require('fs');
+const path = require('path');
 const mammoth = require('mammoth');
-const OpenAI = require('openai');
+
+// Usar ruta absoluta directa que sabemos que funciona
+const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
+console.log('[GENERATE-RESERVA] Using direct path:', modeloPath); OpenAI = require('openai');
 
 // Initialize OpenAI client if key exists (kept local to this router to avoid touching chatController)
 let openaiClient = null;
@@ -559,6 +565,13 @@ router.get('/', async (req, res) => {
 // Body: { campos del formulario de reserva }
 // Returns: { documentUrl: 'url del documento generado' }
 router.post('/generate-reserva', async (req, res) => {
+  console.log('[GENERATE-RESERVA] Request received:', {
+    method: req.method,
+    url: req.originalUrl,
+    body: req.body,
+    headers: req.headers
+  });
+
   try {
     const {
       nombreComprador,
@@ -579,8 +592,17 @@ router.post('/generate-reserva', async (req, res) => {
       anio
     } = req.body;
 
+    console.log('[GENERATE-RESERVA] Extracted data:', {
+      nombreComprador,
+      dniComprador,
+      direccionInmueble,
+      montoReserva,
+      montoTotal
+    });
+
     // Validar campos requeridos
     if (!nombreComprador || !dniComprador || !direccionInmueble || !montoReserva || !montoTotal) {
+      console.log('[GENERATE-RESERVA] Validation failed - missing required fields');
       return res.status(400).json({
         error: 'Faltan campos requeridos',
         required: ['nombreComprador', 'dniComprador', 'direccionInmueble', 'montoReserva', 'montoTotal']
@@ -588,38 +610,39 @@ router.post('/generate-reserva', async (req, res) => {
     }
 
     if (!openaiClient) {
-      console.error('[RESERVA] Cliente OpenAI no disponible');
+      console.error('[GENERATE-RESERVA] OpenAI client not available');
       return res.status(503).json({
         error: 'Servicio de IA no disponible',
         details: 'La clave de API de OpenAI no está configurada'
       });
     }
 
-    console.log('[RESERVA] Cliente OpenAI verificado correctamente');
+    console.log('[GENERATE-RESERVA] OpenAI client verified successfully');
 
-    console.log('[RESERVA] Iniciando procesamiento del documento...');
+    console.log('[GENERATE-RESERVA] Starting document processing...');
 
     // Leer el documento modelo
     const fs = require('fs');
     const path = require('path');
     const mammoth = require('mammoth');
 
-    const modeloPath = path.join(__dirname, '../../frontend/public/docs/MODELO_RESERVA Y OFERTA DE COMPRA.docx');
-    console.log('[RESERVA] Buscando documento modelo en:', modeloPath);
+    // Usar ruta absoluta directa que sabemos que funciona
+    const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
+    console.log('[GENERATE-RESERVA] Using direct path:', modeloPath);
 
     if (!fs.existsSync(modeloPath)) {
-      console.error('[RESERVA] Documento modelo NO encontrado en:', modeloPath);
+      console.error('[GENERATE-RESERVA] Model document NOT found at:', modeloPath);
       return res.status(404).json({ error: 'Documento modelo no encontrado' });
     }
 
-    console.log('[RESERVA] Documento modelo encontrado, extrayendo contenido...');
+    console.log('[GENERATE-RESERVA] Model document found, extracting content...');
 
     // Extraer el contenido del documento modelo
     const modeloBuffer = fs.readFileSync(modeloPath);
     const modeloResult = await mammoth.extractRawText({ buffer: modeloBuffer });
     let documentoTexto = modeloResult.value;
 
-    console.log('[RESERVA] Contenido extraído, longitud:', documentoTexto.length);
+    console.log('[GENERATE-RESERVA] Content extracted, length:', documentoTexto.length);
 
     // Función para convertir números a letras (mejorada)
     function numeroALetras(num) {
@@ -661,7 +684,7 @@ router.post('/generate-reserva', async (req, res) => {
       return letras.trim().toUpperCase();
     }
 
-    console.log('[RESERVA] Aplicando reemplazos de datos...');
+    console.log('[GENERATE-RESERVA] Applying data replacements...');
 
     // Reemplazos simples y directos
     documentoTexto = documentoTexto.replace(/__________________/g, (match, offset, string) => {
@@ -690,7 +713,7 @@ router.post('/generate-reserva', async (req, res) => {
     documentoTexto = documentoTexto.replace(/U\$D\s*___________\.-?\)/g, `U$D ${montoTotal || '__________'}.-)`);
     documentoTexto = documentoTexto.replace(/U\$D\s*_________/g, `U$D ${montoRefuerzo || '_________'}`);
 
-    console.log('[RESERVA] Reemplazos aplicados, enviando a OpenAI...');
+    console.log('[GENERATE-RESERVA] Replacements applied, sending to OpenAI...');
 
     // Usar OpenAI para procesar el documento con los datos proporcionados
     const systemPrompt = `Eres un asistente especializado en documentos legales inmobiliarios argentinos.
@@ -731,7 +754,7 @@ ${documentoTexto}
 
 DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por la información correspondiente. Mantén toda la estructura, formato y contenido legal intacto.`;
 
-    console.log('[RESERVA] Procesando documento con OpenAI...');
+    console.log('[GENERATE-RESERVA] Processing document with OpenAI...');
     const completion = await openaiClient.chat.completions.create({
       model: 'gpt-4',
       messages: [
@@ -743,7 +766,7 @@ DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por
     });
 
     if (!completion.choices || !completion.choices[0] || !completion.choices[0].message) {
-      console.error('[RESERVA] Respuesta inválida de OpenAI');
+      console.error('[GENERATE-RESERVA] Invalid response from OpenAI');
       return res.status(500).json({
         error: 'Respuesta inválida del servicio de IA',
         details: 'No se recibió una respuesta válida de OpenAI'
@@ -753,14 +776,14 @@ DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por
     const documentoCompletado = completion.choices[0].message.content;
 
     if (!documentoCompletado || documentoCompletado.trim().length === 0) {
-      console.error('[RESERVA] Documento generado vacío');
+      console.error('[GENERATE-RESERVA] Generated document is empty');
       return res.status(500).json({
         error: 'Documento generado vacío',
         details: 'OpenAI no generó contenido válido'
       });
     }
 
-    console.log('[RESERVA] Documento generado exitosamente, longitud:', documentoCompletado.length);
+    console.log('[GENERATE-RESERVA] Document generated successfully, length:', documentoCompletado.length);
 
     // Crear un nombre único para el documento
     const timestamp = Date.now();
@@ -768,6 +791,7 @@ DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por
 
     // Por ahora, devolver el documento como texto
     // En una implementación completa, generaríamos un archivo Word real
+    console.log('[GENERATE-RESERVA] Sending response to client');
     res.json({
       success: true,
       documentContent: documentoCompletado,
@@ -776,7 +800,7 @@ DEVUELVE EL DOCUMENTO COMPLETO con todos los __________________ reemplazados por
     });
 
   } catch (error) {
-    console.error('[RESERVA] Error generando documento:', error);
+    console.error('[GENERATE-RESERVA] Error generating document:', error);
     res.status(500).json({
       error: 'Error al generar el documento',
       details: error.message
