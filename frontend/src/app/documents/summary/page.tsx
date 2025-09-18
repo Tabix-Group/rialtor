@@ -95,15 +95,37 @@ export default function DocumentSummaryPage() {
               const friendlyKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
               let displayValue = String(value);
 
-              // Formatear montos
+              // Formatear montos (más amplio para capturar diferentes variaciones)
               if (key.toLowerCase().includes('monto') || key.toLowerCase().includes('reserva') ||
-                key.toLowerCase().includes('total') || key.toLowerCase().includes('refuerzo')) {
-                displayValue = displayValue.replace(/U\$D\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)/g, 'U$D $1');
+                key.toLowerCase().includes('total') || key.toLowerCase().includes('refuerzo') ||
+                key.toLowerCase().includes('alquiler') || key.toLowerCase().includes('garantia') ||
+                key.toLowerCase().includes('arba') || key.toLowerCase().includes('honorarios') ||
+                key.toLowerCase().includes('saldo') || key.toLowerCase().includes('jardinero')) {
+                // Mejorar formato de montos
+                displayValue = displayValue
+                  .replace(/U\$D\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)/g, 'U$D $1')
+                  .replace(/ARS\s*(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)/g, 'ARS $1')
+                  .replace(/\$(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)/g, '$$1')
+                  .replace(/(\d+(?:[.,]\d{3})*(?:[.,]\d{2})?)\s*(?:pesos?|d[oó]lares?)/gi, '$1');
               }
 
-              // Formatear plazos
-              if (key.toLowerCase().includes('plazo') && /^\d+$/.test(displayValue)) {
+              // Formatear plazos (más amplio)
+              if ((key.toLowerCase().includes('plazo') || key.toLowerCase().includes('duracion') ||
+                key.toLowerCase().includes('ingreso') || key.toLowerCase().includes('egreso')) &&
+                /^\d+$/.test(displayValue)) {
                 displayValue = `${displayValue} días`;
+              }
+
+              // Formatear porcentajes
+              if (key.toLowerCase().includes('porcentaje') || key.toLowerCase().includes('honorarios')) {
+                if (/^\d+(?:\.\d+)?$/.test(displayValue)) {
+                  displayValue = `${displayValue}%`;
+                }
+              }
+
+              // Formatear teléfonos
+              if (key.toLowerCase().includes('telefono') || key.toLowerCase().includes('tel')) {
+                displayValue = displayValue.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2-$3');
               }
 
               lines.push(`  • ${friendlyKey}: ${displayValue}`);
