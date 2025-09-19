@@ -153,6 +153,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware de logging general para todas las solicitudes
+app.use((req, res, next) => {
+  console.log(`[SERVER] ${req.method} ${req.originalUrl} - Headers: ${JSON.stringify(req.headers.authorization ? { ...req.headers, authorization: '[PRESENT]' } : req.headers)}`);
+  if (req.originalUrl.includes('/placas') && req.method === 'POST') {
+    console.log(`[PLACAS-REQUEST] POST to ${req.originalUrl}`);
+    console.log(`[PLACAS-REQUEST] Content-Type: ${req.headers['content-type']}`);
+    console.log(`[PLACAS-REQUEST] Content-Length: ${req.headers['content-length']}`);
+    console.log(`[PLACAS-REQUEST] User-Agent: ${req.headers['user-agent']}`);
+  }
+  next();
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
