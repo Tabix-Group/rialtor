@@ -58,8 +58,9 @@ export default function DocumentGeneratorPage() {
             if (documentType === 'reserva') {
                 console.log('[FRONTEND] Sending reserva data:', reservaData)
 
-                // Usar el nuevo endpoint para reserva
-                const response = await fetch('/api/documents/generate-reserva', {
+                // Temporary fix: call backend directly to bypass proxy issues
+                const backendUrl = 'https://remax-be-production.up.railway.app';
+                const response = await fetch(`${backendUrl}/api/documents/generate-reserva`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
