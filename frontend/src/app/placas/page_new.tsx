@@ -367,7 +367,7 @@ export default function PlacasPage() {
                       {plaque.title}
                     </h3>
 
-                    <div className="space-y-1 text-xs text-gray-600 mb-3">
+                    <div className="space-y-2 text-xs text-gray-600 mb-3">
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-3 h-3 text-green-600" />
                         <span className="font-medium">{plaque.propertyData.moneda} {parseInt(plaque.propertyData.precio).toLocaleString('es-AR')}</span>
@@ -838,16 +838,11 @@ export default function PlacasPage() {
                       <span className="font-medium">Precio:</span> {selectedPlaque.propertyData.moneda} {parseInt(selectedPlaque.propertyData.precio).toLocaleString('es-AR')}
                     </div>
                     <div>
-                      <span className="font-medium">DirecciÃ³n:</span> {selectedPlaque.propertyData.direccion}
+                      <span className="font-medium">DirecciÃ³n:</span> <span className="break-words">{selectedPlaque.propertyData.direccion}</span>
                     </div>
                     <div>
                       <span className="font-medium">Contacto:</span> {selectedPlaque.propertyData.contacto}
                     </div>
-                    {selectedPlaque.propertyData.ambientes && (
-                      <div>
-                        <span className="font-medium">Ambientes:</span> {selectedPlaque.propertyData.ambientes}
-                      </div>
-                    )}
                     {selectedPlaque.propertyData.ambientes && (
                       <div>
                         <span className="font-medium">Ambientes:</span> {selectedPlaque.propertyData.ambientes}
@@ -885,7 +880,7 @@ export default function PlacasPage() {
                     )}
                     {selectedPlaque.propertyData.email && (
                       <div>
-                        <span className="font-medium">Email:</span> {selectedPlaque.propertyData.email}
+                        <span className="font-medium">Email:</span> <span className="break-words">{selectedPlaque.propertyData.email}</span>
                       </div>
                     )}
                   </div>
