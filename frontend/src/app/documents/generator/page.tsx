@@ -113,31 +113,63 @@ export default function DocumentGeneratorPage() {
         }
     }
 
-    const handleDownload = () => {
+    const handleDownload = (format: 'txt' | 'docx' | 'pdf' = 'txt') => {
         if (!generatedDocument) return
 
         if (documentType === 'reserva') {
-            // Para documentos de reserva, descargar como archivo de texto por ahora
-            const blob = new Blob([generatedDocument], { type: 'text/plain;charset=utf-8' })
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `Reserva_Oferta_Compra_${Date.now()}.txt`
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            URL.revokeObjectURL(url)
+            let mimeType = 'text/plain;charset=utf-8';
+            let fileName = `Reserva_Oferta_Compra_${Date.now()}`;
+            let content = generatedDocument;
+
+            switch (format) {
+                case 'docx':
+                    // Para Word, generamos un archivo RTF que es compatible
+                    mimeType = 'application/rtf';
+                    fileName += '.rtf';
+                    // Convertir texto plano a RTF con formato básico
+                    let rtfContent = generatedDocument
+                        .replace(/\n/g, '\\par\n')
+                        .replace(/RESERVA Y OFERTA DE COMPRA/g, '{\\b\\fs28 RESERVA Y OFERTA DE COMPRA}')
+                        .replace(/MONTO DE LA RESERVA:/g, '{\\b MONTO DE LA RESERVA:}')
+                        .replace(/MONTO TOTAL DE LA OPERACIÓN:/g, '{\\b MONTO TOTAL DE LA OPERACIÓN:}')
+                        .replace(/REFUERZO DE RESERVA:/g, '{\\b REFUERZO DE RESERVA:}')
+                        .replace(/CORREDOR INMOBILIARIO:/g, '{\\b CORREDOR INMOBILIARIO:}')
+                        .replace(/CONDICIONES:/g, '{\\b CONDICIONES:}')
+                        .replace(/FIRMAS:/g, '{\\b FIRMAS:}');
+
+                    content = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}\\f0\\fs24 ${rtfContent}}`;
+                    break;
+                case 'pdf':
+                    // Para PDF, por ahora generamos texto plano
+                    // En el futuro se podría integrar con una librería de PDF
+                    mimeType = 'text/plain;charset=utf-8';
+                    fileName += '_para_PDF.txt';
+                    content = `DOCUMENTO PARA CONVERSIÓN A PDF\n\n${generatedDocument}\n\n--- Para convertir a PDF, copie este contenido en un procesador de texto y exporte como PDF ---`;
+                    break;
+                default:
+                    fileName += '.txt';
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         } else {
             // Para otros documentos, usar el método anterior
-            const blob = new Blob([generatedDocument], { type: 'text/plain' })
-            const url = URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `documento-${documentType}-${Date.now()}.txt`
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            URL.revokeObjectURL(url)
+            const blob = new Blob([generatedDocument], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `documento-${documentType}-${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
     }
 
@@ -530,13 +562,29 @@ export default function DocumentGeneratorPage() {
                                             <FileText className="w-5 h-5" />
                                             Documento Generado
                                         </h3>
-                                        <button
-                                            onClick={handleDownload}
-                                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                                        >
-                                            <Download className="w-4 h-4" />
-                                            Descargar
-                                        </button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleDownload('txt')}
+                                                className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                                Texto
+                                            </button>
+                                            <button
+                                                onClick={() => handleDownload('docx')}
+                                                className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                                Word
+                                            </button>
+                                            <button
+                                                onClick={() => handleDownload('pdf')}
+                                                className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2 text-sm"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                                PDF
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="bg-white border border-gray-200 rounded-lg p-4 max-h-96 overflow-y-auto">
                                         <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">

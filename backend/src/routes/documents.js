@@ -608,7 +608,7 @@ router.post('/generate-reserva', async (req, res) => {
 
     // Crear un nombre único para el documento
     const timestamp = Date.now();
-    const nombreArchivo = `Reserva_Oferta_Compra_${timestamp}.txt`;
+    const nombreArchivoBase = `Reserva_Oferta_Compra_${timestamp}`;
 
     console.log('[GENERATE-RESERVA] Sending response to client');
     console.log('[GENERATE-RESERVA] ===== REQUEST COMPLETED =====');
@@ -616,7 +616,9 @@ router.post('/generate-reserva', async (req, res) => {
     res.json({
       success: true,
       documentContent: documentoCompletado,
-      fileName: nombreArchivo,
+      fileName: `${nombreArchivoBase}.txt`,
+      wordFileName: `${nombreArchivoBase}.docx`,
+      pdfFileName: `${nombreArchivoBase}.pdf`,
       message: 'Documento generado exitosamente'
     });
 
@@ -734,26 +736,50 @@ function generateBasicTemplate(data) {
     const unidades = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
     const decenas = ['', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
     const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+    const miles = ['', 'MIL', 'DOS MIL', 'TRES MIL', 'CUATRO MIL', 'CINCO MIL', 'SEIS MIL', 'SIETE MIL', 'OCHO MIL', 'NUEVE MIL'];
 
+    // Handle millions
+    if (numero >= 1000000) {
+      const millones = Math.floor(numero / 1000000);
+      const resto = numero % 1000000;
+      let resultado = millones === 1 ? 'UN MILLON' : numeroALetras(millones) + ' MILLONES';
+      if (resto > 0) resultado += ' ' + numeroALetras(resto);
+      return resultado;
+    }
+
+    // Handle thousands
+    if (numero >= 1000) {
+      const mil = Math.floor(numero / 1000);
+      const resto = numero % 1000;
+      let resultado = mil === 1 ? 'MIL' : numeroALetras(mil) + ' MIL';
+      if (resto > 0) resultado += ' ' + numeroALetras(resto);
+      return resultado;
+    }
+
+    // Handle hundreds
     if (numero >= 100) {
       const centena = Math.floor(numero / 100);
       const resto = numero % 100;
       if (centena === 1 && resto === 0) return 'CIEN';
       return centenas[centena] + (resto > 0 ? ' ' + numeroALetras(resto) : '');
     }
+
+    // Handle tens
     if (numero >= 20) {
       const decena = Math.floor(numero / 10);
       const unidad = numero % 10;
       return decenas[decena] + (unidad > 0 ? ' Y ' + unidades[unidad] : '');
     }
+
+    // Handle teens
     if (numero >= 10) {
       const especiales = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISEIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
       return especiales[numero - 10];
     }
-    return unidades[numero];
-  }
 
-  const template = `
+    // Handle units
+    return unidades[numero];
+  } const template = `
 RESERVA Y OFERTA DE COMPRA
 
 En la Ciudad de Buenos Aires, a los ${dia || '__'} días del mes de ${mes || '__________'} del año ${anio || '____'}, el/la Sr./Sra. ${nombreComprador || '____________________'}, D.N.I. N° ${dniComprador || '______________'}, estado civil ${estadoCivilComprador || '__________'}, con domicilio en ${domicilioComprador || '________________________________'}, email: ${emailComprador || '____________________'}, en adelante denominado "EL DADOR DE LA RESERVA", reserva el inmueble sito en ${direccionInmueble || '________________________________'}.
