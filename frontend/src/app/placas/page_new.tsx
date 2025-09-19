@@ -378,7 +378,7 @@ export default function PlacasPage() {
                           <span className="truncate">{plaque.propertyData.direccion}</span>
                         </div>
                       )}
-                      <div className="flex flex-wrap items-center gap-1 text-xs">
+                      <div className="flex items-center gap-1 text-xs">
                         <Home className="w-3 h-3 text-blue-600" />
                         <span>{plaque.propertyData.ambientes || 0} amb</span>
                         {plaque.propertyData.dormitorios && <span>â€¢ {plaque.propertyData.dormitorios} dorm</span>}
@@ -830,7 +830,7 @@ export default function PlacasPage() {
                 {/* Datos de la propiedad */}
                 <div className="mt-6 bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold mb-3">Datos de la Propiedad</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="font-medium">Tipo:</span> {selectedPlaque.propertyData.tipo}
                     </div>
@@ -838,11 +838,16 @@ export default function PlacasPage() {
                       <span className="font-medium">Precio:</span> {selectedPlaque.propertyData.moneda} {parseInt(selectedPlaque.propertyData.precio).toLocaleString('es-AR')}
                     </div>
                     <div>
-                      <span className="font-medium">DirecciÃ³n:</span> <span className="break-words">{selectedPlaque.propertyData.direccion}</span>
+                      <span className="font-medium">DirecciÃ³n:</span> {selectedPlaque.propertyData.direccion}
                     </div>
                     <div>
                       <span className="font-medium">Contacto:</span> {selectedPlaque.propertyData.contacto}
                     </div>
+                    {selectedPlaque.propertyData.ambientes && (
+                      <div>
+                        <span className="font-medium">Ambientes:</span> {selectedPlaque.propertyData.ambientes}
+                      </div>
+                    )}
                     {selectedPlaque.propertyData.ambientes && (
                       <div>
                         <span className="font-medium">Ambientes:</span> {selectedPlaque.propertyData.ambientes}
@@ -880,7 +885,7 @@ export default function PlacasPage() {
                     )}
                     {selectedPlaque.propertyData.email && (
                       <div>
-                        <span className="font-medium">Email:</span> <span className="break-words">{selectedPlaque.propertyData.email}</span>
+                        <span className="font-medium">Email:</span> {selectedPlaque.propertyData.email}
                       </div>
                     )}
                   </div>
