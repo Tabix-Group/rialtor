@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             method,
             headers: headersProxy,
             body: bodyBuffer,
-            signal: AbortSignal.timeout(60000), // 60 segundos timeout
+            signal: AbortSignal.timeout(120000), // 120 segundos timeout - increased for document processing
         });
 
         console.log(`[PROXY] Respuesta del backend - Status: ${response.status}`);

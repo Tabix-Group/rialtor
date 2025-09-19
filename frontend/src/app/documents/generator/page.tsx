@@ -52,8 +52,12 @@ export default function DocumentGeneratorPage() {
         }
 
         setIsGenerating(true)
+        console.log('[FRONTEND] Starting document generation...', documentType)
+
         try {
             if (documentType === 'reserva') {
+                console.log('[FRONTEND] Sending reserva data:', reservaData)
+
                 // Usar el nuevo endpoint para reserva
                 const response = await fetch('/api/documents/generate-reserva', {
                     method: 'POST',
@@ -64,12 +68,24 @@ export default function DocumentGeneratorPage() {
                     body: JSON.stringify(reservaData)
                 })
 
+                console.log('[FRONTEND] Response status:', response.status)
+                console.log('[FRONTEND] Response ok:', response.ok)
+
                 if (!response.ok) {
-                    throw new Error('Error al generar el documento')
+                    const errorText = await response.text()
+                    console.error('[FRONTEND] Error response:', errorText)
+                    throw new Error(`Error al generar el documento: ${response.status} - ${errorText}`)
                 }
 
                 const result = await response.json()
+                console.log('[FRONTEND] Document generation successful:', !!result.documentContent)
+                console.log('[FRONTEND] Document length:', result.documentContent?.length || 0)
+
                 setGeneratedDocument(result.documentContent)
+
+                if (result.message) {
+                    console.log('[FRONTEND] Success message:', result.message)
+                }
             } else {
                 // Lógica existente para otros documentos
                 await new Promise(resolve => setTimeout(resolve, 2000))
@@ -79,9 +95,11 @@ export default function DocumentGeneratorPage() {
                 setGeneratedDocument(mockDocument)
             }
         } catch (error) {
+            console.error('[FRONTEND] Document generation error:', error)
             alert('Error al generar el documento: ' + (error instanceof Error ? error.message : 'Error desconocido'))
         } finally {
             setIsGenerating(false)
+            console.log('[FRONTEND] Document generation process completed')
         }
     }
 
@@ -476,13 +494,20 @@ export default function DocumentGeneratorPage() {
                                 disabled={isGenerating || !documentType || (documentType === 'reserva' && (!reservaData.nombreComprador || !reservaData.dniComprador || !reservaData.direccionInmueble || !reservaData.montoReserva || !reservaData.montoTotal))}
                                 className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-4 rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center gap-3 font-bold text-lg mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <Wand2 className="w-6 h-6" />
-                                {isGenerating ? 'Generando...' : 'Generar Documento'}
+                                <Wand2 className={`w-6 h-6 ${isGenerating ? 'animate-spin' : ''}`} />
+                                {isGenerating ? 'Generando documento...' : 'Generar Documento'}
                             </button>
                             {documentType === 'reserva' && (
                                 <p className="text-sm text-gray-500 mt-2">
                                     * Campos obligatorios para generar el documento
                                 </p>
+                            )}
+                            {isGenerating && (
+                                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p className="text-blue-700 text-sm">
+                                        ⏳ Procesando documento... Esto puede tomar hasta 2 minutos.
+                                    </p>
+                                </div>
                             )}
                         </div>
 
