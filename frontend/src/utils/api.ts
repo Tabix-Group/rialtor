@@ -138,6 +138,12 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
         ...(options.headers as Record<string, string>),
     };
 
+    // Don't set Content-Type for FormData - let browser set it with boundary
+    const isFormData = options.body instanceof FormData;
+    if (!isFormData && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+    }
+
     if (token && !headers.Authorization) {
         headers.Authorization = `Bearer ${token}`;
     }
@@ -145,6 +151,8 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
     // Build full URL if relative
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
     console.log('🌐 Making request to:', fullUrl);
+    console.log('📋 Request method:', options.method || 'GET');
+    console.log('📦 Body type:', isFormData ? 'FormData' : typeof options.body);
 
     const response = await fetch(fullUrl, {
         ...options,

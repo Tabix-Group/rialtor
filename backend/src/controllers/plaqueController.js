@@ -35,6 +35,11 @@ const upload = multer({
  */
 const createPropertyPlaque = async (req, res, next) => {
   try {
+    console.log('[PLACAS] ===== INICIANDO CREACIÓN DE PLACA =====');
+    console.log('[PLACAS] Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('[PLACAS] Body keys:', Object.keys(req.body));
+    console.log('[PLACAS] Files:', req.files ? req.files.length : 'No files');
+
     const userId = req.user.id;
     const {
       title,
@@ -42,8 +47,14 @@ const createPropertyPlaque = async (req, res, next) => {
       propertyData
     } = req.body;
 
+    console.log('[PLACAS] Usuario ID:', userId);
+    console.log('[PLACAS] Title:', title);
+    console.log('[PLACAS] Description:', description);
+    console.log('[PLACAS] PropertyData raw:', propertyData);
+
     // Validar que se hayan subido imágenes
     if (!req.files || req.files.length === 0) {
+      console.error('[PLACAS] No se recibieron archivos');
       return res.status(400).json({
         error: 'Se requiere al menos una imagen',
         message: 'Debe subir al menos una imagen de la propiedad'
@@ -52,6 +63,7 @@ const createPropertyPlaque = async (req, res, next) => {
 
     // Limitar número máximo de imágenes a 2
     if (req.files.length > 2) {
+      console.error('[PLACAS] Demasiadas imágenes:', req.files.length);
       return res.status(400).json({
         error: 'Límite de imágenes excedido',
         message: 'Solo se permiten hasta 2 imágenes por placa'
@@ -59,17 +71,30 @@ const createPropertyPlaque = async (req, res, next) => {
     }
 
     // Validar datos de la propiedad
-    const propertyInfo = JSON.parse(propertyData);
+    let propertyInfo;
+    try {
+      propertyInfo = JSON.parse(propertyData);
+      console.log('[PLACAS] PropertyInfo parsed:', JSON.stringify(propertyInfo, null, 2));
+    } catch (parseError) {
+      console.error('[PLACAS] Error parsing propertyData:', parseError);
+      return res.status(400).json({
+        error: 'Datos de propiedad inválidos',
+        message: 'Los datos de la propiedad no tienen un formato válido'
+      });
+    }
+
     if (!propertyInfo.precio || !propertyInfo.corredores) {
+      console.error('[PLACAS] Faltan datos obligatorios:', {
+        precio: !!propertyInfo.precio,
+        corredores: !!propertyInfo.corredores
+      });
       return res.status(400).json({
         error: 'Datos incompletos',
         message: 'Faltan datos obligatorios de la propiedad (precio, corredores)'
       });
     }
 
-    console.log('[PLACAS] Iniciando procesamiento para usuario:', userId);
-    console.log('[PLACAS] Número de imágenes:', req.files.length);
-    console.log('[PLACAS] Datos de propiedad:', propertyInfo);
+    console.log('[PLACAS] Validación exitosa, creando registro en BD...');
 
     // Crear registro inicial
     const plaque = await prisma.propertyPlaque.create({
@@ -83,6 +108,9 @@ const createPropertyPlaque = async (req, res, next) => {
         status: 'PROCESSING'
       }
     });
+
+    console.log('[PLACAS] Registro creado con ID:', plaque.id);
+    console.log('[PLACAS] Iniciando procesamiento asíncrono...');
 
     // Procesar imágenes de forma asíncrona
     processImagesAndGeneratePlaques(plaque.id, req.files, propertyInfo)
@@ -98,6 +126,7 @@ const createPropertyPlaque = async (req, res, next) => {
         }).catch(console.error);
       });
 
+    console.log('[PLACAS] Respondiendo al cliente...');
     res.status(201).json({
       message: 'Placa de propiedad creada exitosamente. El procesamiento iniciará en breve.',
       plaque: {

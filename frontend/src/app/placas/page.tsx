@@ -164,20 +164,25 @@ export default function PlacasPage() {
     setCreating(true);
 
     try {
+      console.log('🔄 Preparando FormData...');
       const formData = new FormData();
-      formData.append('title', `Placa - ${propertyData.direccion}`);
+      formData.append('title', `Placa - ${propertyData.direccion || 'Nueva Propiedad'}`);
       formData.append('description', propertyData.descripcion || '');
       formData.append('propertyData', JSON.stringify(propertyData));
 
-      selectedImages.forEach(image => {
+      console.log('📦 Adjuntando imágenes:', selectedImages.length);
+      selectedImages.forEach((image, index) => {
         formData.append('images', image);
+        console.log(`📷 Imagen ${index + 1}:`, image.name, image.size, 'bytes');
       });
 
+      console.log('🚀 Enviando solicitud POST...');
       const res = await authenticatedFetch('/api/placas', {
         method: 'POST',
         body: formData
       });
 
+      console.log('✅ Respuesta recibida:', res.status);
       const data = await res.json();
 
       if (res.ok) {
