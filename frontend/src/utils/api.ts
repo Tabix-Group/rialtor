@@ -142,17 +142,9 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
         headers.Authorization = `Bearer ${token}`;
     }
 
-    // Don't set Content-Type for FormData - let browser set it with boundary
-    if (options.body instanceof FormData) {
-        delete headers['Content-Type'];
-        console.log('📁 Sending FormData, removing Content-Type header');
-    }
-
     // Build full URL if relative
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
     console.log('🌐 Making request to:', fullUrl);
-    console.log('📤 Request headers:', headers);
-    console.log('📦 Request body type:', options.body instanceof FormData ? 'FormData' : typeof options.body);
 
     const response = await fetch(fullUrl, {
         ...options,

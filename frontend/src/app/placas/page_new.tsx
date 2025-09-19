@@ -367,7 +367,7 @@ export default function PlacasPage() {
                       {plaque.title}
                     </h3>
 
-                    <div className="space-y-2 text-xs text-gray-600 mb-3">
+                    <div className="space-y-1 text-xs text-gray-600 mb-3">
                       <div className="flex items-center gap-1">
                         <DollarSign className="w-3 h-3 text-green-600" />
                         <span className="font-medium">{plaque.propertyData.moneda} {parseInt(plaque.propertyData.precio).toLocaleString('es-AR')}</span>
@@ -378,7 +378,7 @@ export default function PlacasPage() {
                           <span className="truncate">{plaque.propertyData.direccion}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1 text-xs">
+                      <div className="flex flex-wrap items-center gap-1 text-xs">
                         <Home className="w-3 h-3 text-blue-600" />
                         <span>{plaque.propertyData.ambientes || 0} amb</span>
                         {plaque.propertyData.dormitorios && <span>â€¢ {plaque.propertyData.dormitorios} dorm</span>}
@@ -830,7 +830,7 @@ export default function PlacasPage() {
                 {/* Datos de la propiedad */}
                 <div className="mt-6 bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold mb-3">Datos de la Propiedad</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                     <div>
                       <span className="font-medium">Tipo:</span> {selectedPlaque.propertyData.tipo}
                     </div>

@@ -22,16 +22,9 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB límite
   fileFilter: (req, file, cb) => {
-    console.log('[MULTER] Processing file:', {
-      fieldname: file.fieldname,
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size
-    });
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      console.error('[MULTER] File rejected - not an image:', file.mimetype);
       cb(new Error('Solo se permiten archivos de imagen'), false);
     }
   }
@@ -41,13 +34,6 @@ const upload = multer({
  * Crear una nueva placa de propiedad
  */
 const createPropertyPlaque = async (req, res, next) => {
-  console.log('[PLACAS] ===== INICIANDO CREACIÓN DE PLACA =====');
-  console.log('[PLACAS] Request method:', req.method);
-  console.log('[PLACAS] Request headers:', JSON.stringify(req.headers, null, 2));
-  console.log('[PLACAS] Request body keys:', Object.keys(req.body || {}));
-  console.log('[PLACAS] Request files:', req.files ? req.files.length : 'No files');
-  console.log('[PLACAS] User ID:', req.user?.id);
-
   try {
     const userId = req.user.id;
     const {
@@ -56,11 +42,8 @@ const createPropertyPlaque = async (req, res, next) => {
       propertyData
     } = req.body;
 
-    console.log('[PLACAS] Extracted data:', { title, description, propertyData: propertyData ? 'Present' : 'Missing' });
-
     // Validar que se hayan subido imágenes
     if (!req.files || req.files.length === 0) {
-      console.error('[PLACAS] ERROR: No files provided');
       return res.status(400).json({
         error: 'Se requiere al menos una imagen',
         message: 'Debe subir al menos una imagen de la propiedad'
@@ -69,7 +52,6 @@ const createPropertyPlaque = async (req, res, next) => {
 
     // Limitar número máximo de imágenes a 2
     if (req.files.length > 2) {
-      console.error('[PLACAS] ERROR: Too many files:', req.files.length);
       return res.status(400).json({
         error: 'Límite de imágenes excedido',
         message: 'Solo se permiten hasta 2 imágenes por placa'
@@ -77,12 +59,8 @@ const createPropertyPlaque = async (req, res, next) => {
     }
 
     // Validar datos de la propiedad
-    console.log('[PLACAS] Parsing propertyData...');
     const propertyInfo = JSON.parse(propertyData);
-    console.log('[PLACAS] Parsed propertyInfo:', JSON.stringify(propertyInfo, null, 2));
-
     if (!propertyInfo.precio || !propertyInfo.corredores) {
-      console.error('[PLACAS] ERROR: Missing required fields');
       return res.status(400).json({
         error: 'Datos incompletos',
         message: 'Faltan datos obligatorios de la propiedad (precio, corredores)'
@@ -94,7 +72,6 @@ const createPropertyPlaque = async (req, res, next) => {
     console.log('[PLACAS] Datos de propiedad:', propertyInfo);
 
     // Crear registro inicial
-    console.log('[PLACAS] Creating database record...');
     const plaque = await prisma.propertyPlaque.create({
       data: {
         userId,
@@ -107,16 +84,10 @@ const createPropertyPlaque = async (req, res, next) => {
       }
     });
 
-    console.log('[PLACAS] Database record created with ID:', plaque.id);
-
     // Procesar imágenes de forma asíncrona
-    console.log('[PLACAS] Starting async image processing...');
     processImagesAndGeneratePlaques(plaque.id, req.files, propertyInfo)
-      .then(result => {
-        console.log('[PLACAS] Async processing completed successfully:', result);
-      })
       .catch(error => {
-        console.error('[PLACAS] Async processing failed:', error);
+        console.error('[PLACAS] Error en procesamiento asíncrono:', error);
         // Actualizar estado a error
         prisma.propertyPlaque.update({
           where: { id: plaque.id },
@@ -127,7 +98,6 @@ const createPropertyPlaque = async (req, res, next) => {
         }).catch(console.error);
       });
 
-    console.log('[PLACAS] Returning success response...');
     res.status(201).json({
       message: 'Placa de propiedad creada exitosamente. El procesamiento iniciará en breve.',
       plaque: {
@@ -139,7 +109,7 @@ const createPropertyPlaque = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error('[PLACAS] Error creating plaque:', error);
+    console.error('[PLACAS] Error creando placa:', error);
     next(error);
   }
 };
@@ -236,9 +206,6 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
  * Crear overlay de información sobre la imagen
  */
 async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
-  console.log('[PLACAS] Starting createPlaqueOverlay for URL:', imageUrl);
-  console.log('[PLACAS] Property info:', JSON.stringify(propertyInfo, null, 2));
-
   try {
     console.log('[PLACAS] Descargando imagen de:', imageUrl);
 
@@ -248,11 +215,9 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeoutMs);
         try {
-          console.log(`[PLACAS] Fetch attempt ${i + 1} for ${url}`);
           const resp = await fetch(url, { signal: controller.signal });
           clearTimeout(id);
           if (!resp.ok) throw new Error(`Error descargando imagen: ${resp.status} ${resp.statusText}`);
-          console.log(`[PLACAS] Fetch successful, status: ${resp.status}`);
           return resp;
         } catch (err) {
           clearTimeout(id);
@@ -278,7 +243,6 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     console.log('[PLACAS] Imagen descargada, tamaño:', imageBuffer.length, 'bytes');
 
     // Procesar con Sharp
-    console.log('[PLACAS] Creando instancia de Sharp');
     const image = sharp(imageBuffer);
     const { width, height } = await image.metadata();
 
@@ -328,17 +292,14 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
 
 
     // Generar el SVG llamando a la función factorizada (module-level)
-    console.log('[PLACAS] Generando SVG overlay');
     const svgOverlay = createPlaqueSvgString(width, height, propertyInfo, imageAnalysis);
     console.log('[PLACAS] SVG generado (long):', svgOverlay.substring(0, 200) + '...');
 
     // Aplicar overlay a la imagen con configuración explícita de codificación
-    console.log('[PLACAS] Creando buffer SVG');
     const svgBuffer = Buffer.from(svgOverlay, 'utf8');
 
     console.log('[PLACAS] Tamaño del SVG buffer:', svgBuffer.length, 'bytes');
 
-    console.log('[PLACAS] Aplicando composite con Sharp');
     const processedImage = await image
       .composite([{
         input: svgBuffer,
@@ -352,10 +313,6 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
       .toBuffer();
 
     console.log('[PLACAS] Imagen procesada, tamaño final:', processedImage.length, 'bytes');
-
-    console.log('[PLACAS] Subiendo imagen procesada a Cloudinary');
-    const uploadResult = await uploadBufferToCloudinary(processedImage, 'rialtor-plaques', `plaque-${Date.now()}`);
-    console.log('[PLACAS] Imagen subida exitosamente a Cloudinary:', uploadResult.secure_url);
 
     return processedImage;
 
