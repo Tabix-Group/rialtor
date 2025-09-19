@@ -730,11 +730,11 @@ function generateBasicTemplate(data) {
     if (!num || isNaN(num)) return '';
     const numero = parseInt(num);
     if (numero === 0) return 'CERO';
-    
+
     const unidades = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
     const decenas = ['', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
     const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
-    
+
     if (numero >= 100) {
       const centena = Math.floor(numero / 100);
       const resto = numero % 100;
@@ -803,7 +803,7 @@ router.post('/test-basic', async (req, res) => {
     // Verificar archivo modelo
     const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
     const fileExists = fs.existsSync(modeloPath);
-    
+
     let documentContent = '';
     if (fileExists) {
       try {
