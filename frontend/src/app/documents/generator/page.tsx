@@ -58,21 +58,14 @@ export default function DocumentGeneratorPage() {
             if (documentType === 'reserva') {
                 console.log('[FRONTEND] Sending reserva data:', reservaData)
 
-                // Usar el nuevo endpoint para reserva con timeout
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
+                // Usar el nuevo endpoint para reserva
                 const response = await fetch('/api/documents/generate-reserva', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(reservaData),
-                    signal: controller.signal
+                    body: JSON.stringify(reservaData)
                 })
-
-                clearTimeout(timeoutId);
 
                 console.log('[FRONTEND] Response status:', response.status)
                 console.log('[FRONTEND] Response ok:', response.ok)
