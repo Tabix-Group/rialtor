@@ -599,148 +599,23 @@ router.post('/generate-reserva', async (req, res) => {
       });
     }
 
-    console.log('[GENERATE-RESERVA] Starting document processing...');
+    console.log('[GENERATE-RESERVA] Generating document with embedded template...');
 
-    // Usar ruta absoluta directa que sabemos que funciona
-    const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
-    console.log('[GENERATE-RESERVA] Using direct path:', modeloPath);
+    // Generate document using embedded template (no external file dependency)
+    const documentoCompletado = generateBasicTemplate(req.body);
 
-    if (!fs.existsSync(modeloPath)) {
-      console.error('[GENERATE-RESERVA] Model document NOT found at:', modeloPath);
-      return res.status(404).json({ error: 'Documento modelo no encontrado' });
-    }
-
-    console.log('[GENERATE-RESERVA] Model document found, extracting content...');
-
-    // Extraer el contenido del documento modelo
-    const modeloBuffer = fs.readFileSync(modeloPath);
-    const modeloResult = await mammoth.extractRawText({ buffer: modeloBuffer });
-    let documentoTexto = modeloResult.value;
-
-    console.log('[GENERATE-RESERVA] Content extracted, length:', documentoTexto.length);
-
-    // Función para convertir números a letras (simplificada y más confiable)
-    function numeroALetras(num) {
-      if (!num || isNaN(num)) return '';
-      const numero = parseInt(num);
-      if (numero === 0) return 'CERO';
-
-      const unidades = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
-      const decenas = ['', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
-      const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
-      const miles = ['', 'MIL', 'DOS MIL', 'TRES MIL', 'CUATRO MIL', 'CINCO MIL', 'SEIS MIL', 'SIETE MIL', 'OCHO MIL', 'NUEVE MIL'];
-
-      if (numero >= 10000) return numero.toString(); // Para números grandes, usar dígitos
-      if (numero >= 1000) {
-        const mil = Math.floor(numero / 1000);
-        const resto = numero % 1000;
-        return miles[mil] + (resto > 0 ? ' ' + numeroALetras(resto) : '');
-      }
-      if (numero >= 100) {
-        const centena = Math.floor(numero / 100);
-        const resto = numero % 100;
-        if (centena === 1 && resto === 0) return 'CIEN';
-        return centenas[centena] + (resto > 0 ? ' ' + numeroALetras(resto) : '');
-      }
-      if (numero >= 20) {
-        const decena = Math.floor(numero / 10);
-        const unidad = numero % 10;
-        return decenas[decena] + (unidad > 0 ? ' Y ' + unidades[unidad] : '');
-      }
-      if (numero >= 10) {
-        const especiales = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISEIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
-        return especiales[numero - 10];
-      }
-      return unidades[numero];
-    }
-
-    console.log('[GENERATE-RESERVA] Applying direct replacements (without OpenAI)...');
-
-    // Mapear datos para reemplazos
-    const replacements = {
-      '[NOMBRE_COMPRADOR]': nombreComprador || '',
-      '[DNI_COMPRADOR]': dniComprador || '',
-      '[ESTADO_CIVIL]': estadoCivilComprador || '',
-      '[DOMICILIO_COMPRADOR]': domicilioComprador || '',
-      '[EMAIL_COMPRADOR]': emailComprador || '',
-      '[DIRECCION_INMUEBLE]': direccionInmueble || '',
-      '[MONTO_RESERVA_NUM]': montoReserva ? `USD ${Number(montoReserva).toLocaleString()}` : '',
-      '[MONTO_RESERVA_LETRAS]': numeroALetras(montoReserva),
-      '[MONTO_TOTAL_NUM]': montoTotal ? `USD ${Number(montoTotal).toLocaleString()}` : '',
-      '[MONTO_TOTAL_LETRAS]': numeroALetras(montoTotal),
-      '[MONTO_REFUERZO_NUM]': montoRefuerzo ? `USD ${Number(montoRefuerzo).toLocaleString()}` : '',
-      '[MONTO_REFUERZO_LETRAS]': numeroALetras(montoRefuerzo),
-      '[NOMBRE_CORREDOR]': nombreCorredor || '',
-      '[MATRICULA_CUCICBA]': matriculaCucicba || '',
-      '[MATRICULA_CMCP]': matriculaCmcpci || '',
-      '[NOMBRE_INMOBILIARIA]': nombreInmobiliaria || '',
-      '[DIA]': dia || '',
-      '[MES]': mes || '',
-      '[ANIO]': anio || ''
-    };
-
-    // Patrones comunes a reemplazar basados en el contexto
-    const contextualReplacements = [
-      // Patrones específicos para montos en USD
-      { pattern: /U\$D\s*_+/g, replacement: montoReserva ? `USD ${Number(montoReserva).toLocaleString()}` : 'USD ___________' },
-      { pattern: /dólares\s*\(_+\)/g, replacement: montoTotal ? `dólares (${numeroALetras(montoTotal)})` : 'dólares (_____________)' },
-      { pattern: /refuerzo.*?U\$D\s*_+/gi, replacement: montoRefuerzo ? `refuerzo por USD ${Number(montoRefuerzo).toLocaleString()}` : 'refuerzo por USD _________' },
-
-      // Patrones para información personal
-      { pattern: /Sr\.\s*_+/g, replacement: nombreComprador ? `Sr. ${nombreComprador}` : 'Sr. ___________________' },
-      { pattern: /D\.N\.I\.?\s*_+/g, replacement: dniComprador ? `D.N.I. ${dniComprador}` : 'D.N.I. ___________' },
-      { pattern: /domicilio.*?_+/gi, replacement: domicilioComprador ? `domicilio en ${domicilioComprador}` : 'domicilio en ___________________' },
-      { pattern: /email.*?_+/gi, replacement: emailComprador ? `email: ${emailComprador}` : 'email: ___________________' },
-
-      // Patrón para dirección del inmueble
-      { pattern: /inmueble.*?sito.*?_+/gi, replacement: direccionInmueble ? `inmueble sito en ${direccionInmueble}` : 'inmueble sito en ___________________' },
-
-      // Patrones para fecha
-      { pattern: /día\s*_+/g, replacement: dia ? `día ${dia}` : 'día ___' },
-      { pattern: /mes\s*_+/g, replacement: mes ? `mes de ${mes}` : 'mes de ___________' },
-      { pattern: /año\s*_+/g, replacement: anio ? `año ${anio}` : 'año ______' }
-    ];
-
-    // Aplicar reemplazos directos primero
-    Object.entries(replacements).forEach(([placeholder, value]) => {
-      if (value) {
-        documentoTexto = documentoTexto.replace(new RegExp(placeholder, 'g'), value);
-      }
-    });
-
-    // Aplicar reemplazos contextuales
-    contextualReplacements.forEach(({ pattern, replacement }) => {
-      documentoTexto = documentoTexto.replace(pattern, replacement);
-    });
-
-    // Reemplazos genéricos para líneas en blanco restantes (mejorado)
-    documentoTexto = documentoTexto.replace(/__________________/g, (match, offset, string) => {
-      const context = string.substring(Math.max(0, offset - 50), offset + 50).toLowerCase();
-
-      if (context.includes('dni') || context.includes('documento')) return dniComprador || '__________________';
-      if (context.includes('estado civil')) return estadoCivilComprador || '__________________';
-      if (context.includes('domicilio') || context.includes('calle')) return domicilioComprador || '__________________';
-      if (context.includes('email') || context.includes('correo')) return emailComprador || '__________________';
-      if (context.includes('corredor') || context.includes('martillero')) return nombreCorredor || '__________________';
-      if (context.includes('cucicba')) return matriculaCucicba || '__________________';
-      if (context.includes('cmcp')) return matriculaCmcpci || '__________________';
-      if (context.includes('inmobiliaria')) return nombreInmobiliaria || '__________________';
-
-      return nombreComprador || '__________________';
-    });
-
-    console.log('[GENERATE-RESERVA] Document processing completed successfully');
+    console.log('[GENERATE-RESERVA] Document generated successfully, length:', documentoCompletado.length);
 
     // Crear un nombre único para el documento
     const timestamp = Date.now();
-    const nombreArchivo = `Reserva_Oferta_Compra_${timestamp}.docx`;
+    const nombreArchivo = `Reserva_Oferta_Compra_${timestamp}.txt`;
 
     console.log('[GENERATE-RESERVA] Sending response to client');
     console.log('[GENERATE-RESERVA] ===== REQUEST COMPLETED =====');
 
     res.json({
       success: true,
-      documentContent: documentoTexto,
+      documentContent: documentoCompletado,
       fileName: nombreArchivo,
       message: 'Documento generado exitosamente'
     });
@@ -753,9 +628,7 @@ router.post('/generate-reserva', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   }
-});
-
-// POST /api/documents/test-generate - endpoint de prueba para generar
+});// POST /api/documents/test-generate - endpoint de prueba para generar
 router.post('/test-generate', async (req, res) => {
   console.log('[TEST-GENERATE] Test endpoint called');
   try {
@@ -832,6 +705,94 @@ router.post('/test-generate', async (req, res) => {
 });
 
 
+// Function to generate a basic template when model file is not found
+function generateBasicTemplate(data) {
+  const {
+    nombreComprador = '',
+    dniComprador = '',
+    estadoCivilComprador = '',
+    domicilioComprador = '',
+    emailComprador = '',
+    direccionInmueble = '',
+    montoReserva = '',
+    montoTotal = '',
+    montoRefuerzo = '',
+    nombreCorredor = '',
+    matriculaCucicba = '',
+    matriculaCmcpci = '',
+    nombreInmobiliaria = '',
+    dia = '',
+    mes = '',
+    anio = ''
+  } = data;
+
+  function numeroALetras(num) {
+    if (!num || isNaN(num)) return '';
+    const numero = parseInt(num);
+    if (numero === 0) return 'CERO';
+    
+    const unidades = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
+    const decenas = ['', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
+    const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+    
+    if (numero >= 100) {
+      const centena = Math.floor(numero / 100);
+      const resto = numero % 100;
+      if (centena === 1 && resto === 0) return 'CIEN';
+      return centenas[centena] + (resto > 0 ? ' ' + numeroALetras(resto) : '');
+    }
+    if (numero >= 20) {
+      const decena = Math.floor(numero / 10);
+      const unidad = numero % 10;
+      return decenas[decena] + (unidad > 0 ? ' Y ' + unidades[unidad] : '');
+    }
+    if (numero >= 10) {
+      const especiales = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISEIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
+      return especiales[numero - 10];
+    }
+    return unidades[numero];
+  }
+
+  const template = `
+RESERVA Y OFERTA DE COMPRA
+
+En la Ciudad de Buenos Aires, a los ${dia || '__'} días del mes de ${mes || '__________'} del año ${anio || '____'}, el/la Sr./Sra. ${nombreComprador || '____________________'}, D.N.I. N° ${dniComprador || '______________'}, estado civil ${estadoCivilComprador || '__________'}, con domicilio en ${domicilioComprador || '________________________________'}, email: ${emailComprador || '____________________'}, en adelante denominado "EL DADOR DE LA RESERVA", reserva el inmueble sito en ${direccionInmueble || '________________________________'}.
+
+MONTO DE LA RESERVA:
+El Dador de la Reserva entrega en este acto la suma de USD ${montoReserva ? Number(montoReserva).toLocaleString() : '____________'} (${numeroALetras(montoReserva) || 'PESOS ______________'}) en concepto de reserva.
+
+MONTO TOTAL DE LA OPERACIÓN:
+El precio total de venta del inmueble es de USD ${montoTotal ? Number(montoTotal).toLocaleString() : '____________'} (${numeroALetras(montoTotal) || 'PESOS ______________'}).
+
+${montoRefuerzo ? `REFUERZO DE RESERVA:
+Se establece un refuerzo de reserva por USD ${Number(montoRefuerzo).toLocaleString()} (${numeroALetras(montoRefuerzo)}).` : ''}
+
+CORREDOR INMOBILIARIO:
+${nombreCorredor || 'Nombre del corredor: ____________________'}
+${matriculaCucicba ? `Matrícula CUCICBA: ${matriculaCucicba}` : 'Matrícula CUCICBA: ____________________'}
+${matriculaCmcpci ? `Matrícula CMCP: ${matriculaCmcpci}` : 'Matrícula CMCP: ____________________'}
+${nombreInmobiliaria ? `Inmobiliaria: ${nombreInmobiliaria}` : 'Inmobiliaria: ____________________'}
+
+CONDICIONES:
+- La presente reserva tendrá una vigencia de 10 (diez) días hábiles.
+- En caso de aceptación por parte del vendedor, se procederá a la firma del boleto de compraventa.
+- Si la operación no se concreta por causas imputables al vendedor, se devolverá el doble de la reserva.
+- Si la operación no se concreta por causas imputables al comprador, se perderá la reserva entregada.
+
+FIRMAS:
+
+________________________                    ________________________
+Firma del Dador de Reserva                    Firma del Corredor
+
+
+Fecha: ${dia || '__'}/${mes || '__'}/${anio || '____'}
+
+DOCUMENTO GENERADO AUTOMÁTICAMENTE - PLANTILLA BÁSICA
+`;
+
+  return template.trim();
+}
+
 // POST /api/documents/test-basic - endpoint de prueba básico sin OpenAI
 router.post('/test-basic', async (req, res) => {
   console.log('[TEST-BASIC] Basic test endpoint called');
@@ -842,7 +803,7 @@ router.post('/test-basic', async (req, res) => {
     // Verificar archivo modelo
     const modeloPath = 'C:\\Users\\Hernan\\Desktop\\TRABAJO\\Rialtor\\remax\\frontend\\public\\docs\\MODELO_RESERVA Y OFERTA DE COMPRA.docx';
     const fileExists = fs.existsSync(modeloPath);
-
+    
     let documentContent = '';
     if (fileExists) {
       try {
@@ -877,9 +838,7 @@ router.post('/test-basic', async (req, res) => {
   }
 });
 
-module.exports = router;
-
-// POST /api/documents/diagnose - endpoint de diagn�stico
+module.exports = router;// POST /api/documents/diagnose - endpoint de diagn�stico
 router.post('/diagnose', (req, res) => {
   console.log('[DIAGNOSE] ===== DIAGNOSTIC REQUEST =====');
   console.log('[DIAGNOSE] Headers:', JSON.stringify(req.headers, null, 2));
