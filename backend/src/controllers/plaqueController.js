@@ -509,7 +509,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     // Crear dos boxes: uno para precio (arriba derecha) y otro para info (abajo)
     const margin = 20;
     const padding = 18;
-    const lineHeight = Math.max(24, Math.floor(width / 60)); // Aumentado de 18 a 24 y divisor de 75 a 60 para más espacio
+    const lineHeight = Math.max(28, Math.floor(width / 50)); // Aumentado de 24 a 28 y divisor de 60 a 50 para MÁS espacio entre líneas
 
     // Calcular tamaño dinámico del box de precio basado en el contenido
     const precioText = `${moneda} ${formatPrice(precio)}`;
@@ -534,7 +534,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (email) infoLineCount++;
 
     const infoBoxWidth = Math.max(350, maxLineWidth);
-    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 12) + padding * 2, Math.floor(height * 0.4)));
+    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 16) + padding * 2, Math.floor(height * 0.4))); // Aumentado espaciado de 12 a 16
     const infoBoxX = width - infoBoxWidth - margin;
     const infoBoxY = precioBoxY + precioBoxHeight + 10;
 
@@ -620,7 +620,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     }
 
     // Recalculate final infoBoxHeight based on renderedLinesCount
-    const computedInfoBoxHeight = Math.max(80, renderedLinesCount * (lineHeight + 8) + padding * 2);
+    const computedInfoBoxHeight = Math.max(80, renderedLinesCount * (lineHeight + 16) + padding * 2); // Aumentado de 8 a 16 para más espacio
     const maxAllowedHeight = Math.max(Math.floor(height * 0.75), computedInfoBoxHeight);
     const infoBoxHeightFinal = Math.min(computedInfoBoxHeight, height - precioBoxHeight - margin - 10);
     // Use final effective width as earlier computed
@@ -653,7 +653,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         } else {
           svg += `  <text x="${textX}" y="${cursorY}" class="${ln.cls}">${part}</text>\n`;
         }
-        cursorY += (lineHeight + 8);
+        cursorY += (lineHeight + 16); // Aumentado de 8 a 16 para más espacio entre líneas
       }
     }
 
@@ -703,10 +703,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       svg += `  </g>\n`;
       // icon and text centered horizontally and vertically
       const centerY = cY - cH + cH / 2;
-      const totalLinesHeight = (corrParts.length - 1) * (lineHeight + 8);
+      const totalLinesHeight = (corrParts.length - 1) * (lineHeight + 16); // Aumentado de 8 a 16 para más espacio
       let startY = Math.floor(centerY - totalLinesHeight / 2);
       for (let i = 0; i < corrParts.length; i++) {
-        const lineY = startY + i * (lineHeight + 8);
+        const lineY = startY + i * (lineHeight + 16); // Aumentado de 8 a 16 para más espacio
         const textCenterX = cX + finalCW / 2;
         svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: #FFFFFF;">${corrParts[i]}</text>\n`;
       }
