@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     // Get backend URL from environment or use production URL
-    let backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
+    let backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://remax-be-production.up.railway.app';
 
     // Add /api if not present
     if (!backendUrl.endsWith('/api')) {
@@ -11,6 +11,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { method, headers } = req;
     const url = `${backendUrl}/documents/generate-reserva`;
+
+    console.log(`[PROXY] Proxying to: ${url}`);
+    console.log(`[PROXY] Method: ${method}`);
+    console.log(`[PROXY] Backend URL: ${backendUrl}`);
 
     // Prepare headers (copy all except host and content-length)
     const headersProxy: Record<string, string> = {};

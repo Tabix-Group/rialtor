@@ -58,15 +58,21 @@ export default function DocumentGeneratorPage() {
             if (documentType === 'reserva') {
                 console.log('[FRONTEND] Sending reserva data:', reservaData)
 
-                // Usar el nuevo endpoint para reserva
+                // Usar el nuevo endpoint para reserva con timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
                 const response = await fetch('/api/documents/generate-reserva', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
                     },
-                    body: JSON.stringify(reservaData)
+                    body: JSON.stringify(reservaData),
+                    signal: controller.signal
                 })
+
+                clearTimeout(timeoutId);
 
                 console.log('[FRONTEND] Response status:', response.status)
                 console.log('[FRONTEND] Response ok:', response.ok)
@@ -96,7 +102,17 @@ export default function DocumentGeneratorPage() {
             }
         } catch (error) {
             console.error('[FRONTEND] Document generation error:', error)
-            alert('Error al generar el documento: ' + (error instanceof Error ? error.message : 'Error desconocido'))
+
+            let errorMessage = 'Error desconocido';
+            if (error instanceof Error) {
+                if (error.name === 'AbortError') {
+                    errorMessage = 'La solicitud tardó demasiado tiempo. Por favor, inténtalo de nuevo.';
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+
+            alert('Error al generar el documento: ' + errorMessage)
         } finally {
             setIsGenerating(false)
             console.log('[FRONTEND] Document generation process completed')
