@@ -30,28 +30,32 @@ export default function CalculadorasPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Calculadoras</h1>
-          <p className="mt-2 text-gray-600 max-w-2xl mx-auto">Todas las herramientas para estimar costos y obligaciones en una sola pantalla. Elegí la calculadora que necesites.</p>
+    <div className="min-h-screen bg-white py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Calculadoras</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Todas las herramientas para estimar costos y obligaciones en una sola pantalla. Elegí la calculadora que necesites.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {calculators.map((c) => {
             const Icon = c.icon
             return (
-              <div key={c.name} className={`p-6 rounded-lg border ${c.color} shadow-sm hover:shadow-lg transition`}>
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-md bg-white border">
-                    <Icon className="w-6 h-6 text-gray-700" />
+              <div key={c.name} className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300">
+                <div className="flex flex-col h-full">
+                  <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center mb-6">
+                    <Icon className="w-8 h-8 text-blue-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">{c.name}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{c.description}</p>
-                    <div className="mt-4">
-                      <Link href={c.href} className="inline-block px-4 py-2 rounded bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700">Ir a calculadora</Link>
-                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{c.name}</h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">{c.description}</p>
+                  </div>
+                  <div className="mt-auto">
+                    <Link href={c.href} className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                      Ir a calculadora
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -59,8 +63,12 @@ export default function CalculadorasPage() {
           })}
         </div>
 
-        <div className="mt-10 text-sm text-gray-500">
-          <p>Consejo: si no sabés por dónde empezar, probá con "Gastos de Escritura" para obtener una visión integral de los costos de la operación.</p>
+        <div className="mt-16 text-center">
+          <div className="bg-gray-50 rounded-xl p-8 border border-gray-200">
+            <p className="text-gray-600">
+              <strong>Consejo:</strong> si no sabés por dónde empezar, probá con "Gastos de Escritura" para obtener una visión integral de los costos de la operación.
+            </p>
+          </div>
         </div>
       </div>
     </div>

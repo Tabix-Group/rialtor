@@ -100,103 +100,77 @@ export default function Home() {
 
   // Home pública y privada (misma vista, cambia links y header)
   return (
-    <div className="min-h-screen bg-[#000410] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header usuario logueado */}
 
 
       {/* Hero Section */}
-      <section className="w-full" style={{ backgroundColor: '#010413' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center" style={{ paddingTop: '3vw', paddingBottom: '3vw' }}>
-          <img src="/images/logo10.jpeg" alt="Logo RE/MAX" className="w-[28rem] h-[28rem] md:w-[38rem] md:h-[38rem] object-contain" style={{ background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, margin: 0 }} />
-          <div className="flex flex-col sm:flex-row gap-6 mt-8 justify-center">
+      <section className="w-full bg-white py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center">
+          <img src="/images/logo10.jpeg" alt="Logo RE/MAX" className="w-64 h-64 md:w-80 md:h-80 object-contain mb-8" />
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            Herramientas Profesionales para Agentes Inmobiliarios
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12">
+            Base de conocimiento y herramientas avanzadas para el mercado inmobiliario argentino
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {/* Botón principal - CTA */}
             <button
               onClick={() => window.location.href = '/auth/register'}
-              className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-lg rounded-2xl shadow-xl shadow-blue-500/25 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/40 hover:-translate-y-1 hover:scale-105"
+              className="px-8 py-4 bg-blue-600 text-white font-semibold text-lg rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <span className="relative z-10">Quiero usarlo</span>
+              Quiero usarlo
             </button>
 
             {/* Botón secundario - Demo */}
             <button
               onClick={handleScrollToDemo}
-              className="group relative px-8 py-4 bg-white/90 backdrop-blur-sm text-slate-800 font-bold text-lg rounded-2xl border border-slate-200/60 shadow-lg shadow-slate-900/5 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1 hover:bg-white/95"
+              className="px-8 py-4 bg-white border border-gray-300 text-gray-700 font-semibold text-lg rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <span className="relative z-10">Ver demo</span>
+              Ver demo
             </button>
 
             {/* Botón terciario - Login */}
             <button
               onClick={() => window.location.href = '/auth/login'}
-              className="group relative px-8 py-4 bg-slate-50/90 backdrop-blur-sm text-slate-700 font-bold text-lg rounded-2xl border border-slate-200/60 shadow-lg shadow-slate-900/5 transition-all duration-500 hover:shadow-2xl hover:shadow-slate-500/10 hover:-translate-y-1 hover:bg-slate-100/95"
+              className="px-8 py-4 bg-gray-50 border border-gray-200 text-gray-600 font-semibold text-lg rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-slate-100/50 to-slate-200/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <span className="relative z-10">Ingresar</span>
+              Ingresar
             </button>
           </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="py-16 bg-gradient-to-br from-slate-50 via-white to-slate-100 relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-br from-indigo-400/20 to-cyan-400/20 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-slate-300/10 to-slate-400/10 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 mb-4">
-              <span className="text-sm font-medium text-blue-700">Herramientas Profesionales</span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 bg-clip-text text-transparent mb-4">
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               ¿Qué puedes hacer con RIALTOR?
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Accede a las herramientas más avanzadas del mercado inmobiliario argentino
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, idx) => {
               const content = (
-                <div className="group relative h-full">
-                  {/* Main card */}
-                  <div className="relative h-full p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-lg shadow-slate-900/5 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-500/10 group-hover:-translate-y-2 group-hover:bg-white/95">
-                    {/* Decorative gradient border */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                    {/* Content */}
-                    <div className="relative z-10">
-                      {/* Icon container with gradient background */}
-                      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 mb-4 shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-110">
-                        <feature.icon className="h-6 w-6 text-white" strokeWidth={2} />
-                      </div>
-
-                      {/* Title with improved typography */}
-                      <h3 className="text-lg font-bold text-slate-900 mb-2 leading-tight group-hover:text-blue-900 transition-colors duration-300">
-                        {feature.name}
-                      </h3>
-
-                      {/* Description with better spacing */}
-                      <p className="text-slate-600 text-sm leading-relaxed group-hover:text-slate-700 transition-colors duration-300">
-                        {feature.description}
-                      </p>
-
-                      {/* Subtle bottom accent */}
-                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-b-2xl transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                <div className="group h-full">
+                  <div className="h-full p-6 bg-white border border-gray-200 rounded-xl hover:shadow-lg hover:border-blue-300 transition-all duration-300">
+                    <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
+                      <feature.icon className="h-6 w-6 text-blue-600" />
                     </div>
 
-                    {/* Hover effect overlay */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                  </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                      {feature.name}
+                    </h3>
 
-                  {/* Subtle shadow effect */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-slate-900/5 to-slate-800/5 transform translate-y-2 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
                 </div>
               );
 
@@ -208,7 +182,7 @@ export default function Home() {
                   <a
                     key={feature.name}
                     href={feature.href}
-                    className="block h-full cursor-pointer group"
+                    className="block h-full"
                     title={`Ir a ${feature.name}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -222,7 +196,7 @@ export default function Home() {
                 <Link
                   key={feature.name}
                   href={feature.href}
-                  className="block h-full cursor-pointer group"
+                  className="block h-full"
                   title={`Ir a ${feature.name}`}
                   prefetch={false}
                 >
@@ -233,9 +207,9 @@ export default function Home() {
           </div>
 
           {/* Demo Video Section */}
-          <section id="demo-video" className="py-16 bg-gray-100">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">Mirá cómo funciona</h2>
+          <section id="demo-video" className="py-20 bg-white">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8">Mirá cómo funciona</h2>
               <div className="aspect-w-16 aspect-h-9 w-full rounded-xl overflow-hidden shadow-lg mx-auto">
                 <iframe
                   src="https://www.youtube.com/embed/djV11Xbc914"
@@ -249,52 +223,57 @@ export default function Home() {
           </section>
 
           {/* Footer Mejorado */}
-          <footer className="text-white py-14 mt-auto" style={{ backgroundColor: '#000410' }}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-10 items-start">
+          <footer className="bg-gray-50 border-t border-gray-200 py-16 mt-auto">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 {/* Brand/Descripción */}
-                <div className="md:col-span-1 flex flex-col items-start mb-8 md:mb-0">
+                <div className="md:col-span-1">
                   <div className="flex items-center space-x-3 mb-4">
-                    <img src="/images/logo10.jpeg" alt="Logo Rialtor" className="w-20 h-20 object-contain m-0 p-0" style={{ background: 'none', borderRadius: 0, boxShadow: 'none', padding: 0, marginTop: 0, marginBottom: 0 }} />
-                    <span className="text-2xl font-bold">RIALTOR</span>
+                    <img src="/images/logo10.jpeg" alt="Logo Rialtor" className="w-16 h-16 object-contain" />
+                    <span className="text-xl font-bold text-gray-900">RIALTOR</span>
                   </div>
-                  <p className="text-gray-400 mb-4 max-w-xs text-sm">
+                  <p className="text-gray-600 text-sm max-w-xs">
                     Base de conocimiento y herramientas profesionales para agentes inmobiliarios argentinos.
                   </p>
                 </div>
 
                 {/* Noticias */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Noticias</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Noticias</h3>
                   <ul className="space-y-2 text-sm">
-                    <li><Link href="/news" className="text-gray-300 hover:text-white transition-colors">Artículos</Link></li>
-                    <li><a href="https://www.rialtor.app/documents" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">Documentos Legales</a></li>
-                    <li><Link href="/calculadoras" className="text-gray-300 hover:text-white transition-colors">Calculadoras</Link></li>
-                    <li><Link href="/chat" className="text-gray-300 hover:text-white transition-colors">Agente IA</Link></li>
+                    <li><Link href="/news" className="text-gray-600 hover:text-blue-600 transition-colors">Artículos</Link></li>
+                    <li><a href="https://www.rialtor.app/documents" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">Documentos Legales</a></li>
+                    <li><Link href="/calculadoras" className="text-gray-600 hover:text-blue-600 transition-colors">Calculadoras</Link></li>
+                    <li><Link href="/chat" className="text-gray-600 hover:text-blue-600 transition-colors">Agente IA</Link></li>
                   </ul>
                 </div>
 
                 {/* Soporte */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Soporte</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Soporte</h3>
                   <ul className="space-y-2 text-sm">
-                    <li><Link href="/ayuda" className="text-gray-300 hover:text-white transition-colors">Centro de Ayuda</Link></li>
-                    <li><Link href="/contacto" className="text-gray-300 hover:text-white transition-colors">Contacto</Link></li>
-                    <li><Link href="/capacitacion" className="text-gray-300 hover:text-white transition-colors">Capacitación</Link></li>
-                    <li><Link href="/documentacion" className="text-gray-300 hover:text-white transition-colors">Documentación</Link></li>
+                    <li><Link href="/ayuda" className="text-gray-600 hover:text-blue-600 transition-colors">Centro de Ayuda</Link></li>
+                    <li><Link href="/contacto" className="text-gray-600 hover:text-blue-600 transition-colors">Contacto</Link></li>
+                    <li><Link href="/capacitacion" className="text-gray-600 hover:text-blue-600 transition-colors">Capacitación</Link></li>
+                    <li><Link href="/documentacion" className="text-gray-600 hover:text-blue-600 transition-colors">Documentación</Link></li>
                   </ul>
                 </div>
 
                 {/* Legal / Social */}
-                <div className="flex flex-col gap-4 items-start">
-                  <h3 className="text-lg font-semibold mb-4">Legal</h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Legal</h3>
                   <ul className="space-y-2 text-sm">
-                    <li><a href="https://www.remax.com.ar/terminos" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">Términos y Condiciones</a></li>
-                    <li><a href="https://www.remax.com.ar/privacidad" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">Política de Privacidad</a></li>
+                    <li><a href="https://www.remax.com.ar/terminos" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">Términos y Condiciones</a></li>
+                    <li><a href="https://www.remax.com.ar/privacidad" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">Política de Privacidad</a></li>
                   </ul>
                 </div>
               </div>
 
+              <div className="border-t border-gray-200 mt-12 pt-8 text-center">
+                <p className="text-gray-500 text-sm">
+                  © 2025 RIALTOR. Todos los derechos reservados.
+                </p>
+              </div>
             </div>
           </footer>
         </div>

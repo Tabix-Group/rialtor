@@ -174,22 +174,22 @@ export default function DownloadsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="min-h-screen bg-white">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
+            <div className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     <div className="flex items-center gap-4">
                         {currentFolder && (
                             <button
                                 onClick={goBack}
-                                className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                                className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                             >
-                                <ArrowLeft className="w-5 h-5" />
+                                <ArrowLeft className="w-5 h-5 text-gray-600" />
                             </button>
                         )}
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight">Descargas</h1>
-                            <p className="text-blue-100 text-lg">
+                            <h1 className="text-3xl font-bold text-gray-900">Descargas</h1>
+                            <p className="text-gray-600 text-lg mt-1">
                                 {currentFolder
                                     ? `Archivos en ${breadcrumb.join(' / ')}`
                                     : 'Explora y descarga archivos de contenido'
@@ -200,7 +200,7 @@ export default function DownloadsPage() {
 
                     {/* Breadcrumb */}
                     {breadcrumb.length > 0 && (
-                        <div className="mt-4 flex items-center gap-2 text-blue-100">
+                        <div className="mt-4 flex items-center gap-2 text-gray-500">
                             <span>📁</span>
                             {breadcrumb.map((item, index) => (
                                 <span key={index} className="flex items-center gap-2">
@@ -216,7 +216,7 @@ export default function DownloadsPage() {
             <div className="max-w-7xl mx-auto px-4 py-12">
                 {/* Barra de búsqueda */}
                 {currentFolder && (
-                    <div className="mb-6">
+                    <div className="mb-8">
                         <div className="flex gap-4">
                             <div className="flex-1">
                                 <input
@@ -224,13 +224,13 @@ export default function DownloadsPage() {
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Buscar archivos..."
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                                 />
                             </div>
                             <button
                                 onClick={handleSearch}
-                                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                             >
                                 <Search className="w-5 h-5" />
                             </button>
@@ -246,16 +246,16 @@ export default function DownloadsPage() {
                     </div>
                 ) : !currentFolder ? (
                     /* Vista de carpetas principales */
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {folders.map((folder) => (
                             <div key={folder.name}>
                                 {/* Carpeta principal */}
                                 <div
                                     onClick={() => navigateToFolder(folder.name)}
-                                    className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1"
+                                    className="bg-white border border-gray-200 rounded-xl p-6 cursor-pointer hover:shadow-lg hover:border-blue-300 transition-all duration-300"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
                                             <Folder className="w-6 h-6 text-blue-600" />
                                         </div>
                                         <div>
@@ -269,12 +269,12 @@ export default function DownloadsPage() {
 
                                 {/* Subcarpetas */}
                                 {folder.subfolders.length > 0 && (
-                                    <div className="mt-4 space-y-2">
+                                    <div className="mt-4 space-y-3">
                                         {folder.subfolders.slice(0, 3).map((subfolder) => (
                                             <div
                                                 key={subfolder}
                                                 onClick={() => navigateToFolder(folder.name, subfolder)}
-                                                className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                                                className="bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-100 hover:border-blue-300 transition-all duration-300"
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <Folder className="w-5 h-5 text-gray-500" />
@@ -283,7 +283,7 @@ export default function DownloadsPage() {
                                             </div>
                                         ))}
                                         {folder.subfolders.length > 3 && (
-                                            <div className="text-center text-gray-500 text-sm">
+                                            <div className="text-center text-gray-500 text-sm py-2">
                                                 +{folder.subfolders.length - 3} más...
                                             </div>
                                         )}
@@ -304,7 +304,7 @@ export default function DownloadsPage() {
                             files.map((file) => (
                                 <div
                                     key={file.id}
-                                    className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+                                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-300"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
@@ -323,7 +323,7 @@ export default function DownloadsPage() {
                                         </div>
                                         <button
                                             onClick={() => downloadFile(file)}
-                                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                                         >
                                             <Download className="w-4 h-4" />
                                             Descargar

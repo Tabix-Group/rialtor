@@ -65,7 +65,7 @@ export default function NewsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <div className="min-h-screen bg-white">
                 <div className="max-w-7xl mx-auto px-4 py-12">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
@@ -78,11 +78,11 @@ export default function NewsPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+            <div className="min-h-screen bg-white">
                 <div className="max-w-7xl mx-auto px-4 py-12">
                     <div className="text-center">
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                            <p className="text-blue-600">Error al cargar las noticias: {error}</p>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                            <p className="text-red-600">Error al cargar las noticias: {error}</p>
                         </div>
                     </div>
                 </div>
@@ -91,16 +91,16 @@ export default function NewsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="min-h-screen bg-white">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <div className="bg-white border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 py-16">
                     <div className="text-center">
                         <div className="flex items-center justify-center gap-3 mb-4">
-                            <Newspaper className="w-12 h-12" />
-                            <h1 className="text-4xl font-bold">Noticias Inmobiliarias</h1>
+                            <Newspaper className="w-12 h-12 text-blue-600" />
+                            <h1 className="text-4xl font-bold text-gray-900">Noticias Inmobiliarias</h1>
                         </div>
-                        <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                             Mantente informado con las últimas noticias y tendencias del mercado inmobiliario
                         </p>
                     </div>
@@ -119,7 +119,7 @@ export default function NewsPage() {
                         {/* News Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                             {news.map((item) => (
-                                <article key={item.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                                <article key={item.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all duration-300">
                                     <div className="p-6">
                                         <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                                             <Calendar className="w-4 h-4" />
@@ -141,7 +141,7 @@ export default function NewsPage() {
                                                 href={item.externalUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                                             >
                                                 <span>Leer más</span>
                                                 <ExternalLink className="w-4 h-4" />
@@ -165,7 +165,7 @@ export default function NewsPage() {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                                 >
                                     Anterior
                                 </button>
@@ -174,7 +174,7 @@ export default function NewsPage() {
                                     <button
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
-                                        className={`px-4 py-2 border rounded-lg ${currentPage === page
+                                        className={`px-4 py-2 border rounded-lg font-medium ${currentPage === page
                                             ? 'bg-blue-600 text-white border-blue-600'
                                             : 'border-gray-300 hover:bg-gray-50'
                                             }`}
@@ -186,7 +186,7 @@ export default function NewsPage() {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))}
                                     disabled={currentPage === pagination.pages}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                                 >
                                     Siguiente
                                 </button>
