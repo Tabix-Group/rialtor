@@ -30,7 +30,7 @@ export default function Home() {
     },
     {
       name: 'Calculadoras',
-      description: 'Accedé a todas nuestras calculadoras: Gastos de escritura, Honorarios, Impuesto Ganancia y Seguro de Caución. Una vista centralizada para elegir la herramienta que necesitás.',
+      description: 'Accedé a nuestra calculadora de Gastos de Escritura. Calculá impuestos, aranceles notariales y costos asociados a la firma de escritura en Argentina por provincia.',
       icon: Calculator,
       href: '/calculadoras',
     },

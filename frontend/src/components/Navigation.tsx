@@ -49,8 +49,6 @@ function Navigation() {
       icon: 'Calculator',
       dropdown: [
         { name: 'Gastos de Escritura', href: '/calcescritura', description: 'Calcula costos de escrituración' },
-        { name: 'Honorarios Inmobiliarios', href: '/calchonorarios', description: 'Simula honorarios por operación' },
-        { name: 'Impuesto Ganancia', href: '/calciigg', description: 'Calcula impuesto a las ganancias' },
         { name: 'Seguros de Caución', href: '/creditos', description: 'Compara seguros de caución' },
         { name: 'Créditos Hipotecarios', href: '/hipotecarios', description: 'Simula créditos hipotecarios' },
       ],

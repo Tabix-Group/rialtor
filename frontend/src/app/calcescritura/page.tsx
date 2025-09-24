@@ -1,5 +1,6 @@
 "use client"
 import React, { useMemo, useState } from "react"
+import { Calculator, DollarSign, MapPin, FileText } from 'lucide-react'
 
 type Bracket = { amount: number; pct: number }
 
@@ -248,61 +249,140 @@ export default function CalceEscrituraPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12 px-4">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-6">Calculadora — Gastos de escritura</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Calculadora — Gastos de escritura</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Calculá los costos asociados a la firma de escritura en Argentina por provincia
+          </p>
+        </div>
 
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <label className="flex flex-col">
-              <span className="text-sm text-gray-600 mb-1">Valor (USD)</span>
-              <input
-                inputMode="numeric"
-                value={usd}
-                onChange={(e) => setUsd(e.target.value)}
-                placeholder="Ej. 120000"
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-            </label>
-
-            <label className="flex flex-col">
-              <span className="text-sm text-gray-600 mb-1">Localidad</span>
-              <select
-                value={locality}
-                onChange={(e) => setLocality(e.target.value)}
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                <option>Buenos Aires</option>
-                <option>CABA</option>
-              </select>
-            </label>
-
-            <label className="flex flex-col">
-              <span className="text-sm text-gray-600 mb-1">Sellos</span>
-              <select
-                value={sellos}
-                onChange={(e) => setSellos(e.target.value)}
-                className="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                <option value="con">Con sellos</option>
-                <option value="sin">Sin sellos</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="mt-6 bg-indigo-50 border border-indigo-100 rounded-lg p-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div>
-              <div className="text-sm text-gray-600">Total a pagar por el comprador</div>
-              <div className="text-2xl font-bold text-indigo-700">{formatUSD(buyerAmount)}</div>
-            </div>
-
-            <div>
-              <div className="text-sm text-gray-600">Total a pagar por el vendedor</div>
-              <div className="text-2xl font-bold text-gray-700">{formatUSD(sellerAmount)}</div>
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6">
+            <div className="flex items-center gap-3">
+              <Calculator className="w-8 h-8 text-white" />
+              <h2 className="text-2xl font-bold text-white">Calculadora de Gastos Inmobiliarios</h2>
             </div>
           </div>
 
-          <div className="mt-4 text-xs text-gray-500">Seleccioná las opciones y el resultado se mostrará arriba. No se muestran las alícuotas.</div>
+          <div className="p-8">
+            {/* Form */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Valor de la propiedad (USD)
+                </label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <input
+                    inputMode="numeric"
+                    value={usd}
+                    onChange={(e) => setUsd(e.target.value)}
+                    placeholder="Ej. 120000"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Localidad
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <select
+                    value={locality}
+                    onChange={(e) => setLocality(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
+                  >
+                    <option>Buenos Aires</option>
+                    <option>CABA</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Sellos
+                </label>
+                <div className="relative">
+                  <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <select
+                    value={sellos}
+                    onChange={(e) => setSellos(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
+                  >
+                    <option value="con">Con sellos</option>
+                    <option value="sin">Sin sellos</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Results */}
+            {numericUsd > 0 && (
+              <div className="bg-gradient-to-r from-gray-50 to-green-50 rounded-xl p-8 border border-gray-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Cálculo de Gastos</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <DollarSign className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900">Comprador</h4>
+                        <p className="text-sm text-gray-600">Total a pagar</p>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold text-blue-600">{formatUSD(buyerAmount)}</p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      {((buyerPct * 100)).toFixed(2)}% del valor de la propiedad
+                    </p>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <DollarSign className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-900">Vendedor</h4>
+                        <p className="text-sm text-gray-600">Total a pagar</p>
+                      </div>
+                    </div>
+                    <p className="text-3xl font-bold text-green-600">{formatUSD(sellerAmount)}</p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      {((sellerPct * 100)).toFixed(2)}% del valor de la propiedad
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Nota:</strong> Los cálculos incluyen impuestos, aranceles notariales y otros costos asociados.
+                    Los valores son estimativos y pueden variar según la jurisdicción y condiciones específicas.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {numericUsd === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                <Calculator className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <p className="text-lg">Ingresa el valor de la propiedad para ver los cálculos</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-8 text-sm text-gray-500 text-center">
+          <p>
+            <strong>Información:</strong> Esta calculadora utiliza las alícuotas vigentes para cada jurisdicción.
+            Para cálculos precisos, consultá con un escribano o profesional especializado.
+          </p>
         </div>
       </div>
     </div>

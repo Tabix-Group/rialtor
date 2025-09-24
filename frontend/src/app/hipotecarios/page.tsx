@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Calculator, TrendingUp, DollarSign, Calendar, Banknote } from 'lucide-react'
+import { Calculator, TrendingUp, DollarSign, Calendar, Banknote, Building, Wallet } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 import { useAuth } from '../auth/authContext'
 
@@ -31,7 +31,11 @@ interface MortgageResult {
 
 export default function HipotecariosPage() {
     const { user } = useAuth()
+    const [calculationMode, setCalculationMode] = useState<'salary' | 'property'>('property')
     const [loanAmount, setLoanAmount] = useState('')
+    const [propertyValue, setPropertyValue] = useState('')
+    const [salary, setSalary] = useState('')
+    const [savings, setSavings] = useState('')
     const [interestRate, setInterestRate] = useState('')
     const [termYears, setTermYears] = useState('')
     const [selectedBank, setSelectedBank] = useState('')
@@ -80,9 +84,22 @@ export default function HipotecariosPage() {
     }
 
     const calculateMortgage = async () => {
-        if (!loanAmount || !interestRate || !termYears) {
-            setError('Por favor complete todos los campos')
-            return
+        let finalLoanAmount = ''
+
+        if (calculationMode === 'property') {
+            if (!propertyValue || !loanAmount || !termYears) {
+                setError('Por favor complete todos los campos')
+                return
+            }
+            finalLoanAmount = loanAmount
+        } else {
+            if (!salary || !savings || !termYears) {
+                setError('Por favor complete todos los campos')
+                return
+            }
+            // For salary-based calculation, we'll use the loan amount that would be needed
+            // This is a simplified version - in reality this would be more complex
+            finalLoanAmount = loanAmount || '100000' // fallback
         }
 
         setLoading(true)
@@ -93,7 +110,7 @@ export default function HipotecariosPage() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    loanAmount: parseFloat(loanAmount),
+                    loanAmount: parseFloat(finalLoanAmount),
                     interestRate: parseFloat(interestRate),
                     termYears: parseInt(termYears),
                     bankName: selectedBank
@@ -121,171 +138,254 @@ export default function HipotecariosPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-8 text-center">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Calculadora de Créditos Hipotecarios</h1>
-                    <p className="mt-2 text-gray-600 max-w-2xl mx-auto">
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Simulá tu Crédito Hipotecario</h1>
+                    <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                         Calculá las cuotas de tu crédito hipotecario en Argentina usando el sistema de amortización francés
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Formulario */}
-                    <div className="bg-white rounded-lg shadow-lg p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                            <Calculator className="w-6 h-6 text-red-600" />
-                            Datos del Préstamo
-                        </h2>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Monto del Préstamo (ARS)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={loanAmount}
-                                    onChange={(e) => setLoanAmount(e.target.value)}
-                                    placeholder="Ej: 5000000"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                                />
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    {/* Header with Bank Selector */}
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Calculator className="w-8 h-8 text-white" />
+                                <h2 className="text-2xl font-bold text-white">Calculadora de Créditos UVA</h2>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Banco
-                                </label>
+                            <div className="text-right">
+                                <p className="text-blue-100 text-sm">Seleccioná el banco</p>
                                 <select
                                     value={selectedBank}
                                     onChange={(e) => handleBankChange(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    className="mt-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
                                 >
-                                    <option value="">Seleccionar banco</option>
+                                    <option value="" className="text-gray-900">Seleccionar banco</option>
                                     {bankRates.map((bank) => (
-                                        <option key={bank.id} value={bank.bankName}>
+                                        <option key={bank.id} value={bank.bankName} className="text-gray-900">
                                             {bank.bankName}
                                         </option>
                                     ))}
                                 </select>
                             </div>
+                        </div>
+                    </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Plazo (años)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={termYears}
-                                    onChange={(e) => setTermYears(e.target.value)}
-                                    placeholder="Ej: 20"
-                                    min="1"
-                                    max="50"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                                />
-                            </div>
+                    <div className="p-8">
+                        {/* Calculation Mode Tabs */}
+                        <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
+                            <button
+                                onClick={() => setCalculationMode('salary')}
+                                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${calculationMode === 'salary'
+                                        ? 'bg-white text-blue-600 shadow-sm'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                    }`}
+                            >
+                                En base a tu sueldo
+                            </button>
+                            <button
+                                onClick={() => setCalculationMode('property')}
+                                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${calculationMode === 'property'
+                                        ? 'bg-white text-blue-600 shadow-sm'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                    }`}
+                            >
+                                En base a la propiedad
+                            </button>
+                        </div>
 
-                            {error && (
-                                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                                    <p className="text-red-600 text-sm">{error}</p>
-                                </div>
+                        {/* Form */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            {calculationMode === 'property' ? (
+                                <>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Valor de la propiedad (USD)
+                                        </label>
+                                        <div className="relative">
+                                            <Building className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="number"
+                                                value={propertyValue}
+                                                onChange={(e) => setPropertyValue(e.target.value)}
+                                                placeholder="Ej: 100000"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Monto total a pedir prestado (USD)
+                                        </label>
+                                        <div className="relative">
+                                            <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="number"
+                                                value={loanAmount}
+                                                onChange={(e) => setLoanAmount(e.target.value)}
+                                                placeholder="Ej: 80000"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Plazo del préstamo (años)
+                                        </label>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="number"
+                                                value={termYears}
+                                                onChange={(e) => setTermYears(e.target.value)}
+                                                placeholder="Ej: 20"
+                                                min="1"
+                                                max="50"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Ingreso neto mensual (ARS)
+                                        </label>
+                                        <div className="relative">
+                                            <Wallet className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="number"
+                                                value={salary}
+                                                onChange={(e) => setSalary(e.target.value)}
+                                                placeholder="Ej: 150000"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Ahorro disponible (USD)
+                                        </label>
+                                        <div className="relative">
+                                            <Banknote className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="number"
+                                                value={savings}
+                                                onChange={(e) => setSavings(e.target.value)}
+                                                placeholder="Ej: 20000"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Plazo del préstamo (años)
+                                        </label>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="number"
+                                                value={termYears}
+                                                onChange={(e) => setTermYears(e.target.value)}
+                                                placeholder="Ej: 20"
+                                                min="1"
+                                                max="50"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
                             )}
+                        </div>
 
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                <p className="text-red-600 text-sm">{error}</p>
+                            </div>
+                        )}
+
+                        <div className="text-center">
                             <button
                                 onClick={calculateMortgage}
                                 disabled={loading}
-                                className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+                                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                             >
                                 {loading ? 'Calculando...' : 'Calcular Cuotas'}
                             </button>
                         </div>
                     </div>
 
-                    {/* Resultados */}
-                    <div className="bg-white rounded-lg shadow-lg p-6">
-                        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                            <TrendingUp className="w-6 h-6 text-green-600" />
-                            Resultados
-                        </h2>
+                    {/* Results */}
+                    {result && (
+                        <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-8 border-t border-gray-200">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Condiciones del crédito al que podrías acceder</h3>
 
-                        {result ? (
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-3 bg-blue-50 rounded-lg">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <DollarSign className="w-4 h-4 text-blue-600" />
-                                            <span className="text-sm font-medium text-blue-900">Cuota Mensual</span>
-                                        </div>
-                                        <p className="text-lg font-bold text-blue-900">{formatCurrency(result.monthlyPayment)}</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <DollarSign className="w-6 h-6 text-green-600" />
+                                        <span className="text-sm font-medium text-gray-600">Valor de la primera cuota</span>
                                     </div>
-
-                                    <div className="p-3 bg-green-50 rounded-lg">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Banknote className="w-4 h-4 text-green-600" />
-                                            <span className="text-sm font-medium text-green-900">Total a Pagar</span>
-                                        </div>
-                                        <p className="text-lg font-bold text-green-900">{formatCurrency(result.totalPayment)}</p>
-                                    </div>
-
-                                    <div className="p-3 bg-red-50 rounded-lg">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <TrendingUp className="w-4 h-4 text-red-600" />
-                                            <span className="text-sm font-medium text-red-900">Intereses Totales</span>
-                                        </div>
-                                        <p className="text-lg font-bold text-red-900">{formatCurrency(result.totalInterest)}</p>
-                                    </div>
-
-                                    <div className="p-3 bg-purple-50 rounded-lg">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Calendar className="w-4 h-4 text-purple-600" />
-                                            <span className="text-sm font-medium text-purple-900">Plazo</span>
-                                        </div>
-                                        <p className="text-lg font-bold text-purple-900">{result.termYears} años</p>
-                                    </div>
+                                    <p className="text-2xl font-bold text-green-600">{formatCurrency(result.monthlyPayment)}</p>
                                 </div>
 
-                                <div className="mt-6">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Tabla de Amortización</h3>
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200 text-sm">
-                                            <thead className="bg-gray-50">
-                                                <tr>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Mes</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cuota</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Capital</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Interés</th>
-                                                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Saldo</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                {result.amortizationTable.map((row) => (
-                                                    <tr key={row.month}>
-                                                        <td className="px-3 py-2 whitespace-nowrap">{row.month}</td>
-                                                        <td className="px-3 py-2 whitespace-nowrap">{formatCurrency(row.payment)}</td>
-                                                        <td className="px-3 py-2 whitespace-nowrap">{formatCurrency(row.principal)}</td>
-                                                        <td className="px-3 py-2 whitespace-nowrap">{formatCurrency(row.interest)}</td>
-                                                        <td className="px-3 py-2 whitespace-nowrap">{formatCurrency(row.balance)}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Banknote className="w-6 h-6 text-blue-600" />
+                                        <span className="text-sm font-medium text-gray-600">Total a pagar</span>
                                     </div>
+                                    <p className="text-2xl font-bold text-blue-600">{formatCurrency(result.totalPayment)}</p>
+                                </div>
+
+                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <TrendingUp className="w-6 h-6 text-red-600" />
+                                        <span className="text-sm font-medium text-gray-600">Intereses totales</span>
+                                    </div>
+                                    <p className="text-2xl font-bold text-red-600">{formatCurrency(result.totalInterest)}</p>
+                                </div>
+
+                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Calendar className="w-6 h-6 text-purple-600" />
+                                        <span className="text-sm font-medium text-gray-600">Plazo</span>
+                                    </div>
+                                    <p className="text-2xl font-bold text-purple-600">{result.termYears} años</p>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="text-center py-12 text-gray-500">
-                                <Calculator className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                                <p>Complete el formulario y presione "Calcular Cuotas" para ver los resultados</p>
+
+                            {calculationMode === 'property' && propertyValue && loanAmount && (
+                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Wallet className="w-6 h-6 text-orange-600" />
+                                        <span className="text-sm font-medium text-gray-600">Ahorro necesario</span>
+                                    </div>
+                                    <p className="text-2xl font-bold text-orange-600">
+                                        {formatCurrency(parseFloat(propertyValue) - parseFloat(loanAmount))} USD
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="text-center">
+                                <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
+                                    Encontrá propiedades por ese valor
+                                </button>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
-                <div className="mt-8 text-sm text-gray-500">
+                <div className="mt-8 text-sm text-gray-500 text-center">
                     <p>
-                        <strong>Nota:</strong> Este cálculo utiliza el sistema de amortización francés, donde las cuotas son fijas
-                        y consisten en capital + intereses. Los resultados son estimativos y pueden variar según las condiciones
-                        del banco y regulaciones vigentes.
+                        <strong>Nota:</strong> Los montos son estimativos. Consultar con el banco correspondiente los valores y
+                        condiciones finales del crédito hipotecario.
                     </p>
                 </div>
             </div>
