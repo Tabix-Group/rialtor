@@ -107,7 +107,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="w-full bg-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center">
-          <img src="/images/logo10.jpeg" alt="Logo RE/MAX" className="w-64 h-64 md:w-80 md:h-80 object-contain mb-8" />
+          <img src="/images/logoblanco.png" alt="Logo RE/MAX" className="w-64 h-64 md:w-80 md:h-80 object-contain mb-8" />
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Herramientas Profesionales para Agentes Inmobiliarios
           </h1>
@@ -229,7 +229,7 @@ export default function Home() {
                 {/* Brand/Descripción */}
                 <div className="md:col-span-1">
                   <div className="flex items-center space-x-3 mb-4">
-                    <img src="/images/logo10.jpeg" alt="Logo Rialtor" className="w-16 h-16 object-contain" />
+                    <img src="/images/logoblanco.png" alt="Logo Rialtor" className="w-16 h-16 object-contain" />
                     <span className="text-xl font-bold text-gray-900">RIALTOR</span>
                   </div>
                   <p className="text-gray-600 text-sm max-w-xs">
