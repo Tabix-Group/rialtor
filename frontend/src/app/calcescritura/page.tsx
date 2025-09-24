@@ -221,7 +221,7 @@ export default function CalceEscrituraPage() {
     return isNaN(v) ? 0 : v
   }, [usd])
 
-  const { buyerAmount, sellerAmount } = useMemo(() => {
+  const { buyerAmount, sellerAmount, buyerPct, sellerPct } = useMemo(() => {
     let buyerPct = 0
     let sellerPct = 0
 
@@ -241,7 +241,7 @@ export default function CalceEscrituraPage() {
 
     const buyerAmount = numericUsd * buyerPct
     const sellerAmount = numericUsd * sellerPct
-    return { buyerAmount, sellerAmount }
+    return { buyerAmount, sellerAmount, buyerPct, sellerPct }
   }, [numericUsd, locality, sellos])
 
   function formatUSD(n: number) {

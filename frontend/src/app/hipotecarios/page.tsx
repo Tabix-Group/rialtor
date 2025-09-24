@@ -97,9 +97,11 @@ export default function HipotecariosPage() {
                 setError('Por favor complete todos los campos')
                 return
             }
-            // For salary-based calculation, we'll use the loan amount that would be needed
-            // This is a simplified version - in reality this would be more complex
-            finalLoanAmount = loanAmount || '100000' // fallback
+            // For salary-based calculation, we'll use a simplified approach
+            // In a real implementation, this would calculate the maximum loan amount based on salary
+            // For now, we'll use a placeholder calculation
+            const maxLoanBasedOnSalary = (parseFloat(salary) * 12 * 0.3) / 12 // Simplified calculation
+            finalLoanAmount = maxLoanBasedOnSalary.toString()
         }
 
         setLoading(true)
@@ -179,8 +181,8 @@ export default function HipotecariosPage() {
                             <button
                                 onClick={() => setCalculationMode('salary')}
                                 className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${calculationMode === 'salary'
-                                        ? 'bg-white text-blue-600 shadow-sm'
-                                        : 'text-gray-600 hover:text-gray-900'
+                                    ? 'bg-white text-blue-600 shadow-sm'
+                                    : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
                                 En base a tu sueldo
@@ -188,8 +190,8 @@ export default function HipotecariosPage() {
                             <button
                                 onClick={() => setCalculationMode('property')}
                                 className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${calculationMode === 'property'
-                                        ? 'bg-white text-blue-600 shadow-sm'
-                                        : 'text-gray-600 hover:text-gray-900'
+                                    ? 'bg-white text-blue-600 shadow-sm'
+                                    : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
                                 En base a la propiedad
