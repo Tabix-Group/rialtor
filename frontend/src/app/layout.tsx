@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   title: 'RIALTOR - Plataforma Integral',
   description: 'Solución integral de recursos, archivos y herramientas para profesionales inmobiliarios',
   icons: {
-    icon: '/images/favicon.png',
+    icon: [
+      { url: '/images/favicon2.png', sizes: 'any' },
+      { url: '/images/favicon-96x96.png', sizes: '96x96' }
+    ],
+    shortcut: '/images/favicon.ico',
   },
 };
 

@@ -105,20 +105,29 @@ export default function Home() {
 
 
       {/* Hero Section */}
-      <section className="w-full bg-white py-20">
+      <section className="w-full bg-white py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center">
-          <img src="/images/logoblanco.png" alt="Logo RE/MAX" className="w-64 h-64 md:w-80 md:h-80 object-contain mb-8" />
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Herramientas Profesionales para Agentes Inmobiliarios
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12">
-            Base de conocimiento y herramientas avanzadas para el mercado inmobiliario argentino
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {/* Logo con mejor proporción */}
+          <div className="mb-8">
+            <img src="/images/logoblanco.png" alt="Logo RE/MAX" className="w-72 h-72 md:w-96 md:h-96 object-contain mx-auto" />
+          </div>
+
+          {/* Texto principal con mejor jerarquía */}
+          <div className="max-w-4xl mx-auto mb-12">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+              Herramientas Profesionales para Agentes Inmobiliarios
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+              Base de conocimiento y herramientas avanzadas para el mercado inmobiliario argentino
+            </p>
+          </div>
+
+          {/* Botones con mejor espaciado */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md mx-auto">
             {/* Botón principal - CTA */}
             <button
               onClick={() => window.location.href = '/auth/register'}
-              className="px-8 py-4 bg-blue-600 text-white font-semibold text-lg rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-8 py-4 bg-blue-600 text-white font-semibold text-lg rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
             >
               Quiero usarlo
             </button>
@@ -126,7 +135,7 @@ export default function Home() {
             {/* Botón secundario - Demo */}
             <button
               onClick={handleScrollToDemo}
-              className="px-8 py-4 bg-white border border-gray-300 text-gray-700 font-semibold text-lg rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold text-lg rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
             >
               Ver demo
             </button>

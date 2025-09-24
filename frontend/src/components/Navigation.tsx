@@ -9,7 +9,7 @@ import {
   X,
   LogOut,
   User2,
-  Home,
+  Building2,
   ChevronDown,
   Bell,
   Settings,
@@ -276,10 +276,10 @@ function Navigation() {
             href="/"
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Home className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hidden sm:block">
+            <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent hidden sm:block">
               RIALTOR
             </span>
           </Link>
@@ -307,7 +307,7 @@ function Navigation() {
                   onClick={(e) => handleDropdownClick(e, 'user')}
                   className="flex items-center gap-2 p-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
                     <User2 className="w-4 h-4 text-white" />
                   </div>
                   <span className="text-sm font-medium">{user.name}</span>
@@ -367,7 +367,7 @@ function Navigation() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
                 >
                   Comenzar Gratis
                 </Link>
@@ -394,7 +394,7 @@ function Navigation() {
           {user ? (
             <div className="px-4 py-4 border-t border-gray-200 space-y-2">
               <div className="flex items-center gap-3 px-4 py-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
                   <User2 className="w-4 h-4 text-white" />
                 </div>
                 <div>
@@ -445,7 +445,7 @@ function Navigation() {
               </Link>
               <Link
                 href="/auth/register"
-                className="block w-full px-4 py-2 text-center text-white font-medium bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-lg transition-all"
+                className="block w-full px-4 py-2 text-center text-white font-medium bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:shadow-lg transition-all"
                 onClick={() => setIsOpen(false)}
               >
                 Comenzar Gratis
