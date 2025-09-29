@@ -231,6 +231,7 @@ export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
   const { user } = useAuth()
 
+
   useEffect(() => {
     const fetchRecent = async () => {
       try {
@@ -273,9 +274,6 @@ export default function Home() {
               backgroundSize: "20px 20px",
             }}
           ></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium mb-8">
             <TrendingUp className="w-4 h-4 mr-2" />
             Potenciá tu negocio inmobiliario en Argentina
@@ -328,7 +326,7 @@ export default function Home() {
           {/* Constellation Layout - Hidden on mobile, shown on lg and up */}
           <div className="hidden lg:block relative w-full h-[900px] flex items-center justify-center overflow-visible">
             {/* Animated background circles */}
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
               <div className="w-96 h-96 border border-blue-200/30 rounded-full animate-pulse"></div>
               <div
                 className="absolute w-[500px] h-[500px] border border-purple-200/20 rounded-full animate-pulse"
@@ -344,15 +342,98 @@ export default function Home() {
             <div className="absolute inset-0 flex items-center justify-center z-20">
               <div className="relative group">
                 <div className="absolute -inset-6 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-2xl"></div>
-                <div className="relative bg-gradient-to-br from-white to-slate-50 rounded-full p-12 shadow-2xl border border-slate-200 backdrop-blur-sm">
-                  <img
-                    src="/images/logoblanco.png"
-                    alt="Logo RIALTOR"
-                    className="w-40 h-40 object-contain filter drop-shadow-lg"
-                  />
+                <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-full p-12 shadow-2xl border border-slate-700/50 backdrop-blur-sm flex items-center justify-center">
+                  <span className="text-4xl md:text-5xl font-bold text-white">
+                    RIALTOR
+                  </span>
                 </div>
               </div>
             </div>
+
+            {/* SVG overlay for connection lines */}
+            <svg
+              className="absolute inset-0 w-full h-full z-30"
+              viewBox="0 0 900 900"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              {/* Top line to first card */}
+              <line
+                x1={450}
+                y1={330}
+                x2={450}
+                y2={100}
+                stroke="#3B82F6"
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+
+              {/* Other lines */}
+              {features.map((_, i) => {
+                if (i === 0) return null;
+                const angle = (360 / features.length) * i - 90
+                const rad = (angle * Math.PI) / 180
+                const cx = 450
+                const cy = 450
+                const centerR = 120
+                const outerR = 320
+                const sx = cx + Math.cos(rad) * centerR
+                const sy = cy + Math.sin(rad) * centerR
+                const ex = cx + Math.cos(rad) * outerR
+                const ey = cy + Math.sin(rad) * outerR
+
+                return (
+                  <line
+                    key={`l-${i}`}
+                    x1={sx}
+                    y1={sy}
+                    x2={ex}
+                    y2={ey}
+                    stroke="#3B82F6"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                  />
+                )
+              })}
+              {/* Top line rendered separately */}
+              <line
+                key="top-line"
+                x1={450}
+                y1={330}
+                x2={450}
+                y2={100}
+                stroke="#3B82F6"
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+
+              {/* Regular lines */}
+              {features.map((_, i) => {
+                if (i === 0) return null; // Skip top line since we drew it separately
+                const angle = (360 / features.length) * i - 90
+                const rad = (angle * Math.PI) / 180
+                const cx = 450
+                const cy = 450
+                const centerR = 120
+                const outerR = 320
+                const sx = cx + Math.cos(rad) * centerR
+                const sy = cy + Math.sin(rad) * centerR
+                const ex = cx + Math.cos(rad) * outerR
+                const ey = cy + Math.sin(rad) * outerR
+
+                return (
+                  <line
+                    key={`l-${i}`}
+                    x1={sx}
+                    y1={sy}
+                    x2={ex}
+                    y2={ey}
+                    stroke="#3B82F6"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                  />
+                )
+              })}
+            </svg>
 
             {/* Enhanced Features around the logo */}
             {features.map((feature, idx) => {
@@ -371,17 +452,7 @@ export default function Home() {
                     transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
                   }}
                 >
-                  {/* Connection line */}
-                  <div
-                    className="absolute w-px bg-gradient-to-r from-transparent via-slate-300/50 to-transparent opacity-40"
-                    style={{
-                      height: `${radius - 140}px`,
-                      left: "50%",
-                      top: "50%",
-                      transform: `translate(-50%, -50%) rotate(${angle + 90}deg)`,
-                      transformOrigin: "center bottom",
-                    }}
-                  ></div>
+                  {/* Connection handled by central SVG overlay */}
 
                   <div
                     className="group h-full relative cursor-pointer"
