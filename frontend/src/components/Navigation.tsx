@@ -369,7 +369,7 @@ function Navigation() {
                   href="/auth/register"
                   className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
                 >
-                  Comenzar Gratis
+                  Registrarte
                 </Link>
               </div>
             )}
@@ -448,7 +448,7 @@ function Navigation() {
                 className="block w-full px-4 py-2 text-center text-white font-medium bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl hover:shadow-lg transition-all"
                 onClick={() => setIsOpen(false)}
               >
-                Comenzar Gratis
+                Registrarte
               </Link>
             </div>
           )}
