@@ -319,7 +319,7 @@ export default function Home() {
               return (
                 <div
                   key={feature.name}
-                  className="absolute z-10"
+                  className="absolute z-30"
                   style={{
                     left: "50%",
                     top: "50%",
@@ -342,7 +342,7 @@ export default function Home() {
                     className="group h-full relative cursor-pointer"
                     onMouseEnter={() => setHoveredFeature(idx)}
                     onMouseLeave={() => setHoveredFeature(null)}
-                    onClick={() => window.open(feature.href, '_blank')}
+                    onClick={() => window.location.href = feature.href}
                   >
                     <div className="relative h-full w-48 p-6 bg-white backdrop-blur-sm border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-slate-300 transition-all duration-500 flex flex-col items-center justify-center text-center transform hover:-translate-y-2 hover:scale-105">
                       {/* Gradient background on hover */}
@@ -364,11 +364,24 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Tooltip outside the card */}
+                    {/* Tooltip outside the card - Enhanced styling */}
                     {hoveredFeature === idx && (
-                      <div className="absolute z-[9999] -top-20 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-sm rounded-lg shadow-xl px-4 py-3 max-w-xs pointer-events-none text-center">
-                        {feature.description}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                      <div className="absolute z-[99999] bottom-full left-1/2 transform -translate-x-1/2 mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="relative px-5 py-4 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 text-white text-sm rounded-2xl shadow-2xl border border-slate-600/30 backdrop-blur-md max-w-sm min-w-[280px]">
+                          {/* Subtle glow effect */}
+                          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-2xl blur-sm"></div>
+
+                          <div className="relative">
+                            <p className="text-white/95 leading-relaxed font-medium text-center">
+                              {feature.description}
+                            </p>
+                          </div>
+
+                          {/* Enhanced arrow pointing down */}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
+                            <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-transparent border-t-slate-800"></div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -384,8 +397,6 @@ export default function Home() {
                 <a
                   key={feature.name}
                   href={feature.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="block h-full"
                   title={`Ir a ${feature.name}`}
                 >
@@ -418,8 +429,6 @@ export default function Home() {
                 <a
                   key={feature.name}
                   href={feature.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="block h-full"
                   title={`Ir a ${feature.name}`}
                 >
