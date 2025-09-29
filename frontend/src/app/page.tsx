@@ -125,6 +125,28 @@ const UserPlus = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const Check = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 13l4 4L19 7"
+    />
+  </svg>
+)
+
+const Crown = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 16l-1-4 5.5 2 6-6 6 6 5.5-2L21 16H5zM19 20H5a1 1 0 01-1-1v-1a1 1 0 011-1h14a1 1 0 011 1v1a1 1 0 01-1 1z"
+    />
+  </svg>
+)
+
 export default function Home() {
   // Features con hipervínculos activos para todos los usuarios
   const features = [
@@ -503,6 +525,140 @@ export default function Home() {
                 Tu navegador no soporta el elemento de video.
               </video>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-24 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+              Planes que se adaptan a tu negocio
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Elegí el plan perfecto para potenciar tu carrera inmobiliaria en Argentina
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Plan Mensual */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
+              <div className="relative bg-white rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300">
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Plan Mensual</h3>
+                  <div className="flex items-center justify-center">
+                    <span className="text-4xl font-bold text-slate-900">$25</span>
+                    <span className="text-lg text-slate-600 ml-2">USD/mes</span>
+                  </div>
+                  <p className="text-slate-600 mt-2">Facturación mensual</p>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Todas las herramientas inmobiliarias</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Calculadora de créditos hipotecarios</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Generación de documentos legales</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Sistema de placas automáticas</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Tasas bancarias actualizadas</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Soporte técnico incluido</span>
+                  </div>
+                </div>
+
+                <Link
+                  href="/auth/register"
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors duration-200"
+                >
+                  Comenzar ahora
+                </Link>
+              </div>
+            </div>
+
+            {/* Plan Anual */}
+            <div className="relative group">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center z-10">
+                <Crown className="w-4 h-4 mr-1" />
+                Más Popular
+              </div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+              <div className="relative bg-white rounded-2xl p-8 shadow-xl border-2 border-purple-200 hover:shadow-2xl transition-all duration-300">
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Plan Anual</h3>
+                  <div className="flex items-center justify-center">
+                    <span className="text-lg text-slate-500 line-through mr-2">$300</span>
+                    <span className="text-4xl font-bold text-slate-900">$240</span>
+                    <span className="text-lg text-slate-600 ml-2">USD/año</span>
+                  </div>
+                  <div className="flex items-center justify-center mt-2">
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                      Ahorrás 20% ($60 USD)
+                    </span>
+                  </div>
+                  <p className="text-slate-600 mt-2">Equivale a $20 USD/mes</p>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Todas las herramientas inmobiliarias</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Calculadora de créditos hipotecarios</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Generación de documentos legales</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Sistema de placas automáticas</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Tasas bancarias actualizadas</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700">Soporte técnico prioritario</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
+                    <span className="text-slate-700 font-medium">2 meses gratis incluidos</span>
+                  </div>
+                </div>
+
+                <Link
+                  href="/auth/register"
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg"
+                >
+                  Elegir plan anual
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-slate-600 text-sm">
+              Todos los precios están en dólares estadounidenses. Sin permanencia, cancelá cuando quieras.
+            </p>
           </div>
         </div>
       </section>
