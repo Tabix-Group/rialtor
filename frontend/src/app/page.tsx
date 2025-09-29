@@ -184,6 +184,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searching, setSearching] = useState(false)
   const [searchResults, setSearchResults] = useState(null)
+  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -201,7 +202,18 @@ export default function Home() {
 
   const handleScrollToDemo = () => {
     const el = document.getElementById("demo-video")
-    if (el) el.scrollIntoView({ behavior: "smooth" })
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" })
+      // Wait for scroll to complete, then play video
+      setTimeout(() => {
+        const video = el.querySelector('video') as HTMLVideoElement
+        if (video) {
+          video.play().catch(e => {
+            console.log('Video autoplay failed:', e)
+          })
+        }
+      }, 1000) // Wait 1 second for scroll to complete
+    }
   }
 
   return (
@@ -326,8 +338,12 @@ export default function Home() {
                     }}
                   ></div>
 
-                  <Link href={feature.href} className="block h-full" title={`Ir a ${feature.name}`} prefetch={false}>
-                    <div className="group h-full relative">
+                  <div
+                    className="group h-full relative"
+                    onMouseEnter={() => setHoveredFeature(idx)}
+                    onMouseLeave={() => setHoveredFeature(null)}
+                  >
+                    <a href={feature.href} target="_blank" rel="noopener noreferrer" className="block h-full">
                       <div className="relative h-full min-w-0 max-w-48 p-4 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:shadow-2xl hover:border-slate-300 transition-all duration-500 flex flex-col items-center justify-center text-center transform hover:-translate-y-2 hover:scale-105">
                         {/* Gradient background on hover */}
                         <div
@@ -347,15 +363,18 @@ export default function Home() {
                           <ArrowRight className={`w-3 h-3 ${feature.textColor}`} />
                         </div>
                       </div>
+                    </a>
 
-                      {/* Tooltip outside the card */}
-                      <div className="absolute z-[100] left-full top-1/2 transform -translate-y-1/2 ml-3 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap max-w-xs">
-                        {feature.description}
-                        {/* Arrow pointing left */}
-                        <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-slate-900"></div>
-                      </div>
+                    {/* Tooltip outside the card */}
+                    <div
+                      className={`absolute z-[9999] bottom-full left-1/2 transform -translate-x-1/2 mb-3 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-lg transition-opacity duration-300 pointer-events-none whitespace-nowrap max-w-xs text-center ${hoveredFeature === idx ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    >
+                      {feature.description}
+                      {/* Arrow pointing down */}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               )
             })}
@@ -365,12 +384,13 @@ export default function Home() {
           <div className="hidden md:block lg:hidden">
             <div className="grid grid-cols-2 gap-8 max-w-4xl mx-auto">
               {features.map((feature, idx) => (
-                <Link
+                <a
                   key={feature.name}
                   href={feature.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block h-full"
                   title={`Ir a ${feature.name}`}
-                  prefetch={false}
                 >
                   <div className="group h-full">
                     <div className="relative h-full p-6 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:shadow-xl hover:border-slate-300 transition-all duration-300 transform hover:-translate-y-1">
@@ -389,7 +409,7 @@ export default function Home() {
                       <p className="relative text-slate-600 text-sm leading-relaxed">{feature.description}</p>
                     </div>
                   </div>
-                </Link>
+                </a>
               ))}
             </div>
           </div>
@@ -398,12 +418,13 @@ export default function Home() {
           <div className="md:hidden">
             <div className="grid grid-cols-1 gap-6">
               {features.map((feature, idx) => (
-                <Link
+                <a
                   key={feature.name}
                   href={feature.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block h-full"
                   title={`Ir a ${feature.name}`}
-                  prefetch={false}
                 >
                   <div className="group h-full">
                     <div className="relative h-full p-6 bg-white/90 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:shadow-lg hover:border-slate-300 transition-all duration-300">
@@ -422,7 +443,7 @@ export default function Home() {
                       <p className="relative text-slate-600 text-sm leading-relaxed">{feature.description}</p>
                     </div>
                   </div>
-                </Link>
+                </a>
               ))}
             </div>
           </div>
@@ -443,13 +464,15 @@ export default function Home() {
           <div className="relative">
             <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-xl opacity-20"></div>
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 backdrop-blur-sm">
-              <iframe
-                src="https://www.youtube.com/embed/djV11Xbc914"
+              <video
+                src="/docs/Videos/RIALTOR.mp4"
                 title="Demo RIALTOR"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              ></iframe>
+                controls
+                className="w-full h-full object-cover"
+                preload="metadata"
+              >
+                Tu navegador no soporta el elemento de video.
+              </video>
             </div>
           </div>
         </div>
