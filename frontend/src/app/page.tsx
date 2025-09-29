@@ -103,6 +103,28 @@ const Sparkles = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const TrendingUp = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+    />
+  </svg>
+)
+
+const UserPlus = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zM20 4v6m3-3h-6"
+    />
+  </svg>
+)
+
 export default function Home() {
   // Features con hipervínculos activos para todos los usuarios
   const features = [
@@ -233,8 +255,8 @@ export default function Home() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium mb-8">
-            <Sparkles className="w-4 h-4 mr-2" />
-            🚀 Potenciá tu negocio inmobiliario en Argentina
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Potenciá tu negocio inmobiliario en Argentina
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
@@ -261,7 +283,8 @@ export default function Home() {
               href="/auth/register"
               className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300"
             >
-              🚀 Empezar Gratis
+              <UserPlus className="w-5 h-5 mr-2" />
+              Empezar Gratis
             </Link>
           </div>
         </div>
