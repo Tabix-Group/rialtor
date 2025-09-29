@@ -298,12 +298,12 @@ export default function Home() {
             {/* Central Logo with enhanced styling */}
             <div className="absolute inset-0 flex items-center justify-center z-20">
               <div className="relative group">
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                <div className="relative bg-white rounded-full p-8 shadow-2xl border border-slate-200/50 backdrop-blur-sm">
+                <div className="absolute -inset-6 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-2xl"></div>
+                <div className="relative bg-gradient-to-br from-white to-slate-50 rounded-full p-12 shadow-2xl border border-slate-200 backdrop-blur-sm">
                   <img
                     src="/images/logoblanco.png"
                     alt="Logo RIALTOR"
-                    className="w-32 h-32 md:w-40 md:h-40 object-contain filter drop-shadow-lg"
+                    className="w-40 h-40 object-contain filter drop-shadow-lg"
                   />
                 </div>
               </div>
@@ -312,7 +312,7 @@ export default function Home() {
             {/* Enhanced Features around the logo */}
             {features.map((feature, idx) => {
               const angle = (360 / features.length) * idx - 90 // Start from top
-              const radius = 350
+              const radius = 400
               const x = Math.cos((angle * Math.PI) / 180) * radius
               const y = Math.sin((angle * Math.PI) / 180) * radius
 
@@ -328,9 +328,9 @@ export default function Home() {
                 >
                   {/* Connection line */}
                   <div
-                    className="absolute w-px bg-gradient-to-r from-transparent via-slate-300 to-transparent opacity-30"
+                    className="absolute w-px bg-gradient-to-r from-transparent via-slate-300/50 to-transparent opacity-40"
                     style={{
-                      height: `${radius - 120}px`,
+                      height: `${radius - 140}px`,
                       left: "50%",
                       top: "50%",
                       transform: `translate(-50%, -50%) rotate(${angle + 90}deg)`,
@@ -339,41 +339,38 @@ export default function Home() {
                   ></div>
 
                   <div
-                    className="group h-full relative"
+                    className="group h-full relative cursor-pointer"
                     onMouseEnter={() => setHoveredFeature(idx)}
                     onMouseLeave={() => setHoveredFeature(null)}
+                    onClick={() => window.open(feature.href, '_blank')}
                   >
-                    <a href={feature.href} target="_blank" rel="noopener noreferrer" className="block h-full">
-                      <div className="relative h-full min-w-0 max-w-48 p-4 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:shadow-2xl hover:border-slate-300 transition-all duration-500 flex flex-col items-center justify-center text-center transform hover:-translate-y-2 hover:scale-105">
-                        {/* Gradient background on hover */}
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-500`}
-                        ></div>
+                    <div className="relative h-full w-48 p-6 bg-white backdrop-blur-sm border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-slate-300 transition-all duration-500 flex flex-col items-center justify-center text-center transform hover:-translate-y-2 hover:scale-105">
+                      {/* Gradient background on hover */}
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500`}
+                      ></div>
 
-                        <div
-                          className={`relative w-12 h-12 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}
-                        >
-                          <feature.icon className={`h-6 w-6 ${feature.textColor}`} />
-                        </div>
-
-                        <h3 className="relative text-xs font-bold text-slate-900 leading-tight whitespace-nowrap">{feature.name}</h3>
-
-                        {/* Hover arrow */}
-                        <div className="relative mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <ArrowRight className={`w-3 h-3 ${feature.textColor}`} />
-                        </div>
+                      <div
+                        className={`relative w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                      >
+                        <feature.icon className={`h-8 w-8 ${feature.textColor}`} />
                       </div>
-                    </a>
+
+                      <h3 className="relative text-sm font-bold text-slate-900 leading-tight text-center px-2">{feature.name}</h3>
+
+                      {/* Hover arrow */}
+                      <div className="relative mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <ArrowRight className={`w-4 h-4 ${feature.textColor}`} />
+                      </div>
+                    </div>
 
                     {/* Tooltip outside the card */}
-                    <div
-                      className={`absolute z-[9999] bottom-full left-1/2 transform -translate-x-1/2 mb-3 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg shadow-lg transition-opacity duration-300 pointer-events-none whitespace-nowrap max-w-xs text-center ${hoveredFeature === idx ? 'opacity-100' : 'opacity-0'
-                        }`}
-                    >
-                      {feature.description}
-                      {/* Arrow pointing down */}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
-                    </div>
+                    {hoveredFeature === idx && (
+                      <div className="absolute z-[9999] -top-20 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-sm rounded-lg shadow-xl px-4 py-3 max-w-xs pointer-events-none text-center">
+                        {feature.description}
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )

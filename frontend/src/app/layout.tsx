@@ -10,7 +10,7 @@ import FloatingAssistant from '../components/FloatingAssistant';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'RIALTOR - Plataforma Integral',
+  title: 'RIALTOR - Revolución InmobiliarIA',
   description: 'Solución integral de recursos, archivos y herramientas para profesionales inmobiliarios',
   icons: {
     icon: [
