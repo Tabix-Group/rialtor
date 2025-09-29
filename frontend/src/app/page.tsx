@@ -231,7 +231,6 @@ export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
   const { user } = useAuth()
 
-
   useEffect(() => {
     const fetchRecent = async () => {
       try {
@@ -264,7 +263,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex flex-col">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 py-20 lg:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 py-20 lg:py-32 min-h-screen flex items-center">
         {/* Simplified background pattern */}
         <div className="absolute inset-0 opacity-20">
           <div
@@ -274,6 +273,10 @@ export default function Home() {
               backgroundSize: "20px 20px",
             }}
           ></div>
+        </div>
+
+        {/* Content container */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium mb-8">
             <TrendingUp className="w-4 h-4 mr-2" />
             Potenciá tu negocio inmobiliario en Argentina
