@@ -355,27 +355,18 @@ export default function Home() {
               className="absolute inset-0 w-full h-full z-30"
               viewBox="0 0 900 900"
               preserveAspectRatio="xMidYMid meet"
+              style={{
+                filter: 'drop-shadow(0 0 1px rgba(59, 130, 246, 0.5))'
+              }}
             >
-              {/* Top line to first card */}
-              <line
-                x1={450}
-                y1={330}
-                x2={450}
-                y2={100}
-                stroke="#3B82F6"
-                strokeWidth={3}
-                strokeLinecap="round"
-              />
-
-              {/* Other lines */}
+              {/* All lines rendered with consistent styling */}
               {features.map((_, i) => {
-                if (i === 0) return null;
-                const angle = (360 / features.length) * i - 90
+                const angle = (360 / features.length) * i - 90 // -90 starts from top
                 const rad = (angle * Math.PI) / 180
                 const cx = 450
                 const cy = 450
-                const centerR = 120
-                const outerR = 320
+                const centerR = 75 // Logo radius
+                const outerR = 320 // Distance to cards
                 const sx = cx + Math.cos(rad) * centerR
                 const sy = cy + Math.sin(rad) * centerR
                 const ex = cx + Math.cos(rad) * outerR
@@ -388,48 +379,11 @@ export default function Home() {
                     y1={sy}
                     x2={ex}
                     y2={ey}
-                    stroke="#3B82F6"
+                    stroke="#1e293b"
                     strokeWidth={2}
                     strokeLinecap="round"
-                  />
-                )
-              })}
-              {/* Top line rendered separately */}
-              <line
-                key="top-line"
-                x1={450}
-                y1={330}
-                x2={450}
-                y2={100}
-                stroke="#3B82F6"
-                strokeWidth={3}
-                strokeLinecap="round"
-              />
-
-              {/* Regular lines */}
-              {features.map((_, i) => {
-                if (i === 0) return null; // Skip top line since we drew it separately
-                const angle = (360 / features.length) * i - 90
-                const rad = (angle * Math.PI) / 180
-                const cx = 450
-                const cy = 450
-                const centerR = 120
-                const outerR = 320
-                const sx = cx + Math.cos(rad) * centerR
-                const sy = cy + Math.sin(rad) * centerR
-                const ex = cx + Math.cos(rad) * outerR
-                const ey = cy + Math.sin(rad) * outerR
-
-                return (
-                  <line
-                    key={`l-${i}`}
-                    x1={sx}
-                    y1={sy}
-                    x2={ex}
-                    y2={ey}
-                    stroke="#3B82F6"
-                    strokeWidth={2}
-                    strokeLinecap="round"
+                    strokeOpacity={0.6}
+                    className="transition-opacity duration-300"
                   />
                 )
               })}
