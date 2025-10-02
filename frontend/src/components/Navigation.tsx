@@ -48,7 +48,7 @@ function Navigation() {
       href: '/calculadoras',
       icon: 'Calculator',
       dropdown: [
-        { name: 'Gastos de Escritura', href: '/calcescritura', description: 'Calcula costos de escrituración' }, ,
+        { name: 'Calculadora de gastos inmobiliarios', href: '/calcescritura', description: 'Calcula costos de escrituración' },
         { name: 'Seguros de Caución', href: '/creditos', description: 'Compara seguros de caución' },
         { name: 'Créditos Hipotecarios', href: '/hipotecarios', description: 'Simula créditos hipotecarios' },
       ],
@@ -123,7 +123,7 @@ function Navigation() {
               <button
                 data-dropdown-button
                 onClick={(e) => handleDropdownClick(e, item.name)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) || item.dropdown?.some(sub => isActive(sub.href))
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-gray-50 ${isActive(item.href) || item.dropdown?.some((sub: any) => sub && isActive(sub.href))
                   ? 'bg-blue-50 text-blue-600 border border-blue-100'
                   : 'text-gray-700 hover:text-blue-600'
                   }`}
@@ -202,7 +202,7 @@ function Navigation() {
                 <button
                   data-dropdown-button
                   onClick={(e) => handleDropdownClick(e, item.name)}
-                  className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive(item.href) || item.dropdown?.some(sub => isActive(sub.href))
+                  className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive(item.href) || item.dropdown?.some((sub: any) => sub && isActive(sub.href))
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-700 hover:bg-gray-50'
                     }`}
