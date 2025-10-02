@@ -1,18 +1,47 @@
 "use client"
-import React, { useMemo, useState } from "react"
-import { Calculator, DollarSign, MapPin } from 'lucide-react'
+import React, { useMemo, useState, useEffect } from "react"
+import { Calculator, DollarSign, MapPin, AlertTriangle } from 'lucide-react'
 
 export default function CalceEscrituraPage() {
   const [activeTab, setActiveTab] = useState<'comprador' | 'vendedor' | 'primera'>('comprador')
   const [location, setLocation] = useState<'CABA' | 'PBA'>('CABA')
-  const [exchangeRate, setExchangeRate] = useState<string>('1100')
+  const [exchangeRate, setExchangeRate] = useState<string>('1456.89')
   const [writingPrice, setWritingPrice] = useState<string>('100000')
   const [transactionPrice, setTransactionPrice] = useState<string>('100000')
   const [stampExemption, setStampExemption] = useState<boolean>(false)
+  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState<boolean>(true)
+  const [exchangeRateError, setExchangeRateError] = useState<boolean>(false)
+
+  // Fetch exchange rate from Ámbito API
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        const response = await fetch('https://mercados.ambito.com//dolar/oficial/variacion')
+        const data = await response.json()
+
+        if (data.venta) {
+          // Remove commas and convert to number, then back to string
+          const cleanRate = data.venta.replace(',', '.')
+          setExchangeRate(cleanRate)
+          setExchangeRateError(false)
+        } else {
+          throw new Error('Invalid response format')
+        }
+      } catch (error) {
+        console.warn('Error fetching exchange rate from Ámbito:', error)
+        setExchangeRateError(true)
+        // Keep the default value if API fails
+      } finally {
+        setIsLoadingExchangeRate(false)
+      }
+    }
+
+    fetchExchangeRate()
+  }, [])
 
   const numericExchangeRate = useMemo(() => {
     const v = Number((exchangeRate || "").toString().replace(/[^0-9.]/g, ""))
-    return isNaN(v) || v === 0 ? 1100 : v
+    return isNaN(v) || v === 0 ? 1456.89 : v
   }, [exchangeRate])
 
   const numericWritingPrice = useMemo(() => {
@@ -163,7 +192,8 @@ export default function CalceEscrituraPage() {
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Tipo de Cambio
+                  Tipo de Cambio {isLoadingExchangeRate && <span className="text-xs text-gray-500">(cargando...)</span>}
+                  {exchangeRateError && !isLoadingExchangeRate && <span className="text-xs text-red-500">(error)</span>}
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-gray-400 text-sm">1 USD =</span>
@@ -171,11 +201,33 @@ export default function CalceEscrituraPage() {
                     inputMode="numeric"
                     value={exchangeRate}
                     onChange={(e) => setExchangeRate(e.target.value)}
-                    placeholder="1100"
-                    className="w-full pl-16 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="1456.89"
+                    disabled={isLoadingExchangeRate}
+                    className={`w-full pl-16 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:opacity-50 ${isLoadingExchangeRate ? 'animate-pulse bg-gray-50 border-gray-300' : exchangeRateError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
                   />
+                  {isLoadingExchangeRate && (
+                    <div className="absolute right-12 top-3">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-green-500 border-t-transparent"></div>
+                    </div>
+                  )}
+                  {exchangeRateError && !isLoadingExchangeRate && (
+                    <div className="absolute right-12 top-3">
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                    </div>
+                  )}
                   <span className="absolute right-3 top-3 text-gray-400 text-sm">ARS</span>
                 </div>
+                {exchangeRateError && !isLoadingExchangeRate && (
+                  <p className="text-sm text-red-600">
+                    Error al cargar el tipo de cambio. Usando valor por defecto.
+                  </p>
+                )}
+                {!exchangeRateError && !isLoadingExchangeRate && (
+                  <p className="text-sm text-green-600">
+                    Tipo de cambio actualizado automáticamente desde Ámbito.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
