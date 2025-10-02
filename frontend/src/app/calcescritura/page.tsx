@@ -1,260 +1,135 @@
 "use client"
 import React, { useMemo, useState } from "react"
-import { Calculator, DollarSign, MapPin, FileText } from 'lucide-react'
-
-type Bracket = { amount: number; pct: number }
-
-// Helper to pick percentage for a given value from sorted brackets
-function getPercent(value: number, brackets: Bracket[]) {
-  for (const b of brackets) {
-    if (value <= b.amount) return b.pct
-  }
-  return brackets[brackets.length - 1].pct
-}
-
-// Data taken from user's tables. amounts are USD, pct is decimal (e.g. 0.061 = 6.1%)
-const BA_withSellos_buyer: Bracket[] = [
-  { amount: 20000, pct: 0.061 },
-  { amount: 30000, pct: 0.058 },
-  { amount: 40000, pct: 0.055 },
-  { amount: 50000, pct: 0.052 },
-  { amount: 60000, pct: 0.047 },
-  { amount: 70000, pct: 0.0455 },
-  { amount: 80000, pct: 0.044 },
-  { amount: 90000, pct: 0.043 },
-  { amount: 100000, pct: 0.042 },
-  { amount: 115000, pct: 0.041 },
-  { amount: 130000, pct: 0.038 },
-  { amount: 145000, pct: 0.037 },
-  { amount: 160000, pct: 0.036 },
-  { amount: 175000, pct: 0.035 },
-  { amount: 190000, pct: 0.034 },
-  { amount: 205000, pct: 0.033 },
-  { amount: 230000, pct: 0.032 },
-  { amount: 245000, pct: 0.031 },
-  { amount: 260000, pct: 0.03 },
-  { amount: 275000, pct: 0.029 },
-  { amount: 290000, pct: 0.028 },
-  { amount: 310000, pct: 0.027 },
-  { amount: 350000, pct: 0.026 },
-  { amount: 400000, pct: 0.0255 },
-  { amount: 500000, pct: 0.025 },
-  { amount: 600000, pct: 0.0245 },
-  { amount: 700000, pct: 0.024 },
-  { amount: 800000, pct: 0.0235 },
-  { amount: 900000, pct: 0.023 },
-  { amount: 1000000, pct: 0.0225 },
-]
-
-const BA_withSellos_seller: Bracket[] = [
-  { amount: 20000, pct: 0.034 },
-  { amount: 30000, pct: 0.034 },
-  { amount: 40000, pct: 0.032 },
-  { amount: 50000, pct: 0.032 },
-  { amount: 60000, pct: 0.03 },
-  { amount: 70000, pct: 0.0285 },
-  { amount: 80000, pct: 0.027 },
-  { amount: 90000, pct: 0.026 },
-  { amount: 100000, pct: 0.025 },
-  { amount: 115000, pct: 0.024 },
-  { amount: 130000, pct: 0.024 },
-  { amount: 145000, pct: 0.023 },
-  { amount: 160000, pct: 0.022 },
-  { amount: 175000, pct: 0.021 },
-  { amount: 190000, pct: 0.02 },
-  { amount: 205000, pct: 0.019 },
-  { amount: 230000, pct: 0.019 },
-  { amount: 245000, pct: 0.019 },
-  { amount: 260000, pct: 0.018 },
-  { amount: 275000, pct: 0.0179 },
-  { amount: 290000, pct: 0.0178 },
-  { amount: 310000, pct: 0.0177 },
-  { amount: 350000, pct: 0.0176 },
-  { amount: 400000, pct: 0.0175 },
-  { amount: 500000, pct: 0.0174 },
-  { amount: 600000, pct: 0.0173 },
-  { amount: 700000, pct: 0.0172 },
-  { amount: 800000, pct: 0.0171 },
-  { amount: 900000, pct: 0.017 },
-  { amount: 1000000, pct: 0.0169 },
-]
-
-const BA_noSellos_buyer: Bracket[] = [
-  { amount: 20000, pct: 0.053 },
-  { amount: 30000, pct: 0.05 },
-  { amount: 40000, pct: 0.047 },
-  { amount: 50000, pct: 0.044 },
-  { amount: 60000, pct: 0.039 },
-  { amount: 70000, pct: 0.0375 },
-  { amount: 80000, pct: 0.036 },
-  { amount: 90000, pct: 0.035 },
-  { amount: 100000, pct: 0.034 },
-  { amount: 115000, pct: 0.033 },
-  { amount: 130000, pct: 0.03 },
-  { amount: 145000, pct: 0.029 },
-  { amount: 160000, pct: 0.028 },
-  { amount: 175000, pct: 0.028 },
-  { amount: 190000, pct: 0.027 },
-  { amount: 205000, pct: 0.026 },
-  { amount: 230000, pct: 0.025 },
-  { amount: 245000, pct: 0.024 },
-  { amount: 260000, pct: 0.023 },
-  { amount: 275000, pct: 0.022 },
-  { amount: 290000, pct: 0.021 },
-  { amount: 310000, pct: 0.021 },
-  { amount: 350000, pct: 0.02 },
-  { amount: 400000, pct: 0.0195 },
-  { amount: 500000, pct: 0.019 },
-  { amount: 600000, pct: 0.0185 },
-  { amount: 700000, pct: 0.019 },
-  { amount: 800000, pct: 0.0185 },
-  { amount: 900000, pct: 0.018 },
-  { amount: 1000000, pct: 0.0175 },
-]
-
-const BA_noSellos_seller: Bracket[] = [
-  { amount: 20000, pct: 0.024 },
-  { amount: 30000, pct: 0.024 },
-  { amount: 40000, pct: 0.024 },
-  { amount: 50000, pct: 0.023 },
-  { amount: 60000, pct: 0.023 },
-  { amount: 70000, pct: 0.023 },
-  { amount: 80000, pct: 0.018 },
-  { amount: 90000, pct: 0.018 },
-  { amount: 100000, pct: 0.018 },
-  { amount: 115000, pct: 0.018 },
-  { amount: 130000, pct: 0.018 },
-  { amount: 145000, pct: 0.018 },
-  { amount: 160000, pct: 0.018 },
-  { amount: 175000, pct: 0.018 },
-  { amount: 190000, pct: 0.018 },
-  { amount: 205000, pct: 0.012 },
-  { amount: 230000, pct: 0.012 },
-  { amount: 245000, pct: 0.012 },
-  { amount: 260000, pct: 0.012 },
-  { amount: 275000, pct: 0.0109 },
-  { amount: 290000, pct: 0.0109 },
-  { amount: 310000, pct: 0.0109 },
-  { amount: 350000, pct: 0.0109 },
-  { amount: 400000, pct: 0.0097 },
-  { amount: 500000, pct: 0.0097 },
-  { amount: 600000, pct: 0.0097 },
-  { amount: 700000, pct: 0.0077 },
-  { amount: 800000, pct: 0.0077 },
-  { amount: 900000, pct: 0.0077 },
-  { amount: 1000000, pct: 0.0077 },
-]
-
-const CABA_buyer: Bracket[] = [
-  { amount: 20000, pct: 0.068 },
-  { amount: 30000, pct: 0.065 },
-  { amount: 40000, pct: 0.062 },
-  { amount: 50000, pct: 0.059 },
-  { amount: 60000, pct: 0.054 },
-  { amount: 70000, pct: 0.0525 },
-  { amount: 80000, pct: 0.051 },
-  { amount: 90000, pct: 0.05 },
-  { amount: 100000, pct: 0.049 },
-  { amount: 115000, pct: 0.048 },
-  { amount: 130000, pct: 0.045 },
-  { amount: 145000, pct: 0.044 },
-  { amount: 160000, pct: 0.043 },
-  { amount: 175000, pct: 0.042 },
-  { amount: 190000, pct: 0.041 },
-  { amount: 205000, pct: 0.04 },
-  { amount: 230000, pct: 0.039 },
-  { amount: 245000, pct: 0.038 },
-  { amount: 260000, pct: 0.037 },
-  { amount: 275000, pct: 0.036 },
-  { amount: 290000, pct: 0.035 },
-  { amount: 310000, pct: 0.034 },
-  { amount: 350000, pct: 0.033 },
-  { amount: 400000, pct: 0.0325 },
-  { amount: 500000, pct: 0.032 },
-  { amount: 600000, pct: 0.0315 },
-  { amount: 700000, pct: 0.031 },
-  { amount: 800000, pct: 0.0305 },
-  { amount: 900000, pct: 0.03 },
-  { amount: 1000000, pct: 0.0295 },
-]
-
-const CABA_seller: Bracket[] = [
-  { amount: 20000, pct: 0.039 },
-  { amount: 30000, pct: 0.039 },
-  { amount: 40000, pct: 0.035 },
-  { amount: 50000, pct: 0.035 },
-  { amount: 60000, pct: 0.036 },
-  { amount: 70000, pct: 0.0345 },
-  { amount: 80000, pct: 0.033 },
-  { amount: 90000, pct: 0.032 },
-  { amount: 100000, pct: 0.031 },
-  { amount: 115000, pct: 0.03 },
-  { amount: 130000, pct: 0.027 },
-  { amount: 145000, pct: 0.026 },
-  { amount: 160000, pct: 0.025 },
-  { amount: 175000, pct: 0.024 },
-  { amount: 190000, pct: 0.023 },
-  { amount: 205000, pct: 0.022 },
-  { amount: 230000, pct: 0.022 },
-  { amount: 245000, pct: 0.022 },
-  { amount: 260000, pct: 0.021 },
-  { amount: 275000, pct: 0.0209 },
-  { amount: 290000, pct: 0.0208 },
-  { amount: 310000, pct: 0.0207 },
-  { amount: 350000, pct: 0.0206 },
-  { amount: 400000, pct: 0.0205 },
-  { amount: 500000, pct: 0.0204 },
-  { amount: 600000, pct: 0.0203 },
-  { amount: 700000, pct: 0.0202 },
-  { amount: 800000, pct: 0.0201 },
-  { amount: 900000, pct: 0.02 },
-  { amount: 1000000, pct: 0.0199 },
-]
+import { Calculator, DollarSign, MapPin, FileText, Building, Home } from 'lucide-react'
 
 export default function CalceEscrituraPage() {
-  const [usd, setUsd] = useState<string>("")
-  const [locality, setLocality] = useState<string>("Buenos Aires")
-  const [sellos, setSellos] = useState<string>("con")
+  const [activeTab, setActiveTab] = useState<'comprador' | 'vendedor' | 'primera'>('comprador')
+  const [location, setLocation] = useState<'CABA' | 'PBA'>('CABA')
+  const [exchangeRate, setExchangeRate] = useState<string>('1100')
+  const [writingPrice, setWritingPrice] = useState<string>('100000')
+  const [transactionPrice, setTransactionPrice] = useState<string>('100000')
+  const [stampExemption, setStampExemption] = useState<boolean>(false)
 
-  const numericUsd = useMemo(() => {
-    const v = Number((usd || "").toString().replace(/[^0-9.]/g, ""))
+  const numericExchangeRate = useMemo(() => {
+    const v = Number((exchangeRate || "").toString().replace(/[^0-9.]/g, ""))
+    return isNaN(v) || v === 0 ? 1100 : v
+  }, [exchangeRate])
+
+  const numericWritingPrice = useMemo(() => {
+    const v = Number((writingPrice || "").toString().replace(/[^0-9.]/g, ""))
     return isNaN(v) ? 0 : v
-  }, [usd])
+  }, [writingPrice])
 
-  const { buyerAmount, sellerAmount, buyerPct, sellerPct } = useMemo(() => {
-    let buyerPct = 0
-    let sellerPct = 0
+  const numericTransactionPrice = useMemo(() => {
+    const v = Number((transactionPrice || "").toString().replace(/[^0-9.]/g, ""))
+    return isNaN(v) ? 0 : v
+  }, [transactionPrice])
 
-    if (locality === "Buenos Aires") {
-      if (sellos === "con") {
-        buyerPct = getPercent(numericUsd, BA_withSellos_buyer)
-        sellerPct = getPercent(numericUsd, BA_withSellos_seller)
+  const calculations = useMemo(() => {
+    const arsTransactionPrice = numericTransactionPrice * numericExchangeRate
+    const arsWritingPrice = numericWritingPrice * numericExchangeRate
+
+    // IVA rate
+    const ivaRate = 0.21
+
+    let realEstateFee = 0
+    let realEstateFeeIVA = 0
+    let notaryFees = 0
+    let notaryFeesIVA = 0
+    let stamps = 0
+    let writingCosts = 0
+    let reserveFund = 0
+    let totalCosts = 0
+    let finalAmount = 0
+
+    if (activeTab === 'comprador') {
+      // Real estate fee: 4% + IVA
+      realEstateFee = numericTransactionPrice * 0.04
+      realEstateFeeIVA = realEstateFee * ivaRate
+
+      // Notary fees: 2% (3.5% for first writing in CABA)
+      const notaryRate = (activeTab === 'primera' && location === 'CABA') ? 0.035 : 0.02
+      notaryFees = numericTransactionPrice * notaryRate
+      notaryFeesIVA = notaryFees * ivaRate
+
+      // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
+      let stampRate = location === 'CABA' ? 0.035 : 0.02
+      if (stampExemption && location === 'CABA') {
+        // Exemption logic for first property in CABA
+        const exemptAmount = 205332000 / numericExchangeRate // Convert ARS to USD
+        if (numericTransactionPrice > exemptAmount) {
+          stamps = (numericTransactionPrice - exemptAmount) * (stampRate / 2)
+        } else {
+          stamps = 0
+        }
       } else {
-        buyerPct = getPercent(numericUsd, BA_noSellos_buyer)
-        sellerPct = getPercent(numericUsd, BA_noSellos_seller)
+        stamps = numericTransactionPrice * (stampRate / 2)
       }
-    } else {
-      // CABA
-      buyerPct = getPercent(numericUsd, CABA_buyer)
-      sellerPct = getPercent(numericUsd, CABA_seller)
+
+      totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + stamps
+      finalAmount = numericTransactionPrice + totalCosts
+
+    } else if (activeTab === 'vendedor') {
+      // Real estate fee: 3% + IVA
+      realEstateFee = numericTransactionPrice * 0.03
+      realEstateFeeIVA = realEstateFee * ivaRate
+
+      // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
+      let stampRate = location === 'CABA' ? 0.035 : 0.02
+      stamps = numericTransactionPrice * (stampRate / 2)
+
+      // Writing costs: 2% (no IVA)
+      writingCosts = arsWritingPrice * 0.02 / numericExchangeRate // Convert back to USD
+
+      totalCosts = realEstateFee + realEstateFeeIVA + stamps + writingCosts
+      finalAmount = numericTransactionPrice - totalCosts
+
+    } else if (activeTab === 'primera') {
+      // Real estate fee: 4% + IVA
+      realEstateFee = numericTransactionPrice * 0.04
+      realEstateFeeIVA = realEstateFee * ivaRate
+
+      // Notary fees: 3.5% in CABA (includes copropiedad) + IVA
+      notaryFees = numericTransactionPrice * 0.035
+      notaryFeesIVA = notaryFees * ivaRate
+
+      // Reserve fund: up to 6% (no IVA)
+      reserveFund = numericTransactionPrice * 0.06
+
+      totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + reserveFund
+      finalAmount = numericTransactionPrice + totalCosts
     }
 
-    const buyerAmount = numericUsd * buyerPct
-    const sellerAmount = numericUsd * sellerPct
-    return { buyerAmount, sellerAmount, buyerPct, sellerPct }
-  }, [numericUsd, locality, sellos])
+    return {
+      realEstateFee,
+      realEstateFeeIVA,
+      notaryFees,
+      notaryFeesIVA,
+      stamps,
+      writingCosts,
+      reserveFund,
+      totalCosts,
+      finalAmount,
+      arsTransactionPrice,
+      arsWritingPrice
+    }
+  }, [activeTab, location, numericExchangeRate, numericWritingPrice, numericTransactionPrice, stampExemption])
 
   function formatUSD(n: number) {
     return n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 })
   }
 
+  function formatARS(n: number) {
+    return n.toLocaleString('es-AR', { style: "currency", currency: "ARS", maximumFractionDigits: 0 })
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Calculadora de gastos inmobiliarios</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Calculá los costos asociados a la firma de escritura en Argentina por provincia
+            Simulá tu operación inmobiliaria y calculá todos los costos asociados
           </p>
         </div>
 
@@ -263,24 +138,58 @@ export default function CalceEscrituraPage() {
           <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6">
             <div className="flex items-center gap-3">
               <Calculator className="w-8 h-8 text-white" />
-              <h2 className="text-2xl font-bold text-white">Calculadora de Gastos Inmobiliarios</h2>
+              <h2 className="text-2xl font-bold text-white">Simulá tu operación</h2>
             </div>
           </div>
 
           <div className="p-8">
-            {/* Form */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Input Form */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Valor de la propiedad (USD)
+                  Ubicación de la propiedad
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <select
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value as 'CABA' | 'PBA')}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
+                  >
+                    <option value="CABA">CABA</option>
+                    <option value="PBA">Provincia de Buenos Aires</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Tipo de Cambio
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-3 text-gray-400 text-sm">1 USD =</span>
+                  <input
+                    inputMode="numeric"
+                    value={exchangeRate}
+                    onChange={(e) => setExchangeRate(e.target.value)}
+                    placeholder="1100"
+                    className="w-full pl-16 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <span className="absolute right-3 top-3 text-gray-400 text-sm">ARS</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Precio de Escrituración (USD)
                 </label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                   <input
                     inputMode="numeric"
-                    value={usd}
-                    onChange={(e) => setUsd(e.target.value)}
-                    placeholder="Ej. 120000"
+                    value={writingPrice}
+                    onChange={(e) => setWritingPrice(e.target.value)}
+                    placeholder="100000"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                 </div>
@@ -288,91 +197,219 @@ export default function CalceEscrituraPage() {
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Localidad
+                  Precio de Transacción (USD)
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <select
-                    value={locality}
-                    onChange={(e) => setLocality(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
-                  >
-                    <option>Buenos Aires</option>
-                    <option>CABA</option>
-                  </select>
+                  <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <input
+                    inputMode="numeric"
+                    value={transactionPrice}
+                    onChange={(e) => setTransactionPrice(e.target.value)}
+                    placeholder="100000"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Sellos
+                  Exención de sellos
                 </label>
-                <div className="relative">
-                  <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <select
-                    value={sellos}
-                    onChange={(e) => setSellos(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
-                  >
-                    <option value="con">Con sellos</option>
-                    <option value="sin">Sin sellos</option>
-                  </select>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={stampExemption}
+                    onChange={(e) => setStampExemption(e.target.checked)}
+                    className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+                  />
+                  <span className="text-sm text-gray-600">Primera vivienda en CABA</span>
                 </div>
               </div>
             </div>
 
-            {/* Results */}
-            {numericUsd > 0 && (
-              <div className="bg-gradient-to-r from-gray-50 to-green-50 rounded-xl p-8 border border-gray-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Cálculo de Gastos</h3>
+            {/* Tabs */}
+            <div className="mb-8">
+              <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                  <button
+                    onClick={() => setActiveTab('comprador')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'comprador'
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    Comprador
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('vendedor')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'vendedor'
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    Vendedor
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('primera')}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'primera'
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                  >
+                    1ª Escritura
+                  </button>
+                </nav>
+              </div>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <DollarSign className="w-5 h-5 text-blue-600" />
-                      </div>
+            {/* Results */}
+            {numericTransactionPrice > 0 && (
+              <div className="bg-gradient-to-r from-gray-50 to-green-50 rounded-xl p-8 border border-gray-100">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    {activeTab === 'comprador' ? 'Comprador' : activeTab === 'vendedor' ? 'Vendedor' : '1ª Escritura'}
+                  </h3>
+                  <p className="text-gray-600">Detalle de Gastos</p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Real Estate Fee */}
+                  {calculations.realEstateFee > 0 && (
+                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <div>
-                        <h4 className="text-lg font-semibold text-gray-900">Comprador</h4>
-                        <p className="text-sm text-gray-600">Total a pagar</p>
+                        <div className="font-medium text-gray-900">Tarifa Inmobiliaria</div>
+                        <div className="text-sm text-gray-500">
+                          {activeTab === 'comprador' ? '4,00%' : '3,00%'} + IVA
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">{formatARS(calculations.realEstateFee * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.realEstateFee)}</div>
                       </div>
                     </div>
-                    <p className="text-3xl font-bold text-blue-600">{formatUSD(buyerAmount)}</p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      {((buyerPct * 100)).toFixed(2)}% del valor de la propiedad
-                    </p>
+                  )}
+
+                  {/* IVA for Real Estate Fee */}
+                  {calculations.realEstateFeeIVA > 0 && (
+                    <div className="flex justify-between items-center py-2 pl-4 border-b border-gray-100">
+                      <div className="text-sm text-gray-600">IVA</div>
+                      <div className="text-right">
+                        <div className="font-medium text-gray-700">{formatARS(calculations.realEstateFeeIVA * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.realEstateFeeIVA)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notary Fees */}
+                  {calculations.notaryFees > 0 && (
+                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                      <div>
+                        <div className="font-medium text-gray-900">Honorarios de Escribanía</div>
+                        <div className="text-sm text-gray-500">
+                          {activeTab === 'primera' && location === 'CABA' ? '3,50%' : '2,00%'} + IVA
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">{formatARS(calculations.notaryFees * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.notaryFees)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* IVA for Notary Fees */}
+                  {calculations.notaryFeesIVA > 0 && (
+                    <div className="flex justify-between items-center py-2 pl-4 border-b border-gray-100">
+                      <div className="text-sm text-gray-600">IVA</div>
+                      <div className="text-right">
+                        <div className="font-medium text-gray-700">{formatARS(calculations.notaryFeesIVA * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.notaryFeesIVA)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stamps */}
+                  {calculations.stamps > 0 && (
+                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                      <div>
+                        <div className="font-medium text-gray-900">Sellos</div>
+                        <div className="text-sm text-gray-500">
+                          {location === 'CABA' ? '1,75%' : '1,00%'} {stampExemption && location === 'CABA' ? '(con exención)' : ''}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">{formatARS(calculations.stamps * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.stamps)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Writing Costs */}
+                  {calculations.writingCosts > 0 && (
+                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                      <div>
+                        <div className="font-medium text-gray-900">Gastos de Escrituración</div>
+                        <div className="text-sm text-gray-500">2,00%</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">{formatARS(calculations.writingCosts * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.writingCosts)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reserve Fund */}
+                  {calculations.reserveFund > 0 && (
+                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                      <div>
+                        <div className="font-medium text-gray-900">Fondo de Reserva</div>
+                        <div className="text-sm text-gray-500">6,00%</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">{formatARS(calculations.reserveFund * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.reserveFund)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center py-4 border-t-2 border-gray-300 bg-gray-50 px-4 rounded-lg">
+                    <div>
+                      <div className="font-bold text-gray-900">Total gastos</div>
+                      <div className="text-sm text-gray-500">{((calculations.totalCosts / numericTransactionPrice) * 100).toFixed(2)}% de la transacción</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-gray-900">{formatARS(calculations.totalCosts * numericExchangeRate)}</div>
+                      <div className="text-sm text-gray-500">{formatUSD(calculations.totalCosts)}</div>
+                    </div>
                   </div>
 
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <DollarSign className="w-5 h-5 text-green-600" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-semibold text-gray-900">Vendedor</h4>
-                        <p className="text-sm text-gray-600">Total a pagar</p>
+                  {/* Final Amount */}
+                  <div className="flex justify-between items-center py-4 bg-green-50 px-4 rounded-lg border border-green-200">
+                    <div>
+                      <div className="font-bold text-green-900">
+                        {activeTab === 'comprador' ? 'Monto final' : activeTab === 'vendedor' ? 'Monto a recibir' : 'Monto final'}
                       </div>
                     </div>
-                    <p className="text-3xl font-bold text-green-600">{formatUSD(sellerAmount)}</p>
-                    <p className="text-sm text-gray-500 mt-2">
-                      {((sellerPct * 100)).toFixed(2)}% del valor de la propiedad
-                    </p>
+                    <div className="text-right">
+                      <div className="font-bold text-green-900">{formatARS(calculations.finalAmount * numericExchangeRate)}</div>
+                      <div className="text-sm text-green-700">{formatUSD(calculations.finalAmount)}</div>
+                    </div>
                   </div>
                 </div>
 
                 <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-800">
-                    <strong>Nota:</strong> Los cálculos incluyen impuestos, aranceles notariales y otros costos asociados.
-                    Los valores son estimativos y pueden variar según la jurisdicción y condiciones específicas.
+                    <strong>Nota:</strong> Los cálculos son estimativos y pueden variar según condiciones específicas.
+                    Consultá con profesionales especializados para información precisa.
                   </p>
                 </div>
               </div>
             )}
 
-            {numericUsd === 0 && (
+            {numericTransactionPrice === 0 && (
               <div className="text-center py-12 text-gray-500">
                 <Calculator className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <p className="text-lg">Ingresa el valor de la propiedad para ver los cálculos</p>
+                <p className="text-lg">Ingresa los datos de tu operación para ver los cálculos</p>
               </div>
             )}
           </div>
@@ -380,8 +417,8 @@ export default function CalceEscrituraPage() {
 
         <div className="mt-8 text-sm text-gray-500 text-center">
           <p>
-            <strong>Información:</strong> Esta calculadora utiliza las alícuotas vigentes para cada jurisdicción.
-            Para cálculos precisos, consultá con un escribano o profesional especializado.
+            <strong>Información:</strong> Esta calculadora proporciona estimaciones aproximadas.
+            Los valores reales pueden variar según la legislación vigente y condiciones particulares.
           </p>
         </div>
       </div>
