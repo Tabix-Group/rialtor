@@ -1,6 +1,6 @@
 "use client"
 import React, { useMemo, useState } from "react"
-import { Calculator, DollarSign, MapPin, FileText, Building, Home } from 'lucide-react'
+import { Calculator, DollarSign, MapPin } from 'lucide-react'
 
 export default function CalceEscrituraPage() {
   const [activeTab, setActiveTab] = useState<'comprador' | 'vendedor' | 'primera'>('comprador')
@@ -47,13 +47,12 @@ export default function CalceEscrituraPage() {
       realEstateFee = numericTransactionPrice * 0.04
       realEstateFeeIVA = realEstateFee * ivaRate
 
-      // Notary fees: 2% (3.5% for first writing in CABA)
-      const notaryRate = (activeTab === 'primera' && location === 'CABA') ? 0.035 : 0.02
-      notaryFees = numericTransactionPrice * notaryRate
+      // Notary fees: 2% + IVA
+      notaryFees = numericTransactionPrice * 0.02
       notaryFeesIVA = notaryFees * ivaRate
 
       // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
-      let stampRate = location === 'CABA' ? 0.035 : 0.02
+      const stampRate = location === 'CABA' ? 0.035 : 0.02
       if (stampExemption && location === 'CABA') {
         // Exemption logic for first property in CABA
         const exemptAmount = 205332000 / numericExchangeRate // Convert ARS to USD
@@ -75,7 +74,7 @@ export default function CalceEscrituraPage() {
       realEstateFeeIVA = realEstateFee * ivaRate
 
       // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
-      let stampRate = location === 'CABA' ? 0.035 : 0.02
+      const stampRate = location === 'CABA' ? 0.035 : 0.02
       stamps = numericTransactionPrice * (stampRate / 2)
 
       // Writing costs: 2% (no IVA)
@@ -234,8 +233,8 @@ export default function CalceEscrituraPage() {
                   <button
                     onClick={() => setActiveTab('comprador')}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'comprador'
-                        ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-green-500 text-green-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                   >
                     Comprador
@@ -243,8 +242,8 @@ export default function CalceEscrituraPage() {
                   <button
                     onClick={() => setActiveTab('vendedor')}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'vendedor'
-                        ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-green-500 text-green-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                   >
                     Vendedor
@@ -252,8 +251,8 @@ export default function CalceEscrituraPage() {
                   <button
                     onClick={() => setActiveTab('primera')}
                     className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === 'primera'
-                        ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-green-500 text-green-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                   >
                     1ª Escritura
