@@ -458,7 +458,7 @@ export default function FloatingAssistant() {
                                 <div className="flex flex-wrap gap-2">
                                     {[
                                         { icon: '💰', text: 'Calcular honorarios', action: 'Necesito calcular los honorarios para una operación inmobiliaria' },
-                                        { icon: '📋', text: 'Gastos escritura', action: 'Quiero conocer los gastos de escrituración' },
+                                        { icon: '📋', text: 'Calculadora de gastos inmobiliarios', action: 'Quiero conocer los gastos de escrituración' },
                                         { icon: '🏠', text: 'Tasación', action: 'Necesito una tasación express de una propiedad' },
                                         { icon: '⚡', text: 'Consulta rápida', action: 'Tengo una consulta sobre' }
                                     ].map((suggestion, index) => (

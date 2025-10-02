@@ -48,7 +48,7 @@ function Navigation() {
       href: '/calculadoras',
       icon: 'Calculator',
       dropdown: [
-        { name: 'Gastos de Escritura', href: '/calcescritura', description: 'Calcula costos de escrituración' },
+        { name: 'Gastos de Escritura', href: '/calcescritura', description: 'Calcula costos de escrituración' }, ,
         { name: 'Seguros de Caución', href: '/creditos', description: 'Compara seguros de caución' },
         { name: 'Créditos Hipotecarios', href: '/hipotecarios', description: 'Simula créditos hipotecarios' },
       ],

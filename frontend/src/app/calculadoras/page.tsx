@@ -7,7 +7,7 @@ export default function CalculadorasPage() {
 
   const calculators = [
     {
-      name: 'Gastos de Escritura',
+      name: 'Calculadora de gastos inmobiliarios',
       href: '/calcescritura',
       description: 'Calculá impuestos, aranceles notariales y costos asociados a la firma de escritura en Argentina por provincia.',
       color: 'bg-blue-50',
@@ -66,7 +66,7 @@ export default function CalculadorasPage() {
         <div className="mt-16 text-center">
           <div className="bg-gray-50 rounded-xl p-8 border border-gray-200">
             <p className="text-gray-600">
-              <strong>Consejo:</strong> si no sabés por dónde empezar, probá con "Gastos de Escritura" para obtener una visión integral de los costos de la operación.
+              <strong>Consejo:</strong> si no sabés por dónde empezar, probá con "Calculadora de gastos inmobiliarios" para obtener una visión integral de los costos de la operación.
             </p>
           </div>
         </div>

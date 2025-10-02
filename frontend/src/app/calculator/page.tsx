@@ -480,7 +480,7 @@ export default function CalculatorPage() {
               <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
                 <div className="flex items-center gap-3 mb-4">
                   <Receipt className="w-8 h-8 text-blue-500" />
-                  <h2 className="text-2xl font-bold tracking-tight text-blue-700">Gastos de Escritura</h2>
+                  <h2 className="text-2xl font-bold tracking-tight text-blue-700">Calculadora de gastos inmobiliarios</h2>
                 </div>
                 <EscribanoCalculator />
               </div>
