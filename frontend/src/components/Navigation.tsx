@@ -22,7 +22,7 @@ function Navigation() {
   const pathname = usePathname()
   const { user, logout } = useAuth()
 
-  const isAdmin = user && Array.isArray(user.roles) && user.roles.includes('ADMIN' as any)
+  const isAdmin = user && user.roles && user.roles.some(role => role.name === 'ADMIN')
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -333,12 +333,12 @@ function Navigation() {
                     )}
 
                     <Link
-                      href="/admin"
+                      href="/dashboard"
                       className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => setActiveDropdown(null)}
                     >
                       <Settings className="w-4 h-4" />
-                      Panel de Administración
+                      Dashboard
                     </Link>
 
                     <button
@@ -415,12 +415,12 @@ function Navigation() {
               )}
 
               <Link
-                href="/admin"
+                href="/dashboard"
                 className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <Settings className="w-4 h-4" />
-                Panel de Administración
+                Dashboard
               </Link>
 
               <button
