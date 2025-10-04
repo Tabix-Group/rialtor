@@ -124,12 +124,6 @@ const login = async (req, res, next) => {
     // Generar token
     const token = generateToken(user.id);
 
-    if (!user) {
-      return res.status(401).json({
-        error: 'Invalid credentials',
-        message: 'Email or password is incorrect'
-      });
-    }
     // Mapear roles igual que en userController y quitar password
     const { password: _, ...userSafe } = user;
     const userWithRoles = {
