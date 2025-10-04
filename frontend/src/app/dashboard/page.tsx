@@ -569,7 +569,7 @@ export default function DashboardPage() {
 
                         {/* Acciones */}
                         <div className="flex items-center gap-2 flex-shrink-0">
-                          
+                          <a
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
