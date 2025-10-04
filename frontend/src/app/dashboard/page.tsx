@@ -132,7 +132,7 @@ export default function DashboardPage() {
       gradient: 'from-amber-600 via-orange-600 to-red-600',
       iconBg: 'from-amber-500 to-orange-600',
       badge: 'Diseño Pro',
-      stats: '50+ plantillas'
+      stats: 'Plantilla premium'
     },
     {
       title: 'Asesor Virtual IA',
@@ -194,56 +194,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
-      {/* Header Superior Ultra Premium */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200/60 shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo y Título */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25 ring-2 ring-blue-500/20">
-                  <Home className="w-6 h-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-md ring-2 ring-white">
-                  <Crown className="w-2.5 h-2.5 text-white" />
-                </div>
-              </div>
-              <div className="hidden lg:block">
-                <h1 className="text-xl font-bold text-slate-900">Plataforma RealEstate Pro</h1>
-                <p className="text-sm text-slate-500">Suite profesional completa</p>
-              </div>
-            </div>
 
-            {/* Notificaciones y Usuario */}
-            <div className="flex items-center gap-4">
-              <button className="relative p-2.5 hover:bg-slate-100 rounded-xl transition-colors">
-                <Bell className="w-5 h-5 text-slate-600" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-              </button>
-              
-              <div className="hidden lg:flex items-center gap-3 pl-4 border-l border-slate-200">
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
-                  <div className="flex items-center gap-1.5 justify-end">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <p className="text-xs text-slate-500">Premium Activo</p>
-                  </div>
-                </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </div>
-              </div>
-
-              <button 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2.5 hover:bg-slate-100 rounded-xl transition-colors"
-              >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Hero Section Premium */}
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
@@ -716,78 +667,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Footer Call to Action */}
-        <div className="mt-16 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-3xl shadow-2xl overflow-hidden relative">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItaDJWMzZoLTJ6bTAtNHYyaDJWMzBoLTJ6bTAtNHYyaDJWMjZoLTJ6bTAtNHYyaDJWMjJoLTJ6bTAtNHYyaDJWMThoLTJ6bTAtNHYyaDJWMTRoLTJ6bTAtNHYyaDJWMTBoLTJ6bTAtNHYyaDJWNmgtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
-          
-          <div className="relative p-12">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-6">
-                <Crown className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm font-semibold text-white">Cuenta Premium Activa</span>
-              </div>
-              
-              <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
-                ¿Necesitas ayuda para comenzar?
-              </h2>
-              <p className="text-xl text-slate-300 mb-8 leading-relaxed">
-                Nuestro asistente IA está disponible 24/7 para responder todas tus consultas sobre herramientas, normativas y mejores prácticas del sector.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/chat" className="inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:-translate-y-1 font-bold text-lg">
-                  <MessageSquare className="w-6 h-6" />
-                  Hablar con IA
-                </Link>
-                <Link href="/news" className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md text-white px-8 py-4 rounded-2xl hover:bg-white/20 border border-white/20 transition-all duration-300 hover:-translate-y-1 font-semibold text-lg">
-                  Ver Noticias
-                  <ArrowUpRight className="w-5 h-5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
 
-      {/* Footer */}
-      <div className="bg-slate-900 mt-20">
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Home className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">RealEstate Pro</h3>
-                <p className="text-sm text-slate-400">Tu plataforma profesional completa</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-6">
-              <Link href="/support" className="text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                Soporte
-              </Link>
-              <Link href="/docs" className="text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                Documentación
-              </Link>
-              <Link href="/settings" className="text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                Configuración
-              </Link>
-            </div>
-          </div>
-          
-          <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-slate-500 text-sm">
-              © 2025 RealEstate Pro. Todos los derechos reservados.
-            </p>
-            <div className="flex items-center gap-2 text-sm text-slate-500">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              Todos los sistemas operativos
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   )
 }
