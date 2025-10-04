@@ -273,7 +273,7 @@ function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo y Home */}
           <Link
-            href="/"
+            href={user ? "/dashboard" : "/"}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">

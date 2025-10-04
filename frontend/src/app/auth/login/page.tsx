@@ -17,9 +17,8 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Integración directa con el backend
-      const base = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${base}/auth/login`, {
+      // Integración directa con el backend usando la utilidad de API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003'}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -34,8 +33,8 @@ export default function LoginPage() {
             localStorage.setItem('user', JSON.stringify(data.user));
           }
         }
-        // Redirigir a news
-        window.location.href = '/news';
+        // Redirigir a dashboard
+        window.location.href = '/dashboard';
       } else {
         const data = await response.json()
         setError(data.message || 'Error al iniciar sesión')

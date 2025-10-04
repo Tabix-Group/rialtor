@@ -16,6 +16,10 @@ const prisma = new PrismaClient();
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');    // Leer el documento modelo
 const { OpenAI } = require('openai');
+const { authenticateToken } = require('../middleware/auth');
+
+// Aplicar middleware de autenticación a todas las rutas
+router.use(authenticateToken);
 
 // Initialize OpenAI client if key exists (kept local to this router to avoid touching chatController)
 let openaiClient = null;
@@ -99,7 +103,8 @@ router.post('/', upload.single('file'), async (req, res) => {
             description: '',
             template: '',
             fields: '',
-            isActive: true
+            isActive: true,
+            userId: req.user.id // Agregar userId
           }
         });
         const metadata = {
@@ -505,14 +510,27 @@ router.delete('/*', async (req, res) => {
   if (!id.startsWith('documents/')) {
     id = 'documents/' + id;
   }
-  // Detectar tipo por extensión
-  const ext = id.split('.').pop()?.toLowerCase();
-  let resourceType = 'raw';
-  if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) resourceType = 'image';
-  else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext)) resourceType = 'video';
-  // Otros tipos (pdf, docx, xlsx, etc) usan raw
-  console.log(`Intentando eliminar en Cloudinary: ${id} (resource_type: ${resourceType})`);
+
   try {
+    // Verificar que el documento pertenece al usuario
+    const doc = await prisma.documentTemplate.findFirst({
+      where: {
+        cloudinaryId: id,
+        userId: req.user.id
+      }
+    });
+
+    if (!doc) {
+      return res.status(404).json({ error: 'Documento no encontrado o no autorizado' });
+    }
+
+    // Detectar tipo por extensión
+    const ext = id.split('.').pop()?.toLowerCase();
+    let resourceType = 'raw';
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) resourceType = 'image';
+    else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm'].includes(ext)) resourceType = 'video';
+    // Otros tipos (pdf, docx, xlsx, etc) usan raw
+    console.log(`Intentando eliminar en Cloudinary: ${id} (resource_type: ${resourceType})`);
     const result = await cloudinary.uploader.destroy(id, { resource_type: resourceType });
     console.log('Resultado de Cloudinary:', result);
     if (result.result === 'ok' || result.result === 'not_found') {
@@ -528,30 +546,103 @@ router.delete('/*', async (req, res) => {
   }
 });
 
-// GET /api/documents - list uploaded files from Cloudinary
-router.get('/', async (req, res) => {
+// GET /api/documents/stats - get user statistics
+router.get('/stats', async (req, res) => {
   try {
-    // Buscar archivos en la carpeta 'documents' de Cloudinary
-    const result = await cloudinary.search
-      .expression('folder:documents')
-      .sort_by('created_at', 'desc')
-      .max_results(100)
-      .execute();
-    const documents = result.resources.map(file => ({
-      id: file.public_id,
-      title: file.filename || file.public_id.split('/').pop(),
-      type: file.format,
-      category: 'General', // Puedes guardar la categoría en metadata si lo deseas
-      uploadDate: file.created_at,
-      size: (file.bytes / 1024).toFixed(1) + ' KB',
-      url: file.secure_url
-    }));
-    if (req.query.countOnly === '1') {
-      return res.json({ count: documents.length });
-    }
-    res.json({ documents });
+    const userId = req.user.id;
+
+    // Documentos activos del usuario
+    const activeDocuments = await prisma.documentTemplate.count({
+      where: {
+        userId: userId,
+        isActive: true
+      }
+    });
+
+    // Historial de calculadoras usado por el usuario
+    const calculatorUsage = await prisma.calculatorHistory.count({
+      where: {
+        userId: userId
+      }
+    });
+
+    // Sesiones de chat del usuario
+    const chatSessions = await prisma.chatSession.count({
+      where: {
+        userId: userId
+      }
+    });
+
+    // Placas generadas por el usuario
+    const generatedPlaques = await prisma.propertyPlaque.count({
+      where: {
+        userId: userId,
+        status: 'COMPLETED'
+      }
+    });
+
+    // Calcular tiempo ahorrado estimado (basado en herramientas usadas)
+    const totalToolsUsed = calculatorUsage + chatSessions + generatedPlaques;
+    const estimatedTimeSaved = totalToolsUsed * 30; // 30 minutos por herramienta usada
+
+    // Calcular porcentajes de crecimiento (comparando con el mes anterior)
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+    const documentsLastMonth = await prisma.documentTemplate.count({
+      where: {
+        userId: userId,
+        isActive: true,
+        createdAt: {
+          lt: now,
+          gte: lastMonth
+        }
+      }
+    });
+
+    const toolsLastMonth = await prisma.calculatorHistory.count({
+      where: {
+        userId: userId,
+        createdAt: {
+          lt: now,
+          gte: lastMonth
+        }
+      }
+    }) + await prisma.chatSession.count({
+      where: {
+        userId: userId,
+        createdAt: {
+          lt: now,
+          gte: lastMonth
+        }
+      }
+    }) + await prisma.propertyPlaque.count({
+      where: {
+        userId: userId,
+        status: 'COMPLETED',
+        createdAt: {
+          lt: now,
+          gte: lastMonth
+        }
+      }
+    });
+
+    const documentsGrowth = documentsLastMonth > 0 ? ((activeDocuments - documentsLastMonth) / documentsLastMonth * 100) : 0;
+    const toolsGrowth = toolsLastMonth > 0 ? ((totalToolsUsed - toolsLastMonth) / toolsLastMonth * 100) : 0;
+    const timeGrowth = toolsGrowth; // Asumimos que el crecimiento del tiempo es igual al de herramientas
+
+    res.json({
+      activeDocuments: activeDocuments,
+      documentsGrowth: Math.round(documentsGrowth),
+      toolsUsed: totalToolsUsed,
+      toolsGrowth: Math.round(toolsGrowth),
+      timeSaved: estimatedTimeSaved,
+      timeGrowth: Math.round(timeGrowth)
+    });
+
   } catch (err) {
-    res.status(500).json({ error: 'No se pudo obtener la lista de documentos', details: err });
+    console.error('[DOCUMENTS] Error getting stats:', err);
+    res.status(500).json({ error: 'Error al obtener estadísticas', details: err.message });
   }
 });
 
