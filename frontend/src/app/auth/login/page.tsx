@@ -17,8 +17,18 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Integración directa con el backend usando la utilidad de API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003'}/api/auth/login`, {
+      // Usar la misma lógica de configuración de API que el resto de la app
+      const getApiUrl = () => {
+        if (typeof window !== 'undefined') {
+          const hostname = window.location.hostname;
+          if (hostname === 'rialtor.app' || hostname === 'www.rialtor.app') {
+            return 'https://remax-be-production.up.railway.app';
+          }
+        }
+        return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
+      };
+
+      const response = await fetch(`${getApiUrl()}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
