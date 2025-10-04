@@ -80,16 +80,6 @@ function Navigation() {
       icon: 'Download',
       description: 'Archivos y contenido descargable'
     },
-    ...(isAdmin ? [{
-      name: 'Admin',
-      href: '/admin',
-      icon: 'Shield',
-      dropdown: [
-        { name: 'Panel de Control', href: '/admin', description: 'Gestión general' },
-        { name: 'Usuarios', href: '/admin/users', description: 'Administrar usuarios' },
-        { name: 'Contenido', href: '/admin/content', description: 'Gestionar contenido' },
-      ],
-    }] : []),
   ]
 
   const icons = {
