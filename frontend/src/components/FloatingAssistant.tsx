@@ -350,10 +350,10 @@ export default function FloatingAssistant() {
                     <div className="px-4 py-2 bg-gray-50/50 border-t border-gray-100">
                         <div className="flex flex-wrap gap-2">
                             {[
-                                { icon: '💰', text: 'Precio del dólar', action: '¿Cuál es el precio del dólar blue hoy en Argentina?' },
                                 { icon: '🧮', text: 'Calcular honorarios', action: 'Necesito calcular los honorarios para una venta de $100.000 USD con comisión del 4% en CABA' },
                                 { icon: '📋', text: 'Gastos escrituración', action: 'Quiero saber los gastos de escrituración para una propiedad de $150.000 USD en Buenos Aires' },
-                                { icon: '📈', text: 'Tendencias mercado', action: '¿Cuáles son las tendencias actuales del mercado inmobiliario en Buenos Aires?' }
+                                { icon: '🏠', text: 'Gastos inmobiliarios', action: 'Necesito calcular todos los gastos de una operación inmobiliaria de $200.000 USD en CABA' },
+                                { icon: '🏦', text: 'Créditos hipotecarios', action: 'Quiero calcular las cuotas de un crédito hipotecario UVA por $150.000 USD a 20 años' }
                             ].map((suggestion, index) => (
                                 <motion.button
                                     key={index}

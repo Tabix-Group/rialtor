@@ -13,9 +13,9 @@ import {
     RefreshCw,
     Sparkles,
     Calculator,
-    DollarSign,
     FileText,
-    TrendingUp
+    Home,
+    Building
 } from 'lucide-react'
 import { useAssistantChat } from '../../hooks/useAssistantChat'
 import MessageContent from '../../components/MessageContent'
@@ -331,12 +331,6 @@ export default function ChatPage() {
                         <div className="flex flex-wrap gap-3">
                             {[
                                 {
-                                    icon: <DollarSign className="w-4 h-4" />,
-                                    text: 'Precio del dólar',
-                                    action: '¿Cuál es el precio del dólar blue hoy en Argentina?',
-                                    color: 'from-green-500 to-green-600'
-                                },
-                                {
                                     icon: <Calculator className="w-4 h-4" />,
                                     text: 'Calcular honorarios',
                                     action: 'Necesito calcular los honorarios para una venta de $100.000 USD con comisión del 4% en CABA',
@@ -349,9 +343,15 @@ export default function ChatPage() {
                                     color: 'from-purple-500 to-purple-600'
                                 },
                                 {
-                                    icon: <TrendingUp className="w-4 h-4" />,
-                                    text: 'Tendencias mercado',
-                                    action: '¿Cuáles son las tendencias actuales del mercado inmobiliario en Buenos Aires?',
+                                    icon: <Home className="w-4 h-4" />,
+                                    text: 'Gastos inmobiliarios',
+                                    action: 'Necesito calcular todos los gastos de una operación inmobiliaria de $200.000 USD en CABA',
+                                    color: 'from-green-500 to-green-600'
+                                },
+                                {
+                                    icon: <Building className="w-4 h-4" />,
+                                    text: 'Créditos hipotecarios',
+                                    action: 'Quiero calcular las cuotas de un crédito hipotecario UVA por $150.000 USD a 20 años',
                                     color: 'from-orange-500 to-orange-600'
                                 }
                             ].map((suggestion, index) => (
