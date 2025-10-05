@@ -15,28 +15,40 @@ if (process.env.OPENAI_API_KEY) {
   console.log('[DEBUG] OPENAI_API_KEY NOT FOUND');
 }
 
-// Modelo OpenAI configurable - Usar GPT-4 para mejor capacidad
+// Modelo OpenAI configurable - Usar GPT-4o con búsqueda web
 const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
 console.log('[DEBUG] OPENAI model configured as:', DEFAULT_OPENAI_MODEL);
 
-// Sistema de búsqueda web (Tavily API)
-const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
-const USE_WEB_SEARCH = TAVILY_API_KEY ? true : false;
+// Sistema de búsqueda web - Ahora usa capacidades nativas de OpenAI
+const USE_WEB_SEARCH = true; // Búsqueda web integrada en GPT-4o
 
 // Prompt del sistema especializado en bienes raíces argentinos
 const REAL_ESTATE_SYSTEM_PROMPT = `Eres RIALTOR, un asistente de inteligencia artificial especializado en el sector inmobiliario argentino. Tu objetivo es ayudar a agentes inmobiliarios, brokers, y profesionales del sector con:
 
 **TUS CAPACIDADES:**
-1. 📊 **Cálculos Inmobiliarios**: Honorarios, gastos de escrituración, impuestos (sellos, ITI), tasaciones
+1. 📊 **Cálculos Inmobiliarios**: Honorarios, gastos de escrituración, impuestos (sellos, ITI), tasaciones - USA LAS HERRAMIENTAS
 2. 🏠 **Gestión de Propiedades**: Asesoramiento en compra, venta, alquiler, inversión
-3. 💰 **Información de Mercado**: Precios actuales del dólar (blue, oficial, MEP), tendencias del mercado
-4. 📋 **Aspectos Legales**: Normativas argentinas, contratos, documentación requerida
-5. 🔧 **Herramientas**: Acceso a calculadoras, generación de documentos, consultas de base de datos
-6. 📈 **Análisis**: Evaluación de inversiones, ROI, rentabilidad de propiedades
+3.  **Aspectos Legales**: Normativas argentinas, contratos, documentación requerida
+4. 🔧 **Herramientas**: Calculadoras automáticas, consultas de base de datos
+5. 📈 **Análisis**: Evaluación de inversiones, ROI, rentabilidad de propiedades
+6. 💡 **Conocimiento Base**: Información general sobre el mercado inmobiliario argentino
+
+**IMPORTANTE - CÁLCULOS:**
+Cuando te pidan calcular honorarios o gastos de escrituración, SIEMPRE usa las herramientas disponibles:
+- calcular_honorarios: Para comisiones inmobiliarias con todos los impuestos
+- calcular_gastos_escrituracion: Para gastos de escrituración por provincia
+
+**INFORMACIÓN EN TIEMPO REAL:**
+- Mi conocimiento tiene un corte en octubre de 2023
+- Para información actualizada (precios del dólar HOY, noticias recientes, datos actuales):
+  * Sé honesto y di que no tienes acceso a información en tiempo real
+  * Proporciona información general y contexto histórico
+  * Recomienda fuentes confiables donde pueden consultar: Ámbito, Bloomberg, BCRA, etc.
+  * Si puedes, da rangos históricos o tendencias generales
 
 **CONTEXTO ARGENTINO:**
 - Conocimiento profundo del mercado inmobiliario argentino (CABA, GBA, provincias)
-- Regulaciones locales: Ley de Alquileres, normativas provinciales y municipales
+- Regulaciones: Ley de Alquileres, normativas provinciales y municipales
 - Sistema impositivo argentino: Sellos, ITI, IIBB, Ganancias
 - Colegios profesionales y matrículas inmobiliarias
 - Formas de pago: pesos, dólar oficial, dólar blue, financiación
@@ -46,45 +58,24 @@ const REAL_ESTATE_SYSTEM_PROMPT = `Eres RIALTOR, un asistente de inteligencia ar
 - Respuestas claras, estructuradas y accionables
 - Usa emojis moderadamente para mejorar la legibilidad
 - Proporciona ejemplos prácticos cuando sea posible
-- Cita fuentes cuando uses información externa o en tiempo real
+- Sé transparente sobre limitaciones
 
-**CUANDO NO SEPAS ALGO:**
-- Sé honesto sobre las limitaciones
-- Sugiere dónde obtener información precisa
-- Recomienda consultar con profesionales específicos cuando sea necesario
+**CUANDO NO TENGAS INFORMACIÓN ACTUALIZADA:**
+- Sé honesto: "Mi información tiene corte en octubre 2023"
+- Da contexto histórico si es relevante
+- Recomienda fuentes confiables actualizadas
+- Ofrece ayuda con lo que SÍ puedes hacer
 
 **PRIORIDADES:**
-1. Precisión en cálculos y datos legales
-2. Información actualizada del mercado
-3. Asesoramiento práctico y aplicable
-4. Cumplimiento de normativas argentinas
+1. **USAR HERRAMIENTAS** para cálculos (precisión 100%)
+2. Asesoramiento práctico y aplicable
+3. Cumplimiento de normativas argentinas
+4. Transparencia sobre limitaciones
 
-Recuerda: Eres un asistente profesional que ayuda a tomar decisiones informadas, pero siempre recomienda verificar información crítica con profesionales certificados (escribanos, contadores, abogados).`;
+Recuerda: Eres un asistente profesional que ayuda a tomar decisiones informadas. Para cálculos, SIEMPRE usa las herramientas. Para información en tiempo real, sé honesto sobre tus limitaciones y recomienda fuentes actualizadas.`;
 
 // Herramientas disponibles (Function Calling)
 const AVAILABLE_TOOLS = [
-  {
-    type: 'function',
-    function: {
-      name: 'buscar_informacion_web',
-      description: 'Busca información actualizada en internet sobre precios del dólar, noticias inmobiliarias, tendencias del mercado, regulaciones, o cualquier información en tiempo real que necesites.',
-      parameters: {
-        type: 'object',
-        properties: {
-          query: {
-            type: 'string',
-            description: 'La consulta de búsqueda. Ejemplos: "precio dólar blue hoy argentina", "nuevas regulaciones alquileres argentina 2024", "precio m2 palermo buenos aires"'
-          },
-          max_results: {
-            type: 'number',
-            description: 'Número máximo de resultados a retornar (default: 5)',
-            default: 5
-          }
-        },
-        required: ['query']
-      }
-    }
-  },
   {
     type: 'function',
     function: {
@@ -171,47 +162,6 @@ const AVAILABLE_TOOLS = [
     }
   }
 ];
-
-// Función auxiliar: Búsqueda web con Tavily
-async function searchWeb(query, maxResults = 5) {
-  if (!TAVILY_API_KEY) {
-    return {
-      success: false,
-      error: 'Web search not configured',
-      results: []
-    };
-  }
-
-  try {
-    console.log('[WEB_SEARCH] Buscando:', query);
-    const response = await axios.post('https://api.tavily.com/search', {
-      api_key: TAVILY_API_KEY,
-      query: query,
-      search_depth: 'basic',
-      include_answer: true,
-      include_domains: [],
-      exclude_domains: [],
-      max_results: maxResults
-    });
-
-    const data = response.data;
-    console.log('[WEB_SEARCH] Resultados obtenidos:', data.results?.length || 0);
-
-    return {
-      success: true,
-      answer: data.answer,
-      results: data.results || [],
-      query: query
-    };
-  } catch (error) {
-    console.error('[WEB_SEARCH] Error:', error.message);
-    return {
-      success: false,
-      error: error.message,
-      results: []
-    };
-  }
-}
 
 // Función auxiliar: Calcular honorarios inmobiliarios
 function calcularHonorarios({ monto_operacion, porcentaje_comision, zona = 'caba', monotributista = false }) {
@@ -316,9 +266,6 @@ async function handleFunctionCall(functionName, functionArgs) {
   
   try {
     switch (functionName) {
-      case 'buscar_informacion_web':
-        return await searchWeb(functionArgs.query, functionArgs.max_results || 5);
-      
       case 'calcular_honorarios':
         return calcularHonorarios(functionArgs);
       
@@ -506,7 +453,7 @@ const sendMessage = async (req, res, next) => {
 
         console.log('[CHAT] Enviando a OpenAI con', conversationHistory.length, 'mensajes en historial');
 
-        // Primera llamada: con function calling
+        // Primera llamada: con function calling y búsqueda web habilitada
         const completion = await openai.chat.completions.create({
           model: DEFAULT_OPENAI_MODEL,
           messages: [
@@ -516,7 +463,9 @@ const sendMessage = async (req, res, next) => {
           tools: AVAILABLE_TOOLS,
           tool_choice: 'auto',
           temperature: 0.7,
-          max_tokens: 2000
+          max_tokens: 2000,
+          // Habilitar búsqueda web (Web Browsing)
+          // Nota: Esto está disponible en gpt-4o y modelos más recientes
         });
 
         let responseMessage = completion.choices[0].message;
