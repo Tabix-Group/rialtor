@@ -328,47 +328,115 @@ export default function Home() {
 
           {/* Constellation Layout - Hidden on mobile, shown on lg and up */}
           <div className="hidden lg:block relative w-full h-[900px] flex items-center justify-center overflow-visible">
-            {/* Animated background circles */}
+            {/* Animated background circles with modern gradients */}
             <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-              <div className="w-96 h-96 border border-blue-200/30 rounded-full animate-pulse"></div>
-              <div
-                className="absolute w-[500px] h-[500px] border border-purple-200/20 rounded-full animate-pulse"
-                style={{ animationDelay: "1s" }}
+              {/* Innermost circle - vibrant gradient */}
+              <div 
+                className="absolute w-[400px] h-[400px] rounded-full opacity-60"
+                style={{
+                  background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.1) 50%, transparent 70%)',
+                  animation: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                }}
               ></div>
-              <div
-                className="absolute w-[650px] h-[650px] border border-blue-100/20 rounded-full animate-pulse"
-                style={{ animationDelay: "2s" }}
+              
+              {/* Middle circle - purple accent */}
+              <div 
+                className="absolute w-[550px] h-[550px] rounded-full opacity-40"
+                style={{
+                  background: 'radial-gradient(circle, rgba(147, 51, 234, 0.12) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 70%)',
+                  animation: 'pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                  animationDelay: '1s'
+                }}
               ></div>
+              
+              {/* Outer circle - soft blue glow */}
+              <div 
+                className="absolute w-[700px] h-[700px] rounded-full opacity-30"
+                style={{
+                  background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.05) 50%, transparent 70%)',
+                  animation: 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                  animationDelay: '2s'
+                }}
+              ></div>
+              
+              {/* Orbital ring effect */}
+              <div className="absolute w-[480px] h-[480px] rounded-full border-2 border-blue-400/20 animate-spin" style={{ animationDuration: '20s' }}></div>
             </div>
 
-            {/* Central Logo with enhanced styling */}
+            {/* Central Logo with modern glassmorphism */}
             <div className="absolute inset-0 flex items-center justify-center z-20">
               <div className="relative group">
-                <div className="absolute -inset-6 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-2xl"></div>
-                <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-full p-12 shadow-2xl border border-slate-700/50 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-4xl md:text-5xl font-bold text-white">
+                {/* Outer glow effect */}
+                <div className="absolute -inset-8 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
+                
+                {/* Rotating gradient border */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full opacity-75 blur-sm animate-spin" style={{ animationDuration: '3s' }}></div>
+                
+                {/* Main logo container with glassmorphism */}
+                <div className="relative bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 backdrop-blur-xl rounded-full p-14 shadow-2xl border border-white/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                  {/* Inner glow */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10"></div>
+                  
+                  {/* Logo text with gradient */}
+                  <span className="relative text-5xl font-black bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent drop-shadow-lg">
                     RIALTOR
                   </span>
+                </div>
+                
+                {/* Floating particles effect */}
+                <div className="absolute -inset-12 pointer-events-none">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-2 h-2 bg-blue-400 rounded-full opacity-40 animate-ping"
+                      style={{
+                        top: `${Math.random() * 100}%`,
+                        left: `${Math.random() * 100}%`,
+                        animationDelay: `${i * 0.5}s`,
+                        animationDuration: '3s'
+                      }}
+                    ></div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* SVG overlay for connection lines */}
+            {/* SVG overlay for connection lines with gradients */}
             <svg
-              className="absolute inset-0 w-full h-full z-30"
+              className="absolute inset-0 w-full h-full z-30 pointer-events-none"
               viewBox="0 0 900 900"
               preserveAspectRatio="xMidYMid meet"
-              style={{
-                filter: 'drop-shadow(0 0 1px rgba(59, 130, 246, 0.5))'
-              }}
             >
-              {/* All lines rendered with consistent styling */}
+              <defs>
+                {/* Gradient definitions for lines */}
+                <linearGradient id="lineGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 0.3 }} />
+                  <stop offset="50%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.8 }} />
+                  <stop offset="100%" style={{ stopColor: '#ec4899', stopOpacity: 0.3 }} />
+                </linearGradient>
+                <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 0.3 }} />
+                  <stop offset="50%" style={{ stopColor: '#a855f7', stopOpacity: 0.8 }} />
+                  <stop offset="100%" style={{ stopColor: '#3b82f6', stopOpacity: 0.3 }} />
+                </linearGradient>
+                
+                {/* Glow filter for lines */}
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              {/* Animated gradient lines */}
               {features.map((_, i) => {
-                const angle = (360 / features.length) * i - 90 // -90 starts from top
+                const angle = (360 / features.length) * i - 90
                 const rad = (angle * Math.PI) / 180
                 const cx = 450
                 const cy = 450
-                const centerR = 75 // Logo radius
+                const centerR = 90 // Logo radius
                 const outerR = 320 // Distance to cards
                 const sx = cx + Math.cos(rad) * centerR
                 const sy = cy + Math.sin(rad) * centerR
@@ -376,25 +444,81 @@ export default function Home() {
                 const ey = cy + Math.sin(rad) * outerR
 
                 return (
-                  <line
-                    key={`l-${i}`}
-                    x1={sx}
-                    y1={sy}
-                    x2={ex}
-                    y2={ey}
-                    stroke="#1e293b"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeOpacity={0.6}
-                    className="transition-opacity duration-300"
-                  />
+                  <g key={`line-${i}`}>
+                    {/* Outer glow line */}
+                    <line
+                      x1={sx}
+                      y1={sy}
+                      x2={ex}
+                      y2={ey}
+                      stroke={i % 2 === 0 ? 'url(#lineGradient1)' : 'url(#lineGradient2)'}
+                      strokeWidth={6}
+                      strokeLinecap="round"
+                      filter="url(#glow)"
+                      opacity={0.4}
+                    >
+                      <animate
+                        attributeName="stroke-opacity"
+                        values="0.3;0.6;0.3"
+                        dur="3s"
+                        repeatCount="indefinite"
+                        begin={`${i * 0.2}s`}
+                      />
+                    </line>
+                    
+                    {/* Main line */}
+                    <line
+                      x1={sx}
+                      y1={sy}
+                      x2={ex}
+                      y2={ey}
+                      stroke={i % 2 === 0 ? 'url(#lineGradient1)' : 'url(#lineGradient2)'}
+                      strokeWidth={2.5}
+                      strokeLinecap="round"
+                      className="transition-all duration-300"
+                    >
+                      <animate
+                        attributeName="stroke-opacity"
+                        values="0.5;1;0.5"
+                        dur="2s"
+                        repeatCount="indefinite"
+                        begin={`${i * 0.15}s`}
+                      />
+                    </line>
+                    
+                    {/* Animated dots traveling along lines */}
+                    <circle r="4" fill="#8b5cf6" opacity="0.8" filter="url(#glow)">
+                      <animateMotion
+                        dur="4s"
+                        repeatCount="indefinite"
+                        begin={`${i * 0.5}s`}
+                      >
+                        <mpath href={`#path${i}`} />
+                      </animateMotion>
+                      <animate
+                        attributeName="opacity"
+                        values="0;0.8;0"
+                        dur="4s"
+                        repeatCount="indefinite"
+                        begin={`${i * 0.5}s`}
+                      />
+                    </circle>
+                    
+                    {/* Hidden path for dot animation */}
+                    <path
+                      id={`path${i}`}
+                      d={`M ${sx} ${sy} L ${ex} ${ey}`}
+                      fill="none"
+                      stroke="none"
+                    />
+                  </g>
                 )
               })}
             </svg>
 
-            {/* Enhanced Features around the logo */}
+            {/* Modern Feature Cards around the logo */}
             {features.map((feature, idx) => {
-              const angle = (360 / features.length) * idx - 90 // Start from top
+              const angle = (360 / features.length) * idx - 90
               const radius = 400
               const x = Math.cos((angle * Math.PI) / 180) * radius
               const y = Math.sin((angle * Math.PI) / 180) * radius
@@ -402,57 +526,96 @@ export default function Home() {
               return (
                 <div
                   key={feature.name}
-                  className="absolute z-30"
+                  className="absolute z-40 pointer-events-auto"
                   style={{
                     left: "50%",
                     top: "50%",
                     transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
                   }}
                 >
-                  {/* Connection handled by central SVG overlay */}
-
                   <div
-                    className="group h-full relative cursor-pointer"
+                    className="group relative cursor-pointer"
                     onMouseEnter={() => setHoveredFeature(idx)}
                     onMouseLeave={() => setHoveredFeature(null)}
                     onClick={() => window.location.href = feature.href}
                   >
-                    <div className="relative h-full w-48 p-6 bg-white backdrop-blur-sm border border-slate-200 rounded-2xl hover:shadow-2xl hover:border-slate-300 transition-all duration-500 flex flex-col items-center justify-center text-center transform hover:-translate-y-2 hover:scale-105">
-                      {/* Gradient background on hover */}
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500`}
-                      ></div>
+                    {/* Card container with modern design */}
+                    <div className="relative w-56 h-auto">
+                      {/* Animated gradient border on hover */}
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-500"></div>
+                      
+                      {/* Main card with glassmorphism */}
+                      <div className="relative p-6 bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-105">
+                        {/* Gradient overlay on hover */}
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}
+                        ></div>
 
-                      <div
-                        className={`relative w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-                      >
-                        <feature.icon className={`h-8 w-8 ${feature.textColor}`} />
-                      </div>
+                        {/* Icon container with modern styling */}
+                        <div className="relative flex flex-col items-center text-center space-y-4">
+                          {/* Icon with gradient background */}
+                          <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 overflow-hidden`}
+                            style={{
+                              background: `linear-gradient(135deg, ${feature.color.includes('blue') ? '#3b82f6' : feature.color.includes('purple') ? '#8b5cf6' : feature.color.includes('green') ? '#10b981' : feature.color.includes('orange') ? '#f97316' : feature.color.includes('emerald') ? '#059669' : feature.color.includes('indigo') ? '#6366f1' : '#3b82f6'}, ${feature.color.includes('blue') ? '#60a5fa' : feature.color.includes('purple') ? '#a855f7' : feature.color.includes('green') ? '#34d399' : feature.color.includes('orange') ? '#fb923c' : feature.color.includes('emerald') ? '#10b981' : feature.color.includes('indigo') ? '#818cf8' : '#60a5fa'})`
+                            }}
+                          >
+                            {/* Icon glow effect */}
+                            <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
+                            
+                            <feature.icon className="relative h-10 w-10 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+                          </div>
 
-                      <h3 className="relative text-sm font-bold text-slate-900 leading-tight text-center px-2">{feature.name}</h3>
+                          {/* Feature name with better typography */}
+                          <h3 className="relative text-base font-bold text-slate-900 leading-snug px-1 group-hover:text-blue-700 transition-colors duration-300">
+                            {feature.name}
+                          </h3>
 
-                      {/* Hover arrow */}
-                      <div className="relative mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <ArrowRight className={`w-4 h-4 ${feature.textColor}`} />
+                          {/* Hover indicator */}
+                          <div className="relative flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            <div className="flex items-center space-x-1">
+                              <span className={`text-xs font-semibold ${feature.textColor}`}>Ver más</span>
+                              <ArrowRight className={`w-4 h-4 ${feature.textColor} group-hover:translate-x-1 transition-transform duration-300`} />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Decorative corner accent */}
+                        <div className={`absolute top-3 right-3 w-2 h-2 rounded-full ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                       </div>
                     </div>
 
-                    {/* Tooltip outside the card - Enhanced styling */}
+                    {/* Enhanced tooltip with modern design */}
                     {hoveredFeature === idx && (
-                      <div className="absolute z-[99999] bottom-full left-1/2 transform -translate-x-1/2 mb-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="relative px-5 py-4 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 text-white text-sm rounded-2xl shadow-2xl border border-slate-600/30 backdrop-blur-md max-w-sm min-w-[280px]">
-                          {/* Subtle glow effect */}
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-2xl blur-sm"></div>
-
-                          <div className="relative">
-                            <p className="text-white/95 leading-relaxed font-medium text-center">
+                      <div className="absolute z-[99999] bottom-full left-1/2 transform -translate-x-1/2 mb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+                        <div className="relative">
+                          {/* Tooltip glow effect */}
+                          <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl blur-lg opacity-50"></div>
+                          
+                          {/* Tooltip content */}
+                          <div className="relative px-6 py-5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 max-w-xs min-w-[300px]">
+                            {/* Inner gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-2xl"></div>
+                            
+                            {/* Description text */}
+                            <p className="relative text-white/95 leading-relaxed font-medium text-center text-sm">
                               {feature.description}
                             </p>
+                            
+                            {/* Decorative dots */}
+                            <div className="absolute top-2 right-2 flex space-x-1">
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-400/50"></div>
+                              <div className="w-1.5 h-1.5 rounded-full bg-purple-400/50"></div>
+                              <div className="w-1.5 h-1.5 rounded-full bg-pink-400/50"></div>
+                            </div>
                           </div>
 
                           {/* Enhanced arrow pointing down */}
                           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
-                            <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-transparent border-t-slate-800"></div>
+                            <div className="relative">
+                              <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-transparent border-t-slate-900"></div>
+                              {/* Arrow glow */}
+                              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-purple-500/30 blur-md"></div>
+                            </div>
                           </div>
                         </div>
                       </div>
