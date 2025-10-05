@@ -4,7 +4,8 @@
   "description": "Backend API for RE/MAX Knowledge Platform",
   "main": "src/server.js",
   "scripts": {
-    "start": "node scripts/start-resilient.js",
+    "start": "node src/server.js",
+    "start:resilient": "node scripts/start-resilient.js",
     "start:basic": "npx prisma migrate deploy --schema=./prisma/schema.prisma && npm run db:seed && node src/server.js",
     "dev": "nodemon src/server.js",
     "dev:debug": "DEBUG=* nodemon src/server.js",

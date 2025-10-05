@@ -2,6 +2,7 @@
 
 const { spawn } = require('child_process');
 const { PrismaClient } = require('@prisma/client');
+const path = require('path');
 
 async function checkDatabaseConnection() {
     const prisma = new PrismaClient();
@@ -37,40 +38,47 @@ async function runCommand(command, args, description) {
     });
 }
 
-async function start() {
-    console.log('🚀 Starting Rialtor Backend...');
-
-    // Start the server IMMEDIATELY to respond to health checks
-    console.log('🌟 Starting Express server...');
-    require('../src/server.js');
-
-    // Run database setup in the background (non-blocking)
-    setImmediate(async () => {
-        console.log('🔄 Running database setup in background...');
-        
-        // Check database connection first
+async function setupDatabase() {
+    console.log('🔄 Setting up database in background...');
+    
+    try {
         const dbConnected = await checkDatabaseConnection();
 
         if (dbConnected) {
             try {
-                // Try to run migrations
                 await runCommand('npx', ['prisma', 'migrate', 'deploy', '--schema=./prisma/schema.prisma'], 'Running database migrations');
-
-                // Try to seed database (continue even if this fails)
+                
                 try {
                     await runCommand('npm', ['run', 'db:seed'], 'Seeding database');
+                    console.log('✅ Database setup completed');
                 } catch (error) {
-                    console.warn('⚠️ Database seeding failed, but server is running...');
+                    console.warn('⚠️ Database seeding failed, continuing...');
                 }
             } catch (error) {
-                console.warn('⚠️ Database migrations failed, but server is running...');
+                console.warn('⚠️ Database migrations failed, continuing...');
             }
         } else {
-            console.warn('⚠️ Database not available, server is running (will retry connections)...');
+            console.warn('⚠️ Database not available, server will retry connections...');
         }
-    });
+    } catch (error) {
+        console.error('❌ Database setup error:', error.message);
+    }
 }
 
+async function start() {
+    console.log('🚀 Starting Rialtor Backend...');
+    
+    // Run database setup in background without blocking server startup
+    setupDatabase().catch(err => {
+        console.error('Background database setup failed:', err);
+    });
+
+    // Start the Express server immediately
+    console.log('🌟 Starting Express server...');
+    require('../src/server.js');
+}
+
+// Start the application
 start().catch(error => {
     console.error('💥 Failed to start application:', error);
     process.exit(1);
