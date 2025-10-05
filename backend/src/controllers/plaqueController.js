@@ -232,11 +232,25 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
 }
 
 /**
- * Crear overlay de información sobre la imagen
+ * Crear overlay de información sobre la imagen con soporte para múltiples formatos
  */
-async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
+async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis, outputFormat = null) {
   try {
     console.log('[PLACAS] Descargando imagen de:', imageUrl);
+    
+    // Formatos predefinidos para redes sociales
+    const formats = {
+      instagram_square: { width: 1080, height: 1080, name: 'Instagram Cuadrado' },
+      instagram_portrait: { width: 1080, height: 1350, name: 'Instagram Vertical' },
+      instagram_story: { width: 1080, height: 1920, name: 'Instagram Story' },
+      facebook_post: { width: 1200, height: 630, name: 'Facebook Post' },
+      facebook_story: { width: 1080, height: 1920, name: 'Facebook Story' },
+      twitter_post: { width: 1200, height: 675, name: 'Twitter Post' },
+      linkedin_post: { width: 1200, height: 627, name: 'LinkedIn Post' },
+      web_landscape: { width: 1920, height: 1080, name: 'Web Horizontal' },
+      web_portrait: { width: 1080, height: 1920, name: 'Web Vertical' },
+      original: { width: null, height: null, name: 'Original' }
+    };
 
     // Descargar imagen original con reintentos para evitar fallos intermitentes (ECONNRESET)
     async function fetchWithRetry(url, attempts = 3, backoff = 500, timeoutMs = 10000) {
@@ -272,10 +286,27 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis) {
     console.log('[PLACAS] Imagen descargada, tamaño:', imageBuffer.length, 'bytes');
 
     // Procesar con Sharp
-    const image = sharp(imageBuffer);
-    const { width, height } = await image.metadata();
+    let image = sharp(imageBuffer);
+    const metadata = await image.metadata();
+    let { width, height } = metadata;
 
-    console.log('[PLACAS] Dimensiones de imagen:', width, 'x', height);
+    console.log('[PLACAS] Dimensiones originales:', width, 'x', height);
+
+    // Si se especifica un formato de salida, redimensionar la imagen
+    if (outputFormat && outputFormat !== 'original' && formats[outputFormat]) {
+      const targetFormat = formats[outputFormat];
+      console.log('[PLACAS] Redimensionando a formato:', targetFormat.name, `(${targetFormat.width}x${targetFormat.height})`);
+      
+      image = sharp(imageBuffer).resize(targetFormat.width, targetFormat.height, {
+        fit: 'cover',
+        position: 'center'
+      });
+      
+      width = targetFormat.width;
+      height = targetFormat.height;
+    }
+
+    console.log('[PLACAS] Dimensiones finales:', width, 'x', height);
 
     // Crear SVG con la información de la propiedad
     const overlayColor = determineOverlayColor(imageAnalysis.colores);
@@ -412,14 +443,81 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const email = propertyInfo.email || null;
     const corredores = propertyInfo.corredores || null; // Ahora obligatorio
     const antiguedad = propertyInfo.antiguedad || null;
+    
+    // Calcular cantidad de campos con información para diseño adaptativo
+    let fieldCount = 0;
+    if (tipo) fieldCount++;
+    if (antiguedad) fieldCount++;
+    if (ambientes) fieldCount++;
+    if (dormitorios) fieldCount++;
+    if (banos) fieldCount++;
+    if (cocheras) fieldCount++;
+    if (m2_totales) fieldCount++;
+    if (m2_cubiertos) fieldCount++;
+    if (direccion) fieldCount++;
+    if (contacto) fieldCount++;
+    if (email) fieldCount++;
+    
+    // Sistema de espaciado adaptativo: más campos = menos espacio entre líneas
+    const baseLineSpacing = 16;
+    const adaptiveSpacing = Math.max(8, Math.min(baseLineSpacing, Math.floor(baseLineSpacing * (1 - (fieldCount / 30)))));
+    
+    // Factor de escala basado en dimensiones de imagen
+    const scaleFactor = Math.min(1, Math.sqrt((width * height) / (1920 * 1080)));
+    const minScaleFactor = 0.6;
+    const maxScaleFactor = 1.2;
+    const finalScaleFactor = Math.max(minScaleFactor, Math.min(maxScaleFactor, scaleFactor));
 
     // Descripción adicional para renderizar abajo-derecha (si existe)
     const descripcion = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
     const overlayColor = determineOverlayColor(imageAnalysis && imageAnalysis.colores);
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
-    // Main box style (top-right): translucent white bg + black text
-    const mainBoxFill = 'rgba(255,255,255,0.65)';
-    const mainTextColor = '#000000';
+    
+    // Sistema de colores mejorado con múltiples esquemas profesionales
+    const colorSchemes = {
+      professional: {
+        mainBoxFill: 'rgba(255, 255, 255, 0.92)',
+        mainTextColor: '#1a202c',
+        accentColor: '#76685d',
+        priceBoxFill: '#76685d',
+        priceTextColor: '#FFFFFF',
+        corredoresBoxFill: '#76685d',
+        corredoresTextColor: '#FFFFFF'
+      },
+      elegant: {
+        mainBoxFill: 'rgba(255, 255, 255, 0.88)',
+        mainTextColor: '#2d3748',
+        accentColor: '#8b7355',
+        priceBoxFill: '#2c5282',
+        priceTextColor: '#FFFFFF',
+        corredoresBoxFill: '#2c5282',
+        corredoresTextColor: '#FFFFFF'
+      },
+      modern: {
+        mainBoxFill: 'rgba(255, 255, 255, 0.90)',
+        mainTextColor: '#1a1a1a',
+        accentColor: '#0066cc',
+        priceBoxFill: '#0066cc',
+        priceTextColor: '#FFFFFF',
+        corredoresBoxFill: '#0066cc',
+        corredoresTextColor: '#FFFFFF'
+      },
+      luxury: {
+        mainBoxFill: 'rgba(26, 32, 44, 0.85)',
+        mainTextColor: '#f7fafc',
+        accentColor: '#d4af37',
+        priceBoxFill: '#d4af37',
+        priceTextColor: '#1a202c',
+        corredoresBoxFill: '#1a202c',
+        corredoresTextColor: '#d4af37'
+      }
+    };
+    
+    // Seleccionar esquema de color (se puede hacer configurable desde propertyInfo)
+    const selectedScheme = colorSchemes[propertyInfo.colorScheme || 'professional'];
+    
+    const mainBoxFill = selectedScheme.mainBoxFill;
+    const mainTextColor = selectedScheme.mainTextColor;
 
     // Two icon palettes: main (colored) for the top-right box, alt (contrast) for the overlay/corredores box
     const svgIconsAlt = {
@@ -473,10 +571,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     };
 
     const lines = [];
-    const precioSize = Math.max(28, Math.floor(width / 25));
-    const infoSize = Math.max(18, Math.floor(width / 40));
-    const contactoSize = Math.max(16, Math.floor(width / 50));
-    const labelSize = Math.max(14, Math.floor(width / 60));
+    // Tamaños de fuente adaptativos con sistema mejorado
+    const precioSize = Math.max(24, Math.min(42, Math.floor(width / 25 * finalScaleFactor)));
+    const infoSize = Math.max(14, Math.min(22, Math.floor(width / 40 * finalScaleFactor)));
+    const contactoSize = Math.max(12, Math.min(18, Math.floor(width / 50 * finalScaleFactor)));
+    const labelSize = Math.max(11, Math.min(16, Math.floor(width / 60 * finalScaleFactor)));
+    
     lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
 
     // Combinar tipo y antigüedad si existe antigüedad
@@ -508,8 +608,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
 
     // Crear dos boxes: uno para precio (arriba derecha) y otro para info (abajo)
     const margin = 20;
-    const padding = 18;
-    const lineHeight = Math.max(28, Math.floor(width / 50)); // Aumentado de 24 a 28 y divisor de 60 a 50 para MÁS espacio entre líneas
+    const padding = Math.max(14, Math.floor(18 * finalScaleFactor));
+    // Espaciado entre líneas adaptativo: se reduce si hay muchos campos
+    const lineHeight = Math.max(20, Math.floor((width / 50) * finalScaleFactor) - Math.floor(fieldCount / 4));
 
     // Calcular tamaño dinámico del box de precio basado en el contenido
     const precioText = `${moneda} ${formatPrice(precio)}`;
@@ -534,7 +635,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (email) infoLineCount++;
 
     const infoBoxWidth = Math.max(350, maxLineWidth);
-    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + 16) + padding * 2, Math.floor(height * 0.4))); // Aumentado espaciado de 12 a 16
+    // Usar espaciado adaptativo calculado anteriormente
+    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + adaptiveSpacing) + padding * 2, Math.floor(height * 0.45)));
     const infoBoxX = width - infoBoxWidth - margin;
     const infoBoxY = precioBoxY + precioBoxHeight + 10;
 
@@ -557,10 +659,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `  </defs>\n`;
 
     svg += `  <g filter="url(#f1)">\n`;
-    // Box para precio (arriba derecha) - color personalizado #76685d
-    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="14" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    // Box para precio (arriba derecha) - usar color del esquema seleccionado
+    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="14" fill="${selectedScheme.priceBoxFill}" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
     // Box para información (abajo)
-    svg += `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    svg += `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.12)" stroke-width="1.5" />\n`;
     svg += `  </g>\n`;
 
     // Dibujar precio en su box con mejor diseño
@@ -575,8 +677,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `    </filter>\n`;
     svg += `  </defs>\n`;
 
-    // Texto del precio centrado en blanco con mejor tipografía
-    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: #FFFFFF;">${escapeForSvg(precioText)}</text>\n`;
+    // Texto del precio centrado con color del esquema
+    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: ${selectedScheme.priceTextColor};">${escapeForSvg(precioText)}</text>\n`;
 
     // Dibujar información en su box (ahora con wrapping y cálculo de alto dinámico)
     const infoX = infoBoxX + 20;
@@ -620,7 +722,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     }
 
     // Recalculate final infoBoxHeight based on renderedLinesCount
-    const computedInfoBoxHeight = Math.max(80, renderedLinesCount * (lineHeight + 16) + padding * 2); // Aumentado de 8 a 16 para más espacio
+    const computedInfoBoxHeight = Math.max(80, renderedLinesCount * (lineHeight + adaptiveSpacing) + padding * 2);
     const maxAllowedHeight = Math.max(Math.floor(height * 0.75), computedInfoBoxHeight);
     const infoBoxHeightFinal = Math.min(computedInfoBoxHeight, height - precioBoxHeight - margin - 10);
     // Use final effective width as earlier computed
@@ -629,7 +731,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const finalInfoBoxY = precioBoxY + precioBoxHeight + 10;
 
     // Replace previous box rect if width/height changed
-    svg = svg.replace(`    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`, `    <rect x="${finalInfoBoxX}" y="${finalInfoBoxY}" width="${finalInfoBoxWidth}" height="${infoBoxHeightFinal}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`);
+    svg = svg.replace(`    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.12)" stroke-width="1.5" />\n`, `    <rect x="${finalInfoBoxX}" y="${finalInfoBoxY}" width="${finalInfoBoxWidth}" height="${infoBoxHeightFinal}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.12)" stroke-width="1.5" />\n`);
 
     // Ahora renderizamos las líneas envueltas dentro del box
     let cursorY = finalInfoBoxY + padding + Math.floor(lineHeight / 2);
@@ -653,14 +755,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         } else {
           svg += `  <text x="${textX}" y="${cursorY}" class="${ln.cls}">${part}</text>\n`;
         }
-        cursorY += (lineHeight + 16); // Aumentado de 8 a 16 para más espacio entre líneas
+        cursorY += (lineHeight + adaptiveSpacing); // Usar espaciado adaptativo
       }
     }
 
     // Render corredores box bottom-left if present
     if (corredoresText) {
-      const corrFontSize = Math.max(12, Math.floor(width / 80)); // Mismo tamaño que Rialtor.app
-      const corrChar = Math.max(6, Math.floor(corrFontSize * 0.6)); // Cambiado a 0.6 para consistencia
+      const corrFontSize = Math.max(11, Math.floor((width / 80) * finalScaleFactor));
+      const corrChar = Math.max(6, Math.floor(corrFontSize * 0.6));
       const margin = 20;
       const maxCorrBoxW = Math.min(Math.floor(width * 0.6), 520);
       const estW = corredoresText.length * corrChar + padding * 2;
@@ -687,28 +789,28 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         }
       }
       if (line) corrParts.push(line);
-      const cH = Math.max(30, corrParts.length * (Math.max(12, corrFontSize) + 8) + padding);
+      const cH = Math.max(30, corrParts.length * (Math.max(12, corrFontSize) + adaptiveSpacing) + padding);
       const cX = margin;
-      const cY = height - 12; // Misma coordenada Y que Rialtor.app (height - originMargin)
+      const cY = height - 12;
       // compute final width to accommodate the longest wrapped part (by chars -> pixels estimate)
       let maxPartLen = 0;
       for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
       // Use a more generous character width estimate and add extra margin
       const charWidthGenerous = Math.max(8, Math.floor(corrFontSize * 0.6));
       const neededForParts = maxPartLen * charWidthGenerous + padding * 2;
-      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 200)); // minimum 200px width, más pequeño
-      // draw rect with final width - using more translucent white background
+      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 200));
+      // draw rect with final width - usar color del esquema seleccionado
       svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="${selectedScheme.corredoresBoxFill}" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
       svg += `  </g>\n`;
       // icon and text centered horizontally and vertically
       const centerY = cY - cH + cH / 2;
-      const totalLinesHeight = (corrParts.length - 1) * (lineHeight + 16); // Aumentado de 8 a 16 para más espacio
+      const totalLinesHeight = (corrParts.length - 1) * (lineHeight + adaptiveSpacing);
       let startY = Math.floor(centerY - totalLinesHeight / 2);
       for (let i = 0; i < corrParts.length; i++) {
-        const lineY = startY + i * (lineHeight + 16); // Aumentado de 8 a 16 para más espacio
+        const lineY = startY + i * (lineHeight + adaptiveSpacing);
         const textCenterX = cX + finalCW / 2;
-        svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: #FFFFFF;">${corrParts[i]}</text>\n`;
+        svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: ${selectedScheme.corredoresTextColor};">${corrParts[i]}</text>\n`;
       }
     }
 

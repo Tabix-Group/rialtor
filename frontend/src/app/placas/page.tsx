@@ -44,6 +44,8 @@ interface PropertyData {
   email?: string;
   corredores: string; // nombre y matrícula de los corredores (obligatorio)
   descripcion?: string;
+  outputFormat?: string; // Formato de salida (instagram_square, instagram_portrait, etc.)
+  colorScheme?: string; // Esquema de color (professional, elegant, modern, luxury)
 }
 
 interface PropertyPlaque {
@@ -84,7 +86,9 @@ export default function PlacasPage() {
     contacto: '',
     corredores: '',
     email: '',
-    descripcion: ''
+    descripcion: '',
+    outputFormat: 'original',
+    colorScheme: 'professional'
   });
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
@@ -513,16 +517,64 @@ export default function PlacasPage() {
                   </div>
 
                   {/* Datos de la propiedad */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tipo de propiedad
-                      </label>
-                      <select
-                        value={propertyData.tipo}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, tipo: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
+                  <div className="space-y-6">
+                    {/* Configuración de diseño */}
+                    <div className="border-t pt-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuración de Diseño</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Formato de salida
+                          </label>
+                          <select
+                            value={propertyData.outputFormat}
+                            onChange={(e) => setPropertyData(prev => ({ ...prev, outputFormat: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="original">Original (sin cambios)</option>
+                            <option value="instagram_square">Instagram Cuadrado (1080x1080)</option>
+                            <option value="instagram_portrait">Instagram Vertical (1080x1350)</option>
+                            <option value="instagram_story">Instagram Story (1080x1920)</option>
+                            <option value="facebook_post">Facebook Post (1200x630)</option>
+                            <option value="facebook_story">Facebook Story (1080x1920)</option>
+                            <option value="twitter_post">Twitter Post (1200x675)</option>
+                            <option value="linkedin_post">LinkedIn Post (1200x627)</option>
+                            <option value="web_landscape">Web Horizontal (1920x1080)</option>
+                            <option value="web_portrait">Web Vertical (1080x1920)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Esquema de color
+                          </label>
+                          <select
+                            value={propertyData.colorScheme}
+                            onChange={(e) => setPropertyData(prev => ({ ...prev, colorScheme: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="professional">Profesional (Blanco y Marrón)</option>
+                            <option value="elegant">Elegante (Blanco y Azul)</option>
+                            <option value="modern">Moderno (Blanco y Azul Brillante)</option>
+                            <option value="luxury">Lujoso (Oscuro y Dorado)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Información de la propiedad */}
+                    <div className="border-t pt-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Información de la Propiedad</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Tipo de propiedad
+                          </label>
+                          <select
+                            value={propertyData.tipo}
+                            onChange={(e) => setPropertyData(prev => ({ ...prev, tipo: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
                         <option value="">Seleccionar</option>
                         <option value="Casa">Casa</option>
                         <option value="Departamento">Departamento</option>
@@ -708,6 +760,8 @@ export default function PlacasPage() {
                       placeholder="Información adicional sobre la propiedad..."
                     />
                   </div>
+                      </div>
+                    </div>
 
                   {/* Botones */}
                   <div className="flex gap-3 pt-4">
@@ -732,6 +786,7 @@ export default function PlacasPage() {
                         'Crear Placa'
                       )}
                     </button>
+                  </div>
                   </div>
                 </form>
               </div>
