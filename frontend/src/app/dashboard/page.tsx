@@ -7,10 +7,10 @@ import { authenticatedFetch } from '@/utils/api'
 import Link from 'next/link'
 import {
   Calculator, FileText, Wand2, Search, ImageIcon, Newspaper, Download, Shield,
-  Upload, Trash2, Eye, Loader2, User2, MessageSquare, Home, Settings,
-  Sparkles, TrendingUp, Star, Crown, BarChart3, Clock, Activity,
+  Upload, Trash2, Eye, MessageSquare, Settings,
+  Sparkles, TrendingUp, Crown, BarChart3, Clock, Activity,
   ArrowUpRight, Zap, Target, Award, ChevronRight, Plus, Filter,
-  Calendar, Folder, Bell, Menu, X
+  Calendar, Folder, PlusCircle, Wrench, CheckCircle
 } from 'lucide-react'
 
 interface Document {
@@ -39,7 +39,6 @@ export default function DashboardPage() {
   const [docsLoading, setDocsLoading] = useState(true)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -339,7 +338,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <Link key={index} href={feature.href} className="group block">
                 <div className="relative bg-white rounded-3xl shadow-lg border border-slate-200/60 overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full">
                   {/* Gradiente superior */}

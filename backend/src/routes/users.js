@@ -5,8 +5,6 @@ const { checkPermission } = require('../middleware/permissions');
 const { getUserById, listUsers, createUser, updateUser, deleteUser } = require('../controllers/userController');
 const { authenticateToken } = require('../middleware/auth');
 
-// Obtener usuario individual con roles y permisos
-router.get('/:id', authenticateToken, checkPermission('manage_users'), getUserById);
 // Asignar rol a usuario
 router.post('/:id/roles', authenticateToken, checkPermission('manage_users'), async (req, res) => {
   const { roleId } = req.body;
@@ -47,7 +45,7 @@ router.delete('/:id/roles/:roleId', authenticateToken, checkPermission('manage_u
 // Todas las rutas requieren autenticación y rol ADMIN
 router.get('/', authenticateToken, checkPermission('manage_users'), listUsers);
 router.post('/', authenticateToken, checkPermission('manage_users'), createUser);
-router.put('/:id', authenticateToken, checkPermission('manage_users'), updateUser);
-router.delete('/:id', authenticateToken, checkPermission('manage_users'), deleteUser);
+router.put('/', authenticateToken, checkPermission('manage_users'), updateUser);
+router.delete('/', authenticateToken, checkPermission('manage_users'), deleteUser);
 
 module.exports = router;

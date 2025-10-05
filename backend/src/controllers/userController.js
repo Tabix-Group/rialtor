@@ -2,56 +2,53 @@
 const getUserByIdRaw = async (id) => {
   return prisma.user.findUnique({ where: { id } });
 };
-// Obtener usuario individual con roles y permisos
-const getUserById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        phone: true,
-        office: true,
-        avatar: true,
-        isActive: true,
-        updatedAt: true,
-        roleAssignments: {
-          select: {
-            role: {
-              select: {
-                id: true,
-                name: true,
-                permissions: { select: { name: true } }
-              }
-            }
-          }
-        }
-      }
-    });
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    const userWithRoles = {
-      ...user,
-      roles: user.roleAssignments.map(ra => ({
-        id: ra.role.id,
-        name: ra.role.name,
-        permissions: ra.role.permissions.map(p => p.name)
-      }))
-    };
-    res.json({ user: userWithRoles });
-  } catch (error) {
-    next(error);
-  }
-};
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-// List all users
+// List all users or get individual user by query id
 const listUsers = async (req, res, next) => {
   try {
+    if (req.query.id) {
+      // Get individual user
+      const { id } = req.query;
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          phone: true,
+          office: true,
+          avatar: true,
+          isActive: true,
+          updatedAt: true,
+          roleAssignments: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                  permissions: { select: { name: true } }
+                }
+              }
+            }
+          }
+        }
+      });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      const userWithRoles = {
+        ...user,
+        roles: user.roleAssignments.map(ra => ({
+          id: ra.role.id,
+          name: ra.role.name,
+          permissions: ra.role.permissions.map(p => p.name)
+        }))
+      };
+      return res.json({ user: userWithRoles });
+    }
+    // List all users
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -169,7 +166,7 @@ const createUser = async (req, res, next) => {
 // Update user (admin only)
 const updateUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
     const { name, phone, office, role, isActive, password } = req.body;
     let updateData = {
       ...(name && { name }),
@@ -222,7 +219,7 @@ const updateUser = async (req, res, next) => {
 // Delete user (admin only)
 const deleteUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
     // Eliminar primero los roleAssignments
     await prisma.roleAssignment.deleteMany({ where: { userId: id } });
     // Luego eliminar el usuario
@@ -238,6 +235,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  getUserById,
   getUserByIdRaw
 };
