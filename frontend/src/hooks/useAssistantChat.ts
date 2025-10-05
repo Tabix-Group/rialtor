@@ -10,6 +10,12 @@ interface Message {
     isUser: boolean
     timestamp: string
     audioBase64?: string
+    sources?: Array<{
+        title: string
+        url: string
+        snippet?: string
+    }>
+    calculation?: any
 }
 
 interface UseAssistantChatReturn {
@@ -39,7 +45,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
-            content: '¡Hola! Soy RIALTOR, tu asistente de IA especializado en el sector inmobiliario argentino. ¿En qué puedo ayudarte hoy?',
+            content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n¿En qué puedo ayudarte hoy?',
             isUser: false,
             timestamp: new Date().toISOString()
         }
@@ -111,7 +117,9 @@ export function useAssistantChat(): UseAssistantChatReturn {
                     content: data.assistantMessage?.content || data.message || 'Lo siento, no pude procesar tu consulta.',
                     isUser: false,
                     timestamp: new Date().toISOString(),
-                    audioBase64: data.assistantMessage?.audioBase64 || data.audioBase64
+                    audioBase64: data.assistantMessage?.audioBase64 || data.audioBase64,
+                    sources: data.assistantMessage?.metadata?.sources,
+                    calculation: data.assistantMessage?.metadata?.calculation
                 }
                 setMessages(prev => [...prev, botMessage])
             } else {
@@ -152,7 +160,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
     const clearChat = useCallback(() => {
         setMessages([{
             id: '1',
-            content: '¡Hola! Soy RIALTOR, tu asistente de IA especializado en el sector inmobiliario argentino. ¿En qué puedo ayudarte hoy?',
+            content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n¿En qué puedo ayudarte hoy?',
             isUser: false,
             timestamp: new Date().toISOString()
         }])
