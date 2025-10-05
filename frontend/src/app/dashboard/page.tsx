@@ -338,7 +338,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {features.map((feature) => (
+            {features.map((feature, index) => (
               <Link key={index} href={feature.href} className="group block">
                 <div className="relative bg-white rounded-3xl shadow-lg border border-slate-200/60 overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full">
                   {/* Gradiente superior */}
