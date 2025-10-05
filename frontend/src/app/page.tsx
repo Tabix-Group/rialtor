@@ -363,7 +363,7 @@ export default function Home() {
               <div className="absolute w-[480px] h-[480px] rounded-full border-2 border-blue-400/20 animate-spin" style={{ animationDuration: '20s' }}></div>
             </div>
 
-            {/* Central Logo with modern glassmorphism */}
+            {/* Central Logo with modern glassmorphism - Perfectly Round */}
             <div className="absolute inset-0 flex items-center justify-center z-20">
               <div className="relative group">
                 {/* Outer glow effect */}
@@ -372,13 +372,13 @@ export default function Home() {
                 {/* Rotating gradient border */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full opacity-75 blur-sm animate-spin" style={{ animationDuration: '3s' }}></div>
                 
-                {/* Main logo container with glassmorphism */}
-                <div className="relative bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 backdrop-blur-xl rounded-full p-14 shadow-2xl border border-white/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                {/* Main logo container - Perfect Circle */}
+                <div className="relative w-48 h-48 bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 backdrop-blur-xl rounded-full shadow-2xl border border-white/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
                   {/* Inner glow */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10"></div>
                   
                   {/* Logo text with gradient */}
-                  <span className="relative text-5xl font-black bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent drop-shadow-lg">
+                  <span className="relative text-4xl font-black bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent drop-shadow-lg">
                     RIALTOR
                   </span>
                 </div>
@@ -436,8 +436,8 @@ export default function Home() {
                 const rad = (angle * Math.PI) / 180
                 const cx = 450
                 const cy = 450
-                const centerR = 90 // Logo radius
-                const outerR = 320 // Distance to cards
+                const centerR = 100 // Logo radius (ajustado para círculo de 200px = w-48 h-48)
+                const outerR = 330 // Distance to cards (normalizado)
                 const sx = cx + Math.cos(rad) * centerR
                 const sy = cy + Math.sin(rad) * centerR
                 const ex = cx + Math.cos(rad) * outerR
@@ -516,12 +516,18 @@ export default function Home() {
               })}
             </svg>
 
-            {/* Modern Feature Cards around the logo */}
+            {/* Modern Feature Cards around the logo - Perfectly Round */}
             {features.map((feature, idx) => {
               const angle = (360 / features.length) * idx - 90
               const radius = 400
               const x = Math.cos((angle * Math.PI) / 180) * radius
               const y = Math.sin((angle * Math.PI) / 180) * radius
+              
+              // Determine tooltip position based on angle
+              const isTop = y < -100
+              const isBottom = y > 100
+              const isLeft = x < -100
+              const isRight = x > 100
 
               return (
                 <div
@@ -539,22 +545,22 @@ export default function Home() {
                     onMouseLeave={() => setHoveredFeature(null)}
                     onClick={() => window.location.href = feature.href}
                   >
-                    {/* Card container with modern design */}
-                    <div className="relative w-56 h-auto">
+                    {/* Perfectly Round Card Container */}
+                    <div className="relative w-40 h-40">
                       {/* Animated gradient border on hover */}
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover:opacity-75 blur transition-opacity duration-500"></div>
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-75 blur transition-opacity duration-500"></div>
                       
-                      {/* Main card with glassmorphism */}
-                      <div className="relative p-6 bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-105">
+                      {/* Main card with glassmorphism - Perfect Circle */}
+                      <div className="relative w-full h-full bg-white/80 backdrop-blur-xl border border-white/60 rounded-full shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-110 flex items-center justify-center">
                         {/* Gradient overlay on hover */}
                         <div
-                          className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 rounded-3xl transition-opacity duration-500`}
+                          className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 rounded-full transition-opacity duration-500`}
                         ></div>
 
-                        {/* Icon container with modern styling */}
-                        <div className="relative flex flex-col items-center text-center space-y-4">
+                        {/* Icon and content container */}
+                        <div className="relative flex flex-col items-center text-center space-y-2 p-4">
                           {/* Icon with gradient background */}
-                          <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 overflow-hidden`}
+                          <div className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 overflow-hidden`}
                             style={{
                               background: `linear-gradient(135deg, ${feature.color.includes('blue') ? '#3b82f6' : feature.color.includes('purple') ? '#8b5cf6' : feature.color.includes('green') ? '#10b981' : feature.color.includes('orange') ? '#f97316' : feature.color.includes('emerald') ? '#059669' : feature.color.includes('indigo') ? '#6366f1' : '#3b82f6'}, ${feature.color.includes('blue') ? '#60a5fa' : feature.color.includes('purple') ? '#a855f7' : feature.color.includes('green') ? '#34d399' : feature.color.includes('orange') ? '#fb923c' : feature.color.includes('emerald') ? '#10b981' : feature.color.includes('indigo') ? '#818cf8' : '#60a5fa'})`
                             }}
@@ -562,37 +568,39 @@ export default function Home() {
                             {/* Icon glow effect */}
                             <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
                             
-                            <feature.icon className="relative h-10 w-10 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+                            <feature.icon className="relative h-7 w-7 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
                           </div>
 
                           {/* Feature name with better typography */}
-                          <h3 className="relative text-base font-bold text-slate-900 leading-snug px-1 group-hover:text-blue-700 transition-colors duration-300">
+                          <h3 className="relative text-xs font-bold text-slate-900 leading-tight px-1 group-hover:text-blue-700 transition-colors duration-300">
                             {feature.name}
                           </h3>
-
-                          {/* Hover indicator */}
-                          <div className="relative flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                            <div className="flex items-center space-x-1">
-                              <span className={`text-xs font-semibold ${feature.textColor}`}>Ver más</span>
-                              <ArrowRight className={`w-4 h-4 ${feature.textColor} group-hover:translate-x-1 transition-transform duration-300`} />
-                            </div>
-                          </div>
                         </div>
 
-                        {/* Decorative corner accent */}
-                        <div className={`absolute top-3 right-3 w-2 h-2 rounded-full ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                        {/* Decorative center dot */}
+                        <div className={`absolute bottom-3 w-1.5 h-1.5 rounded-full ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                       </div>
                     </div>
 
-                    {/* Enhanced tooltip with modern design */}
+                    {/* Smart Tooltip with Intelligent Positioning */}
                     {hoveredFeature === idx && (
-                      <div className="absolute z-[99999] bottom-full left-1/2 transform -translate-x-1/2 mb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+                      <div 
+                        className={`absolute z-[99999] animate-in fade-in slide-in-from-bottom-3 duration-300 ${
+                          isTop ? 'top-full mt-6' : 
+                          isBottom ? 'bottom-full mb-6' : 
+                          'bottom-full mb-6'
+                        } ${
+                          isLeft ? 'left-0' : 
+                          isRight ? 'right-0' : 
+                          'left-1/2 -translate-x-1/2'
+                        }`}
+                      >
                         <div className="relative">
                           {/* Tooltip glow effect */}
                           <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl blur-lg opacity-50"></div>
                           
                           {/* Tooltip content */}
-                          <div className="relative px-6 py-5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 max-w-xs min-w-[300px]">
+                          <div className="relative px-6 py-5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 max-w-xs min-w-[280px]">
                             {/* Inner gradient overlay */}
                             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-2xl"></div>
                             
@@ -609,14 +617,35 @@ export default function Home() {
                             </div>
                           </div>
 
-                          {/* Enhanced arrow pointing down */}
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
-                            <div className="relative">
-                              <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-transparent border-t-slate-900"></div>
-                              {/* Arrow glow */}
-                              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-purple-500/30 blur-md"></div>
+                          {/* Enhanced arrow - positioned based on card location */}
+                          {!isTop && (
+                            <div className={`absolute ${
+                              isLeft ? 'left-6' : 
+                              isRight ? 'right-6' : 
+                              'left-1/2 -translate-x-1/2'
+                            } top-full -mt-px`}>
+                              <div className="relative">
+                                <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-transparent border-t-slate-900"></div>
+                                {/* Arrow glow */}
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-purple-500/30 blur-md"></div>
+                              </div>
                             </div>
-                          </div>
+                          )}
+                          
+                          {/* Arrow for top positioned tooltips */}
+                          {isTop && (
+                            <div className={`absolute ${
+                              isLeft ? 'left-6' : 
+                              isRight ? 'right-6' : 
+                              'left-1/2 -translate-x-1/2'
+                            } bottom-full -mb-px`}>
+                              <div className="relative">
+                                <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-b-[12px] border-transparent border-b-slate-900"></div>
+                                {/* Arrow glow */}
+                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-purple-500/30 blur-md"></div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
