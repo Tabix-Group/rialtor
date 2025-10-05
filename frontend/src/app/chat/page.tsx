@@ -1,343 +1,173 @@
-'use client''use client'
+'use client'
 
-
-
-import React, { useState, useRef, useEffect } from 'react'import { useState, useRef, useEffect } from 'react'
-
-import { motion, AnimatePresence } from 'framer-motion'import { Send, Bot, User } from 'lucide-react'
-
+import React, { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
-
-    Send,interface Message {
-
-    MessageCircle,  id: string
-
-    Mic,  content: string
-
-    MicOff,  isUser: boolean
-
-    Volume2,  timestamp: string // ISO string
-
-    VolumeX,}
-
+    Send,
+    MessageCircle,
+    Mic,
+    MicOff,
+    Volume2,
+    VolumeX,
     Loader2,
-
-    RefreshCw,import { useAuth } from '../auth/authContext'
-
+    RefreshCw,
     Sparkles,
+    Calculator,
+    DollarSign,
+    FileText,
+    TrendingUp
+} from 'lucide-react'
+import { useAssistantChat } from '../../hooks/useAssistantChat'
+import MessageContent from '../../components/MessageContent'
 
-    Calculator,export default function ChatPage() {
-
-    DollarSign,  const [messages, setMessages] = useState<Message[]>([
-
-    FileText,    {
-
-    TrendingUp      id: '1',
-
-} from 'lucide-react'      content: '¡Hola! Soy tu asistente de Rialtor. ¿En qué puedo ayudarte hoy?',
-
-import { useAssistantChat } from '../../hooks/useAssistantChat'      isUser: false,
-
-import MessageContent from '../../components/MessageContent'      timestamp: new Date().toISOString()
-
-    }
-
-export default function ChatPage() {  ])
-
-    const {  const [inputValue, setInputValue] = useState('')
-
-        messages,  const [isLoading, setIsLoading] = useState(false)
-
-        isLoading,  const { user } = useAuth();
-
+export default function ChatPage() {
+    const {
+        messages,
+        isLoading,
         sendMessage,
-
-        clearChat,  const handleSendMessage = async () => {
-
-        inputRef,    if (!inputValue.trim()) return
-
+        clearChat,
+        inputRef,
         messagesEndRef,
+        sendFeedback
+    } = useAssistantChat()
 
-        sendFeedback    const userMessage: Message = {
-
-    } = useAssistantChat()      id: Date.now().toString(),
-
-      content: inputValue,
-
-    const [inputValue, setInputValue] = useState('')      isUser: true,
-
-    const [isRecording, setIsRecording] = useState(false)      timestamp: new Date().toISOString()
-
-    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)    }
-
+    const [inputValue, setInputValue] = useState('')
+    const [isRecording, setIsRecording] = useState(false)
+    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
     const [audioChunks, setAudioChunks] = useState<Blob[]>([])
+    const [recordingDuration, setRecordingDuration] = useState(0)
+    const [recordingInterval, setRecordingInterval] = useState<NodeJS.Timeout | null>(null)
+    const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
-    const [recordingDuration, setRecordingDuration] = useState(0)    setMessages(prev => [...prev, userMessage])
+    // Focus input when page loads
+    useEffect(() => {
+        setTimeout(() => inputRef.current?.focus(), 100)
+    }, [inputRef])
 
-    const [recordingInterval, setRecordingInterval] = useState<NodeJS.Timeout | null>(null)    setInputValue('')
-
-    const [isPlayingAudio, setIsPlayingAudio] = useState(false)    setIsLoading(true)
-
-
-
-    // Focus input when page loads    try {
-
-    useEffect(() => {      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
-        setTimeout(() => inputRef.current?.focus(), 100)      const response = await fetch('/api/chat', {
-
-    }, [inputRef])        method: 'POST',
-
-        headers: {
-
-    // Scroll to bottom when new messages arrive          'Content-Type': 'application/json',
-
-    useEffect(() => {          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })        },
-
-    }, [messages, messagesEndRef])        body: JSON.stringify({ message: inputValue })
-
-      })
+    // Scroll to bottom when new messages arrive
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages, messagesEndRef])
 
     const handleSendMessage = async () => {
+        if (!inputValue.trim() || isLoading) return
 
-        if (!inputValue.trim() || isLoading) return      if (response.ok) {
+        const message = inputValue
+        setInputValue('')
+        await sendMessage(message, undefined, true)
+    }
 
-        const data = await response.json()
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            handleSendMessage()
+        }
+    }
 
-        const message = inputValue        const botMessage: Message = {
+    const handleQuickSuggestion = (text: string) => {
+        setInputValue(text)
+        inputRef.current?.focus()
+    }
 
-        setInputValue('')          id: (Date.now() + 1).toString(),
-
-        await sendMessage(message, undefined, true)          content: data.assistantMessage?.content || data.message || 'Sin respuesta del asistente.',
-
-    }          isUser: false,
-
-          timestamp: new Date().toISOString()
-
-    const handleKeyPress = (e: React.KeyboardEvent) => {        }
-
-        if (e.key === 'Enter' && !e.shiftKey) {        setMessages(prev => [...prev, botMessage])
-
-            e.preventDefault()      } else {
-
-            handleSendMessage()        throw new Error('Error al enviar mensaje')
-
-        }      }
-
-    }    } catch (error) {
-
-      // Respuesta simulada para desarrollo
-
-    const handleQuickSuggestion = (text: string) => {      const botMessage: Message = {
-
-        setInputValue(text)        id: (Date.now() + 1).toString(),
-
-        inputRef.current?.focus()        content: 'Gracias por tu mensaje. Esta es una respuesta simulada. En producción, aquí funcionará la integración con OpenAI.',
-
-    }        isUser: false,
-
-        timestamp: new Date().toISOString()
-
-    // Audio recording functions      }
-
-    const startRecording = async () => {      setMessages(prev => [...prev, botMessage])
-
-        try {    } finally {
-
-            const stream = await navigator.mediaDevices.getUserMedia({      setIsLoading(false)
-
-                audio: {    }
-
-                    echoCancellation: true,  }
-
+    // Audio recording functions
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
                     noiseSuppression: true,
-
-                    sampleRate: 44100  const handleKeyPress = (e: React.KeyboardEvent) => {
-
-                }    if (e.key === 'Enter' && !e.shiftKey) {
-
-            })      e.preventDefault()
-
-      handleSendMessage()
-
-            let mimeType = 'audio/webm;codecs=opus'    }
-
-            if (!MediaRecorder.isTypeSupported(mimeType)) {  }
-
-                mimeType = 'audio/webm'
-
-                if (!MediaRecorder.isTypeSupported(mimeType)) {  // Scroll automático al último mensaje
-
-                    mimeType = 'audio/mp4'  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-                    if (!MediaRecorder.isTypeSupported(mimeType)) {  useEffect(() => {
-
-                        mimeType = ''    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-
-                    }  }, [messages, isLoading]);
-
+                    sampleRate: 44100
                 }
+            })
 
-            }  return (
+            let mimeType = 'audio/webm;codecs=opus'
+            if (!MediaRecorder.isTypeSupported(mimeType)) {
+                mimeType = 'audio/webm'
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = 'audio/mp4'
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = ''
+                    }
+                }
+            }
 
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-10 flex flex-col items-center">
+            const recorder = new MediaRecorder(stream, {
+                mimeType: mimeType || undefined
+            })
 
-            const recorder = new MediaRecorder(stream, {      <div className="w-full max-w-2xl flex flex-col flex-1 rounded-3xl shadow-2xl border border-gray-100 bg-white/90 backdrop-blur-md overflow-hidden">
+            setAudioChunks([])
+            setIsRecording(true)
+            setRecordingDuration(0)
 
-                mimeType: mimeType || undefined        {/* Header */}
-
-            })        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-t-3xl shadow flex flex-col gap-1">
-
-          <h1 className="text-2xl font-extrabold flex items-center gap-3">
-
-            setAudioChunks([])            <Bot className="w-7 h-7" />
-
-            setIsRecording(true)            Asistente Rialtor
-
-            setRecordingDuration(0)          </h1>
-
-          <p className="text-blue-100 text-base">
-
-            const interval = setInterval(() => {            Pregúntame sobre propiedades, procesos o cualquier duda de Rialtor
-
-                setRecordingDuration(prev => prev + 1)          </p>
-
-            }, 1000)        </div>
-
+            const interval = setInterval(() => {
+                setRecordingDuration(prev => prev + 1)
+            }, 1000)
             setRecordingInterval(interval)
 
-        {/* Mensajes */}
-
-            recorder.ondataavailable = (event) => {        <div className="flex-1 overflow-y-auto px-4 py-6 bg-white/60" style={{ minHeight: 400 }}>
-
-                if (event.data.size > 0) {          {messages.map((message) => (
-
-                    setAudioChunks(prev => [...prev, event.data])            <div
-
-                }              key={message.id}
-
-            }              className={`chat-message ${message.isUser ? 'user' : 'assistant'}`}
-
-            >
-
-            recorder.onstop = () => {              <div className={`chat-bubble ${message.isUser ? 'user' : 'assistant'} shadow-sm flex items-end gap-2`}>
-
-                if (recordingInterval) {                {!message.isUser && <Bot className="w-5 h-5 text-blue-500 flex-shrink-0" />}
-
-                    clearInterval(recordingInterval)                <div className="flex-1">
-
-                    setRecordingInterval(null)                  <p className="whitespace-pre-wrap text-base leading-relaxed">{message.content}</p>
-
-                }                  <span className={`block text-xs mt-1 ${message.isUser ? 'text-blue-200' : 'text-gray-500'}`}>
-
-                stream.getTracks().forEach(track => track.stop())                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-
-            }                  </span>
-
-                </div>
-
-            setMediaRecorder(recorder)                {message.isUser && <User className="w-5 h-5 text-blue-500 flex-shrink-0" />}
-
-            recorder.start(1000)              </div>
-
-        } catch (error) {            </div>
-
-            console.error('Error accessing microphone:', error)          ))}
-
-            alert('No se pudo acceder al micrófono. Verifica los permisos.')          {isLoading && (
-
-        }            <div className="chat-message assistant">
-
-    }              <div className="chat-bubble assistant flex items-center gap-2 shadow-sm">
-
-                <Bot className="w-5 h-5 text-blue-500" />
-
-    const stopRecording = () => {                <div className="flex space-x-1">
-
-        if (mediaRecorder && mediaRecorder.state === 'recording') {                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-
-            mediaRecorder.stop()                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-
-        }                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-
-        setIsRecording(false)                </div>
-
-        if (recordingInterval) {              </div>
-
-            clearInterval(recordingInterval)            </div>
-
-            setRecordingInterval(null)          )}
-
-        }          <div ref={messagesEndRef} />
-
-    }        </div>
-
-
-
-    useEffect(() => {        {/* Input moderno */}
-
-        if (!isRecording && audioChunks.length > 0) {        <div className="border-t bg-white/80 px-4 py-4">
-
-            setTimeout(() => sendAudioMessage(), 500)          <form
-
-        }            className="flex gap-3 items-end"
-
-    }, [isRecording, audioChunks])            onSubmit={e => { e.preventDefault(); handleSendMessage(); }}
-
-            autoComplete="off"
-
-    const sendAudioMessage = async () => {          >
-
-        try {            <textarea
-
-            if (audioChunks.length === 0) return              value={inputValue}
-
-              onChange={(e) => setInputValue(e.target.value)}
-
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })              onKeyPress={handleKeyPress}
-
-            if (audioBlob.size < 1000) {              placeholder="Escribe tu mensaje..."
-
-                alert('La grabación es muy corta.')              className="input resize-none min-h-[44px] max-h-32"
-
-                return              rows={1}
-
-            }              disabled={isLoading}
-
-              style={{ flex: 1 }}
-
-            const reader = new FileReader()            />
-
-            reader.onloadend = async () => {            <button
-
-                try {              type="submit"
-
-                    const base64 = reader.result as string              disabled={isLoading || !inputValue.trim()}
-
-                    const base64Data = base64.split(',')[1]              className="btn-primary rounded-full p-3 shadow-lg hover:scale-105 transition-transform disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
-
-              title="Enviar"
-
-                    if (!base64Data || base64Data.length < 100) {            >
-
-                        alert('Error al procesar el audio.')              <Send className="w-6 h-6" />
-
-                        return            </button>
-
-                    }          </form>
-
-        </div>
-
-                    await sendMessage('', base64Data, true)      </div>
-
-                    setAudioChunks([])    </div>
-
-                } catch (error) {  )
-
-                    console.error('Error enviando mensaje de audio:', error)}
-
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    setAudioChunks(prev => [...prev, event.data])
+                }
+            }
+
+            recorder.onstop = () => {
+                if (recordingInterval) {
+                    clearInterval(recordingInterval)
+                    setRecordingInterval(null)
+                }
+                stream.getTracks().forEach(track => track.stop())
+            }
+
+            setMediaRecorder(recorder)
+            recorder.start(1000)
+        } catch (error) {
+            console.error('Error accessing microphone:', error)
+            alert('No se pudo acceder al micrófono. Verifica los permisos.')
+        }
+    }
+
+    const stopRecording = () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop()
+        }
+        setIsRecording(false)
+        if (recordingInterval) {
+            clearInterval(recordingInterval)
+            setRecordingInterval(null)
+        }
+    }
+
+    useEffect(() => {
+        if (!isRecording && audioChunks.length > 0) {
+            setTimeout(() => sendAudioMessage(), 500)
+        }
+    }, [isRecording, audioChunks])
+
+    const sendAudioMessage = async () => {
+        try {
+            if (audioChunks.length === 0) return
+
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+            if (audioBlob.size < 1000) {
+                alert('La grabación es muy corta.')
+                return
+            }
+
+            const reader = new FileReader()
+            reader.onloadend = async () => {
+                try {
+                    const base64 = reader.result as string
+                    const base64Data = base64.split(',')[1]
+
+                    if (!base64Data || base64Data.length < 100) {
+                        alert('Error al procesar el audio.')
+                        return
+                    }
+
+                    await sendMessage('', base64Data, true)
+                    setAudioChunks([])
+                } catch (error) {
+                    console.error('Error enviando mensaje de audio:', error)
                     alert('Error al enviar el mensaje de voz.')
                 }
             }
