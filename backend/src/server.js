@@ -173,46 +173,12 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 API: http://localhost:${PORT}/api`);
   console.log(`💡 Health check: http://localhost:${PORT}/health`);
   console.log(`🗄️ Database connection: ${process.env.DATABASE_URL ? 'configured' : 'missing'}`);
-  
-  // Run database migrations in background AFTER server is listening
-  if (process.env.NODE_ENV === 'production') {
-    const { spawn } = require('child_process');
-    
-    console.log('🔄 Running database migrations in background...');
-    const migrate = spawn('npx', ['prisma', 'migrate', 'deploy', '--schema=./prisma/schema.prisma'], {
-      stdio: 'inherit',
-      shell: true
-    });
-    
-    migrate.on('close', (code) => {
-      if (code === 0) {
-        console.log('✅ Database migrations completed');
-        
-        // Try to seed database after migrations
-        console.log('🔄 Seeding database...');
-        const seed = spawn('node', ['prisma/seed.js'], {
-          stdio: 'inherit',
-          shell: true
-        });
-        
-        seed.on('close', (seedCode) => {
-          if (seedCode === 0) {
-            console.log('✅ Database seeding completed');
-          } else {
-            console.warn('⚠️ Database seeding failed, but server is running');
-          }
-        });
-      } else {
-        console.warn('⚠️ Database migrations failed, but server is running');
-      }
-    });
-  }
 });
 
 module.exports = app;
