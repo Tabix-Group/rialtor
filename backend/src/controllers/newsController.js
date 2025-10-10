@@ -2,21 +2,29 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// GET /api/news - Get all active news with pagination
+// GET /api/news - Get all active news with pagination and category filtering
 const getNews = async (req, res, next) => {
     try {
-        const { page = 1, limit = 12 } = req.query;
+        const { page = 1, limit = 10, category } = req.query;
 
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
+        const where = { isActive: true };
+        if (category) {
+            where.categoryId = category;
+        }
+
         const [news, total] = await Promise.all([
             prisma.news.findMany({
-                where: { isActive: true },
+                where,
+                include: {
+                    category: true
+                },
                 orderBy: { publishedAt: 'desc' },
                 skip: offset,
                 take: parseInt(limit)
             }),
-            prisma.news.count({ where: { isActive: true } })
+            prisma.news.count({ where })
         ]);
 
         res.json({
@@ -39,7 +47,10 @@ const getNewsById = async (req, res, next) => {
         const { id } = req.params;
 
         const newsItem = await prisma.news.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                category: true
+            }
         });
 
         if (!newsItem) {
@@ -55,7 +66,7 @@ const getNewsById = async (req, res, next) => {
 // POST /api/news - Create new news (admin only)
 const createNews = async (req, res, next) => {
     try {
-        const { title, synopsis, source, externalUrl, publishedAt } = req.body;
+        const { title, synopsis, source, externalUrl, publishedAt, categoryId } = req.body;
 
         const newsItem = await prisma.news.create({
             data: {
@@ -63,7 +74,11 @@ const createNews = async (req, res, next) => {
                 synopsis,
                 source,
                 externalUrl,
-                publishedAt: publishedAt ? new Date(publishedAt) : new Date()
+                publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
+                categoryId: categoryId || null
+            },
+            include: {
+                category: true
             }
         });
 
@@ -77,7 +92,7 @@ const createNews = async (req, res, next) => {
 const updateNews = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { title, synopsis, source, externalUrl, publishedAt, isActive } = req.body;
+        const { title, synopsis, source, externalUrl, publishedAt, isActive, categoryId } = req.body;
 
         const existingNews = await prisma.news.findUnique({
             where: { id }
@@ -95,7 +110,11 @@ const updateNews = async (req, res, next) => {
                 ...(source && { source }),
                 ...(externalUrl && { externalUrl }),
                 ...(publishedAt && { publishedAt: new Date(publishedAt) }),
-                ...(typeof isActive === 'boolean' && { isActive })
+                ...(typeof isActive === 'boolean' && { isActive }),
+                ...(categoryId !== undefined && { categoryId: categoryId || null })
+            },
+            include: {
+                category: true
             }
         });
 
@@ -137,6 +156,9 @@ const getAllNewsAdmin = async (req, res, next) => {
 
         const [news, total] = await Promise.all([
             prisma.news.findMany({
+                include: {
+                    category: true
+                },
                 orderBy: { createdAt: 'desc' },
                 skip: offset,
                 take: parseInt(limit)
@@ -158,11 +180,26 @@ const getAllNewsAdmin = async (req, res, next) => {
     }
 };
 
+// GET /api/categories - Get all active categories
+const getCategories = async (req, res, next) => {
+    try {
+        const categories = await prisma.category.findMany({
+            where: { isActive: true },
+            orderBy: { name: 'asc' }
+        });
+
+        res.json({ categories });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getNews,
     getNewsById,
     createNews,
     updateNews,
     deleteNews,
-    getAllNewsAdmin
+    getAllNewsAdmin,
+    getCategories
 };

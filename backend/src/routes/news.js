@@ -7,7 +7,8 @@ const {
     createNews,
     updateNews,
     deleteNews,
-    getAllNewsAdmin
+    getAllNewsAdmin,
+    getCategories
 } = require('../controllers/newsController');
 
 const { authenticateToken, authorizeRoles } = require('../middleware/auth');
@@ -16,6 +17,7 @@ const { validateNews } = require('../middleware/validation');
 // Public routes
 router.get('/', getNews);
 router.get('/:id', getNewsById);
+router.get('/categories/all', getCategories);
 
 // Admin routes
 router.get('/admin/all', authenticateToken, authorizeRoles('ADMIN'), getAllNewsAdmin);
