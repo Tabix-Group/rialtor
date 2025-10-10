@@ -116,8 +116,8 @@ export default function PlacasPage() {
       propertyData.antiguedad,
       propertyData.contacto,
       propertyData.email,
-      propertyData.descripcion,
-      propertyData.geometricPattern !== 'none' ? propertyData.geometricPattern : '' // Solo cuenta si no es 'none'
+      propertyData.descripcion
+      // Nota: geometricPattern no se cuenta en el límite de 7 campos
     ];
     return optionalFields.filter(field => field && field.trim() !== '').length;
   };
@@ -809,14 +809,13 @@ export default function PlacasPage() {
                         propertyData.geometricPattern === 'none'
                           ? 'border-blue-500 bg-blue-50 text-blue-700'
                           : 'border-gray-300 hover:border-gray-400'
-                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern === 'none' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      }`}>
                         <input
                           type="radio"
                           name="geometricPattern"
                           value="none"
                           checked={propertyData.geometricPattern === 'none'}
                           onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
-                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'none'}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <span className="text-sm">Sin patrón</span>
@@ -826,14 +825,13 @@ export default function PlacasPage() {
                         propertyData.geometricPattern === 'diagonal_lines'
                           ? 'border-blue-500 bg-blue-50 text-blue-700'
                           : 'border-gray-300 hover:border-gray-400'
-                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'diagonal_lines' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      }`}>
                         <input
                           type="radio"
                           name="geometricPattern"
                           value="diagonal_lines"
                           checked={propertyData.geometricPattern === 'diagonal_lines'}
                           onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
-                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'diagonal_lines'}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <Minus className="w-4 h-4 rotate-45" />
@@ -844,14 +842,13 @@ export default function PlacasPage() {
                         propertyData.geometricPattern === 'concentric_circles'
                           ? 'border-blue-500 bg-blue-50 text-blue-700'
                           : 'border-gray-300 hover:border-gray-400'
-                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'concentric_circles' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      }`}>
                         <input
                           type="radio"
                           name="geometricPattern"
                           value="concentric_circles"
                           checked={propertyData.geometricPattern === 'concentric_circles'}
                           onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
-                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'concentric_circles'}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <Circle className="w-4 h-4" />
@@ -862,14 +859,13 @@ export default function PlacasPage() {
                         propertyData.geometricPattern === 'triangles'
                           ? 'border-blue-500 bg-blue-50 text-blue-700'
                           : 'border-gray-300 hover:border-gray-400'
-                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'triangles' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      }`}>
                         <input
                           type="radio"
                           name="geometricPattern"
                           value="triangles"
                           checked={propertyData.geometricPattern === 'triangles'}
                           onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
-                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'triangles'}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <Triangle className="w-4 h-4" />
@@ -880,14 +876,13 @@ export default function PlacasPage() {
                         propertyData.geometricPattern === 'hexagons'
                           ? 'border-blue-500 bg-blue-50 text-blue-700'
                           : 'border-gray-300 hover:border-gray-400'
-                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'hexagons' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      }`}>
                         <input
                           type="radio"
                           name="geometricPattern"
                           value="hexagons"
                           checked={propertyData.geometricPattern === 'hexagons'}
                           onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
-                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'hexagons'}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <Hexagon className="w-4 h-4" />
@@ -898,14 +893,13 @@ export default function PlacasPage() {
                         propertyData.geometricPattern === 'waves'
                           ? 'border-blue-500 bg-blue-50 text-blue-700'
                           : 'border-gray-300 hover:border-gray-400'
-                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'waves' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      }`}>
                         <input
                           type="radio"
                           name="geometricPattern"
                           value="waves"
                           checked={propertyData.geometricPattern === 'waves'}
                           onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
-                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'waves'}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <Waves className="w-4 h-4" />
@@ -916,14 +910,13 @@ export default function PlacasPage() {
                         propertyData.geometricPattern === 'dots'
                           ? 'border-blue-500 bg-blue-50 text-blue-700'
                           : 'border-gray-300 hover:border-gray-400'
-                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'dots' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      }`}>
                         <input
                           type="radio"
                           name="geometricPattern"
                           value="dots"
                           checked={propertyData.geometricPattern === 'dots'}
                           onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
-                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'dots'}
                           className="text-blue-600 focus:ring-blue-500"
                         />
                         <MoreHorizontal className="w-4 h-4" />
