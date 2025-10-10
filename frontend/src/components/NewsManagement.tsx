@@ -106,7 +106,7 @@ export default function NewsManagement() {
 
             const requestData = {
                 ...formData,
-                publishedAt: formData.publishedAt || new Date().toISOString(),
+                publishedAt: formData.publishedAt ? new Date(formData.publishedAt).toISOString() : new Date().toISOString(),
                 categoryId: formData.categoryId || null
             }
 

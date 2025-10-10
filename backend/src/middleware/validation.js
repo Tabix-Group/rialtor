@@ -6,7 +6,11 @@ const validateRequest = (req, res, next) => {
   if (!errors.isEmpty()) {
     console.log('[VALIDATION] Validation failed:', JSON.stringify({
       body: req.body,
-      errors: errors.array()
+      erro    body('synopsis')
+      .optional()
+      .trim()
+      .isLength({ min: 5, max: 500 })
+      .withMessage('Synopsis must be between 5 and 500 characters'),rrors.array()
     }, null, 2));
     return res.status(400).json({
       error: 'Validation failed',
@@ -244,8 +248,8 @@ const validateNews = {
       .withMessage('Title must be between 3 and 200 characters'),
     body('synopsis')
       .trim()
-      .isLength({ min: 10, max: 500 })
-      .withMessage('Synopsis must be between 10 and 500 characters'),
+      .isLength({ min: 5, max: 500 })
+      .withMessage('Synopsis must be between 5 and 500 characters'),
     body('source')
       .trim()
       .isLength({ min: 2, max: 100 })
@@ -281,8 +285,8 @@ const validateNews = {
     body('synopsis')
       .optional()
       .trim()
-      .isLength({ min: 10, max: 500 })
-      .withMessage('Synopsis must be between 10 and 500 characters'),
+      .isLength({ min: 5, max: 500 })
+      .withMessage('Synopsis must be between 5 and 500 characters'),
     body('source')
       .optional()
       .trim()
