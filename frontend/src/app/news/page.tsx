@@ -15,6 +15,19 @@ interface NewsItem {
     isActive: boolean
     createdAt: string
     updatedAt: string
+    categoryId: string | null
+    category?: {
+        id: string
+        name: string
+        color: string
+    }
+}
+
+interface Category {
+    id: string
+    name: string
+    color: string
+    articleCount: number
 }
 
 interface NewsResponse {
@@ -29,19 +42,35 @@ interface NewsResponse {
 
 export default function NewsPage() {
     const [news, setNews] = useState<NewsItem[]>([])
+    const [categories, setCategories] = useState<Category[]>([])
+    const [selectedCategory, setSelectedCategory] = useState<string>('')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [currentPage, setCurrentPage] = useState(1)
     const [pagination, setPagination] = useState<NewsResponse['pagination'] | null>(null)
 
     useEffect(() => {
-        fetchNews(currentPage)
-    }, [currentPage])
+        fetchCategories()
+        fetchNews(currentPage, selectedCategory)
+    }, [currentPage, selectedCategory])
 
-    const fetchNews = async (page: number) => {
+    const fetchCategories = async () => {
+        try {
+            const response = await authenticatedFetch('/api/categories')
+            if (response.ok) {
+                const data = await response.json()
+                setCategories(data.categories || [])
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error)
+        }
+    }
+
+    const fetchNews = async (page: number, category: string = '') => {
         try {
             setLoading(true)
-            const response = await authenticatedFetch(`/api/news?page=${page}&limit=12`)
+            const categoryParam = category ? `&category=${category}` : ''
+            const response = await authenticatedFetch(`/api/news?page=${page}&limit=12${categoryParam}`)
             if (!response.ok) {
                 throw new Error('Failed to fetch news')
             }
@@ -108,6 +137,49 @@ export default function NewsPage() {
             </div>
 
             <div className="max-w-7xl mx-auto px-4 py-12">
+                {/* Category Filter */}
+                <div className="mb-8">
+                    <div className="flex flex-wrap items-center gap-4">
+                        <span className="text-lg font-semibold text-gray-900">Filtrar por categoría:</span>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => {
+                                    setSelectedCategory('')
+                                    setCurrentPage(1)
+                                }}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                                    selectedCategory === ''
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                            >
+                                Todas las categorías
+                            </button>
+                            {categories.map((category) => (
+                                <button
+                                    key={category.id}
+                                    onClick={() => {
+                                        setSelectedCategory(category.id)
+                                        setCurrentPage(1)
+                                    }}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
+                                        selectedCategory === category.id
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    <div
+                                        className="w-3 h-3 rounded-full"
+                                        style={{ backgroundColor: category.color }}
+                                    ></div>
+                                    {category.name}
+                                    <span className="text-xs opacity-75">({category.articleCount})</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
                 {news.length === 0 ? (
                     <div className="text-center py-12">
                         <Newspaper className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -126,6 +198,20 @@ export default function NewsPage() {
                                             <span>{formatDate(item.publishedAt)}</span>
                                             <span className="mx-2">•</span>
                                             <span className="font-medium text-blue-600">{item.source}</span>
+                                            {item.category && (
+                                                <>
+                                                    <span className="mx-2">•</span>
+                                                    <div className="flex items-center gap-1">
+                                                        <div
+                                                            className="w-3 h-3 rounded-full"
+                                                            style={{ backgroundColor: item.category.color }}
+                                                        ></div>
+                                                        <span className="font-medium" style={{ color: item.category.color }}>
+                                                            {item.category.name}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
 
                                         <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">

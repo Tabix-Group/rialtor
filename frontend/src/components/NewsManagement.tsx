@@ -14,6 +14,18 @@ interface NewsItem {
     isActive: boolean
     createdAt: string
     updatedAt: string
+    categoryId: string | null
+    category?: {
+        id: string
+        name: string
+        color: string
+    }
+}
+
+interface Category {
+    id: string
+    name: string
+    color: string
 }
 
 interface NewsResponse {
@@ -28,6 +40,7 @@ interface NewsResponse {
 
 export default function NewsManagement() {
     const [news, setNews] = useState<NewsItem[]>([])
+    const [categories, setCategories] = useState<Category[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [editingNews, setEditingNews] = useState<NewsItem | null>(null)
@@ -39,12 +52,24 @@ export default function NewsManagement() {
         synopsis: '',
         source: '',
         externalUrl: '',
-        publishedAt: ''
+        publishedAt: '',
+        categoryId: ''
     })
 
     useEffect(() => {
+        fetchCategories()
         fetchNews(currentPage, pageSize)
     }, [currentPage, pageSize])
+
+    const fetchCategories = async () => {
+        try {
+            const response = await authenticatedFetch('/api/categories')
+            const data = await response.json()
+            setCategories(data.categories || [])
+        } catch (error) {
+            console.error('Error fetching categories:', error)
+        }
+    }
 
     const fetchNews = async (page: number = 1, limit: number = 10) => {
         try {
@@ -72,7 +97,8 @@ export default function NewsManagement() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
-                    publishedAt: formData.publishedAt || new Date().toISOString()
+                    publishedAt: formData.publishedAt || new Date().toISOString(),
+                    categoryId: formData.categoryId || null
                 })
             })
 
@@ -98,7 +124,8 @@ export default function NewsManagement() {
             synopsis: newsItem.synopsis,
             source: newsItem.source,
             externalUrl: newsItem.externalUrl,
-            publishedAt: new Date(newsItem.publishedAt).toISOString().slice(0, 16)
+            publishedAt: new Date(newsItem.publishedAt).toISOString().slice(0, 16),
+            categoryId: newsItem.categoryId || ''
         })
         setShowForm(true)
     }
@@ -148,7 +175,8 @@ export default function NewsManagement() {
             synopsis: '',
             source: '',
             externalUrl: '',
-            publishedAt: ''
+            publishedAt: '',
+            categoryId: ''
         })
     }
 
@@ -243,15 +271,33 @@ export default function NewsManagement() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Fecha de Publicación
+                                        Categoría
                                     </label>
-                                    <input
-                                        type="datetime-local"
-                                        value={formData.publishedAt}
-                                        onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                                    <select
+                                        value={formData.categoryId}
+                                        onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
+                                    >
+                                        <option value="">Sin categoría</option>
+                                        {categories.map((category) => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Fecha de Publicación
+                                </label>
+                                <input
+                                    type="datetime-local"
+                                    value={formData.publishedAt}
+                                    onChange={(e) => setFormData({ ...formData, publishedAt: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
 
                             <div>
@@ -320,6 +366,15 @@ export default function NewsManagement() {
 
                                     <div className="flex items-center gap-4 text-sm text-gray-500">
                                         <span>Fuente: {item.source}</span>
+                                        {item.category && (
+                                            <div className="flex items-center gap-1">
+                                                <div
+                                                    className="w-3 h-3 rounded-full"
+                                                    style={{ backgroundColor: item.category.color }}
+                                                ></div>
+                                                <span>{item.category.name}</span>
+                                            </div>
+                                        )}
                                         <div className="flex items-center gap-1">
                                             <Calendar className="w-4 h-4" />
                                             <span>{formatDate(item.publishedAt)}</span>
