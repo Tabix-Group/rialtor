@@ -330,7 +330,7 @@ export default function PlacasPage() {
               </p>
               <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Límite de campos:</strong> Completa máximo 7 campos opcionales por placa para optimizar el procesamiento. Los patrones geométricos y la marca no cuentan en este límite.
+                  <strong>Límite de campos:</strong> Completa máximo 7 campos opcionales por placa para optimizar el procesamiento.
                 </p>
               </div>
             </div>
@@ -538,7 +538,7 @@ export default function PlacasPage() {
                     ></div>
                   </div>
                   <p className="text-xs text-blue-700 mt-2">
-                    Completa máximo {maxOptionalFields} campos opcionales para poder procesar la placa. Los patrones geométricos y la marca no cuentan en este límite.
+                    Completa máximo {maxOptionalFields} campos opcionales para poder procesar la placa.
                   </p>
                 </div>
 

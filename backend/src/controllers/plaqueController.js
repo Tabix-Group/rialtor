@@ -475,9 +475,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     
     // Función para crear patrones geométricos
     function createGeometricPattern(patternType) {
-      const margin = Math.max(20, Math.floor(width * 0.05)); // Margen del 5% mínimo 20px
-      const patternWidth = width - (margin * 2);
-      const patternHeight = height - (margin * 2);
+      const borderThickness = Math.max(15, Math.floor(width * 0.02)); // Grosor del borde (2% mínimo 15px)
       
       switch (patternType) {
         case 'diagonal_lines':
@@ -488,7 +486,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <line x1="0" y1="20" x2="20" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#diagonalLinesPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#diagonalLinesPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#diagonalLinesPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#diagonalLinesPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#diagonalLinesPattern)" />
           `;
         
         case 'concentric_circles':
@@ -500,7 +505,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="20" cy="20" r="6" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#concentricCirclesPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#concentricCirclesPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#concentricCirclesPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#concentricCirclesPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#concentricCirclesPattern)" />
           `;
         
         case 'triangles':
@@ -511,7 +523,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <polygon points="15,24 28,2 2,2" fill="rgba(255,255,255,0.08)" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#trianglesPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#trianglesPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#trianglesPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#trianglesPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#trianglesPattern)" />
           `;
         
         case 'hexagons':
@@ -521,7 +540,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <polygon points="25,2 45,13 45,32 25,43 5,32 5,13" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#hexagonsPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#hexagonsPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#hexagonsPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#hexagonsPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#hexagonsPattern)" />
           `;
         
         case 'waves':
@@ -532,7 +558,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <path d="M0,15 Q10,5 20,15 T40,15" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#wavesPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#wavesPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#wavesPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#wavesPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#wavesPattern)" />
           `;
         
         case 'dots':
@@ -542,7 +575,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="7.5" cy="7.5" r="1.5" fill="rgba(255,255,255,0.4)" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#dotsPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#dotsPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#dotsPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#dotsPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#dotsPattern)" />
           `;
         
         case 'elegant':
@@ -558,7 +598,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.3)" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#elegantPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#elegantPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#elegantPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#elegantPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#elegantPattern)" />
           `;
         
         case 'lines':
@@ -569,7 +616,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <line x1="10" y1="0" x2="10" y2="20" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#linesPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#linesPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#linesPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#linesPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#linesPattern)" />
           `;
         
         case 'geometric':
@@ -580,7 +634,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="15" cy="15" r="3" fill="rgba(255,255,255,0.4)" />
               </pattern>
             </defs>
-            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#geometricPattern)" />
+            <!-- Borde superior -->
+            <rect x="0" y="0" width="${width}" height="${borderThickness}" fill="url(#geometricPattern)" />
+            <!-- Borde inferior -->
+            <rect x="0" y="${height - borderThickness}" width="${width}" height="${borderThickness}" fill="url(#geometricPattern)" />
+            <!-- Borde izquierdo -->
+            <rect x="0" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#geometricPattern)" />
+            <!-- Borde derecho -->
+            <rect x="${width - borderThickness}" y="${borderThickness}" width="${borderThickness}" height="${height - (borderThickness * 2)}" fill="url(#geometricPattern)" />
           `;
         
         case 'rounded':
