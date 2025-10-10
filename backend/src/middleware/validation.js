@@ -6,11 +6,7 @@ const validateRequest = (req, res, next) => {
   if (!errors.isEmpty()) {
     console.log('[VALIDATION] Validation failed:', JSON.stringify({
       body: req.body,
-      erro    body('synopsis')
-      .optional()
-      .trim()
-      .isLength({ min: 5, max: 500 })
-      .withMessage('Synopsis must be between 5 and 500 characters'),rrors.array()
+      errors: errors.array()
     }, null, 2));
     return res.status(400).json({
       error: 'Validation failed',
