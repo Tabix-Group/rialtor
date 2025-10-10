@@ -1014,13 +1014,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       const brandX = brandMargin;
       const brandY = brandMargin + brandSize;
       
-      // Fondo sutil para la marca
-      const brandBoxWidth = brandSafe.length * (brandSize * 0.6) + 20;
+      // Calcular ancho del texto de forma más precisa (aproximación)
+      const approxCharWidth = brandSize * 0.55; // Ancho promedio por caracter
+      const brandTextWidth = brandSafe.length * approxCharWidth;
+      const brandBoxWidth = brandTextWidth + 24; // Padding extra
       const brandBoxHeight = brandSize + 16;
       
-      svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${brandX - 10}" y="${brandY - brandSize - 8}" width="${brandBoxWidth}" height="${brandBoxHeight}" rx="6" fill="rgba(255,255,255,0.9)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
-      svg += `  </g>\n`;
+      // Fondo con opacidad del 50%
+      svg += `  <rect x="${brandX - 12}" y="${brandY - brandSize - 10}" width="${brandBoxWidth}" height="${brandBoxHeight}" rx="6" fill="rgba(255,255,255,0.5)" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
       
       svg += `  <text x="${brandX}" y="${brandY}" text-anchor="start" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${brandSize}px; font-weight: 600; fill: #000000;">${brandSafe}</text>\n`;
     }
