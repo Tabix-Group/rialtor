@@ -426,7 +426,7 @@ function escapeForSvg(s) {
     .replace(/'/g, '&#39;');
 }
 
-// Función factorizada para generar el string SVG del overlay.
+    // Función factorizada para generar el string SVG del overlay.
 function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
   try {
     const precio = String(propertyInfo.precio || 'Consultar').replace(/[^\d]/g, '');
@@ -443,8 +443,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const email = propertyInfo.email || null;
     const corredores = propertyInfo.corredores || null; // Ahora obligatorio
     const antiguedad = propertyInfo.antiguedad || null;
-    
-    // Calcular cantidad de campos con información para diseño adaptativo
+    const geometricPattern = propertyInfo.geometricPattern || 'none'; // Nuevo campo para patrones geométricos    // Calcular cantidad de campos con información para diseño adaptativo
     let fieldCount = 0;
     if (tipo) fieldCount++;
     if (antiguedad) fieldCount++;
@@ -472,6 +471,125 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const descripcion = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
     const overlayColor = determineOverlayColor(imageAnalysis && imageAnalysis.colores);
     const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
+    
+    // Función para crear patrones geométricos
+    function createGeometricPattern(patternType) {
+      switch (patternType) {
+        case 'diagonal_lines':
+          return `
+            <defs>
+              <pattern id="diagonalLinesPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+                <line x1="0" y1="0" x2="20" y2="20" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+                <line x1="0" y1="20" x2="20" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#diagonalLinesPattern)" />
+          `;
+        
+        case 'concentric_circles':
+          return `
+            <defs>
+              <pattern id="concentricCirclesPattern" patternUnits="userSpaceOnUse" width="40" height="40">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+                <circle cx="20" cy="20" r="12" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+                <circle cx="20" cy="20" r="6" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#concentricCirclesPattern)" />
+          `;
+        
+        case 'triangles':
+          return `
+            <defs>
+              <pattern id="trianglesPattern" patternUnits="userSpaceOnUse" width="30" height="26">
+                <polygon points="15,2 28,24 2,24" fill="rgba(255,255,255,0.12)" />
+                <polygon points="15,24 28,2 2,2" fill="rgba(255,255,255,0.08)" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#trianglesPattern)" />
+          `;
+        
+        case 'hexagons':
+          return `
+            <defs>
+              <pattern id="hexagonsPattern" patternUnits="userSpaceOnUse" width="50" height="43">
+                <polygon points="25,2 45,13 45,32 25,43 5,32 5,13" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#hexagonsPattern)" />
+          `;
+        
+        case 'waves':
+          return `
+            <defs>
+              <pattern id="wavesPattern" patternUnits="userSpaceOnUse" width="40" height="20">
+                <path d="M0,10 Q10,0 20,10 T40,10" stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="none" />
+                <path d="M0,15 Q10,5 20,15 T40,15" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#wavesPattern)" />
+          `;
+        
+        case 'dots':
+          return `
+            <defs>
+              <pattern id="dotsPattern" patternUnits="userSpaceOnUse" width="15" height="15">
+                <circle cx="7.5" cy="7.5" r="1.5" fill="rgba(255,255,255,0.4)" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#dotsPattern)" />
+          `;
+        
+        case 'elegant':
+          return `
+            <defs>
+              <linearGradient id="elegantGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="rgba(118, 104, 93, 0.8)" />
+                <stop offset="50%" stop-color="rgba(139, 115, 85, 0.6)" />
+                <stop offset="100%" stop-color="rgba(118, 104, 93, 0.8)" />
+              </linearGradient>
+              <pattern id="elegantPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+                <rect width="20" height="20" fill="url(#elegantGradient)" />
+                <circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.3)" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#elegantPattern)" />
+          `;
+        
+        case 'lines':
+          return `
+            <defs>
+              <pattern id="linesPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+                <line x1="0" y1="10" x2="20" y2="10" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
+                <line x1="10" y1="0" x2="10" y2="20" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#linesPattern)" />
+          `;
+        
+        case 'geometric':
+          return `
+            <defs>
+              <pattern id="geometricPattern" patternUnits="userSpaceOnUse" width="30" height="30">
+                <polygon points="15,0 30,15 15,30 0,15" fill="rgba(255,255,255,0.2)" />
+                <circle cx="15" cy="15" r="3" fill="rgba(255,255,255,0.4)" />
+              </pattern>
+            </defs>
+            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#geometricPattern)" />
+          `;
+        
+        case 'rounded':
+          // Los bordes redondeados ya se aplican en los rectángulos individuales
+          return '';
+        
+        case 'none':
+        default:
+          return '';
+      }
+    }
+    
+    // Generar el patrón geométrico seleccionado
+    const geometricPatternSvg = createGeometricPattern(geometricPattern);
     
     // Sistema de colores mejorado con múltiples esquemas profesionales
     const colorSchemes = {
@@ -642,6 +760,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
 
     let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n`;
+    
+    // Agregar patrón geométrico si existe
+    if (geometricPatternSvg) {
+      svg += geometricPatternSvg;
+    }
+    
     svg += `  <defs>\n`;
     svg += `    <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">\n`;
     svg += `      <stop offset="0%" stop-color="rgba(0,0,0,0.6)" />\n`;
