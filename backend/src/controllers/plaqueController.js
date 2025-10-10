@@ -443,7 +443,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const email = propertyInfo.email || null;
     const corredores = propertyInfo.corredores || null; // Ahora obligatorio
     const antiguedad = propertyInfo.antiguedad || null;
-    const geometricPattern = propertyInfo.geometricPattern || 'none'; // Nuevo campo para patrones geométricos    // Calcular cantidad de campos con información para diseño adaptativo
+    const geometricPattern = propertyInfo.geometricPattern || 'none'; // Nuevo campo para patrones geométricos
+    const brand = propertyInfo.brand || null; // Nuevo campo para marca    // Calcular cantidad de campos con información para diseño adaptativo
     let fieldCount = 0;
     if (tipo) fieldCount++;
     if (antiguedad) fieldCount++;
@@ -474,6 +475,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     
     // Función para crear patrones geométricos
     function createGeometricPattern(patternType) {
+      const margin = Math.max(20, Math.floor(width * 0.05)); // Margen del 5% mínimo 20px
+      const patternWidth = width - (margin * 2);
+      const patternHeight = height - (margin * 2);
+      
       switch (patternType) {
         case 'diagonal_lines':
           return `
@@ -483,7 +488,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <line x1="0" y1="20" x2="20" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#diagonalLinesPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#diagonalLinesPattern)" />
           `;
         
         case 'concentric_circles':
@@ -495,7 +500,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="20" cy="20" r="6" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#concentricCirclesPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#concentricCirclesPattern)" />
           `;
         
         case 'triangles':
@@ -506,7 +511,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <polygon points="15,24 28,2 2,2" fill="rgba(255,255,255,0.08)" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#trianglesPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#trianglesPattern)" />
           `;
         
         case 'hexagons':
@@ -516,7 +521,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <polygon points="25,2 45,13 45,32 25,43 5,32 5,13" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#hexagonsPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#hexagonsPattern)" />
           `;
         
         case 'waves':
@@ -527,7 +532,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <path d="M0,15 Q10,5 20,15 T40,15" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#wavesPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#wavesPattern)" />
           `;
         
         case 'dots':
@@ -537,7 +542,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="7.5" cy="7.5" r="1.5" fill="rgba(255,255,255,0.4)" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#dotsPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#dotsPattern)" />
           `;
         
         case 'elegant':
@@ -553,7 +558,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.3)" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#elegantPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#elegantPattern)" />
           `;
         
         case 'lines':
@@ -564,7 +569,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <line x1="10" y1="0" x2="10" y2="20" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#linesPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#linesPattern)" />
           `;
         
         case 'geometric':
@@ -575,7 +580,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
                 <circle cx="15" cy="15" r="3" fill="rgba(255,255,255,0.4)" />
               </pattern>
             </defs>
-            <rect x="0" y="0" width="${width}" height="${height}" fill="url(#geometricPattern)" />
+            <rect x="${margin}" y="${margin}" width="${patternWidth}" height="${patternHeight}" fill="url(#geometricPattern)" />
           `;
         
         case 'rounded':
@@ -1000,6 +1005,25 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `  </g>\n`;
 
     svg += `  <text x="${origenBoxX + 10}" y="${origenBoxY + origenSize * 0.9}" text-anchor="start" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: #FFFFFF;">${origenSafe}</text>\n`;
+
+    // Agregar marca en esquina superior izquierda si existe
+    if (brand) {
+      const brandSafe = escapeForSvg(brand);
+      const brandSize = Math.max(14, Math.floor(width / 50));
+      const brandMargin = 20;
+      const brandX = brandMargin;
+      const brandY = brandMargin + brandSize;
+      
+      // Fondo sutil para la marca
+      const brandBoxWidth = brandSafe.length * (brandSize * 0.6) + 20;
+      const brandBoxHeight = brandSize + 16;
+      
+      svg += `  <g filter="url(#f1)">\n`;
+      svg += `    <rect x="${brandX - 10}" y="${brandY - brandSize - 8}" width="${brandBoxWidth}" height="${brandBoxHeight}" rx="6" fill="rgba(255,255,255,0.9)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+      svg += `  </g>\n`;
+      
+      svg += `  <text x="${brandX}" y="${brandY}" text-anchor="start" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${brandSize}px; font-weight: 600; fill: #000000;">${brandSafe}</text>\n`;
+    }
 
     svg += `</svg>`;
     return svg;

@@ -53,6 +53,7 @@ interface PropertyData {
   outputFormat?: string; // Formato de salida (instagram_square, instagram_portrait, etc.)
   colorScheme?: string; // Esquema de color (professional, elegant, modern, luxury)
   geometricPattern?: 'diagonal_lines' | 'concentric_circles' | 'triangles' | 'hexagons' | 'waves' | 'dots' | 'none'; // Patrón geométrico decorativo
+  brand?: string; // Marca opcional que no cuenta en el límite de 7 campos
 }
 
 interface PropertyPlaque {
@@ -96,7 +97,8 @@ export default function PlacasPage() {
     descripcion: '',
     outputFormat: 'original',
     colorScheme: 'professional',
-    geometricPattern: 'none'
+    geometricPattern: 'none',
+    brand: ''
   });
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
@@ -117,7 +119,7 @@ export default function PlacasPage() {
       propertyData.contacto,
       propertyData.email,
       propertyData.descripcion
-      // Nota: geometricPattern no se cuenta en el límite de 7 campos
+      // Nota: geometricPattern y brand no se cuentan en el límite de 7 campos
     ];
     return optionalFields.filter(field => field && field.trim() !== '').length;
   };
@@ -248,7 +250,8 @@ export default function PlacasPage() {
           descripcion: '',
           outputFormat: 'original',
           colorScheme: 'professional',
-          geometricPattern: 'none'
+          geometricPattern: 'none',
+          brand: ''
         });
         fetchPlaques(currentPage);
         alert('Placa creada exitosamente. El procesamiento iniciará en breve.');
@@ -327,7 +330,7 @@ export default function PlacasPage() {
               </p>
               <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
-                  <strong>Límite de campos:</strong> Completa máximo 7 campos opcionales por placa para optimizar el procesamiento.
+                  <strong>Límite de campos:</strong> Completa máximo 7 campos opcionales por placa para optimizar el procesamiento. Los patrones geométricos y la marca no cuentan en este límite.
                 </p>
               </div>
             </div>
@@ -510,7 +513,7 @@ export default function PlacasPage() {
               <div className="p-6">
                 <h2 className="text-2xl font-bold mb-4">Nueva Placa de Propiedad</h2>
                 <p className="text-sm text-gray-600 mb-6">
-                  Completa los campos obligatorios y máximo 7 campos opcionales para generar tu placa. Elige un patrón geométrico decorativo para darle un toque único.
+                  Completa los campos obligatorios y máximo 7 campos opcionales para generar tu placa. Elige un patrón geométrico decorativo y agrega tu marca si lo deseas (estos no cuentan en el límite).
                 </p>
 
                 {/* Indicador de campos opcionales */}
@@ -535,7 +538,7 @@ export default function PlacasPage() {
                     ></div>
                   </div>
                   <p className="text-xs text-blue-700 mt-2">
-                    Completa máximo {maxOptionalFields} campos opcionales para poder procesar la placa.
+                    Completa máximo {maxOptionalFields} campos opcionales para poder procesar la placa. Los patrones geométricos y la marca no cuentan en este límite.
                   </p>
                 </div>
 
@@ -940,6 +943,23 @@ export default function PlacasPage() {
                       rows={3}
                       placeholder="Información adicional sobre la propiedad..."
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Marca <span className="text-xs text-gray-500">(opcional - no cuenta en el límite)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={propertyData.brand}
+                      onChange={(e) => setPropertyData(prev => ({ ...prev, brand: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Ej: Remax, ZonaProp, etc."
+                      maxLength={20}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Texto que aparecerá en la esquina superior izquierda de la placa
+                    </p>
                   </div>
 
                   {/* Botones */}
