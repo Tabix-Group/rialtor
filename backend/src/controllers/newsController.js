@@ -9,24 +9,16 @@ const getNews = async (req, res, next) => {
 
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
-        let where = { isActive: true };
+        const where = { isActive: true };
         if (category) {
-            where.categories = {
-                some: {
-                    categoryId: category
-                }
-            };
+            where.categoryId = category;
         }
 
         const [news, total] = await Promise.all([
             prisma.news.findMany({
                 where,
                 include: {
-                    categories: {
-                        include: {
-                            category: true
-                        }
-                    }
+                    category: true
                 },
                 orderBy: { publishedAt: 'desc' },
                 skip: offset,
@@ -35,14 +27,8 @@ const getNews = async (req, res, next) => {
             prisma.news.count({ where })
         ]);
 
-        // Transform data to include categories array
-        const transformedNews = news.map(item => ({
-            ...item,
-            categories: item.categories.map(nc => nc.category)
-        }));
-
         res.json({
-            news: transformedNews,
+            news,
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
@@ -63,11 +49,7 @@ const getNewsById = async (req, res, next) => {
         const newsItem = await prisma.news.findUnique({
             where: { id },
             include: {
-                categories: {
-                    include: {
-                        category: true
-                    }
-                }
+                category: true
             }
         });
 
@@ -75,13 +57,7 @@ const getNewsById = async (req, res, next) => {
             return res.status(404).json({ error: 'News not found' });
         }
 
-        // Transform data to include categories array
-        const transformedNews = {
-            ...newsItem,
-            categories: newsItem.categories.map(nc => nc.category)
-        };
-
-        res.json({ news: transformedNews });
+        res.json({ news: newsItem });
     } catch (error) {
         next(error);
     }
@@ -90,7 +66,7 @@ const getNewsById = async (req, res, next) => {
 // POST /api/news - Create new news (admin only)
 const createNews = async (req, res, next) => {
     try {
-        const { title, synopsis, source, externalUrl, publishedAt, categoryIds } = req.body;
+        const { title, synopsis, source, externalUrl, publishedAt, categoryId } = req.body;
 
         const newsItem = await prisma.news.create({
             data: {
@@ -99,28 +75,14 @@ const createNews = async (req, res, next) => {
                 source,
                 externalUrl,
                 publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
-                categories: categoryIds && categoryIds.length > 0 ? {
-                    create: categoryIds.map(categoryId => ({
-                        categoryId
-                    }))
-                } : undefined
+                categoryId: categoryId || null
             },
             include: {
-                categories: {
-                    include: {
-                        category: true
-                    }
-                }
+                category: true
             }
         });
 
-        // Transform data to include categories array
-        const transformedNews = {
-            ...newsItem,
-            categories: newsItem.categories.map(nc => nc.category)
-        };
-
-        res.status(201).json({ news: transformedNews });
+        res.status(201).json({ news: newsItem });
     } catch (error) {
         next(error);
     }
@@ -130,7 +92,7 @@ const createNews = async (req, res, next) => {
 const updateNews = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { title, synopsis, source, externalUrl, publishedAt, isActive, categoryIds } = req.body;
+        const { title, synopsis, source, externalUrl, publishedAt, isActive, categoryId } = req.body;
 
         const existingNews = await prisma.news.findUnique({
             where: { id }
@@ -140,59 +102,23 @@ const updateNews = async (req, res, next) => {
             return res.status(404).json({ error: 'News not found' });
         }
 
-        // Update news and categories in a transaction
-        const newsItem = await prisma.$transaction(async (prisma) => {
-            // Update the news item
-            const updatedNews = await prisma.news.update({
-                where: { id },
-                data: {
-                    ...(title && { title }),
-                    ...(synopsis && { synopsis }),
-                    ...(source && { source }),
-                    ...(externalUrl && { externalUrl }),
-                    ...(publishedAt && { publishedAt: new Date(publishedAt) }),
-                    ...(typeof isActive === 'boolean' && { isActive })
-                }
-            });
-
-            // Update categories if provided
-            if (categoryIds !== undefined) {
-                // Delete existing category relationships
-                await prisma.newsCategory.deleteMany({
-                    where: { newsId: id }
-                });
-
-                // Create new category relationships
-                if (categoryIds && categoryIds.length > 0) {
-                    await prisma.newsCategory.createMany({
-                        data: categoryIds.map(categoryId => ({
-                            newsId: id,
-                            categoryId
-                        }))
-                    });
-                }
+        const newsItem = await prisma.news.update({
+            where: { id },
+            data: {
+                ...(title && { title }),
+                ...(synopsis && { synopsis }),
+                ...(source && { source }),
+                ...(externalUrl && { externalUrl }),
+                ...(publishedAt && { publishedAt: new Date(publishedAt) }),
+                ...(typeof isActive === 'boolean' && { isActive }),
+                ...(categoryId !== undefined && { categoryId: categoryId || null })
+            },
+            include: {
+                category: true
             }
-
-            // Fetch the updated news with categories
-            return await prisma.news.findUnique({
-                where: { id },
-                include: {
-                    categories: {
-                        include: {
-                            category: true
-                        }
-                    }
-                }
-            });
         });
 
-        // Transform data to include categories array
-        const transformedNews = {
-            ...newsItem,
-            categories: newsItem.categories.map(nc => nc.category)
-        };
-
-        res.json({ news: transformedNews });
+        res.json({ news: newsItem });
     } catch (error) {
         next(error);
     }
@@ -231,11 +157,7 @@ const getAllNewsAdmin = async (req, res, next) => {
         const [news, total] = await Promise.all([
             prisma.news.findMany({
                 include: {
-                    categories: {
-                        include: {
-                            category: true
-                        }
-                    }
+                    category: true
                 },
                 orderBy: { createdAt: 'desc' },
                 skip: offset,
@@ -244,14 +166,8 @@ const getAllNewsAdmin = async (req, res, next) => {
             prisma.news.count()
         ]);
 
-        // Transform data to include categories array
-        const transformedNews = news.map(item => ({
-            ...item,
-            categories: item.categories.map(nc => nc.category)
-        }));
-
         res.json({
-            news: transformedNews,
+            news,
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),

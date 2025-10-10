@@ -15,7 +15,12 @@ interface NewsItem {
     isActive: boolean
     createdAt: string
     updatedAt: string
-    categories: Category[]
+    categoryId: string | null
+    category?: {
+        id: string
+        name: string
+        color: string
+    }
 }
 
 interface Category {
@@ -193,22 +198,17 @@ export default function NewsPage() {
                                             <span>{formatDate(item.publishedAt)}</span>
                                             <span className="mx-2">•</span>
                                             <span className="font-medium text-blue-600">{item.source}</span>
-                                            {item.categories && item.categories.length > 0 && (
+                                            {item.category && (
                                                 <>
                                                     <span className="mx-2">•</span>
-                                                    <div className="flex items-center gap-1 flex-wrap">
-                                                        {item.categories.map((category, index) => (
-                                                            <div key={category.id} className="flex items-center gap-1">
-                                                                <div
-                                                                    className="w-3 h-3 rounded-full"
-                                                                    style={{ backgroundColor: category.color }}
-                                                                ></div>
-                                                                <span className="font-medium" style={{ color: category.color }}>
-                                                                    {category.name}
-                                                                </span>
-                                                                {index < item.categories.length - 1 && <span className="text-gray-400">,</span>}
-                                                            </div>
-                                                        ))}
+                                                    <div className="flex items-center gap-1">
+                                                        <div
+                                                            className="w-3 h-3 rounded-full"
+                                                            style={{ backgroundColor: item.category.color }}
+                                                        ></div>
+                                                        <span className="font-medium" style={{ color: item.category.color }}>
+                                                            {item.category.name}
+                                                        </span>
                                                     </div>
                                                 </>
                                             )}

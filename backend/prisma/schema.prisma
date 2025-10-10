@@ -89,7 +89,7 @@ model Category {
 
   // Relaciones
   articles Article[]
-  newsCategories NewsCategory[]
+  news     News[]
   
   @@map("categories")
 }
@@ -308,20 +308,10 @@ model News {
   updatedAt   DateTime @updatedAt
 
   // Relaciones
-  categories  NewsCategory[]
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
 
   @@map("news")
-}
-
-model NewsCategory {
-  id         String   @id @default(uuid())
-  newsId     String
-  categoryId String
-  news       News     @relation(fields: [newsId], references: [id], onDelete: Cascade)
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@unique([newsId, categoryId])
-  @@map("news_categories")
 }
 
 // Sistema de archivos para contenido de redes sociales
