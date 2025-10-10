@@ -25,7 +25,13 @@ import {
   Bed,
   Car,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Triangle,
+  Circle,
+  Hexagon,
+  Waves,
+  Minus,
+  MoreHorizontal
 } from 'lucide-react'
 
 interface PropertyData {
@@ -46,6 +52,7 @@ interface PropertyData {
   descripcion?: string;
   outputFormat?: string; // Formato de salida (instagram_square, instagram_portrait, etc.)
   colorScheme?: string; // Esquema de color (professional, elegant, modern, luxury)
+  geometricPattern?: 'diagonal_lines' | 'concentric_circles' | 'triangles' | 'hexagons' | 'waves' | 'dots' | 'none'; // Patrón geométrico decorativo
 }
 
 interface PropertyPlaque {
@@ -88,7 +95,8 @@ export default function PlacasPage() {
     email: '',
     descripcion: '',
     outputFormat: 'original',
-    colorScheme: 'professional'
+    colorScheme: 'professional',
+    geometricPattern: 'none'
   });
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
@@ -108,7 +116,8 @@ export default function PlacasPage() {
       propertyData.antiguedad,
       propertyData.contacto,
       propertyData.email,
-      propertyData.descripcion
+      propertyData.descripcion,
+      propertyData.geometricPattern !== 'none' ? propertyData.geometricPattern : '' // Solo cuenta si no es 'none'
     ];
     return optionalFields.filter(field => field && field.trim() !== '').length;
   };
@@ -238,7 +247,8 @@ export default function PlacasPage() {
           email: '',
           descripcion: '',
           outputFormat: 'original',
-          colorScheme: 'professional'
+          colorScheme: 'professional',
+          geometricPattern: 'none'
         });
         fetchPlaques(currentPage);
         alert('Placa creada exitosamente. El procesamiento iniciará en breve.');
@@ -313,7 +323,7 @@ export default function PlacasPage() {
                 Generador de Placas
               </h1>
               <p className="mt-2 text-gray-600">
-                Crea placas profesionales para tus propiedades con IA
+                Crea placas profesionales para tus propiedades con IA y patrones geométricos decorativos
               </p>
               <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
@@ -500,7 +510,7 @@ export default function PlacasPage() {
               <div className="p-6">
                 <h2 className="text-2xl font-bold mb-4">Nueva Placa de Propiedad</h2>
                 <p className="text-sm text-gray-600 mb-6">
-                  Completa los campos obligatorios y máximo 7 campos opcionales para generar tu placa.
+                  Completa los campos obligatorios y máximo 7 campos opcionales para generar tu placa. Elige un patrón geométrico decorativo para darle un toque único.
                 </p>
 
                 {/* Indicador de campos opcionales */}
@@ -788,6 +798,141 @@ export default function PlacasPage() {
                       rows={2}
                       placeholder="Ej: Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Patrón Geométrico <span className="text-xs text-gray-500">(opcional)</span>
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-all ${
+                        propertyData.geometricPattern === 'none'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern === 'none' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name="geometricPattern"
+                          value="none"
+                          checked={propertyData.geometricPattern === 'none'}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
+                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'none'}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm">Sin patrón</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-all ${
+                        propertyData.geometricPattern === 'diagonal_lines'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'diagonal_lines' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name="geometricPattern"
+                          value="diagonal_lines"
+                          checked={propertyData.geometricPattern === 'diagonal_lines'}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
+                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'diagonal_lines'}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <Minus className="w-4 h-4 rotate-45" />
+                        <span className="text-sm">Líneas</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-all ${
+                        propertyData.geometricPattern === 'concentric_circles'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'concentric_circles' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name="geometricPattern"
+                          value="concentric_circles"
+                          checked={propertyData.geometricPattern === 'concentric_circles'}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
+                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'concentric_circles'}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <Circle className="w-4 h-4" />
+                        <span className="text-sm">Círculos</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-all ${
+                        propertyData.geometricPattern === 'triangles'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'triangles' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name="geometricPattern"
+                          value="triangles"
+                          checked={propertyData.geometricPattern === 'triangles'}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
+                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'triangles'}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <Triangle className="w-4 h-4" />
+                        <span className="text-sm">Triángulos</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-all ${
+                        propertyData.geometricPattern === 'hexagons'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'hexagons' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name="geometricPattern"
+                          value="hexagons"
+                          checked={propertyData.geometricPattern === 'hexagons'}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
+                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'hexagons'}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <Hexagon className="w-4 h-4" />
+                        <span className="text-sm">Hexágonos</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-all ${
+                        propertyData.geometricPattern === 'waves'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'waves' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name="geometricPattern"
+                          value="waves"
+                          checked={propertyData.geometricPattern === 'waves'}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
+                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'waves'}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <Waves className="w-4 h-4" />
+                        <span className="text-sm">Ondas</span>
+                      </label>
+
+                      <label className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-all ${
+                        propertyData.geometricPattern === 'dots'
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-300 hover:border-gray-400'
+                      } ${!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'dots' ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <input
+                          type="radio"
+                          name="geometricPattern"
+                          value="dots"
+                          checked={propertyData.geometricPattern === 'dots'}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, geometricPattern: e.target.value as any }))}
+                          disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.geometricPattern !== 'dots'}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <MoreHorizontal className="w-4 h-4" />
+                        <span className="text-sm">Puntos</span>
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Agrega un patrón geométrico decorativo sutil a tu placa
+                    </p>
                   </div>
 
                   <div>
