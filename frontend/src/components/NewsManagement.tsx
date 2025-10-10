@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Edit, Trash2, ExternalLink, Calendar, Eye, EyeOff } from 'lucide-react'
-import { authenticatedFetch } from '@/utils/api'
+import { authenticatedFetch, publicFetch } from '@/utils/api'
 
 interface NewsItem {
     id: string
@@ -61,11 +61,23 @@ export default function NewsManagement() {
         fetchNews(currentPage, pageSize)
     }, [currentPage, pageSize])
 
+    useEffect(() => {
+        console.log('Categories state changed:', categories)
+    }, [categories])
+
     const fetchCategories = async () => {
         try {
-            const response = await authenticatedFetch('/api/categories')
+            console.log('Fetching categories...')
+            const response = await publicFetch('/api/categories')
+            console.log('Response status:', response.status)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
             const data = await response.json()
+            console.log('Categories data:', data)
+            console.log('Categories array:', data.categories)
             setCategories(data.categories || [])
+            console.log('Categories set in state:', data.categories || [])
         } catch (error) {
             console.error('Error fetching categories:', error)
         }
