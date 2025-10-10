@@ -14,12 +14,7 @@ interface NewsItem {
     isActive: boolean
     createdAt: string
     updatedAt: string
-    categoryId: string | null
-    category?: {
-        id: string
-        name: string
-        color: string
-    }
+    categories: Category[]
 }
 
 interface Category {
@@ -44,6 +39,12 @@ export default function NewsManagement() {
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [editingNews, setEditingNews] = useState<NewsItem | null>(null)
+    const [showCategoryForm, setShowCategoryForm] = useState(false)
+    const [categoryFormData, setCategoryFormData] = useState({
+        name: '',
+        description: '',
+        color: '#3B82F6'
+    })
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [pagination, setPagination] = useState<NewsResponse['pagination'] | null>(null)
@@ -53,7 +54,7 @@ export default function NewsManagement() {
         source: '',
         externalUrl: '',
         publishedAt: '',
-        categoryId: ''
+        categoryIds: [] as string[]
     })
 
     useEffect(() => {
@@ -98,7 +99,7 @@ export default function NewsManagement() {
                 body: JSON.stringify({
                     ...formData,
                     publishedAt: formData.publishedAt || new Date().toISOString(),
-                    categoryId: formData.categoryId || null
+                    categoryIds: formData.categoryIds
                 })
             })
 
@@ -125,7 +126,7 @@ export default function NewsManagement() {
             source: newsItem.source,
             externalUrl: newsItem.externalUrl,
             publishedAt: new Date(newsItem.publishedAt).toISOString().slice(0, 16),
-            categoryId: newsItem.categoryId || ''
+            categoryIds: newsItem.categories.map(cat => cat.id)
         })
         setShowForm(true)
     }
@@ -176,8 +177,37 @@ export default function NewsManagement() {
             source: '',
             externalUrl: '',
             publishedAt: '',
-            categoryId: ''
+            categoryIds: []
         })
+    }
+
+    const handleCreateCategory = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        try {
+            const response = await authenticatedFetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(categoryFormData)
+            })
+
+            if (response.ok) {
+                await fetchCategories()
+                setShowCategoryForm(false)
+                setCategoryFormData({
+                    name: '',
+                    description: '',
+                    color: '#3B82F6'
+                })
+                alert('Categoría creada exitosamente')
+            } else {
+                const error = await response.json()
+                alert(error.error || 'Error al crear la categoría')
+            }
+        } catch (error) {
+            console.error('Error creating category:', error)
+            alert('Error al crear la categoría')
+        }
     }
 
     const formatDate = (dateString: string) => {
@@ -271,20 +301,48 @@ export default function NewsManagement() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Categoría
+                                        Categorías
                                     </label>
-                                    <select
-                                        value={formData.categoryId}
-                                        onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        <option value="">Sin categoría</option>
-                                        {categories.map((category) => (
-                                            <option key={category.id} value={category.id}>
-                                                {category.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="space-y-2">
+                                        <div className="max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2">
+                                            {categories.map((category) => (
+                                                <label key={category.id} className="flex items-center space-x-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formData.categoryIds.includes(category.id)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setFormData({
+                                                                    ...formData,
+                                                                    categoryIds: [...formData.categoryIds, category.id]
+                                                                })
+                                                            } else {
+                                                                setFormData({
+                                                                    ...formData,
+                                                                    categoryIds: formData.categoryIds.filter(id => id !== category.id)
+                                                                })
+                                                            }
+                                                        }}
+                                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                    />
+                                                    <div className="flex items-center space-x-2">
+                                                        <div
+                                                            className="w-3 h-3 rounded-full"
+                                                            style={{ backgroundColor: category.color }}
+                                                        ></div>
+                                                        <span className="text-sm">{category.name}</span>
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCategoryForm(true)}
+                                            className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                        >
+                                            + Crear nueva categoría
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -338,6 +396,88 @@ export default function NewsManagement() {
                 </div>
             )}
 
+            {/* Category Form Modal */}
+            {showCategoryForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-xl font-semibold mb-4">Crear Nueva Categoría</h3>
+
+                        <form onSubmit={handleCreateCategory} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Nombre *
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={categoryFormData.name}
+                                    onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Nombre de la categoría"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Descripción
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={categoryFormData.description}
+                                    onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Descripción opcional"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Color
+                                </label>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="color"
+                                        value={categoryFormData.color}
+                                        onChange={(e) => setCategoryFormData({ ...categoryFormData, color: e.target.value })}
+                                        className="w-12 h-8 border border-gray-300 rounded cursor-pointer"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={categoryFormData.color}
+                                        onChange={(e) => setCategoryFormData({ ...categoryFormData, color: e.target.value })}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="#3B82F6"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowCategoryForm(false)
+                                        setCategoryFormData({
+                                            name: '',
+                                            description: '',
+                                            color: '#3B82F6'
+                                        })
+                                    }}
+                                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Crear Categoría
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* News List */}
             {news.length === 0 ? (
                 <div className="text-center py-8">
@@ -366,13 +506,18 @@ export default function NewsManagement() {
 
                                     <div className="flex items-center gap-4 text-sm text-gray-500">
                                         <span>Fuente: {item.source}</span>
-                                        {item.category && (
-                                            <div className="flex items-center gap-1">
-                                                <div
-                                                    className="w-3 h-3 rounded-full"
-                                                    style={{ backgroundColor: item.category.color }}
-                                                ></div>
-                                                <span>{item.category.name}</span>
+                                        {item.categories && item.categories.length > 0 && (
+                                            <div className="flex items-center gap-1 flex-wrap">
+                                                {item.categories.map((category, index) => (
+                                                    <div key={category.id} className="flex items-center gap-1">
+                                                        <div
+                                                            className="w-3 h-3 rounded-full"
+                                                            style={{ backgroundColor: category.color }}
+                                                        ></div>
+                                                        <span>{category.name}</span>
+                                                        {index < item.categories.length - 1 && <span>,</span>}
+                                                    </div>
+                                                ))}
                                             </div>
                                         )}
                                         <div className="flex items-center gap-1">
