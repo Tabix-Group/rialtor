@@ -328,7 +328,7 @@ export default function CalceEscrituraPage() {
                   {calculations.realEstateFee > 0 && (
                     <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <div>
-                        <div className="font-medium text-gray-900">Tarifa Inmobiliaria</div>
+                        <div className="font-medium text-gray-900">Comisión Inmobiliaria</div>
                         <div className="text-sm text-gray-500">
                           {activeTab === 'comprador' ? '4,00%' : '3,00%'} + IVA
                         </div>

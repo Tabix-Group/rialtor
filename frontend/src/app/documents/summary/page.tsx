@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from 'react';
+import { FileText, Upload, Sparkles, AlertCircle, CheckCircle2, FileType, Ruler, Database, Zap } from 'lucide-react';
 
 export default function DocumentSummaryPage() {
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -146,28 +147,203 @@ export default function DocumentSummaryPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-start justify-center p-8">
-      <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow">
-        <h2 className="text-2xl font-semibold mb-4">Procesamiento inteligente de documentos</h2>
-        <p className="text-sm text-gray-600 mb-4">Sube un PDF o Word y obtén un análisis completo con identificación de tipo y extracción de datos específicos.</p>
-
-        <div className="mb-4">
-          <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" />
-        </div>
-
-        <div className="flex gap-2">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={handleUploadAndSummarize} disabled={loading}>
-            {loading ? 'Procesando...' : 'Analizar documento'}
-          </button>
-        </div>
-
-        {error && <div className="mt-4 text-red-600">{error}</div>}
-        {summary && (
-          <div className="mt-6 p-4 bg-gray-50 rounded">
-            <h3 className="font-semibold mb-2">Análisis del documento</h3>
-            <p className="whitespace-pre-line">{summary}</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Sparkles className="w-10 h-10 text-indigo-600" />
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+              Resumidor Inteligente
+            </h1>
           </div>
-        )}
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Extrae información clave de tus documentos inmobiliarios de forma automática
+          </p>
+        </div>
+
+        {/* How it works section */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <FileText className="w-6 h-6 text-indigo-600" />
+            ¿Cómo funciona?
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Tipos de documentos */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-indigo-600">
+                <FileType className="w-5 h-5" />
+                <h3 className="font-semibold text-gray-900">Documentos Aceptados</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Escrituras públicas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Boletos de compraventa</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Contratos de alquiler</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Tasaciones</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Documentos legales</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Formatos y tamaño */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-indigo-600">
+                <Ruler className="w-5 h-5" />
+                <h3 className="font-semibold text-gray-900">Formatos y Límites</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>PDF, DOC, DOCX, TXT</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Hasta 10MB por archivo</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Procesamiento en segundos</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>100% seguro y privado</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Datos extraídos */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-indigo-600">
+                <Database className="w-5 h-5" />
+                <h3 className="font-semibold text-gray-900">Datos Extraídos</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Partes involucradas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Datos de la propiedad</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Montos y condiciones</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Fechas importantes</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Cláusulas relevantes</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Proceso rápido */}
+          <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+            <div className="flex items-center gap-2 text-indigo-700">
+              <Zap className="w-5 h-5" />
+              <span className="font-medium">Proceso inteligente en 3 pasos:</span>
+            </div>
+            <p className="text-sm text-indigo-600 mt-1">
+              1) Sube tu documento • 2) IA analiza y extrae datos • 3) Obtén resumen estructurado con toda la información clave
+            </p>
+          </div>
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
+            <div className="flex items-center gap-3">
+              <FileText className="w-8 h-8 text-white" />
+              <h2 className="text-2xl font-bold text-white">Subir Documento</h2>
+            </div>
+          </div>
+
+          <div className="p-8">
+            <div className="mb-4">
+              <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" id="file-upload" />
+              <label
+                htmlFor="file-upload"
+                className="flex items-center justify-center w-full px-6 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors"
+              >
+                <div className="text-center">
+                  <Upload className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                  <p className="text-sm text-gray-600">
+                    {fileRef.current?.files?.[0] ? fileRef.current.files[0].name : 'Haz clic para seleccionar un archivo'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    PDF, DOC, DOCX o TXT (máx. 10MB)
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                onClick={handleUploadAndSummarize}
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                    Procesando...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    Analizar documento
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {error && (
+              <div className="mt-4 flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {summary && (
+              <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <CheckCircle2 className="w-6 h-6 text-green-600" />
+                  Análisis del documento
+                </h3>
+                <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+                  {summary}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer Info */}
+        <div className="mt-8 text-sm text-gray-500 text-center">
+          <p>
+            <strong>Privacidad garantizada:</strong> Tus documentos son procesados de forma segura y no se almacenan en nuestros servidores.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -93,6 +93,30 @@ export default function PlacasPage() {
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
 
+  // Calcular campos opcionales completados
+  const getOptionalFieldsCount = () => {
+    const optionalFields = [
+      propertyData.tipo,
+      propertyData.moneda !== 'USD' ? propertyData.moneda : '', // Solo cuenta si no es el valor por defecto
+      propertyData.direccion,
+      propertyData.ambientes,
+      propertyData.dormitorios,
+      propertyData.banos,
+      propertyData.cocheras,
+      propertyData.m2_totales,
+      propertyData.m2_cubiertos,
+      propertyData.antiguedad,
+      propertyData.contacto,
+      propertyData.email,
+      propertyData.descripcion
+    ];
+    return optionalFields.filter(field => field && field.trim() !== '').length;
+  };
+
+  const optionalFieldsCount = getOptionalFieldsCount();
+  const maxOptionalFields = 7;
+  const canSubmit = optionalFieldsCount <= maxOptionalFields;
+
   // Cargar placas
   useEffect(() => {
     fetchPlaques();
@@ -162,6 +186,11 @@ export default function PlacasPage() {
 
     if (!propertyData.precio || !propertyData.corredores) {
       alert('Completa los campos obligatorios (precio, corredores)');
+      return;
+    }
+
+    if (!canSubmit) {
+      alert(`Has completado ${optionalFieldsCount} campos opcionales. El máximo permitido es ${maxOptionalFields}.`);
       return;
     }
 
@@ -286,6 +315,11 @@ export default function PlacasPage() {
               <p className="mt-2 text-gray-600">
                 Crea placas profesionales para tus propiedades con IA
               </p>
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Límite de campos:</strong> Completa máximo 7 campos opcionales por placa para optimizar el procesamiento.
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -464,7 +498,36 @@ export default function PlacasPage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Nueva Placa de Propiedad</h2>
+                <h2 className="text-2xl font-bold mb-4">Nueva Placa de Propiedad</h2>
+                <p className="text-sm text-gray-600 mb-6">
+                  Completa los campos obligatorios y máximo 7 campos opcionales para generar tu placa.
+                </p>
+
+                {/* Indicador de campos opcionales */}
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-blue-900">
+                      Campos opcionales completados: {optionalFieldsCount} / {maxOptionalFields}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${canSubmit ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                      <span className={`text-xs font-medium ${canSubmit ? 'text-green-700' : 'text-red-700'}`}>
+                        {canSubmit ? 'Válido' : 'Límite excedido'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-blue-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        canSubmit ? 'bg-green-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${Math.min((optionalFieldsCount / maxOptionalFields) * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-blue-700 mt-2">
+                    Completa máximo {maxOptionalFields} campos opcionales para poder procesar la placa.
+                  </p>
+                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Subida de imágenes */}
@@ -522,12 +585,13 @@ export default function PlacasPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tipo de propiedad
+                        Tipo de propiedad <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <select
                         value={propertyData.tipo}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, tipo: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.tipo}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       >
                         <option value="">Seleccionar</option>
                         <option value="Casa">Casa</option>
@@ -541,12 +605,13 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Moneda
+                        Moneda <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <select
                         value={propertyData.moneda}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, moneda: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && propertyData.moneda === 'USD'}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       >
                         <option value="USD">USD</option>
                         <option value="ARS">ARS</option>
@@ -556,7 +621,7 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Precio *
+                        Precio <span className="text-red-500">*</span> <span className="text-xs text-gray-500">(obligatorio)</span>
                       </label>
                       <input
                         type="number"
@@ -570,91 +635,98 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ambientes
+                        Ambientes <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <input
                         type="text"
                         value={propertyData.ambientes}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, ambientes: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.ambientes}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Ej: 3"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Dormitorios
+                        Dormitorios <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <input
                         type="text"
                         value={propertyData.dormitorios}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, dormitorios: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.dormitorios}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Ej: 2"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Baños
+                        Baños <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <input
                         type="text"
                         value={propertyData.banos}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, banos: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.banos}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Ej: 2"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Cocheras
+                        Cocheras <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <input
                         type="text"
                         value={propertyData.cocheras}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, cocheras: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.cocheras}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Ej: 1"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        M2 Totales
+                        M2 Totales <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <input
                         type="text"
                         value={propertyData.m2_totales}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, m2_totales: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.m2_totales}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Ej: 120"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        M2 Cubiertos
+                        M2 Cubiertos <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <input
                         type="text"
                         value={propertyData.m2_cubiertos}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, m2_cubiertos: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.m2_cubiertos}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Ej: 85"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Antigüedad
+                        Antigüedad <span className="text-xs text-gray-500">(opcional)</span>
                       </label>
                       <input
                         type="text"
                         value={propertyData.antiguedad}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.antiguedad}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Ej: 5 años"
                       />
                     </div>
@@ -664,33 +736,49 @@ export default function PlacasPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Dirección
+                      Dirección <span className="text-xs text-gray-500">(opcional)</span>
                     </label>
                     <input
                       type="text"
                       value={propertyData.direccion}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, direccion: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.direccion}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Ej: Av. Libertador 1234, Palermo, CABA"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email de contacto
+                      Contacto <span className="text-xs text-gray-500">(opcional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={propertyData.contacto}
+                      onChange={(e) => setPropertyData(prev => ({ ...prev, contacto: e.target.value }))}
+                      disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.contacto}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      placeholder="Ej: +54 11 1234-5678"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email de contacto <span className="text-xs text-gray-500">(opcional)</span>
                     </label>
                     <input
                       type="email"
                       value={propertyData.email}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.email}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="agente@remax.com.ar"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Corredores (nombre y matrícula) *
+                      Corredores (nombre y matrícula) <span className="text-red-500">*</span> <span className="text-xs text-gray-500">(obligatorio)</span>
                     </label>
                     <textarea
                       required
@@ -704,12 +792,13 @@ export default function PlacasPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Descripción adicional
+                      Descripción adicional <span className="text-xs text-gray-500">(opcional)</span>
                     </label>
                     <textarea
                       value={propertyData.descripcion}
                       onChange={(e) => setPropertyData(prev => ({ ...prev, descripcion: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={!canSubmit && optionalFieldsCount >= maxOptionalFields && !propertyData.descripcion}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       rows={3}
                       placeholder="Información adicional sobre la propiedad..."
                     />
@@ -726,13 +815,17 @@ export default function PlacasPage() {
                     </button>
                     <button
                       type="submit"
-                      disabled={creating}
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-md hover:from-blue-600 hover:to-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      disabled={creating || !canSubmit}
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-md hover:from-blue-600 hover:to-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {creating ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
                           Procesando...
+                        </>
+                      ) : !canSubmit ? (
+                        <>
+                          Límite excedido
                         </>
                       ) : (
                         'Crear Placa'
