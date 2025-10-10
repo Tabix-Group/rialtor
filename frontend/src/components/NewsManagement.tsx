@@ -104,15 +104,21 @@ export default function NewsManagement() {
             const url = editingNews ? `/api/news/${editingNews.id}` : '/api/news'
             const method = editingNews ? 'PUT' : 'POST'
 
+            const requestData = {
+                ...formData,
+                publishedAt: formData.publishedAt || new Date().toISOString(),
+                categoryId: formData.categoryId || null
+            }
+
+            console.log('Sending data:', requestData)
+
             const response = await authenticatedFetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...formData,
-                    publishedAt: formData.publishedAt || new Date().toISOString(),
-                    categoryId: formData.categoryId || null
-                })
+                body: JSON.stringify(requestData)
             })
+
+            console.log('Response status:', response.status)
 
             if (response.ok) {
                 await fetchNews(currentPage, pageSize)
@@ -121,7 +127,9 @@ export default function NewsManagement() {
                 resetForm()
                 alert(editingNews ? 'Noticia actualizada exitosamente' : 'Noticia creada exitosamente')
             } else {
-                alert('Error al guardar la noticia')
+                const errorData = await response.json().catch(() => ({}))
+                console.error('Error response:', errorData)
+                alert(`Error al guardar la noticia: ${errorData.message || 'Error desconocido'}`)
             }
         } catch (error) {
             console.error('Error saving news:', error)

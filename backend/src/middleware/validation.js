@@ -257,6 +257,19 @@ const validateNews = {
       .optional()
       .isISO8601()
       .withMessage('Published date must be a valid ISO date'),
+    body('categoryId')
+      .optional()
+      .custom((value) => {
+        if (value === null || value === undefined || value === '') {
+          return true; // Allow null, undefined, or empty string
+        }
+        // If provided, must be a valid UUID
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+          throw new Error('Invalid category ID format');
+        }
+        return true;
+      })
+      .withMessage('Category ID must be a valid UUID or null'),
     validateRequest
   ],
   update: [
@@ -287,6 +300,19 @@ const validateNews = {
       .optional()
       .isBoolean()
       .withMessage('isActive must be a boolean'),
+    body('categoryId')
+      .optional()
+      .custom((value) => {
+        if (value === null || value === undefined || value === '') {
+          return true; // Allow null, undefined, or empty string
+        }
+        // If provided, must be a valid UUID
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+          throw new Error('Invalid category ID format');
+        }
+        return true;
+      })
+      .withMessage('Category ID must be a valid UUID or null'),
     validateRequest
   ]
 };
