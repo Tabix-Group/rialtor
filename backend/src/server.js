@@ -22,6 +22,7 @@ const adminRoutes = require('./routes/admin');
 const placasRoutes = require('./routes/placas');
 const newsRoutes = require('./routes/news');
 const filesRoutes = require('./routes/files');
+const formsRoutes = require('./routes/forms');
 
 const app = express();
 // Confía en el primer proxy (Railway/Nginx)
@@ -167,6 +168,7 @@ app.use('/api/permissions', permissionsRouter);
 app.use('/api/placas', placasRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/files', filesRoutes);
+app.use('/api/forms', formsRoutes);
 
 // Error handling middleware
 app.use(notFound);
