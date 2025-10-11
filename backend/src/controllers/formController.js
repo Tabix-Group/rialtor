@@ -1,7 +1,7 @@
 const cloudinary = require('../cloudinary');
 const mammoth = require('mammoth');
 const { Document, Packer, Paragraph, TextRun } = require('docx');
-const fetch = require('node-fetch');
+// Node 18+ tiene fetch nativo, no necesitamos importar node-fetch
 
 /**
  * Obtener lista de carpetas disponibles en docgen
