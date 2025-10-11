@@ -24,27 +24,17 @@ router.get('/health', (req, res) => {
     });
 });
 
-// Aplicar autenticación a todas las rutas
-router.use(authenticateToken);
-
-// GET /api/forms/folders - Obtener carpetas de docgen (alquiler, boletos, reservas)
+// Rutas públicas (no requieren autenticación)
 router.get('/folders', getDocgenFolders);
-
-// GET /api/forms/stats - Obtener estadísticas de formularios
 router.get('/stats', getFormStats);
-
-// GET /api/forms/:folder/documents - Obtener documentos de una carpeta específica
 router.get('/:folder/documents', getDocumentsByFolder);
-
-// GET /api/forms/document/:documentId/content - Obtener contenido HTML de un documento para edición
-// El documentId debe estar codificado (encodeURIComponent) ya que puede contener /
 router.get('/document/:documentId(*)/content', getDocumentContent);
-
-// GET /api/forms/document/:documentId/download - Descargar documento original
 router.get('/document/:documentId(*)/download', downloadOriginalDocument);
 
-// POST /api/forms/generate - Generar documento completado
-// Body: { documentId, htmlContent, filename }
+// Aplicar autenticación solo a rutas que requieren usuario logueado
+router.use(authenticateToken);
+
+// Rutas que requieren autenticación (generar documentos completados)
 router.post('/generate', generateCompletedDocument);
 
 module.exports = router;
