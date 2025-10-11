@@ -4,7 +4,7 @@ const OpenAI = require('openai');
 const cloudinary = require('../cloudinary');
 const multer = require('multer');
 const sharp = require('sharp');
-const fetch = require('node-fetch'); // Importar fetch para compatibilidad
+// Node 18+ tiene fetch nativo, no necesitamos importar node-fetch
 
 const prisma = new PrismaClient();
 
