@@ -101,18 +101,19 @@ const getMockDocuments = (folder) => {
 };
 
 const getDocumentsByFolder = async (req, res, next) => {
-    try {
-        const { folder } = req.params;
-        console.log(`📄 Obteniendo documentos de la carpeta: ${folder}`);
+    const { folder } = req.params;
+    console.log(`📄 Obteniendo documentos de la carpeta: ${folder}`);
 
-        // Verificar si Cloudinary está configurado
-        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-            console.log('⚠️ Cloudinary no configurado, devolviendo datos de ejemplo');
-            return res.json({
-                success: true,
-                data: getMockDocuments(folder)
-            });
-        }
+    // Verificar si Cloudinary está configurado
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+        console.log('⚠️ Cloudinary no configurado, devolviendo datos de ejemplo');
+        return res.json({
+            success: true,
+            data: getMockDocuments(folder)
+        });
+    }
+
+    try {
 
         // Listar recursos de la carpeta en Cloudinary
         // Usar 'auto' para encontrar todos los tipos de archivo, luego filtrar .docx
