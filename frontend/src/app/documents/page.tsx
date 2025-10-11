@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { FileText, Search, Wand2, ArrowRight } from 'lucide-react'
+import { FileText, Search, Wand2, Edit3, ArrowRight } from 'lucide-react'
 
 export default function DocumentsPage() {
 
@@ -24,6 +24,15 @@ export default function DocumentsPage() {
       color: 'from-green-500 to-green-700',
       bgColor: 'from-green-50 to-green-100',
       borderColor: 'border-green-200'
+    },
+    {
+      title: 'Formularios Editables',
+      description: 'Edita formularios y documentos directamente en el navegador. Completa contratos de alquiler, boletos de compraventa y reservas con un editor WYSIWYG intuitivo.',
+      icon: Edit3,
+      href: '/formularios',
+      color: 'from-purple-500 to-purple-700',
+      bgColor: 'from-purple-50 to-purple-100',
+      borderColor: 'border-purple-200'
     }
   ];
 

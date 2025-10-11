@@ -10,7 +10,7 @@ import {
   Upload, Trash2, Eye, MessageSquare, Settings,
   Sparkles, TrendingUp, Crown, BarChart3, Clock, Activity,
   ArrowUpRight, Zap, Target, Award, ChevronRight, Plus, Filter,
-  Calendar, Folder, PlusCircle, Wrench, CheckCircle
+  Calendar, Folder, PlusCircle, Wrench, CheckCircle, Edit3
 } from 'lucide-react'
 
 interface Document {
@@ -122,6 +122,16 @@ export default function DashboardPage() {
       iconBg: 'from-rose-500 to-pink-600',
       badge: 'Smart',
       stats: '10 seg promedio'
+    },
+    {
+      title: 'Formularios Editables',
+      description: 'Edita formularios y documentos directamente en el navegador con editor WYSIWYG profesional.',
+      icon: Edit3,
+      href: '/formularios',
+      gradient: 'from-cyan-600 via-blue-600 to-indigo-600',
+      iconBg: 'from-cyan-500 to-blue-600',
+      badge: 'Editor',
+      stats: 'Documentos listos'
     },
     {
       title: 'Marketing Visual',
