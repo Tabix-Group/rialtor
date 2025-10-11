@@ -114,103 +114,93 @@ const getDocumentsByFolder = async (req, res, next) => {
     }
 
     try {
+        // Buscar archivos en múltiples resource_types porque pueden estar en cualquiera
+        const resourceTypes = ['raw', 'image', 'video', 'auto'];
+        const prefixes = [`docgen/${folder}/`, `docgen/${folder}`];
+        
+        let allDocuments = [];
 
-        // Listar recursos de la carpeta en Cloudinary
-        // Usar 'raw' para archivos .docx que se subieron como raw
-        let result;
-        try {
-            result = await cloudinary.api.resources({
-                type: 'upload',
-                resource_type: 'raw',
-                prefix: `docgen/${folder}/`,
-                max_results: 100
-            });
-        } catch (cloudinaryError) {
-            console.log(`📁 Carpeta docgen/${folder}/ no encontrada o vacía, intentando sin barra final...`);
-            // Intentar sin la barra final
-            result = await cloudinary.api.resources({
-                type: 'upload',
-                resource_type: 'raw',
-                prefix: `docgen/${folder}`,
-                max_results: 100
-            });
+        console.log(`🔍 Buscando en múltiples resource_types y prefixes...`);
+
+        for (const resourceType of resourceTypes) {
+            for (const prefix of prefixes) {
+                try {
+                    console.log(`   Intentando: resource_type='${resourceType}', prefix='${prefix}'`);
+                    
+                    const result = await cloudinary.api.resources({
+                        type: 'upload',
+                        resource_type: resourceType,
+                        prefix: prefix,
+                        max_results: 100
+                    });
+
+                    if (result.resources && result.resources.length > 0) {
+                        console.log(`   ✅ Encontrados ${result.resources.length} recursos con ${resourceType}`);
+                        
+                        // Filtrar solo archivos .doc y .docx
+                        // Nota: Los archivos pueden tener extensión en el nombre O en el formato
+                        const docxFiles = result.resources.filter(resource => {
+                            const filename = resource.public_id.split('/').pop();
+                            const hasDocExtension = filename.toLowerCase().match(/\.(doc|docx)$/);
+                            const isDocFormat = resource.format === 'doc' || resource.format === 'docx';
+                            
+                            // Aceptar si tiene extensión .doc/.docx O si el formato es doc/docx
+                            const isValidDoc = hasDocExtension || isDocFormat;
+                            
+                            if (isValidDoc) {
+                                console.log(`      📄 ${filename} (format: ${resource.format}, ${resource.bytes} bytes)`);
+                            }
+                            return isValidDoc;
+                        });
+
+                        // Agregar a la lista evitando duplicados
+                        docxFiles.forEach(file => {
+                            const exists = allDocuments.find(doc => doc.id === file.public_id);
+                            if (!exists) {
+                                const baseFilename = file.public_id.split('/').pop();
+                                // Si el filename no tiene extensión pero el formato sí, agregar la extensión
+                                let displayFilename = baseFilename;
+                                if (!baseFilename.match(/\.(doc|docx)$/i) && (file.format === 'doc' || file.format === 'docx')) {
+                                    displayFilename = `${baseFilename}.${file.format}`;
+                                }
+                                
+                                allDocuments.push({
+                                    id: file.public_id,
+                                    filename: displayFilename,
+                                    originalName: displayFilename,
+                                    url: file.secure_url,
+                                    format: file.format,
+                                    size: file.bytes,
+                                    createdAt: file.created_at,
+                                    folder: folder,
+                                    resourceType: resourceType
+                                });
+                            }
+                        });
+                    }
+                } catch (err) {
+                    // Ignorar errores de carpetas vacías o no encontradas
+                    if (err.error && err.error.http_code !== 404) {
+                        console.log(`   ⚠️  Error: ${err.message}`);
+                    }
+                }
+            }
         }
 
-        console.log(`🔍 Recursos encontrados en Cloudinary: ${result.resources.length}`);
-        
-        // Filtrar solo archivos .doc y .docx
-        const docxFiles = result.resources.filter(resource => {
-            const filename = resource.public_id.split('/').pop();
-            const isDocOrDocx = filename.toLowerCase().match(/\.(doc|docx)$/);
-            console.log(`📄 Archivo: ${filename}, Es DOC/DOCX: ${isDocOrDocx}, Tipo: ${resource.resource_type}, Formato: ${resource.format}`);
-            return isDocOrDocx;
-        });
-
-        const documents = docxFiles.map(resource => ({
-            id: resource.public_id,
-            filename: resource.public_id.split('/').pop(),
-            originalName: resource.public_id.split('/').pop(),
-            url: resource.secure_url,
-            format: resource.format,
-            size: resource.bytes,
-            createdAt: resource.created_at,
-            folder: folder
-        }));
-
-        console.log(`✅ Documentos DOCX encontrados: ${documents.length}`);
+        console.log(`✅ Total de documentos DOCX encontrados: ${allDocuments.length}`);
 
         res.json({
             success: true,
-            data: documents
+            data: allDocuments
         });
 
     } catch (error) {
         console.error('❌ Error al obtener documentos:', error);
-        
-        // Si hay error, intentar buscar de otra manera
-        try {
-            console.log('🔄 Intentando búsqueda alternativa...');
-            const altResult = await cloudinary.api.resources({
-                type: 'upload',
-                resource_type: 'raw',
-                prefix: `docgen/${folder}`,
-                max_results: 100
-            });
-            
-            console.log(`🔍 Búsqueda alternativa encontró: ${altResult.resources.length} recursos`);
-            
-            const altDocxFiles = altResult.resources.filter(resource => {
-                const filename = resource.public_id.split('/').pop();
-                return filename.toLowerCase().match(/\.(doc|docx)$/);
-            });
-            
-            console.log(`✅ Documentos DOCX alternativos: ${altDocxFiles.length}`);
-            
-            const altDocuments = altDocxFiles.map(resource => ({
-                id: resource.public_id,
-                filename: resource.public_id.split('/').pop(),
-                originalName: resource.public_id.split('/').pop(),
-                url: resource.secure_url,
-                format: resource.format,
-                size: resource.bytes,
-                createdAt: resource.created_at,
-                folder: folder
-            }));
-            
-            return res.json({
-                success: true,
-                data: altDocuments
-            });
-            
-        } catch (altError) {
-            console.error('❌ Error en búsqueda alternativa:', altError);
-            // En lugar de next(error), devolver datos mock para evitar el 500
-            console.log('📄 Devolviendo datos de ejemplo por error en Cloudinary');
-            return res.json({
-                success: true,
-                data: getMockDocuments(folder)
-            });
-        }
+        // Devolver array vacío en caso de error para que la UI muestre el mensaje apropiado
+        return res.json({
+            success: true,
+            data: []
+        });
     }
 };
 
@@ -394,9 +384,12 @@ const getFormStats = async (req, res, next) => {
                 });
                 
                 // Contar solo archivos .doc y .docx
+                // Ahora acepta archivos con extensión en el nombre O en el formato
                 const docxCount = result.resources.filter(resource => {
                     const filename = resource.public_id.split('/').pop();
-                    return filename.toLowerCase().match(/\.(doc|docx)$/);
+                    const hasDocExtension = filename.toLowerCase().match(/\.(doc|docx)$/);
+                    const isDocFormat = resource.format === 'doc' || resource.format === 'docx';
+                    return hasDocExtension || isDocFormat;
                 }).length;
                 
                 stats[folder] = docxCount;
