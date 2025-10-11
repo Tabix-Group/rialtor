@@ -53,14 +53,25 @@ const getDocumentsByFolder = async (req, res, next) => {
         console.log(`📄 Obteniendo documentos de la carpeta: ${folder}`);
 
         // Listar recursos de la carpeta en Cloudinary
+        // Usar 'auto' para encontrar todos los tipos de archivo, luego filtrar .docx
         const result = await cloudinary.api.resources({
             type: 'upload',
             prefix: `docgen/${folder}/`,
-            resource_type: 'raw', // Para documentos
+            resource_type: 'auto', // Buscar todos los tipos
             max_results: 100
         });
 
-        const documents = result.resources.map(resource => ({
+        console.log(`🔍 Recursos encontrados en Cloudinary: ${result.resources.length}`);
+        
+        // Filtrar solo archivos .docx
+        const docxFiles = result.resources.filter(resource => {
+            const filename = resource.public_id.split('/').pop();
+            const isDocx = filename.toLowerCase().endsWith('.docx');
+            console.log(`📄 Archivo: ${filename}, Es DOCX: ${isDocx}, Tipo: ${resource.resource_type}, Formato: ${resource.format}`);
+            return isDocx;
+        });
+
+        const documents = docxFiles.map(resource => ({
             id: resource.public_id,
             filename: resource.public_id.split('/').pop(),
             originalName: resource.public_id.split('/').pop(),
@@ -71,7 +82,7 @@ const getDocumentsByFolder = async (req, res, next) => {
             folder: folder
         }));
 
-        console.log(`✅ Documentos encontrados: ${documents.length}`);
+        console.log(`✅ Documentos DOCX encontrados: ${documents.length}`);
 
         res.json({
             success: true,
@@ -80,7 +91,45 @@ const getDocumentsByFolder = async (req, res, next) => {
 
     } catch (error) {
         console.error('❌ Error al obtener documentos:', error);
-        next(error);
+        
+        // Si hay error, intentar buscar de otra manera
+        try {
+            console.log('🔄 Intentando búsqueda alternativa...');
+            const altResult = await cloudinary.api.resources({
+                type: 'upload',
+                prefix: `docgen/${folder}`,
+                max_results: 100
+            });
+            
+            console.log(`🔍 Búsqueda alternativa encontró: ${altResult.resources.length} recursos`);
+            
+            const altDocxFiles = altResult.resources.filter(resource => {
+                const filename = resource.public_id.split('/').pop();
+                return filename.toLowerCase().endsWith('.docx');
+            });
+            
+            console.log(`✅ Documentos DOCX alternativos: ${altDocxFiles.length}`);
+            
+            const altDocuments = altDocxFiles.map(resource => ({
+                id: resource.public_id,
+                filename: resource.public_id.split('/').pop(),
+                originalName: resource.public_id.split('/').pop(),
+                url: resource.secure_url,
+                format: resource.format,
+                size: resource.bytes,
+                createdAt: resource.created_at,
+                folder: folder
+            }));
+            
+            return res.json({
+                success: true,
+                data: altDocuments
+            });
+            
+        } catch (altError) {
+            console.error('❌ Error en búsqueda alternativa:', altError);
+            next(error);
+        }
     }
 };
 
@@ -94,7 +143,7 @@ const getDocumentContent = async (req, res, next) => {
 
         // Obtener la URL del documento desde Cloudinary
         const resource = await cloudinary.api.resource(documentId, {
-            resource_type: 'raw'
+            resource_type: 'auto' // Usar auto para detectar automáticamente
         });
 
         console.log(`📥 Descargando documento desde: ${resource.secure_url}`);
@@ -205,7 +254,7 @@ const downloadOriginalDocument = async (req, res, next) => {
 
         // Obtener información del documento
         const resource = await cloudinary.api.resource(documentId, {
-            resource_type: 'raw'
+            resource_type: 'auto' // Usar auto para detectar automáticamente
         });
 
         // Descargar el archivo
@@ -246,11 +295,20 @@ const getFormStats = async (req, res, next) => {
                 const result = await cloudinary.api.resources({
                     type: 'upload',
                     prefix: `docgen/${folder}/`,
-                    resource_type: 'raw',
-                    max_results: 1
+                    resource_type: 'auto', // Buscar todos los tipos
+                    max_results: 100
                 });
-                stats[folder] = result.total_count || 0;
+                
+                // Contar solo archivos .docx
+                const docxCount = result.resources.filter(resource => {
+                    const filename = resource.public_id.split('/').pop();
+                    return filename.toLowerCase().endsWith('.docx');
+                }).length;
+                
+                stats[folder] = docxCount;
+                console.log(`📊 ${folder}: ${docxCount} documentos DOCX`);
             } catch (error) {
+                console.log(`⚠️ Error obteniendo stats para ${folder}:`, error.message);
                 stats[folder] = 0;
             }
         }
