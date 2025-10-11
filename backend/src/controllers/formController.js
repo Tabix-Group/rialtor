@@ -7,8 +7,10 @@ const { Document, Packer, Paragraph, TextRun } = require('docx');
  * Obtener lista de carpetas disponibles en docgen
  */
 const getDocgenFolders = async (req, res, next) => {
-    try {
-        console.log('📁 Obteniendo carpetas de docgen...');
+    try         // Obtener información del documento
+        const resource = await cloudinary.api.resource(documentId, {
+            resource_type: 'raw' // Usar raw para archivos .docx
+        });      console.log('📁 Obteniendo carpetas de docgen...');
 
         // Listar recursos de la carpeta docgen en Cloudinary
         const result = await cloudinary.api.sub_folders('docgen');
@@ -116,13 +118,13 @@ const getDocumentsByFolder = async (req, res, next) => {
     try {
 
         // Listar recursos de la carpeta en Cloudinary
-        // Usar 'auto' para encontrar todos los tipos de archivo, luego filtrar .docx
+        // Usar 'raw' para archivos .docx que se subieron como raw
         let result;
         try {
             result = await cloudinary.api.resources({
                 type: 'upload',
+                resource_type: 'raw',
                 prefix: `docgen/${folder}/`,
-                resource_type: 'auto', // Buscar todos los tipos
                 max_results: 100
             });
         } catch (cloudinaryError) {
@@ -130,8 +132,8 @@ const getDocumentsByFolder = async (req, res, next) => {
             // Intentar sin la barra final
             result = await cloudinary.api.resources({
                 type: 'upload',
+                resource_type: 'raw',
                 prefix: `docgen/${folder}`,
-                resource_type: 'auto',
                 max_results: 100
             });
         }
@@ -172,6 +174,7 @@ const getDocumentsByFolder = async (req, res, next) => {
             console.log('🔄 Intentando búsqueda alternativa...');
             const altResult = await cloudinary.api.resources({
                 type: 'upload',
+                resource_type: 'raw',
                 prefix: `docgen/${folder}`,
                 max_results: 100
             });
@@ -223,7 +226,7 @@ const getDocumentContent = async (req, res, next) => {
 
         // Obtener la URL del documento desde Cloudinary
         const resource = await cloudinary.api.resource(documentId, {
-            resource_type: 'auto' // Usar auto para detectar automáticamente
+            resource_type: 'raw' // Usar raw para archivos .docx
         });
 
         console.log(`📥 Descargando documento desde: ${resource.secure_url}`);
@@ -334,7 +337,7 @@ const downloadOriginalDocument = async (req, res, next) => {
 
         // Obtener información del documento
         const resource = await cloudinary.api.resource(documentId, {
-            resource_type: 'auto' // Usar auto para detectar automáticamente
+            resource_type: 'raw' // Usar raw para archivos .docx
         });
 
         // Descargar el archivo
@@ -387,8 +390,8 @@ const getFormStats = async (req, res, next) => {
             try {
                 const result = await cloudinary.api.resources({
                     type: 'upload',
+                    resource_type: 'raw',
                     prefix: `docgen/${folder}/`,
-                    resource_type: 'auto', // Buscar todos los tipos
                     max_results: 100
                 });
                 
