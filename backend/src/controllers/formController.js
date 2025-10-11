@@ -137,15 +137,22 @@ const getDocumentsByFolder = async (req, res, next) => {
                     if (result.resources && result.resources.length > 0) {
                         console.log(`   ✅ Encontrados ${result.resources.length} recursos con ${resourceType}`);
                         
-                        // Filtrar solo archivos .doc y .docx
-                        // Nota: Los archivos pueden tener extensión en el nombre O en el formato
+                        // Filtrar archivos de Word (.doc/.docx)
+                        // Como el script upload-forms.js elimina la extensión del public_id,
+                        // necesitamos ser más permisivos:
+                        // 1. Aceptar si tiene extensión .doc/.docx en el nombre
+                        // 2. Aceptar si el formato es doc/docx
+                        // 3. Aceptar TODOS los archivos raw en carpetas docgen/* (asumimos que son docs)
                         const docxFiles = result.resources.filter(resource => {
                             const filename = resource.public_id.split('/').pop();
                             const hasDocExtension = filename.toLowerCase().match(/\.(doc|docx)$/);
                             const isDocFormat = resource.format === 'doc' || resource.format === 'docx';
                             
-                            // Aceptar si tiene extensión .doc/.docx O si el formato es doc/docx
-                            const isValidDoc = hasDocExtension || isDocFormat;
+                            // Si es resource_type 'raw' y está en una carpeta docgen, es válido
+                            const isInDocgenFolder = resource.public_id.startsWith('docgen/');
+                            const isRawType = resourceType === 'raw';
+                            
+                            const isValidDoc = hasDocExtension || isDocFormat || (isRawType && isInDocgenFolder);
                             
                             if (isValidDoc) {
                                 console.log(`      📄 ${filename} (format: ${resource.format}, ${resource.bytes} bytes)`);
@@ -383,13 +390,17 @@ const getFormStats = async (req, res, next) => {
                     max_results: 100
                 });
                 
-                // Contar solo archivos .doc y .docx
-                // Ahora acepta archivos con extensión en el nombre O en el formato
+                // Contar archivos de Word (.doc y .docx)
+                // Como el script elimina la extensión, aceptamos:
+                // 1. Archivos con extensión .doc/.docx en el nombre
+                // 2. Archivos con formato doc/docx
+                // 3. Todos los archivos raw en docgen/* (asumimos que son documentos Word)
                 const docxCount = result.resources.filter(resource => {
                     const filename = resource.public_id.split('/').pop();
                     const hasDocExtension = filename.toLowerCase().match(/\.(doc|docx)$/);
                     const isDocFormat = resource.format === 'doc' || resource.format === 'docx';
-                    return hasDocExtension || isDocFormat;
+                    const isInDocgenFolder = resource.public_id.startsWith('docgen/');
+                    return hasDocExtension || isDocFormat || isInDocgenFolder;
                 }).length;
                 
                 stats[folder] = docxCount;
