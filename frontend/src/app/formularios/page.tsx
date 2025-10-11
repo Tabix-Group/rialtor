@@ -84,10 +84,10 @@ export default function FormulariosPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Cargando formularios...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-3 border-blue-600 border-t-transparent mx-auto mb-3"></div>
+                    <p className="text-gray-600 text-sm">Cargando formularios...</p>
                 </div>
             </div>
         )
@@ -95,125 +95,127 @@ export default function FormulariosPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center">
-                <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md">
-                    <div className="flex items-center gap-3 text-red-800 mb-2">
-                        <span className="text-2xl">⚠️</span>
-                        <h3 className="font-semibold">Error</h3>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="bg-white border border-red-200 rounded-lg p-6 max-w-md shadow-sm">
+                    <div className="flex items-center gap-3 text-red-800 mb-3">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <h3 className="font-semibold text-base">Error</h3>
                     </div>
-                    <p className="text-red-600">{error}</p>
+                    <p className="text-red-600 text-sm">{error}</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 py-12">
+        <div className="min-h-screen bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="mb-12">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="bg-blue-600 p-3 rounded-xl">
-                            <span className="text-3xl">📋</span>
-                        </div>
-                        <div>
-                            <h1 className="text-4xl font-bold text-gray-900">
-                                Formularios y Documentos
-                            </h1>
-                            <p className="text-lg text-gray-600 mt-2">
-                                Completa y descarga formularios del sector inmobiliario
-                            </p>
+                <div className="mb-8">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900">
+                                    Formularios y Documentos
+                                </h1>
+                                <p className="text-sm text-gray-500 mt-0.5">
+                                    Completa y descarga documentos del sector inmobiliario
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Instrucciones */}
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
-                    <div className="flex items-start gap-4">
-                        <span className="text-3xl">💡</span>
+                {/* Instrucciones - Más compactas */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         <div className="flex-1">
-                            <h3 className="font-semibold text-blue-900 mb-2">¿Cómo funciona?</h3>
-                            <ul className="space-y-2 text-blue-800">
-                                <li className="flex items-start gap-2">
-                                    <span className="text-blue-600 mt-1">1.</span>
-                                    <span>Selecciona una categoría de formularios</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-blue-600 mt-1">2.</span>
-                                    <span>Elige el documento que necesitas</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-blue-600 mt-1">3.</span>
-                                    <span>Descarga el original o ábrelo en el editor para completarlo</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-blue-600 mt-1">4.</span>
-                                    <span>Completa los campos directamente en el navegador</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-blue-600 mt-1">5.</span>
-                                    <span>Descarga el documento completado listo para imprimir o enviar</span>
-                                </li>
-                            </ul>
+                            <h3 className="font-semibold text-gray-900 text-sm mb-2">¿Cómo usar?</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-600">
+                                <div className="flex items-start gap-2">
+                                    <span className="text-blue-600 font-semibold">1.</span>
+                                    <span>Selecciona una categoría</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="text-blue-600 font-semibold">2.</span>
+                                    <span>Elige tu documento</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                    <span className="text-blue-600 font-semibold">3.</span>
+                                    <span>Edita y descarga</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Carpetas de formularios */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Carpetas de formularios - Diseño más compacto */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {folders.map((folder) => (
                         <button
                             key={folder.name}
                             onClick={() => router.push(`/formularios/${folder.name}`)}
-                            className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border-2 border-gray-100 hover:border-blue-500 text-left"
+                            className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-5 border border-gray-200 hover:border-blue-400 text-left"
                         >
-                            {/* Icono */}
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                                    <span className="text-4xl">{getFolderIcon(folder.name)}</span>
-                                </div>
-                                {stats[folder.name] > 0 && (
-                                    <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                        {stats[folder.name]} docs
+                            {/* Header con icono y badge */}
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-blue-50 p-2.5 rounded-lg group-hover:bg-blue-100 transition-colors">
+                                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {folder.name === 'alquiler' && (
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            )}
+                                            {folder.name === 'boletos' && (
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            )}
+                                            {folder.name === 'reservas' && (
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                            )}
+                                        </svg>
                                     </div>
-                                )}
-                            </div>
-
-                            {/* Título */}
-                            <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                                {getFolderTitle(folder.name)}
-                            </h3>
-
-                            {/* Descripción */}
-                            <p className="text-gray-600 text-sm mb-4">
-                                {getFolderDescription(folder.name)}
-                            </p>
-
-                            {/* Acción */}
-                            <div className="flex items-center gap-2 text-blue-600 font-semibold group-hover:gap-3 transition-all">
-                                <span>Ver formularios</span>
+                                    <div>
+                                        <h3 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                            {getFolderTitle(folder.name)}
+                                        </h3>
+                                        {stats[folder.name] > 0 && (
+                                            <span className="text-xs text-gray-500">
+                                                {stats[folder.name]} {stats[folder.name] === 1 ? 'documento' : 'documentos'}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
                                 <svg
-                                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                                    className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 5l7 7-7 7"
-                                    />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
                             </div>
+
+                            {/* Descripción */}
+                            <p className="text-sm text-gray-600">
+                                {getFolderDescription(folder.name)}
+                            </p>
                         </button>
                     ))}
                 </div>
 
                 {folders.length === 0 && (
-                    <div className="text-center py-12">
-                        <span className="text-6xl mb-4 block">📭</span>
-                        <p className="text-gray-600 text-lg">
+                    <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-gray-200">
+                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p className="text-gray-600 text-base font-medium">
                             No se encontraron carpetas de formularios
                         </p>
                     </div>

@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { FileText, Search, Wand2, Edit3, ArrowRight } from 'lucide-react'
+import { Search, Wand2, Edit3 } from 'lucide-react'
 
 export default function DocumentsPage() {
 
@@ -12,87 +11,108 @@ export default function DocumentsPage() {
       description: 'Sube tus documentos y obtén resúmenes inteligentes con IA. Analiza contratos, informes y documentos legales de forma rápida y eficiente.',
       icon: Search,
       href: '/documents/summary',
-      color: 'from-blue-500 to-blue-700',
-      bgColor: 'from-blue-50 to-blue-100',
-      borderColor: 'border-blue-200'
+      iconColor: 'text-blue-600',
+      iconBg: 'bg-blue-50',
+      iconBgHover: 'group-hover:bg-blue-100'
     },
     {
       title: 'Generar Documentos',
       description: 'Crea documentos legales profesionales en segundos. Genera modelos de reserva, autorizaciones, boletos y contratos con datos personalizados.',
       icon: Wand2,
       href: '/documents/generator',
-      color: 'from-green-500 to-green-700',
-      bgColor: 'from-green-50 to-green-100',
-      borderColor: 'border-green-200'
+      iconColor: 'text-green-600',
+      iconBg: 'bg-green-50',
+      iconBgHover: 'group-hover:bg-green-100'
     },
     {
       title: 'Formularios Editables',
       description: 'Edita formularios y documentos directamente en el navegador. Completa contratos de alquiler, boletos de compraventa y reservas con un editor WYSIWYG intuitivo.',
       icon: Edit3,
       href: '/formularios',
-      color: 'from-purple-500 to-purple-700',
-      bgColor: 'from-purple-50 to-purple-100',
-      borderColor: 'border-purple-200'
+      iconColor: 'text-purple-600',
+      iconBg: 'bg-purple-50',
+      iconBgHover: 'group-hover:bg-purple-100'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-white py-12">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-            <FileText className="w-10 h-10 text-blue-600" />
-            Documentos Inteligentes
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Gestiona y crea documentos legales con la ayuda de inteligencia artificial
-          </p>
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Documentos Inteligentes
+              </h1>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Gestiona y crea documentos legales con IA
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Options Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Options Grid - Más compacto */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {documentOptions.map((option, index) => (
             <Link
               key={index}
               href={option.href}
-              className="block group bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300"
+              className="block group bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md hover:border-blue-400 transition-all duration-200"
             >
               <div className="flex flex-col h-full">
-                <div className="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors">
-                  <option.icon className="w-8 h-8 text-blue-600" />
+                {/* Icono y título */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`${option.iconBg} p-2.5 rounded-lg ${option.iconBgHover} transition-colors flex-shrink-0`}>
+                      <option.icon className={`w-5 h-5 ${option.iconColor}`} />
+                    </div>
+                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {option.title}
+                    </h3>
+                  </div>
+                  <svg
+                    className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
 
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  {option.title}
-                </h3>
-
-                <p className="text-gray-600 text-lg leading-relaxed mb-6 flex-grow">
+                {/* Descripción */}
+                <p className="text-sm text-gray-600 leading-relaxed">
                   {option.description}
                 </p>
-
-                <div className="flex items-center gap-2 text-blue-600 font-semibold group-hover:gap-3 transition-all duration-300">
-                  Comenzar
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </div>
               </div>
             </Link>
           ))}
         </div>
 
-        {/* Additional Info */}
-        <div className="mt-16 text-center">
-          <div className="bg-gray-50 rounded-xl p-8 border border-gray-200">
-            <h4 className="text-lg font-semibold text-gray-900 mb-3">
-              ¿Necesitas ayuda?
-            </h4>
-            <p className="text-gray-600">
-              Si tienes dudas sobre cómo usar estas herramientas, puedes consultar nuestro
-              <Link href="/knowledge" className="text-blue-600 hover:text-blue-700 font-medium ml-1">
-                centro de ayuda
-              </Link>
-              o contactar al soporte técnico.
-            </p>
+        {/* Additional Info - Más compacto */}
+        <div className="mt-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                  ¿Necesitas ayuda?
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Consulta nuestro
+                  <Link href="/knowledge" className="text-blue-600 hover:text-blue-700 font-medium ml-1">
+                    centro de ayuda
+                  </Link>
+                  {' '}o contacta al soporte técnico.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
