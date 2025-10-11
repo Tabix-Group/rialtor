@@ -7,14 +7,12 @@ const { Document, Packer, Paragraph, TextRun } = require('docx');
  * Obtener lista de carpetas disponibles en docgen
  */
 const getDocgenFolders = async (req, res, next) => {
-    try         // Obtener información del documento
-        const resource = await cloudinary.api.resource(documentId, {
-            resource_type: 'raw' // Usar raw para archivos .docx
-        });      console.log('📁 Obteniendo carpetas de docgen...');
+    try {
+        console.log('📁 Obteniendo carpetas de docgen...');
 
         // Listar recursos de la carpeta docgen en Cloudinary
         const result = await cloudinary.api.sub_folders('docgen');
-        
+
         const folders = result.folders.map(folder => ({
             name: folder.name,
             path: folder.path,
@@ -29,7 +27,7 @@ const getDocgenFolders = async (req, res, next) => {
 
     } catch (error) {
         console.error('❌ Error al obtener carpetas:', error);
-        
+
         // Si la carpeta docgen no existe, retornar carpetas predefinidas
         if (error.error && error.error.http_code === 404) {
             return res.json({
@@ -41,7 +39,7 @@ const getDocgenFolders = async (req, res, next) => {
                 ]
             });
         }
-        
+
         next(error);
     }
 };
