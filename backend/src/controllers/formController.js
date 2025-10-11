@@ -138,12 +138,12 @@ const getDocumentsByFolder = async (req, res, next) => {
 
         console.log(`🔍 Recursos encontrados en Cloudinary: ${result.resources.length}`);
         
-        // Filtrar solo archivos .docx
+        // Filtrar solo archivos .doc y .docx
         const docxFiles = result.resources.filter(resource => {
             const filename = resource.public_id.split('/').pop();
-            const isDocx = filename.toLowerCase().endsWith('.docx');
-            console.log(`📄 Archivo: ${filename}, Es DOCX: ${isDocx}, Tipo: ${resource.resource_type}, Formato: ${resource.format}`);
-            return isDocx;
+            const isDocOrDocx = filename.toLowerCase().match(/\.(doc|docx)$/);
+            console.log(`📄 Archivo: ${filename}, Es DOC/DOCX: ${isDocOrDocx}, Tipo: ${resource.resource_type}, Formato: ${resource.format}`);
+            return isDocOrDocx;
         });
 
         const documents = docxFiles.map(resource => ({
@@ -181,7 +181,7 @@ const getDocumentsByFolder = async (req, res, next) => {
             
             const altDocxFiles = altResult.resources.filter(resource => {
                 const filename = resource.public_id.split('/').pop();
-                return filename.toLowerCase().endsWith('.docx');
+                return filename.toLowerCase().match(/\.(doc|docx)$/);
             });
             
             console.log(`✅ Documentos DOCX alternativos: ${altDocxFiles.length}`);
@@ -393,10 +393,10 @@ const getFormStats = async (req, res, next) => {
                     max_results: 100
                 });
                 
-                // Contar solo archivos .docx
+                // Contar solo archivos .doc y .docx
                 const docxCount = result.resources.filter(resource => {
                     const filename = resource.public_id.split('/').pop();
-                    return filename.toLowerCase().endsWith('.docx');
+                    return filename.toLowerCase().match(/\.(doc|docx)$/);
                 }).length;
                 
                 stats[folder] = docxCount;

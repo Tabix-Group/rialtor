@@ -77,9 +77,9 @@ async function uploadFile(filePath, targetFolder) {
   const filename = path.basename(filePath);
   const ext = path.extname(filePath).toLowerCase();
   
-  // Validar que sea un archivo .docx
-  if (ext !== '.docx') {
-    console.warn(`⚠️  Ignorando ${filename} (solo se aceptan archivos .docx)`);
+  // Validar que sea un archivo .doc o .docx
+  if (!ext.match(/^\.(doc|docx)$/)) {
+    console.warn(`⚠️  Ignorando ${filename} (solo se aceptan archivos .doc y .docx)`);
     return null;
   }
   
@@ -109,14 +109,14 @@ async function uploadFile(filePath, targetFolder) {
  */
 async function uploadDirectory(dirPath, targetFolder) {
   const files = fs.readdirSync(dirPath);
-  const docxFiles = files.filter(f => f.endsWith('.docx'));
+  const docxFiles = files.filter(f => f.match(/\.(doc|docx)$/i));
   
   if (docxFiles.length === 0) {
-    console.warn(`⚠️  No se encontraron archivos .docx en ${dirPath}`);
+    console.warn(`⚠️  No se encontraron archivos .doc o .docx en ${dirPath}`);
     return;
   }
   
-  console.log(`📁 Encontrados ${docxFiles.length} archivos .docx`);
+  console.log(`📁 Encontrados ${docxFiles.length} archivos .doc/.docx`);
   console.log('');
   
   const results = [];
