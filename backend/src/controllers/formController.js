@@ -137,27 +137,26 @@ const getDocumentsByFolder = async (req, res, next) => {
                     if (result.resources && result.resources.length > 0) {
                         console.log(`   ✅ Encontrados ${result.resources.length} recursos con ${resourceType}`);
                         
-                        // Filtrar archivos de Word (.doc/.docx)
-                        // Como el script upload-forms.js elimina la extensión del public_id,
-                        // necesitamos ser más permisivos:
-                        // 1. Aceptar si tiene extensión .doc/.docx en el nombre
-                        // 2. Aceptar si el formato es doc/docx
-                        // 3. Aceptar TODOS los archivos raw en carpetas docgen/* (asumimos que son docs)
+                        // Filtrar archivos de Word (.docx únicamente para edición)
+                        // Solo aceptamos .docx ya que .doc no se puede editar con mammoth
                         const docxFiles = result.resources.filter(resource => {
                             const filename = resource.public_id.split('/').pop();
-                            const hasDocExtension = filename.toLowerCase().match(/\.(doc|docx)$/);
-                            const isDocFormat = resource.format === 'doc' || resource.format === 'docx';
+                            const hasDocxExtension = filename.toLowerCase().endsWith('.docx');
+                            const isDocxFormat = resource.format === 'docx';
                             
-                            // Si es resource_type 'raw' y está en una carpeta docgen, es válido
+                            // Si es resource_type 'raw' y está en una carpeta docgen, verificar extensión
                             const isInDocgenFolder = resource.public_id.startsWith('docgen/');
                             const isRawType = resourceType === 'raw';
                             
-                            const isValidDoc = hasDocExtension || isDocFormat || (isRawType && isInDocgenFolder);
+                            // Solo aceptar archivos que claramente sean .docx
+                            const isValidDocx = hasDocxExtension || (isRawType && isInDocgenFolder && isDocxFormat);
                             
-                            if (isValidDoc) {
-                                console.log(`      📄 ${filename} (format: ${resource.format}, ${resource.bytes} bytes)`);
+                            if (isValidDocx) {
+                                console.log(`      📄 ${filename} (format: ${resource.format}, ${resource.bytes} bytes) - EDITABLE`);
+                            } else if (filename.toLowerCase().includes('.doc') && !hasDocxExtension) {
+                                console.log(`      📄 ${filename} (format: ${resource.format}, ${resource.bytes} bytes) - NO EDITABLE (.doc)`);
                             }
-                            return isValidDoc;
+                            return isValidDocx;
                         });
 
                         // Agregar a la lista evitando duplicados
@@ -194,7 +193,7 @@ const getDocumentsByFolder = async (req, res, next) => {
             }
         }
 
-        console.log(`✅ Total de documentos DOCX encontrados: ${allDocuments.length}`);
+        console.log(`✅ Total de documentos DOCX editables encontrados: ${allDocuments.length}`);
 
         res.json({
             success: true,
@@ -226,6 +225,30 @@ const getDocumentContent = async (req, res, next) => {
 
         console.log(`📥 Descargando documento desde: ${resource.secure_url}`);
 
+        // Verificar si es un archivo .doc (formato antiguo) o .docx
+        const filename = resource.public_id.split('/').pop();
+        const isDocFile = filename.toLowerCase().endsWith('.doc') && !filename.toLowerCase().endsWith('.docx');
+        const isDocxFile = filename.toLowerCase().endsWith('.docx') || resource.format === 'docx';
+
+        if (isDocFile) {
+            return res.status(400).json({
+                success: false,
+                message: 'Los archivos .doc (formato antiguo de Word) no son compatibles con la edición en línea. Por favor, convierta el archivo a formato .docx antes de subirlo.',
+                error: 'UNSUPPORTED_FORMAT',
+                filename: filename
+            });
+        }
+
+        if (!isDocxFile) {
+            return res.status(400).json({
+                success: false,
+                message: 'Solo se admiten archivos de Word (.docx) para edición en línea.',
+                error: 'INVALID_FORMAT',
+                filename: filename,
+                format: resource.format
+            });
+        }
+
         // Descargar el documento
         const response = await fetch(resource.secure_url);
         if (!response.ok) {
@@ -256,6 +279,16 @@ const getDocumentContent = async (req, res, next) => {
 
     } catch (error) {
         console.error('❌ Error al obtener contenido del documento:', error);
+
+        // Si es un error de mammoth sobre formato inválido, dar mensaje más específico
+        if (error.message && error.message.includes('Could not find the body element')) {
+            return res.status(400).json({
+                success: false,
+                message: 'El archivo no parece ser un documento Word válido (.docx). Verifique que el archivo no esté corrupto.',
+                error: 'INVALID_DOCX_FORMAT'
+            });
+        }
+
         next(error);
     }
 };
@@ -344,8 +377,16 @@ const downloadOriginalDocument = async (req, res, next) => {
         const buffer = Buffer.from(await response.arrayBuffer());
         const filename = resource.public_id.split('/').pop();
 
+        // Determinar el content-type basado en la extensión
+        let contentType = 'application/octet-stream'; // fallback
+        if (filename.toLowerCase().endsWith('.docx')) {
+            contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        } else if (filename.toLowerCase().endsWith('.doc')) {
+            contentType = 'application/msword';
+        }
+
         // Configurar headers para descarga
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.setHeader('Content-Length', buffer.length);
 
@@ -390,21 +431,18 @@ const getFormStats = async (req, res, next) => {
                     max_results: 100
                 });
                 
-                // Contar archivos de Word (.doc y .docx)
-                // Como el script elimina la extensión, aceptamos:
-                // 1. Archivos con extensión .doc/.docx en el nombre
-                // 2. Archivos con formato doc/docx
-                // 3. Todos los archivos raw en docgen/* (asumimos que son documentos Word)
+                // Contar archivos de Word (.docx únicamente para edición)
+                // Solo contamos .docx ya que .doc no se puede editar
                 const docxCount = result.resources.filter(resource => {
                     const filename = resource.public_id.split('/').pop();
-                    const hasDocExtension = filename.toLowerCase().match(/\.(doc|docx)$/);
-                    const isDocFormat = resource.format === 'doc' || resource.format === 'docx';
+                    const hasDocxExtension = filename.toLowerCase().endsWith('.docx');
+                    const isDocxFormat = resource.format === 'docx';
                     const isInDocgenFolder = resource.public_id.startsWith('docgen/');
-                    return hasDocExtension || isDocFormat || isInDocgenFolder;
+                    return hasDocxExtension || (isInDocgenFolder && isDocxFormat);
                 }).length;
                 
                 stats[folder] = docxCount;
-                console.log(`📊 ${folder}: ${docxCount} documentos DOCX`);
+                console.log(`📊 ${folder}: ${docxCount} documentos DOCX editables`);
             } catch (error) {
                 console.log(`⚠️ Error obteniendo stats para ${folder}:`, error.message);
                 stats[folder] = 0;
