@@ -387,6 +387,117 @@ const getFile = async (req, res, next) => {
     }
 };
 
+// Crear carpeta o subcarpeta
+const createFolder = async (req, res, next) => {
+    try {
+        const { folder, subfolder, parentFolder } = req.body;
+        const userId = req.user.id;
+
+        console.log('📁 Create folder request:', { folder, subfolder, parentFolder, userId });
+
+        if (!folder && !subfolder) {
+            return res.status(400).json({
+                success: false,
+                message: 'Debe especificar al menos un nombre de carpeta o subcarpeta',
+                error: 'MISSING_FOLDER_NAME'
+            });
+        }
+
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({
+                success: false,
+                message: 'Usuario no autenticado',
+                error: 'UNAUTHENTICATED'
+            });
+        }
+
+        // Determinar el nombre de la carpeta y subcarpeta
+        let finalFolder = folder;
+        let finalSubfolder = subfolder;
+
+        if (parentFolder && !subfolder) {
+            // Si hay parentFolder pero no subfolder, estamos creando una nueva carpeta raíz
+            finalFolder = folder;
+            finalSubfolder = null;
+        } else if (parentFolder && subfolder) {
+            // Si hay parentFolder y subfolder, estamos creando una subcarpeta
+            finalFolder = parentFolder;
+            finalSubfolder = subfolder;
+        } else if (!parentFolder && subfolder) {
+            // Si no hay parentFolder pero sí subfolder, usar la carpeta por defecto
+            finalFolder = folder || 'Contenido';
+            finalSubfolder = subfolder;
+        }
+
+        // Verificar si la carpeta/subcarpeta ya existe
+        const existingFolder = await prisma.fileUpload.findFirst({
+            where: {
+                folder: finalFolder,
+                subfolder: finalSubfolder,
+            }
+        });
+
+        if (existingFolder) {
+            return res.status(409).json({
+                success: false,
+                message: 'La carpeta o subcarpeta ya existe',
+                error: 'FOLDER_EXISTS'
+            });
+        }
+
+        // Crear una entrada dummy en la base de datos para representar la carpeta
+        // Esto permitirá que aparezca en la estructura de carpetas
+        const folderEntry = await prisma.fileUpload.create({
+            data: {
+                filename: '.folder_placeholder',
+                originalName: '.folder_placeholder',
+                mimeType: 'application/x-folder',
+                size: 0,
+                cloudinaryUrl: '',
+                cloudinaryId: '',
+                folder: finalFolder,
+                subfolder: finalSubfolder,
+                uploadedBy: userId,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    }
+                }
+            }
+        });
+
+        console.log('✅ Folder created successfully');
+
+        res.json({
+            success: true,
+            message: 'Carpeta creada exitosamente',
+            data: {
+                folder: finalFolder,
+                subfolder: finalSubfolder,
+                createdBy: folderEntry.user
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error creating folder:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+
+        res.status(500).json({
+            success: false,
+            message: 'Error al crear la carpeta',
+            error: error.message,
+            code: error.code || 'CREATE_FOLDER_ERROR'
+        });
+    }
+};
+
 // Descargar archivo (proxy para evitar problemas de CORS)
 const downloadFile = async (req, res, next) => {
     try {
@@ -431,5 +542,6 @@ module.exports = {
     getFolders,
     deleteFile,
     getFile,
-    downloadFile
+    downloadFile,
+    createFolder
 };

@@ -11,7 +11,8 @@ const {
     getFolders,
     deleteFile,
     getFile,
-    downloadFile
+    downloadFile,
+    createFolder
 } = require('../controllers/fileController');
 
 const { authenticateToken } = require('../middleware/auth');
@@ -71,6 +72,12 @@ router.post('/upload',
     checkPermission('view_admin'),
     upload.single('file'),
     uploadFile
+);
+
+// Crear carpeta (requiere permisos de admin)
+router.post('/create-folder',
+    checkPermission('view_admin'),
+    createFolder
 );
 
 // Obtener archivos con paginación

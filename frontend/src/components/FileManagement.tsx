@@ -36,6 +36,8 @@ export default function FileManagement() {
     const [selectedSubfolder, setSelectedSubfolder] = useState('')
     const [newSubfolder, setNewSubfolder] = useState('')
     const [showNewSubfolder, setShowNewSubfolder] = useState(false)
+    const [newFolder, setNewFolder] = useState('')
+    const [showNewFolder, setShowNewFolder] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
@@ -127,35 +129,67 @@ export default function FileManagement() {
         }
     }
 
+    // Crear nueva carpeta raíz
+    const createFolder = async () => {
+        if (!newFolder.trim()) return
+
+        try {
+            const response = await fetch('/api/files/create-folder', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    folder: newFolder.trim()
+                })
+            })
+
+            const data = await response.json()
+            if (data.success) {
+                setNewFolder('')
+                setShowNewFolder(false)
+                loadFolders()
+                alert('Carpeta creada exitosamente')
+            } else {
+                alert('Error al crear la carpeta: ' + (data.message || 'Error desconocido'))
+            }
+        } catch (error) {
+            console.error('Error creating folder:', error)
+            alert('Error al crear la carpeta')
+        }
+    }
+
     // Crear nueva subcarpeta
     const createSubfolder = async () => {
         if (!newSubfolder.trim()) return
 
         try {
-            // Crear una carpeta temporal subiendo un archivo dummy
-            const formData = new FormData()
-            const dummyBlob = new Blob([''], { type: 'text/plain' })
-            const dummyFile = new (globalThis.File as any)([dummyBlob], 'dummy.txt', { type: 'text/plain' })
-            formData.append('file', dummyFile)
-            formData.append('folder', selectedFolder)
-            formData.append('subfolder', newSubfolder.trim())
-
-            const response = await fetch('/api/files/upload', {
+            const response = await fetch('/api/files/create-folder', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
                 },
-                body: formData
+                body: JSON.stringify({
+                    folder: selectedFolder,
+                    subfolder: newSubfolder.trim(),
+                    parentFolder: selectedFolder
+                })
             })
 
-            if (response.ok) {
+            const data = await response.json()
+            if (data.success) {
                 setNewSubfolder('')
                 setShowNewSubfolder(false)
                 loadFolders()
                 alert('Subcarpeta creada exitosamente')
+            } else {
+                alert('Error al crear la subcarpeta: ' + (data.message || 'Error desconocido'))
             }
         } catch (error) {
             console.error('Error creating subfolder:', error)
+            alert('Error al crear la subcarpeta')
         }
     }
 
@@ -220,6 +254,28 @@ export default function FileManagement() {
                 <p className="text-gray-600">Sube y administra archivos para contenido de redes sociales</p>
             </div>
 
+            {/* Crear Carpeta */}
+            <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Crear Carpeta</h3>
+                <div className="flex gap-2">
+                    <input
+                        type="text"
+                        value={newFolder}
+                        onChange={(e) => setNewFolder(e.target.value)}
+                        placeholder="Nombre de la nueva carpeta"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onKeyPress={(e) => e.key === 'Enter' && createFolder()}
+                    />
+                    <button
+                        onClick={createFolder}
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    >
+                        <Plus className="w-4 h-4 inline mr-1" />
+                        Crear Carpeta
+                    </button>
+                </div>
+            </div>
+
             {/* Controles de subida */}
             <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Subir Archivo</h3>
@@ -241,6 +297,9 @@ export default function FileManagement() {
                             ))}
                             {!folders.find(f => f.name === 'Contenido') && (
                                 <option value="Contenido">Contenido</option>
+                            )}
+                            {newFolder && !folders.find(f => f.name === newFolder) && (
+                                <option value={newFolder}>{newFolder}</option>
                             )}
                         </select>
                     </div>
