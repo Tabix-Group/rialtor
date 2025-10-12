@@ -646,6 +646,66 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// GET /api/documents - get user documents
+router.get('/', async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { countOnly } = req.query;
+
+    if (countOnly === '1') {
+      // Solo devolver el conteo para optimización
+      const count = await prisma.documentTemplate.count({
+        where: {
+          userId: userId,
+          isActive: true
+        }
+      });
+      return res.json({ count });
+    }
+
+    // Obtener documentos del usuario
+    const documents = await prisma.documentTemplate.findMany({
+      where: {
+        userId: userId,
+        isActive: true
+      },
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        category: true,
+        url: true,
+        cloudinaryId: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Formatear respuesta para compatibilidad con el frontend
+    const formattedDocuments = documents.map(doc => ({
+      id: doc.cloudinaryId,
+      title: doc.title || doc.name,
+      name: doc.name,
+      type: 'document', // Tipo genérico
+      uploadDate: doc.createdAt,
+      url: doc.url,
+      category: doc.category
+    }));
+
+    res.json({
+      documents: formattedDocuments,
+      total: formattedDocuments.length
+    });
+
+  } catch (err) {
+    console.error('[DOCUMENTS] Error getting documents:', err);
+    res.status(500).json({ error: 'Error al obtener documentos', details: err.message });
+  }
+});
+
 // POST /api/documents/generate-reserva
 // Body: { campos del formulario de reserva }
 // Returns: { documentUrl: 'url del documento generado' }

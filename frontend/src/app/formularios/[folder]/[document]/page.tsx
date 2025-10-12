@@ -6,6 +6,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
+import { authenticatedFetch } from '@/utils/api'
 
 export default function DocumentEditorPage() {
     const router = useRouter()
@@ -43,7 +44,7 @@ export default function DocumentEditorPage() {
         try {
             setLoading(true)
             const encodedId = encodeURIComponent(documentId)
-            const response = await fetch(`/api/forms/document/${encodedId}/content`)
+            const response = await authenticatedFetch(`/api/forms/document/${encodedId}/content`)
             
             if (!response.ok) {
                 throw new Error('Error al cargar el documento')
@@ -86,7 +87,7 @@ export default function DocumentEditorPage() {
             const timestamp = new Date().toISOString().split('T')[0]
             const filename = `${documentMetadata?.filename?.replace('.docx', '') || 'documento'}_completado_${timestamp}.docx`
 
-            const response = await fetch('/api/forms/generate', {
+            const response = await authenticatedFetch('/api/forms/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
