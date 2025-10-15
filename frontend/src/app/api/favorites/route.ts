@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL}/api`
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/favorites`, {
+    const response = await fetch(`${API_URL}/favorites`, {
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/json',
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    const response = await fetch(`${API_BASE_URL}/api/favorites`, {
+    const response = await fetch(`${API_URL}/favorites`, {
       method: 'POST',
       headers: {
         'Authorization': authHeader,

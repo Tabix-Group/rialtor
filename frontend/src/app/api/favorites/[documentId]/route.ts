@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = API_BASE_URL.endsWith('/api') ? API_BASE_URL : `${API_BASE_URL}/api`
 
 export async function DELETE(
   request: NextRequest,
@@ -16,7 +17,7 @@ export async function DELETE(
     const { documentId } = params
     const encodedDocumentId = encodeURIComponent(documentId)
 
-    const response = await fetch(`${API_BASE_URL}/api/favorites/${encodedDocumentId}`, {
+    const response = await fetch(`${API_URL}/favorites/${encodedDocumentId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': authHeader,
