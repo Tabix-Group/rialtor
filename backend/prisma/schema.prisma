@@ -30,6 +30,7 @@ model User {
   calculatorHistory CalculatorHistory[]
   propertyPlaques PropertyPlaque[]
   fileUploads     FileUpload[]
+  financeTransactions FinanceTransaction[]
 
   // Roles y permisos
   roleAssignments RoleAssignment[]
@@ -331,4 +332,23 @@ model FileUpload {
   updatedAt   DateTime @updatedAt
 
   @@map("file_uploads")
+}
+
+// Finanzas personales
+model FinanceTransaction {
+  id          String   @id @default(uuid())
+  type        String   // 'ingreso' or 'egreso'
+  concept     String
+  description String?
+  amount      Float
+  currency    String   // 'ARS' or 'USD'
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("finance_transactions")
 }

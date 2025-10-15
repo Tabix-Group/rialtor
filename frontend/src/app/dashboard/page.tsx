@@ -164,15 +164,15 @@ export default function DashboardPage() {
       stats: 'Actualización diaria'
     },
     {
-      title: 'Biblioteca Digital',
-      description: 'Repositorio completo de recursos, plantillas y materiales descargables premium.',
-      icon: Download,
-      href: '/descargas',
-      gradient: 'from-neutral-700 via-stone-700 to-gray-700',
-      iconBg: 'from-neutral-600 to-stone-700',
-      badge: 'Recursos',
-      stats: '200+ archivos'
-    }
+      title: 'Centro de Finanzas',
+      description: 'Gestión completa de ingresos y egresos personales. Controla tu flujo de caja con análisis detallado.',
+      icon: BarChart3,
+      href: '/finanzas',
+      gradient: 'from-green-600 via-emerald-600 to-teal-600',
+      iconBg: 'from-green-500 to-emerald-600',
+      badge: 'Finanzas',
+      stats: 'Control total'
+    },
   ]
 
   if (isAdmin) {
