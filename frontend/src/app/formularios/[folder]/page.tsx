@@ -293,7 +293,10 @@ export default function FolderDocumentsPage() {
                         {viewMode === 'grid' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {documents.map((doc) => (
-                                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-4">
+                                    <div
+                                        key={doc.id}
+                                        className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-4"
+                                    >
                                         {/* Icono y título */}
                                         <div className="flex items-start gap-3 mb-3">
                                             <div className="bg-blue-50 p-2 rounded flex-shrink-0">
