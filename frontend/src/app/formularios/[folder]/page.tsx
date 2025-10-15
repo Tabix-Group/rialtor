@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useAuth } from '../../auth/authContext'
 
 interface Document {
     id: string
@@ -17,6 +18,7 @@ interface Document {
 export default function FolderDocumentsPage() {
     const router = useRouter()
     const params = useParams()
+    const { user } = useAuth()
     const folder = (params?.folder as string) || ''
 
     const [documents, setDocuments] = useState<Document[]>([])
@@ -24,12 +26,16 @@ export default function FolderDocumentsPage() {
     const [error, setError] = useState<string | null>(null)
     const [downloading, setDownloading] = useState<string | null>(null)
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+    const [favorites, setFavorites] = useState<Set<string>>(new Set())
 
     useEffect(() => {
         if (folder) {
             loadDocuments()
         }
-    }, [folder])
+        if (user) {
+            loadFavorites()
+        }
+    }, [folder, user])
 
     const loadDocuments = async () => {
         try {
@@ -44,6 +50,69 @@ export default function FolderDocumentsPage() {
             setError('Error al cargar los documentos')
         } finally {
             setLoading(false)
+        }
+    }
+
+    const loadFavorites = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch('/api/favorites', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            if (!response.ok) return
+            
+            const data = await response.json()
+            const favoriteIds = new Set<string>(data.data?.map((fav: any) => fav.documentId) || [])
+            setFavorites(favoriteIds)
+        } catch (err) {
+            console.error('Error loading favorites:', err)
+        }
+    }
+
+    const toggleFavorite = async (doc: Document) => {
+        if (!user) return
+
+        try {
+            const token = localStorage.getItem('token')
+            const isFavorite = favorites.has(doc.id)
+
+            if (isFavorite) {
+                // Remove from favorites
+                const response = await fetch(`/api/favorites/${encodeURIComponent(doc.id)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                if (response.ok) {
+                    setFavorites(prev => {
+                        const newSet = new Set(prev)
+                        newSet.delete(doc.id)
+                        return newSet
+                    })
+                }
+            } else {
+                // Add to favorites
+                const response = await fetch('/api/favorites', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        documentId: doc.id,
+                        documentName: doc.originalName,
+                        folder: doc.folder
+                    })
+                })
+                if (response.ok) {
+                    setFavorites(prev => new Set(Array.from(prev).concat(doc.id)))
+                }
+            }
+        } catch (err) {
+            console.error('Error toggling favorite:', err)
         }
     }
 
@@ -224,10 +293,7 @@ export default function FolderDocumentsPage() {
                         {viewMode === 'grid' && (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {documents.map((doc) => (
-                                    <div
-                                        key={doc.id}
-                                        className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-4"
-                                    >
+                                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-4">
                                         {/* Icono y título */}
                                         <div className="flex items-start gap-3 mb-3">
                                             <div className="bg-blue-50 p-2 rounded flex-shrink-0">
@@ -245,6 +311,21 @@ export default function FolderDocumentsPage() {
                                                     <span>{formatFileSize(doc.size)}</span>
                                                 </div>
                                             </div>
+                                            {user && (
+                                                <button
+                                                    onClick={() => toggleFavorite(doc)}
+                                                    className={`p-1.5 rounded-full transition-colors ${
+                                                        favorites.has(doc.id)
+                                                            ? 'text-yellow-500 hover:text-yellow-600 bg-yellow-50'
+                                                            : 'text-gray-400 hover:text-yellow-500 bg-gray-50 hover:bg-yellow-50'
+                                                    }`}
+                                                    title={favorites.has(doc.id) ? 'Remover de favoritos' : 'Agregar a favoritos'}
+                                                >
+                                                    <svg className="w-4 h-4" fill={favorites.has(doc.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                                    </svg>
+                                                </button>
+                                            )}
                                         </div>
 
                                         {/* Acciones */}
@@ -309,6 +390,21 @@ export default function FolderDocumentsPage() {
 
                                                 {/* Acciones */}
                                                 <div className="flex items-center gap-2 flex-shrink-0">
+                                                    {user && (
+                                                        <button
+                                                            onClick={() => toggleFavorite(doc)}
+                                                            className={`p-2 rounded transition-colors ${
+                                                                favorites.has(doc.id)
+                                                                    ? 'text-yellow-500 hover:text-yellow-600 bg-yellow-50'
+                                                                    : 'text-gray-400 hover:text-yellow-500 bg-gray-50 hover:bg-yellow-50'
+                                                            }`}
+                                                            title={favorites.has(doc.id) ? 'Remover de favoritos' : 'Agregar a favoritos'}
+                                                        >
+                                                            <svg className="w-4 h-4" fill={favorites.has(doc.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                                            </svg>
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => handleDownloadOriginal(doc)}
                                                         disabled={downloading === doc.id}

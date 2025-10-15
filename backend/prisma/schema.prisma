@@ -31,6 +31,7 @@ model User {
   propertyPlaques PropertyPlaque[]
   fileUploads     FileUpload[]
   financeTransactions FinanceTransaction[]
+  documentFavorites DocumentFavorite[]
 
   // Roles y permisos
   roleAssignments RoleAssignment[]
@@ -333,6 +334,22 @@ model FileUpload {
   updatedAt   DateTime @updatedAt
 
   @@map("file_uploads")
+}
+
+// Favoritos de documentos
+model DocumentFavorite {
+  id          String   @id @default(uuid())
+  documentId  String   // Cloudinary document ID
+  documentName String  // Display name of the document
+  folder      String   // Folder/category (alquiler, boletos, etc.)
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, documentId]) // Un usuario no puede tener el mismo documento favorito más de una vez
+  @@map("document_favorites")
 }
 
 // Finanzas personales
