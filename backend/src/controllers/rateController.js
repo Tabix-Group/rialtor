@@ -26,7 +26,7 @@ const getBankRates = async (req, res) => {
 // Crear o actualizar tasa bancaria
 const upsertBankRate = async (req, res) => {
     try {
-        const { bankName, interestRate } = req.body;
+        const { bankName, interestRate, termMonths } = req.body;
 
         if (!bankName || interestRate === undefined || interestRate < 0) {
             return res.status(400).json({
@@ -37,8 +37,16 @@ const upsertBankRate = async (req, res) => {
 
         const rate = await prisma.bankRate.upsert({
             where: { bankName },
-            update: { interestRate: parseFloat(interestRate), updatedAt: new Date() },
-            create: { bankName, interestRate: parseFloat(interestRate) }
+            update: { 
+                interestRate: parseFloat(interestRate), 
+                termMonths: termMonths ? parseInt(termMonths) : null,
+                updatedAt: new Date() 
+            },
+            create: { 
+                bankName, 
+                interestRate: parseFloat(interestRate),
+                termMonths: termMonths ? parseInt(termMonths) : null
+            }
         });
 
         res.json({

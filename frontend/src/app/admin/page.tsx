@@ -42,10 +42,11 @@ export default function AdminPage() {
   const [recentLoading, setRecentLoading] = useState(true);
 
   // Bank rates state
-  const [bankRates, setBankRates] = useState<{ id: string; bankName: string; interestRate: number }[]>([]);
+  const [bankRates, setBankRates] = useState<{ id: string; bankName: string; interestRate: number; termMonths?: number }[]>([]);
   const [ratesLoading, setRatesLoading] = useState(false);
   const [newBankName, setNewBankName] = useState('');
   const [newRate, setNewRate] = useState('');
+  const [newTermMonths, setNewTermMonths] = useState('');
 
   // Verificar permisos solo en el cliente
   useEffect(() => {
@@ -186,7 +187,8 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bankName: newBankName.trim(),
-          interestRate: parseFloat(newRate)
+          interestRate: parseFloat(newRate),
+          termMonths: newTermMonths ? parseInt(newTermMonths) : null
         })
       });
       const data = await res.json();
@@ -201,6 +203,7 @@ export default function AdminPage() {
         });
         setNewBankName('');
         setNewRate('');
+        setNewTermMonths('');
         alert('Tasa guardada exitosamente');
       } else {
         alert('Error al guardar la tasa');
@@ -411,7 +414,7 @@ export default function AdminPage() {
         {/* Formulario para agregar/editar tasas */}
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
           <h4 className="text-md font-semibold text-gray-900 mb-4">Agregar/Editar Tasa</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Banco</label>
               <input
@@ -430,6 +433,17 @@ export default function AdminPage() {
                 value={newRate}
                 onChange={(e) => setNewRate(e.target.value)}
                 placeholder="Ej: 8.5"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Plazo (meses)</label>
+              <input
+                type="number"
+                value={newTermMonths}
+                onChange={(e) => setNewTermMonths(e.target.value)}
+                placeholder="Ej: 360"
+                min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -463,6 +477,9 @@ export default function AdminPage() {
                       Tasa de Interés
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Plazo (meses)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Acciones
                     </th>
                   </tr>
@@ -476,11 +493,15 @@ export default function AdminPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">{rate.interestRate}%</div>
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{rate.termMonths ? `${rate.termMonths} meses` : 'N/A'}</div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <button
                           onClick={() => {
                             setNewBankName(rate.bankName);
                             setNewRate(rate.interestRate.toString());
+                            setNewTermMonths(rate.termMonths ? rate.termMonths.toString() : '');
                           }}
                           className="text-blue-600 hover:text-blue-900 mr-4"
                         >

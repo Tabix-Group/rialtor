@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Calculator, TrendingUp, DollarSign, Calendar, Banknote, Building, Wallet } from 'lucide-react'
+import { Calculator, TrendingUp, DollarSign, Calendar, Banknote, Building, Wallet, Percent } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 import { useAuth } from '../auth/authContext'
 
@@ -9,6 +9,7 @@ interface BankRate {
     id: string
     bankName: string
     interestRate: number
+    termMonths?: number
 }
 
 interface MortgageResult {
@@ -31,6 +32,7 @@ interface MortgageResult {
 
 export default function HipotecariosPage() {
     const { user } = useAuth()
+    const [activeTab, setActiveTab] = useState<'calculator' | 'rates'>('calculator')
     const [calculationMode, setCalculationMode] = useState<'salary' | 'property'>('property')
     const [loanAmount, setLoanAmount] = useState('')
     const [propertyValue, setPropertyValue] = useState('')
@@ -143,12 +145,35 @@ export default function HipotecariosPage() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-8 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Simulá tu Crédito Hipotecario</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Créditos Hipotecarios</h1>
                     <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                         Calculá las cuotas de tu crédito hipotecario en Argentina usando el sistema de amortización francés
                     </p>
                 </div>
 
+                {/* Main Tabs */}
+                <div className="flex mb-8 bg-gray-100 rounded-lg p-1 max-w-md mx-auto">
+                    <button
+                        onClick={() => setActiveTab('calculator')}
+                        className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${activeTab === 'calculator'
+                            ? 'bg-white text-blue-600 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        Calculadora
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('rates')}
+                        className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${activeTab === 'rates'
+                            ? 'bg-white text-blue-600 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        Tasas
+                    </button>
+                </div>
+
+                {activeTab === 'calculator' ? (
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                     {/* Header with Bank Selector */}
                     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
@@ -383,6 +408,63 @@ export default function HipotecariosPage() {
                         </div>
                     )}
                 </div>
+                ) : (
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+                        <div className="flex items-center gap-3">
+                            <Percent className="w-8 h-8 text-white" />
+                            <h2 className="text-2xl font-bold text-white">Tasas Bancarias</h2>
+                        </div>
+                    </div>
+
+                    <div className="p-8">
+                        <div className="mb-6">
+                            <p className="text-gray-600 text-center">
+                                Consulta las tasas de interés actuales para créditos hipotecarios en Argentina
+                            </p>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Banco
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Tasa de Interés
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Plazo (meses)
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {bankRates.map((rate) => (
+                                        <tr key={rate.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-medium text-gray-900">{rate.bankName}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-500">{rate.interestRate}%</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-500">{rate.termMonths ? `${rate.termMonths} meses` : 'N/A'}</div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {bankRates.length === 0 && (
+                            <div className="text-center py-8 text-gray-500">
+                                No hay tasas disponibles en este momento
+                            </div>
+                        )}
+                    </div>
+                </div>
+                )}
 
                 <div className="mt-8 text-sm text-gray-500 text-center">
                     <p>
