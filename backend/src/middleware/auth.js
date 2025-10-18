@@ -5,6 +5,12 @@ const prisma = new PrismaClient();
 
 const authenticateToken = async (req, res, next) => {
   try {
+    // Check if Prisma is available
+    if (!prisma) {
+      console.log('[AUTH] Prisma not available, skipping authentication');
+      return res.status(503).json({ error: 'Database not available' });
+    }
+
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     console.log('[AUTH] Authorization header:', authHeader ? 'Present' : 'Missing');

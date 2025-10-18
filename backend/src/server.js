@@ -124,28 +124,64 @@ app.get('/favicon.ico', (req, res) => res.status(204).end());
 const rolesRouter = require('./routes/roles');
 const permissionsRouter = require('./routes/permissions');
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+
+console.log('[SERVER] Initializing Prisma client...');
+let prisma;
+try {
+  prisma = new PrismaClient();
+  console.log('[SERVER] Prisma client initialized successfully');
+} catch (error) {
+  console.error('[SERVER] Failed to initialize Prisma client:', error);
+  // Continue without Prisma for health check
+  prisma = null;
+}
+
+// Simple ping endpoint that doesn't require database
+app.get('/ping', (req, res) => {
+  console.log('[PING] Ping requested');
+  res.json({
+    status: 'OK',
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV
+  });
+});
 
 // Health check with database status
 app.get('/health', async (req, res) => {
+  console.log('[HEALTH] Health check requested');
   const healthData = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
     version: process.env.npm_package_version || '1.0.0',
-    database: 'unknown'
+    database: 'unknown',
+    port: process.env.PORT,
+    database_url: process.env.DATABASE_URL ? 'configured' : 'missing',
+    prisma_initialized: !!prisma
   };
 
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    healthData.database = 'connected';
-  } catch (error) {
-    healthData.database = 'disconnected';
-    healthData.dbError = error.message;
+  if (!prisma) {
+    healthData.database = 'prisma_not_initialized';
     healthData.status = 'DEGRADED';
+    console.log('[HEALTH] Prisma not initialized');
+  } else {
+    try {
+      console.log('[HEALTH] Testing database connection...');
+      await prisma.$queryRaw`SELECT 1`;
+      healthData.database = 'connected';
+      console.log('[HEALTH] Database connected successfully');
+    } catch (error) {
+      console.log('[HEALTH] Database connection failed:', error.message);
+      healthData.database = 'disconnected';
+      healthData.dbError = error.message;
+      healthData.status = 'DEGRADED';
+    }
   }
 
-  res.status(healthData.status === 'OK' ? 200 : 503).json(healthData);
+  const statusCode = healthData.status === 'OK' ? 200 : 503;
+  console.log(`[HEALTH] Responding with status ${statusCode}:`, healthData.status);
+  res.status(statusCode).json(healthData);
 });
 
 // Log global para cualquier petición DELETE
@@ -180,6 +216,11 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Start server
+console.log('[SERVER] Starting server initialization...');
+console.log('[SERVER] PORT:', PORT);
+console.log('[SERVER] NODE_ENV:', process.env.NODE_ENV);
+console.log('[SERVER] DATABASE_URL configured:', !!process.env.DATABASE_URL);
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
