@@ -16,15 +16,6 @@ export default function DocumentsPage() {
       iconBgHover: 'group-hover:bg-blue-100'
     },
     {
-      title: 'Generar Documentos',
-      description: 'Crea documentos legales profesionales en segundos. Genera modelos de reserva, autorizaciones, boletos y contratos con datos personalizados.',
-      icon: Wand2,
-      href: '/documents/generator',
-      iconColor: 'text-green-600',
-      iconBg: 'bg-green-50',
-      iconBgHover: 'group-hover:bg-green-100'
-    },
-    {
       title: 'Formularios Editables',
       description: 'Edita formularios y documentos directamente en el navegador. Completa contratos de alquiler, boletos de compraventa y reservas con un editor WYSIWYG intuitivo.',
       icon: Edit3,

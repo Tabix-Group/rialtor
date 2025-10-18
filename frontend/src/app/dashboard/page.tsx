@@ -318,16 +318,6 @@ export default function DashboardPage() {
 
   const features = [
     {
-      title: 'Generador IA',
-      description: 'Creación automática de contratos y documentos legales con inteligencia artificial avanzada.',
-      icon: Wand2,
-      href: '/documents/generator',
-      gradient: 'from-violet-600 via-purple-600 to-indigo-600',
-      iconBg: 'from-violet-500 to-purple-600',
-      badge: 'IA Avanzada',
-      stats: 'Precisión 99%'
-    },
-    {
       title: 'Calculadoras Financieras',
       description: 'Suite completa de herramientas de cálculo para gastos, créditos e inversiones inmobiliarias.',
       icon: Calculator,
@@ -451,9 +441,9 @@ export default function DashboardPage() {
               </p>
 
               <div className="flex flex-wrap gap-4">
-                <Link href="/documents/generator" className="group inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:-translate-y-1 font-semibold">
+                <Link href="/formularios" className="group inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:-translate-y-1 font-semibold">
                   <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-                  Nuevo Documento
+                  Base de Documentos
                 </Link>
                 <Link href="/chat" className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md text-white px-8 py-4 rounded-2xl hover:bg-white/20 border border-white/20 transition-all duration-300 hover:-translate-y-1 font-semibold">
                   <MessageSquare className="w-5 h-5" />

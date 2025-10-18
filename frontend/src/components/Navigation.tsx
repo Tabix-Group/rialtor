@@ -58,7 +58,6 @@ function Navigation() {
       href: '/documents',
       icon: 'FileText',
       dropdown: [
-        { name: 'Generador de Documentos', href: '/documents/generator', description: 'Crea contratos y reservas' },
         { name: 'Resumidor Inteligente', href: '/documents/summary', description: 'Resume documentos extensos' },
         { name: 'Formularios Editables', href: '/formularios', description: 'Edita formularios directamente en el navegador' },
       ],
