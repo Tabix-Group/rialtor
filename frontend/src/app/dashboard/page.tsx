@@ -92,6 +92,7 @@ export default function DashboardPage() {
   const [currentView, setCurrentView] = useState<View>('month')
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; event: CalendarEvent } | null>(null)
   const [calendarExpanded, setCalendarExpanded] = useState(false)
+  const [calendarConnected, setCalendarConnected] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -147,21 +148,26 @@ export default function DashboardPage() {
           end: new Date(e.end.dateTime || e.end.date),
           description: e.description
         })))
+        setCalendarConnected(true)
       } else {
         // Handle calendar not connected error
         const errorData = await res.json().catch(() => ({}))
         if (errorData.error === 'Calendario no conectado') {
           setCalendarEvents([]) // Just show empty calendar
+          setCalendarConnected(false)
         } else {
           console.error('Error fetching calendar events:', errorData)
+          setCalendarConnected(false)
         }
       }
     } catch (error) {
       // Handle the CALENDAR_NOT_CONNECTED error specifically
       if (error instanceof Error && error.message === 'CALENDAR_NOT_CONNECTED') {
         setCalendarEvents([]) // Just show empty calendar
+        setCalendarConnected(false)
       } else {
         console.error('Error fetching calendar events:', error)
+        setCalendarConnected(false)
       }
     } finally {
       setCalendarLoading(false)
@@ -327,16 +333,6 @@ export default function DashboardPage() {
 
   const features = [
     {
-      title: 'Calculadoras Financieras',
-      description: 'Suite completa de herramientas de cálculo para gastos, créditos e inversiones inmobiliarias.',
-      icon: Calculator,
-      href: '/calculadoras',
-      gradient: 'from-emerald-600 via-teal-600 to-cyan-600',
-      iconBg: 'from-emerald-500 to-teal-600',
-      badge: 'Financiero',
-      stats: '12+ herramientas'
-    },
-    {
       title: 'Generador IA',
       description: 'Creación automática de contratos y documentos legales con inteligencia artificial avanzada.',
       icon: Wand2,
@@ -347,14 +343,14 @@ export default function DashboardPage() {
       stats: 'Precisión 99%'
     },
     {
-      title: 'Análisis Documental',
-      description: 'Extracción y análisis inteligente de información clave de contratos y documentos complejos.',
-      icon: Search,
-      href: '/documents/summary',
-      gradient: 'from-rose-600 via-pink-600 to-fuchsia-600',
-      iconBg: 'from-rose-500 to-pink-600',
-      badge: 'Smart',
-      stats: '10 seg promedio'
+      title: 'Calculadoras Financieras',
+      description: 'Suite completa de herramientas de cálculo para gastos, créditos e inversiones inmobiliarias.',
+      icon: Calculator,
+      href: '/calculadoras',
+      gradient: 'from-emerald-600 via-teal-600 to-cyan-600',
+      iconBg: 'from-emerald-500 to-teal-600',
+      badge: 'Financiero',
+      stats: '12+ herramientas'
     },
     {
       title: 'Formularios Editables',
@@ -365,6 +361,16 @@ export default function DashboardPage() {
       iconBg: 'from-cyan-500 to-blue-600',
       badge: 'Editor',
       stats: 'Documentos listos'
+    },
+    {
+      title: 'Análisis Documental',
+      description: 'Extracción y análisis inteligente de información clave de contratos y documentos complejos.',
+      icon: Search,
+      href: '/documents/summary',
+      gradient: 'from-rose-600 via-pink-600 to-fuchsia-600',
+      iconBg: 'from-rose-500 to-pink-600',
+      badge: 'Smart',
+      stats: '10 seg promedio'
     },
     {
       title: 'Marketing Visual',
@@ -440,10 +446,9 @@ export default function DashboardPage() {
 
       {/* Hero Section Premium */}
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItaDJWMzZoLTJ6bTAtNHYyaDJWMzBoLTJ6bTAtNHYyaDJWMjZoLTJ6bTAtNHYyaDJWMjJoLTJ6bTAtNHYyaDJWMThoLTJ6bTAtNHYyaDJWMTRoLTJ6bTAtNHYyaDJWMTBoLTJ6bTAtNHYyaDJWNmgtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
-        
-        <div className="relative max-w-[1600px] mx-auto px-6 lg:px-8 py-16">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/10 to-slate-900/90"></div>
+
+        <div className="relative max-w-[1600px] mx-auto px-6 lg:px-8 py-20">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
             {/* Contenido Principal */}
             <div className="flex-1">
@@ -451,11 +456,11 @@ export default function DashboardPage() {
                 <Sparkles className="w-4 h-4 text-yellow-400" />
                 <span className="text-sm font-semibold text-white">Cuenta Premium Activa</span>
               </div>
-              
+
               <h1 className="text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
                 Bienvenido, <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">{user?.name?.split(' ')[0]}</span>
               </h1>
-              
+
               <p className="text-xl text-slate-300 mb-8 max-w-2xl leading-relaxed">
                 Tu centro de comando profesional. Accede a todas las herramientas, recursos y análisis que necesitas para potenciar tu negocio inmobiliario.
               </p>
@@ -482,7 +487,7 @@ export default function DashboardPage() {
                   </div>
                   <h3 className="text-lg font-bold text-white">Resumen de Actividad</h3>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-slate-300">Esta semana</span>
@@ -505,6 +510,24 @@ export default function DashboardPage() {
       <div className="max-w-[1600px] mx-auto px-6 lg:px-8 py-12">
         {/* KPI Cards Premium */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 -mt-20 relative z-10">
+          {/* Estado Premium - Primera por importancia */}
+          <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="relative">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Award className="w-6 h-6 text-white" />
+                </div>
+                <Crown className="w-6 h-6 text-white/80" />
+              </div>
+              <p className="text-sm font-semibold text-white/90 mb-1">Estado Premium</p>
+              <p className="text-4xl font-bold text-white mb-2">Activo</p>
+              <p className="text-xs text-white/80">Acceso ilimitado a todo</p>
+            </div>
+          </div>
+
+          {/* Documentos Activos */}
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform duration-300">
@@ -520,6 +543,7 @@ export default function DashboardPage() {
             <p className="text-xs text-slate-500">Total en tu biblioteca</p>
           </div>
 
+          {/* Herramientas Usadas */}
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform duration-300">
@@ -535,6 +559,7 @@ export default function DashboardPage() {
             <p className="text-xs text-slate-500">En los últimos 7 días</p>
           </div>
 
+          {/* Tiempo Ahorrado */}
           <div className="bg-white rounded-3xl shadow-xl border border-slate-200/60 p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group">
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/25 group-hover:scale-110 transition-transform duration-300">
@@ -548,22 +573,6 @@ export default function DashboardPage() {
             <p className="text-sm font-medium text-slate-600 mb-1">Tiempo Ahorrado</p>
             <p className="text-4xl font-bold text-slate-900 mb-2">{statsLoading ? '...' : `${stats?.timeSaved || 0}h`}</p>
             <p className="text-xs text-slate-500">Optimización mensual</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/10"></div>
-            <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-            <div className="relative">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Award className="w-6 h-6 text-white" />
-                </div>
-                <Crown className="w-6 h-6 text-white/80" />
-              </div>
-              <p className="text-sm font-semibold text-white/90 mb-1">Estado Premium</p>
-              <p className="text-4xl font-bold text-white mb-2">Activo</p>
-              <p className="text-xs text-white/80">Acceso ilimitado a todo</p>
-            </div>
           </div>
         </div>
 
@@ -583,23 +592,19 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <Link key={index} href={feature.href} className="group block">
-                <div className="relative bg-white rounded-3xl shadow-lg border border-slate-200/60 overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 h-full">
-                  {/* Gradiente superior */}
-                  <div className={`h-2 bg-gradient-to-r ${feature.gradient}`}></div>
-                  
-                  {/* Contenido */}
+                <div className="relative bg-white rounded-3xl shadow-lg border border-slate-200/60 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 h-full">
+                  <div className={`h-1 bg-gradient-to-r ${feature.gradient}`}></div>
+
                   <div className="p-6">
-                    {/* Header */}
                     <div className="flex items-start justify-between mb-4">
-                      <div className={`w-14 h-14 bg-gradient-to-br ${feature.iconBg} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        <feature.icon className="w-7 h-7 text-white" />
+                      <div className={`w-12 h-12 bg-gradient-to-br ${feature.iconBg} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300`}>
+                        <feature.icon className="w-6 h-6 text-white" />
                       </div>
-                      <div className={`px-3 py-1 bg-gradient-to-r ${feature.gradient} rounded-full`}>
+                      <div className={`px-2 py-1 bg-gradient-to-r ${feature.gradient} rounded-lg`}>
                         <span className="text-xs font-bold text-white">{feature.badge}</span>
                       </div>
                     </div>
 
-                    {/* Título y descripción */}
                     <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
                       {feature.title}
                     </h3>
@@ -607,15 +612,11 @@ export default function DashboardPage() {
                       {feature.description}
                     </p>
 
-                    {/* Stats */}
                     <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                       <span className="text-xs font-semibold text-slate-500">{feature.stats}</span>
-                      <ArrowUpRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+                      <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300" />
                     </div>
                   </div>
-
-                  {/* Hover effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-indigo-500/0 to-purple-500/0 group-hover:from-blue-500/5 group-hover:via-indigo-500/5 group-hover:to-purple-500/5 transition-all duration-500 pointer-events-none"></div>
                 </div>
               </Link>
             ))}
@@ -644,13 +645,15 @@ export default function DashboardPage() {
                   <ChevronLeft className="w-5 h-5" />
                   Minimizar
                 </button>
-                <button
-                  onClick={handleConnectCalendar}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-2xl hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold"
-                >
-                  <Plus className="w-5 h-5" />
-                  Conectar Google Calendar
-                </button>
+                {!calendarConnected && (
+                  <button
+                    onClick={handleConnectCalendar}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-2xl hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Conectar Google Calendar
+                  </button>
+                )}
                 <button
                   onClick={() => setShowModal(true)}
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold"
@@ -794,203 +797,70 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Sección Documentos Ultra Premium */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
-          {/* Header */}
-          <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-8 py-8">
-            <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMSI+PHBhdGggZD0iTTM2IDM0djItaDJWMzZoLTJ6bTAtNHYyaDJWMzBoLTJ6Ii8+PC9nPjwvZz48L3N2Zz4=')]"></div>
-            <div className="relative flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-              <div className="flex items-center gap-5">
-                <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/20">
-                  <Folder className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-bold text-white mb-2">Mis Documentos</h2>
-                  <p className="text-slate-300">Gestión completa de tu biblioteca profesional</p>
-                </div>
+        {/* Documentos Recientes */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-slate-600 to-slate-800 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-600/25">
+                <FileText className="w-5 h-5 text-white" />
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="hidden lg:block text-right px-6 py-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                  <p className="text-xs text-slate-300 uppercase tracking-wider mb-1">Total Archivos</p>
-                  <p className="text-3xl font-bold text-white">{documents.length}</p>
-                </div>
-                <Link href="/documents/generator" className="inline-flex items-center gap-2 bg-white text-slate-900 px-6 py-3 rounded-2xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 font-semibold">
-                  <Plus className="w-5 h-5" />
-                  Nuevo
-                </Link>
-              </div>
+              <h2 className="text-2xl font-bold text-slate-900">Documentos Recientes</h2>
             </div>
+            <Link href="/documents" className="text-slate-600 hover:text-slate-900 font-semibold transition-colors flex items-center gap-2">
+              Ver todos
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
 
-          {/* Contenido */}
-          <div className="p-8">
-            {docsLoading ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <div className="relative">
-                  <div className="w-16 h-16 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
-                  <div className="absolute inset-0 w-16 h-16 border-4 border-slate-100 border-t-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-                </div>
-<p className="mt-6 text-slate-600 font-semibold">Cargando documentos...</p>
-                <p className="mt-2 text-slate-400 text-sm">Preparando tu biblioteca</p>
-              </div>
-            ) : documents.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="relative inline-block mb-8">
-                  <div className="w-32 h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl flex items-center justify-center mx-auto shadow-xl">
-                    <FileText className="w-16 h-16 text-slate-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {documents.slice(0, 3).map((doc, index) => (
+              <div key={doc.id} className="bg-white rounded-2xl shadow-lg border border-slate-200/60 p-6 hover:shadow-xl transition-all duration-300 group">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                    <FileText className="w-6 h-6 text-white" />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Plus className="w-6 h-6 text-white" />
-                  </div>
+                  <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                    {doc.type}
+                  </span>
                 </div>
-                
-                <h3 className="text-2xl font-bold text-slate-900 mb-3">Comienza tu biblioteca digital</h3>
-                <p className="text-slate-600 mb-8 max-w-lg mx-auto leading-relaxed">
-                  Sube y gestiona todos tus documentos profesionales en un solo lugar. Organiza contratos, reportes y más con tecnología en la nube.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Link href="/documents/generator" className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold">
-                    <Upload className="w-5 h-5" />
-                    Subir Documento
-                  </Link>
-                  <Link href="/documents/generator" className="inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl border-2 border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 font-semibold">
-                    <Wand2 className="w-5 h-5" />
-                    Generar con IA
-                  </Link>
+
+                <h3 className="font-bold text-slate-900 mb-2 line-clamp-2">{doc.title}</h3>
+                <p className="text-sm text-slate-600 mb-4 line-clamp-2">Documento profesional generado con IA</p>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500">{new Date(doc.uploadDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}</span>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors group-hover:translate-x-1">
+                    Ver →
+                  </a>
                 </div>
               </div>
-            ) : (
-              <>
-                {/* Filtros y búsqueda */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input
-                        type="text"
-                        placeholder="Buscar documentos..."
-                        className="pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all w-full sm:w-80"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <button className="inline-flex items-center gap-2 px-4 py-3 bg-slate-50 text-slate-700 rounded-2xl hover:bg-slate-100 border border-slate-200 transition-all font-medium">
-                      <Filter className="w-4 h-4" />
-                      Filtrar
-                    </button>
-                    <button className="inline-flex items-center gap-2 px-4 py-3 bg-slate-50 text-slate-700 rounded-2xl hover:bg-slate-100 border border-slate-200 transition-all font-medium">
-                      <Calendar className="w-4 h-4" />
-                      Fecha
-                    </button>
-                  </div>
-                </div>
-
-                {/* Lista de documentos */}
-                <div className="space-y-3">
-                  {documents.map((doc, index) => (
-                    <div key={doc.id} className="group relative bg-gradient-to-r from-slate-50/50 to-white rounded-2xl border border-slate-200/60 hover:border-blue-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                      {/* Indicador de color lateral */}
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      <div className="flex items-center justify-between p-5 pl-6">
-                        <div className="flex items-center gap-5 flex-1 min-w-0">
-                          {/* Icono del documento */}
-                          <div className="relative flex-shrink-0">
-                            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                              <FileText className="w-7 h-7 text-white" />
-                            </div>
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-md flex items-center justify-center">
-                              <div className="w-2 h-2 bg-white rounded-full"></div>
-                            </div>
-                          </div>
-
-                          {/* Info del documento */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-1 truncate text-lg">
-                              {doc.title}
-                            </h4>
-                            <div className="flex items-center gap-4 text-sm">
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                <span className="text-slate-600 font-medium">{doc.type}</span>
-                              </div>
-                              <span className="text-slate-300">•</span>
-                              <div className="flex items-center gap-2 text-slate-500">
-                                <Calendar className="w-4 h-4" />
-                                {new Date(doc.uploadDate).toLocaleDateString('es-ES', { 
-                                  day: '2-digit', 
-                                  month: 'short', 
-                                  year: 'numeric' 
-                                })}
-                              </div>
-                              <span className="text-slate-300">•</span>
-                              <span className="text-slate-500">{doc.size || 'N/A'}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Acciones */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <a
-                            href={doc.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 hover:shadow-lg transition-all duration-300 font-semibold text-sm group/btn"
-                          >
-                            <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                            <span className="hidden sm:inline">Ver</span>
-                          </a>
-                          <button
-                            onClick={() => handleDeleteDocument(doc.id)}
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 hover:shadow-lg transition-all duration-300 font-semibold text-sm group/btn"
-                          >
-                            <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                            <span className="hidden sm:inline">Eliminar</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Paginación y acciones */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-10 pt-8 border-t border-slate-200">
-                  <div className="text-sm text-slate-600">
-                    Mostrando <span className="font-bold text-slate-900">{documents.length}</span> de <span className="font-bold text-slate-900">{documents.length}</span> documentos
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Link href="/documents/generator" className="inline-flex items-center gap-2 bg-gradient-to-r from-slate-700 to-slate-800 text-white px-6 py-3 rounded-2xl hover:shadow-2xl hover:shadow-slate-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold">
-                      <Settings className="w-5 h-5" />
-                      Gestionar Todo
-                    </Link>
-                  </div>
-                </div>
-              </>
-            )}
+            ))}
           </div>
         </div>
 
         {/* Sección de Insights y Tips */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
           {/* Quick Actions */}
-          <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/10"></div>
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-            
+          <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/5"></div>
+
             <div className="relative">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Acciones Rápidas</h3>
+                <h3 className="text-xl font-bold text-white">Acciones Rápidas</h3>
               </div>
-              
+
               <div className="space-y-3">
+                <Link href="/documents/generator" className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group">
+                  <div className="flex items-center gap-3">
+                    <Wand2 className="w-5 h-5 text-white" />
+                    <span className="font-semibold text-white">Generar Documento</span>
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-white/60 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                </Link>
+
                 <Link href="/calculadoras" className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group">
                   <div className="flex items-center gap-3">
                     <Calculator className="w-5 h-5 text-white" />
@@ -998,15 +868,15 @@ export default function DashboardPage() {
                   </div>
                   <ArrowUpRight className="w-5 h-5 text-white/60 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </Link>
-                
-                <Link href="/documents/generator" className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group">
+
+                <Link href="/formularios" className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group">
                   <div className="flex items-center gap-3">
-                    <Wand2 className="w-5 h-5 text-white" />
-                    <span className="font-semibold text-white">Generar Contrato</span>
+                    <Edit3 className="w-5 h-5 text-white" />
+                    <span className="font-semibold text-white">Editar Formulario</span>
                   </div>
                   <ArrowUpRight className="w-5 h-5 text-white/60 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </Link>
-                
+
                 <Link href="/placas" className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group">
                   <div className="flex items-center gap-3">
                     <ImageIcon className="w-5 h-5 text-white" />
@@ -1014,11 +884,19 @@ export default function DashboardPage() {
                   </div>
                   <ArrowUpRight className="w-5 h-5 text-white/60 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </Link>
-                
+
                 <Link href="/chat" className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group">
                   <div className="flex items-center gap-3">
                     <MessageSquare className="w-5 h-5 text-white" />
                     <span className="font-semibold text-white">Consultar IA</span>
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-white/60 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
+                </Link>
+
+                <Link href="/finanzas" className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group">
+                  <div className="flex items-center gap-3">
+                    <BarChart3 className="w-5 h-5 text-white" />
+                    <span className="font-semibold text-white">Ver Finanzas</span>
                   </div>
                   <ArrowUpRight className="w-5 h-5 text-white/60 group-hover:text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
                 </Link>
@@ -1027,16 +905,16 @@ export default function DashboardPage() {
           </div>
 
           {/* Tips Profesionales */}
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200/60 p-8">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-200/60 p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/25">
-                <Target className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/25">
+                <Target className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900">Tips del Día</h3>
+              <h3 className="text-xl font-bold text-slate-900">Tips del Día</h3>
             </div>
-            
+
             <div className="space-y-4">
-              <div className="p-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200/50">
+              <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200/50">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Sparkles className="w-4 h-4 text-white" />
@@ -1049,8 +927,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-              
-              <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200/50">
+
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200/50">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
                     <BarChart3 className="w-4 h-4 text-white" />
@@ -1063,8 +941,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
-              
-              <div className="p-5 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200/50">
+
+              <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200/50">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Award className="w-4 h-4 text-white" />
@@ -1080,8 +958,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-
       </div>
 
       {/* Modal para Nuevo Evento */}
