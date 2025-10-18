@@ -51,7 +51,9 @@ router.get('/auth', async (req, res) => {
       state: decoded.userId // Pasar userId en state
     });
     console.log('[CALENDAR] Generated auth URL');
-    res.redirect(authUrl);
+
+    // Return the URL as JSON instead of redirecting
+    res.json({ authUrl });
   } catch (error) {
     console.error('[CALENDAR] Error in auth route:', error);
     res.status(500).json({ error: 'Internal server error', message: 'Something went wrong' });

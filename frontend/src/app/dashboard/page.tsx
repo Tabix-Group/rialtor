@@ -180,13 +180,15 @@ export default function DashboardPage() {
         }
       });
 
-      if (response.redirected) {
-        // If the server redirects, follow the redirect
-        window.location.href = response.url;
-      } else if (response.ok) {
-        // If successful, the response should be a redirect
+      if (response.ok) {
         const data = await response.json();
-        console.log('Auth response:', data);
+        if (data.authUrl) {
+          // Redirect to the Google OAuth URL
+          window.location.href = data.authUrl;
+        } else {
+          console.error('No auth URL received:', data);
+          alert('Error al obtener URL de autorización');
+        }
       } else {
         const error = await response.json();
         console.error('Calendar auth error:', error);
