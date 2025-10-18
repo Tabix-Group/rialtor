@@ -28,3 +28,5 @@ router.get('/debug', (req, res) => {
     frontendUrl: process.env.FRONTEND_URL
   });
 });
+
+module.exports = router;
