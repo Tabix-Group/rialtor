@@ -25,18 +25,9 @@ class ApiClient {
 
     private async handleResponse(response: Response) {
         if (response.status === 401) {
-            // Check if this is a calendar-specific error (don't redirect for calendar auth issues)
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                try {
-                    const errorData = await response.clone().json();
-                    // If it's a calendar connection error, don't redirect
-                    if (errorData.error === 'Calendario no conectado') {
-                        throw new Error('CALENDAR_NOT_CONNECTED');
-                    }
-                } catch (e) {
-                    // If we can't parse JSON or it's not calendar error, proceed with normal 401 handling
-                }
+            // Don't redirect for calendar API errors - handle them gracefully
+            if (response.url.includes('/api/calendar/')) {
+                throw new Error('CALENDAR_NOT_CONNECTED');
             }
 
             // Token expired or invalid - clear localStorage and redirect to login
@@ -176,18 +167,9 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
     console.log('📡 Response status:', response.status);
 
     if (response.status === 401) {
-        // Check if this is a calendar-specific error (don't redirect for calendar auth issues)
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            try {
-                const errorData = await response.clone().json();
-                // If it's a calendar connection error, don't redirect
-                if (errorData.error === 'Calendario no conectado') {
-                    throw new Error('CALENDAR_NOT_CONNECTED');
-                }
-            } catch (e) {
-                // If we can't parse JSON or it's not calendar error, proceed with normal 401 handling
-            }
+        // Don't redirect for calendar API errors - handle them gracefully
+        if (fullUrl.includes('/api/calendar/')) {
+            throw new Error('CALENDAR_NOT_CONNECTED');
         }
 
         // Token expired - clear localStorage and redirect
