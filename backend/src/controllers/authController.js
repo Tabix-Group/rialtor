@@ -299,11 +299,61 @@ const refreshToken = async (req, res, next) => {
   }
 };
 
+const debugToken = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.json({
+        valid: false,
+        error: 'No token provided',
+        headers: req.headers,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          isActive: true
+        }
+      });
+
+      res.json({
+        valid: true,
+        decoded,
+        user: user ? { id: user.id, email: user.email, name: user.name, isActive: user.isActive } : null,
+        timestamp: new Date().toISOString()
+      });
+    } catch (jwtErr) {
+      res.json({
+        valid: false,
+        error: jwtErr.message,
+        tokenLength: token.length,
+        timestamp: new Date().toISOString()
+      });
+    }
+  } catch (error) {
+    res.json({
+      valid: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
   updateProfile,
   changePassword,
-  refreshToken
+  refreshToken,
+  debugToken
 };
