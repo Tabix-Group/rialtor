@@ -6,12 +6,12 @@ import { useRouter } from 'next/navigation'
 import { authenticatedFetch } from '@/utils/api'
 import Link from 'next/link'
 import {
-  Calculator, FileText, Wand2, Search, ImageIcon, Newspaper, Download, Shield,
-  Upload, Trash2, Eye, MessageSquare, Settings,
+  Calculator, FileText, Wand2, Search, ImageIcon, Newspaper, Shield,
+  MessageSquare,
   Sparkles, TrendingUp, Crown, BarChart3, Clock, Activity,
-  ArrowUpRight, Zap, Target, Award, ChevronRight, Plus, Filter,
-  Calendar, Folder, PlusCircle, Wrench, CheckCircle, Edit3,
-  ChevronLeft, MoreVertical, Edit, X
+  ArrowUpRight, ArrowRight, Zap, Target, Award, ChevronRight, Plus,
+  Calendar, Edit3,
+  ChevronLeft, Edit, X
 } from 'lucide-react'
 import { Calendar as BigCalendar, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
@@ -81,7 +81,6 @@ export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [documents, setDocuments] = useState<Document[]>([])
-  const [docsLoading, setDocsLoading] = useState(true)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
@@ -89,7 +88,6 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(false)
   const [newEvent, setNewEvent] = useState({ title: '', description: '', start: '', end: '' })
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null)
-  const [currentView, setCurrentView] = useState<View>('month')
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; event: CalendarEvent } | null>(null)
   const [calendarExpanded, setCalendarExpanded] = useState(false)
   const [calendarConnected, setCalendarConnected] = useState(false)
@@ -123,15 +121,12 @@ export default function DashboardPage() {
   }, [user])
 
   const fetchDocuments = async () => {
-    setDocsLoading(true)
     try {
       const res = await authenticatedFetch('/api/documents')
       const data = await res.json()
       setDocuments(data.documents || [])
     } catch (error) {
       console.error('Error fetching documents:', error)
-    } finally {
-      setDocsLoading(false)
     }
   }
 
@@ -317,16 +312,6 @@ export default function DashboardPage() {
       .filter(event => event.start >= now)
       .sort((a, b) => a.start.getTime() - b.start.getTime())
       .slice(0, 3) // Solo los próximos 3 eventos
-  }
-
-  const handleDeleteDocument = async (id: string) => {
-    if (!confirm('¿Eliminar este documento?')) return
-    try {
-      await authenticatedFetch(`/api/documents/${id}`, { method: 'DELETE' })
-      setDocuments(documents.filter(doc => doc.id !== id))
-    } catch (error) {
-      alert('Error al eliminar documento')
-    }
   }
 
   const isAdmin = user && user.roles && user.roles.some(role => role.name === 'ADMIN')
