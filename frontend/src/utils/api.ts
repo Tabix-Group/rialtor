@@ -25,6 +25,20 @@ class ApiClient {
 
     private async handleResponse(response: Response) {
         if (response.status === 401) {
+            // Check if this is a calendar-specific error (don't redirect for calendar auth issues)
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                try {
+                    const errorData = await response.clone().json();
+                    // If it's a calendar connection error, don't redirect
+                    if (errorData.error === 'Calendario no conectado') {
+                        throw new Error('CALENDAR_NOT_CONNECTED');
+                    }
+                } catch (e) {
+                    // If we can't parse JSON or it's not calendar error, proceed with normal 401 handling
+                }
+            }
+
             // Token expired or invalid - clear localStorage and redirect to login
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('token');
@@ -162,6 +176,20 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
     console.log('📡 Response status:', response.status);
 
     if (response.status === 401) {
+        // Check if this is a calendar-specific error (don't redirect for calendar auth issues)
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            try {
+                const errorData = await response.clone().json();
+                // If it's a calendar connection error, don't redirect
+                if (errorData.error === 'Calendario no conectado') {
+                    throw new Error('CALENDAR_NOT_CONNECTED');
+                }
+            } catch (e) {
+                // If we can't parse JSON or it's not calendar error, proceed with normal 401 handling
+            }
+        }
+
         // Token expired - clear localStorage and redirect
         if (typeof window !== 'undefined') {
             localStorage.removeItem('token');

@@ -118,9 +118,22 @@ export default function DashboardPage() {
           end: new Date(e.end.dateTime || e.end.date),
           description: e.description
         })))
+      } else {
+        // Handle calendar not connected error
+        const errorData = await res.json().catch(() => ({}))
+        if (errorData.error === 'Calendario no conectado') {
+          setCalendarEvents([]) // Just show empty calendar
+        } else {
+          console.error('Error fetching calendar events:', errorData)
+        }
       }
     } catch (error) {
-      console.error('Error fetching calendar events:', error)
+      // Handle the CALENDAR_NOT_CONNECTED error specifically
+      if (error instanceof Error && error.message === 'CALENDAR_NOT_CONNECTED') {
+        setCalendarEvents([]) // Just show empty calendar
+      } else {
+        console.error('Error fetching calendar events:', error)
+      }
     } finally {
       setCalendarLoading(false)
     }
