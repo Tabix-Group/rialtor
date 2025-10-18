@@ -170,8 +170,32 @@ export default function DashboardPage() {
     }
   }
 
-  const handleConnectCalendar = () => {
-    window.location.href = '/api/calendar/auth'
+  const handleConnectCalendar = async () => {
+    try {
+      // Make authenticated request to get the auth URL
+      const response = await fetch('/api/calendar/auth', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.redirected) {
+        // If the server redirects, follow the redirect
+        window.location.href = response.url;
+      } else if (response.ok) {
+        // If successful, the response should be a redirect
+        const data = await response.json();
+        console.log('Auth response:', data);
+      } else {
+        const error = await response.json();
+        console.error('Calendar auth error:', error);
+        alert('Error al conectar calendario: ' + error.error);
+      }
+    } catch (error) {
+      console.error('Error connecting calendar:', error);
+      alert('Error al conectar calendario');
+    }
   }
 
   const handleDeleteDocument = async (id: string) => {

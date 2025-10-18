@@ -25,13 +25,30 @@ try {
 const { authenticateToken } = require('../middleware/auth');
 
 // Ruta para iniciar autenticación con Google
-router.get('/auth', authenticateToken, (req, res) => {
+router.get('/auth', async (req, res) => {
   try {
-    console.log('[CALENDAR] Auth route called for user:', req.user?.id);
+    // Get user from token for the OAuth flow
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Access token required' });
+    }
+
+    // Verify token and get user
+    const jwt = require('jsonwebtoken');
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (jwtErr) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    console.log('[CALENDAR] Auth route called for user:', decoded.userId);
     const authUrl = oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: ['https://www.googleapis.com/auth/calendar.events'],
-      state: req.user.id // Pasar userId en state
+      state: decoded.userId // Pasar userId en state
     });
     console.log('[CALENDAR] Generated auth URL');
     res.redirect(authUrl);
