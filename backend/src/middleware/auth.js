@@ -8,6 +8,7 @@ const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     console.log('[AUTH] Authorization header:', authHeader ? 'Present' : 'Missing');
+    console.log('[AUTH] JWT_SECRET length:', process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 'NOT SET');
     if (!token) {
       console.log('[AUTH] No token found');
       return res.status(401).json({ error: 'Access token required' });
