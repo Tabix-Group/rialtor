@@ -10,9 +10,10 @@ import {
   Upload, Trash2, Eye, MessageSquare, Settings,
   Sparkles, TrendingUp, Crown, BarChart3, Clock, Activity,
   ArrowUpRight, Zap, Target, Award, ChevronRight, Plus, Filter,
-  Calendar, Folder, PlusCircle, Wrench, CheckCircle, Edit3
+  Calendar, Folder, PlusCircle, Wrench, CheckCircle, Edit3,
+  ChevronLeft, MoreVertical, Edit, X
 } from 'lucide-react'
-import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar'
+import { Calendar as BigCalendar, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
@@ -50,6 +51,30 @@ interface CalendarEvent {
   start: Date
   end: Date
   description?: string
+  source?: 'google' | 'local'
+}
+
+// Componente personalizado para eventos del calendario
+const CustomEvent = ({ event }: { event: CalendarEvent }) => {
+  return (
+    <div className="relative group cursor-pointer">
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm font-medium truncate">
+        {event.title}
+      </div>
+      {/* Tooltip con información adicional */}
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none">
+        <div className="font-semibold">{event.title}</div>
+        {event.description && (
+          <div className="text-slate-300 mt-1">{event.description}</div>
+        )}
+        <div className="text-slate-400 mt-1">
+          {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+        </div>
+        {/* Flecha del tooltip */}
+        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
+      </div>
+    </div>
+  )
 }
 
 export default function DashboardPage() {
@@ -63,6 +88,9 @@ export default function DashboardPage() {
   const [calendarLoading, setCalendarLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [newEvent, setNewEvent] = useState({ title: '', description: '', start: '', end: '' })
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null)
+  const [currentView, setCurrentView] = useState<View>('month')
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; event: CalendarEvent } | null>(null)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -143,30 +171,59 @@ export default function DashboardPage() {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return
 
     try {
-      const res = await authenticatedFetch('/api/calendar/events', {
-        method: 'POST',
-        body: JSON.stringify({
-          summary: newEvent.title,
-          description: newEvent.description,
-          start: new Date(newEvent.start).toISOString(),
-          end: new Date(newEvent.end).toISOString()
+      const eventData = {
+        summary: newEvent.title,
+        description: newEvent.description,
+        start: new Date(newEvent.start).toISOString(),
+        end: new Date(newEvent.end).toISOString()
+      }
+
+      let res
+      if (editingEvent && editingEvent.id) {
+        // Actualizar evento existente
+        res = await authenticatedFetch(`/api/calendar/events/${editingEvent.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(eventData)
         })
-      })
+      } else {
+        // Crear nuevo evento
+        res = await authenticatedFetch('/api/calendar/events', {
+          method: 'POST',
+          body: JSON.stringify(eventData)
+        })
+      }
 
       if (res.ok) {
-        const createdEvent = await res.json()
-        setCalendarEvents([...calendarEvents, {
-          id: createdEvent.id,
-          title: newEvent.title,
-          start: new Date(newEvent.start),
-          end: new Date(newEvent.end),
-          description: newEvent.description
-        }])
+        const savedEvent = await res.json()
+        
+        if (editingEvent) {
+          // Actualizar evento en el estado
+          setCalendarEvents(calendarEvents.map(e => 
+            e.id === editingEvent.id ? {
+              id: savedEvent.id,
+              title: newEvent.title,
+              start: new Date(newEvent.start),
+              end: new Date(newEvent.end),
+              description: newEvent.description
+            } : e
+          ))
+        } else {
+          // Agregar nuevo evento
+          setCalendarEvents([...calendarEvents, {
+            id: savedEvent.id,
+            title: newEvent.title,
+            start: new Date(newEvent.start),
+            end: new Date(newEvent.end),
+            description: newEvent.description
+          }])
+        }
+
         setNewEvent({ title: '', description: '', start: '', end: '' })
+        setEditingEvent(null)
         setShowModal(false)
       }
     } catch (error) {
-      console.error('Error creating event:', error)
+      console.error('Error saving event:', error)
     }
   }
 
@@ -198,6 +255,52 @@ export default function DashboardPage() {
       console.error('Error connecting calendar:', error);
       alert('Error al conectar calendario');
     }
+  }
+
+  const handleEventClick = (event: CalendarEvent, e: React.SyntheticEvent) => {
+    e.preventDefault()
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    setContextMenu({
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10,
+      event
+    })
+  }
+
+  const handleEditEvent = () => {
+    if (contextMenu) {
+      setEditingEvent(contextMenu.event)
+      setNewEvent({
+        title: contextMenu.event.title,
+        description: contextMenu.event.description || '',
+        start: contextMenu.event.start.toISOString().slice(0, 16),
+        end: contextMenu.event.end.toISOString().slice(0, 16)
+      })
+      setShowModal(true)
+      setContextMenu(null)
+    }
+  }
+
+  const handleDeleteEvent = async () => {
+    if (contextMenu && contextMenu.event.id) {
+      if (!confirm('¿Eliminar este evento?')) return
+
+      try {
+        const res = await authenticatedFetch(`/api/calendar/events/${contextMenu.event.id}`, {
+          method: 'DELETE'
+        })
+
+        if (res.ok) {
+          setCalendarEvents(calendarEvents.filter(e => e.id !== contextMenu.event.id))
+        } else {
+          alert('Error al eliminar el evento')
+        }
+      } catch (error) {
+        console.error('Error deleting event:', error)
+        alert('Error al eliminar el evento')
+      }
+    }
+    setContextMenu(null)
   }
 
   const handleDeleteDocument = async (id: string) => {
@@ -461,7 +564,7 @@ export default function DashboardPage() {
               <h2 className="text-3xl font-bold text-slate-900 mb-2">Suite de Herramientas</h2>
               <p className="text-slate-600">Acceso completo a todas las funcionalidades profesionales</p>
             </div>
-            <Link href="/tools" className="hidden lg:inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold group">
+            <Link href="/calculadoras" className="hidden lg:inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold group">
               Ver todas
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -581,10 +684,47 @@ export default function DashboardPage() {
                   })
                   setShowModal(true)
                 }}
+                onSelectEvent={handleEventClick}
                 selectable
                 popup
+                components={{
+                  event: CustomEvent
+                }}
               />
             </div>
+          )}
+
+          {/* Menú contextual para eventos */}
+          {contextMenu && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setContextMenu(null)}
+              />
+              <div
+                className="fixed z-50 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 min-w-48"
+                style={{
+                  left: contextMenu.x,
+                  top: contextMenu.y,
+                  transform: 'translate(-50%, -100%)'
+                }}
+              >
+                <button
+                  onClick={handleEditEvent}
+                  className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors flex items-center gap-3 text-slate-700 font-medium"
+                >
+                  <Edit className="w-4 h-4" />
+                  Editar evento
+                </button>
+                <button
+                  onClick={handleDeleteEvent}
+                  className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center gap-3 text-red-600 font-medium"
+                >
+                  <X className="w-4 h-4" />
+                  Eliminar evento
+                </button>
+              </div>
+            </>
           )}
         </div>
 
@@ -883,9 +1023,15 @@ export default function DashboardPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-slate-900">Nuevo Evento</h3>
+              <h3 className="text-2xl font-bold text-slate-900">
+                {editingEvent ? 'Editar Evento' : 'Nuevo Evento'}
+              </h3>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false)
+                  setEditingEvent(null)
+                  setNewEvent({ title: '', description: '', start: '', end: '' })
+                }}
                 className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
               >
                 <span className="text-slate-600 font-bold">×</span>
@@ -939,7 +1085,11 @@ export default function DashboardPage() {
 
             <div className="flex items-center gap-3 mt-8">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false)
+                  setEditingEvent(null)
+                  setNewEvent({ title: '', description: '', start: '', end: '' })
+                }}
                 className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all font-semibold"
               >
                 Cancelar
@@ -948,7 +1098,7 @@ export default function DashboardPage() {
                 onClick={handleAddEvent}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all font-semibold hover:-translate-y-0.5"
               >
-                Crear Evento
+                {editingEvent ? 'Actualizar Evento' : 'Crear Evento'}
               </button>
             </div>
           </div>
