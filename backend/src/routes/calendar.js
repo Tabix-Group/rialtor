@@ -1,7 +1,6 @@
 const express = require('express');
 const { google } = require('googleapis');
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -12,25 +11,49 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_REDIRECT_URI
 );
 
+// Initialize Prisma (with error handling)
+let prisma;
+try {
+  prisma = new PrismaClient();
+  console.log('[CALENDAR] Prisma client initialized');
+} catch (error) {
+  console.error('[CALENDAR] Failed to initialize Prisma:', error);
+  prisma = null;
+}
+
 // Middleware para verificar autenticación del usuario
 const { authenticateToken } = require('../middleware/auth');
 
 // Ruta para iniciar autenticación con Google
 router.get('/auth', authenticateToken, (req, res) => {
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/calendar.events'],
-    state: req.user.id // Pasar userId en state
-  });
-  res.redirect(authUrl);
+  try {
+    console.log('[CALENDAR] Auth route called for user:', req.user?.id);
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/calendar.events'],
+      state: req.user.id // Pasar userId en state
+    });
+    console.log('[CALENDAR] Generated auth URL');
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('[CALENDAR] Error in auth route:', error);
+    res.status(500).json({ error: 'Internal server error', message: 'Something went wrong' });
+  }
 });
 
 // Callback de OAuth
 router.get('/auth/callback', async (req, res) => {
   const { code, state: userId } = req.query;
+  console.log('[CALENDAR] Callback called with code and userId:', !!code, !!userId);
   try {
+    if (!prisma) {
+      console.error('[CALENDAR] Prisma not available in callback');
+      return res.status(500).json({ error: 'Database not available' });
+    }
+
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
+    console.log('[CALENDAR] Tokens obtained from Google');
 
     // Guardar tokens en DB
     await prisma.calendarToken.upsert({
@@ -48,6 +71,7 @@ router.get('/auth/callback', async (req, res) => {
         expiryDate: tokens.expiry_date ? new Date(tokens.expiry_date) : null
       }
     });
+    console.log('[CALENDAR] Tokens saved to database');
 
     res.redirect(`${process.env.FRONTEND_URL}/dashboard?calendar=connected`);
   } catch (error) {
@@ -59,6 +83,10 @@ router.get('/auth/callback', async (req, res) => {
 // Obtener eventos
 router.get('/events', authenticateToken, async (req, res) => {
   try {
+    if (!prisma) {
+      return res.status(500).json({ error: 'Database not available' });
+    }
+
     const token = await prisma.calendarToken.findUnique({
       where: { userId: req.user.id }
     });
@@ -94,6 +122,10 @@ router.post('/events', authenticateToken, async (req, res) => {
   const { summary, description, start, end } = req.body;
 
   try {
+    if (!prisma) {
+      return res.status(500).json({ error: 'Database not available' });
+    }
+
     const token = await prisma.calendarToken.findUnique({
       where: { userId: req.user.id }
     });
@@ -131,6 +163,10 @@ router.delete('/events/:eventId', authenticateToken, async (req, res) => {
   const { eventId } = req.params;
 
   try {
+    if (!prisma) {
+      return res.status(500).json({ error: 'Database not available' });
+    }
+
     const token = await prisma.calendarToken.findUnique({
       where: { userId: req.user.id }
     });
