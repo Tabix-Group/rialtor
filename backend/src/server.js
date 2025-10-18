@@ -201,15 +201,16 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/calculator', calculatorRoutes);
 app.use('/api/admin', adminRoutes);
-// app.use('/api/roles', rolesRouter);
-// app.use('/api/permissions', permissionsRouter);
+app.use('/api/roles', rolesRouter);
+app.use('/api/permissions', permissionsRouter);
 app.use('/api/placas', placasRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/files', filesRoutes);
 app.use('/api/forms', formsRoutes);
 app.use('/api/finances', financesRoutes);
 app.use('/api/favorites', favoritesRoutes);
-// app.use('/api/calendar', require('./routes/calendar')); // Commented out for debugging
+app.use('/api/calendar', require('./routes/calendar'));
+app.use('/api/calendar', require('./routes/calendar'));
 
 // Error handling middleware
 app.use(notFound);
