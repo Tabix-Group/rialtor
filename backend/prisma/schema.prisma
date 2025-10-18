@@ -36,6 +36,9 @@ model User {
   // Roles y permisos
   roleAssignments RoleAssignment[]
 
+  // Calendario
+  calendarToken   CalendarToken?
+
   @@map("users")
 }
 
@@ -369,4 +372,20 @@ model FinanceTransaction {
   user        User     @relation(fields: [userId], references: [id])
 
   @@map("finance_transactions")
+}
+
+// Calendario Google
+model CalendarToken {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  accessToken   String
+  refreshToken  String?
+  expiryDate    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relaciones
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@map("calendar_tokens")
 }

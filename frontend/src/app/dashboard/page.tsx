@@ -12,6 +12,18 @@ import {
   ArrowUpRight, Zap, Target, Award, ChevronRight, Plus, Filter,
   Calendar, Folder, PlusCircle, Wrench, CheckCircle, Edit3
 } from 'lucide-react'
+import { Calendar as BigCalendar, dateFnsLocalizer } from 'react-big-calendar'
+import { format, parse, startOfWeek, getDay } from 'date-fns'
+import { es } from 'date-fns/locale'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales: { es }
+})
 
 interface Document {
   id: string
@@ -32,6 +44,14 @@ interface UserStats {
   timeGrowth: number
 }
 
+interface CalendarEvent {
+  id?: string
+  title: string
+  start: Date
+  end: Date
+  description?: string
+}
+
 export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
@@ -39,6 +59,10 @@ export default function DashboardPage() {
   const [docsLoading, setDocsLoading] = useState(true)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
+  const [calendarLoading, setCalendarLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [newEvent, setNewEvent] = useState({ title: '', description: '', start: '', end: '' })
 
   useEffect(() => {
     if (!loading && !user) {
@@ -64,6 +88,7 @@ export default function DashboardPage() {
     if (user) {
       fetchDocuments()
       fetchStats()
+      fetchCalendarEvents()
     }
   }, [user])
 
@@ -78,6 +103,62 @@ export default function DashboardPage() {
     } finally {
       setDocsLoading(false)
     }
+  }
+
+  const fetchCalendarEvents = async () => {
+    setCalendarLoading(true)
+    try {
+      const res = await authenticatedFetch('/api/calendar/events')
+      if (res.ok) {
+        const events = await res.json()
+        setCalendarEvents(events.map((e: any) => ({
+          id: e.id,
+          title: e.summary,
+          start: new Date(e.start.dateTime || e.start.date),
+          end: new Date(e.end.dateTime || e.end.date),
+          description: e.description
+        })))
+      }
+    } catch (error) {
+      console.error('Error fetching calendar events:', error)
+    } finally {
+      setCalendarLoading(false)
+    }
+  }
+
+  const handleAddEvent = async () => {
+    if (!newEvent.title || !newEvent.start || !newEvent.end) return
+
+    try {
+      const res = await authenticatedFetch('/api/calendar/events', {
+        method: 'POST',
+        body: JSON.stringify({
+          summary: newEvent.title,
+          description: newEvent.description,
+          start: new Date(newEvent.start).toISOString(),
+          end: new Date(newEvent.end).toISOString()
+        })
+      })
+
+      if (res.ok) {
+        const createdEvent = await res.json()
+        setCalendarEvents([...calendarEvents, {
+          id: createdEvent.id,
+          title: newEvent.title,
+          start: new Date(newEvent.start),
+          end: new Date(newEvent.end),
+          description: newEvent.description
+        }])
+        setNewEvent({ title: '', description: '', start: '', end: '' })
+        setShowModal(false)
+      }
+    } catch (error) {
+      console.error('Error creating event:', error)
+    }
+  }
+
+  const handleConnectCalendar = () => {
+    window.location.href = '/api/calendar/auth'
   }
 
   const handleDeleteDocument = async (id: string) => {
@@ -389,6 +470,85 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Sección Calendario */}
+        <div className="bg-white rounded-3xl shadow-2xl border border-slate-200/60 p-8 mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/25">
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900">Mi Calendario</h3>
+                <p className="text-slate-600">Gestiona tu agenda sincronizada con Google Calendar</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleConnectCalendar}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-2xl hover:shadow-2xl hover:shadow-green-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold"
+              >
+                <Plus className="w-5 h-5" />
+                Conectar Google Calendar
+              </button>
+              <button
+                onClick={() => setShowModal(true)}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold"
+              >
+                <Plus className="w-5 h-5" />
+                Nuevo Evento
+              </button>
+            </div>
+          </div>
+
+          {calendarLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="relative inline-block">
+                  <div className="w-16 h-16 border-4 border-slate-200 border-t-green-600 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 w-16 h-16 border-4 border-slate-100 border-t-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                </div>
+                <p className="mt-6 text-slate-600 font-semibold">Cargando calendario...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="h-96">
+              <BigCalendar
+                localizer={localizer}
+                events={calendarEvents}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: '100%' }}
+                views={['month', 'week', 'day']}
+                defaultView="month"
+                messages={{
+                  next: 'Siguiente',
+                  previous: 'Anterior',
+                  today: 'Hoy',
+                  month: 'Mes',
+                  week: 'Semana',
+                  day: 'Día',
+                  agenda: 'Agenda',
+                  date: 'Fecha',
+                  time: 'Hora',
+                  event: 'Evento',
+                  noEventsInRange: 'No hay eventos en este rango.',
+                  showMore: (total) => `+ Ver ${total} más`
+                }}
+                onSelectSlot={({ start, end }) => {
+                  setNewEvent({
+                    ...newEvent,
+                    start: start.toISOString().slice(0, 16),
+                    end: end.toISOString().slice(0, 16)
+                  })
+                  setShowModal(true)
+                }}
+                selectable
+                popup
+              />
+            </div>
+          )}
+        </div>
+
         {/* Sección Documentos Ultra Premium */}
         <div className="bg-white rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
           {/* Header */}
@@ -678,6 +838,83 @@ export default function DashboardPage() {
 
 
       </div>
+
+      {/* Modal para Nuevo Evento */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-slate-900">Nuevo Evento</h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
+              >
+                <span className="text-slate-600 font-bold">×</span>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Título</label>
+                <input
+                  type="text"
+                  value={newEvent.title}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Título del evento"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Descripción</label>
+                <textarea
+                  value={newEvent.description}
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  rows={3}
+                  placeholder="Descripción opcional"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Inicio</label>
+                  <input
+                    type="datetime-local"
+                    value={newEvent.start}
+                    onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Fin</label>
+                  <input
+                    type="datetime-local"
+                    value={newEvent.end}
+                    onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 mt-8">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all font-semibold"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleAddEvent}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all font-semibold hover:-translate-y-0.5"
+              >
+                Crear Evento
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
     </div>

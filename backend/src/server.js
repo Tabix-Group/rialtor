@@ -173,6 +173,7 @@ app.use('/api/files', filesRoutes);
 app.use('/api/forms', formsRoutes);
 app.use('/api/finances', financesRoutes);
 app.use('/api/favorites', favoritesRoutes);
+app.use('/api/calendar', require('./routes/calendar'));
 
 // Error handling middleware
 app.use(notFound);
