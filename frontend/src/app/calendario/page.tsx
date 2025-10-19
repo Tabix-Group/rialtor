@@ -6,8 +6,9 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../auth/authContext"
 import { authenticatedFetch } from "@/utils/api"
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
-import { format, parse, startOfWeek, getDay } from "date-fns"
+import { format, parse, startOfWeek, getDay, addHours } from "date-fns"
 import { es } from "date-fns/locale"
+import { zonedTimeToUtc, utcToZonedTime, format as formatTz } from "date-fns-tz"
 import "react-big-calendar/lib/css/react-big-calendar.css"
 
 // Custom styles for calendar
@@ -306,41 +307,42 @@ export default function CalendarioPage() {
   }
 
   return (
-    <>
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-primary" />
+    <div className="min-h-screen bg-background py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">Mi Calendario</h1>
+                <p className="text-muted-foreground mt-1">
+                  Gestiona tu agenda sincronizada con Google Calendar
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Mi Calendario</h1>
-              <p className="text-muted-foreground mt-1">
-                Gestiona tu agenda sincronizada con Google Calendar
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {!calendarConnected && (
+            <div className="flex items-center gap-3">
+              {!calendarConnected && (
+                <button
+                  onClick={handleConnectCalendar}
+                  className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-xl hover:bg-accent/90 transition-all duration-200 font-semibold text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Conectar Google
+                </button>
+              )}
               <button
-                onClick={handleConnectCalendar}
-                className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-xl hover:bg-accent/90 transition-all duration-200 font-semibold text-sm"
+                onClick={() => setShowModal(true)}
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition-all duration-200 font-semibold text-sm"
               >
                 <Plus className="w-4 h-4" />
-                Conectar Google
+                Nuevo Evento
               </button>
-            )}
-            <button
-              onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition-all duration-200 font-semibold text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo Evento
-            </button>
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -664,7 +666,7 @@ export default function CalendarioPage() {
             </form>
           </div>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   )
 }

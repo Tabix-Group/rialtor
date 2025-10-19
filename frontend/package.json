@@ -20,6 +20,7 @@
     "axios": "^1.6.2",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.1",
     "docx": "^9.5.1",
     "file-saver": "^2.0.5",
     "framer-motion": "^10.16.16",
