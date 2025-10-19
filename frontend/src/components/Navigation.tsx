@@ -6,13 +6,14 @@ import { useAuth } from "../app/auth/authContext"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSidebar } from "../contexts/SidebarContext"
 import {
   Menu,
   X,
   LogOut,
   User2,
-  Building2,
   ChevronDown,
+  ChevronRight,
   Bell,
   Settings,
   Shield,
@@ -21,13 +22,17 @@ import {
   ImageIcon,
   Newspaper,
   Download,
+  Home,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react"
 
 function Navigation() {
-  const [isOpen, setIsOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
   const pathname = usePathname()
   const { user, logout } = useAuth()
+  const { isCollapsed, setIsCollapsed } = useSidebar()
 
   const isAdmin = user && user.roles && user.roles.some((role) => role.name === "ADMIN")
 
@@ -46,7 +51,17 @@ function Navigation() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    setIsMobileOpen(false)
+  }, [pathname])
+
   const navConfig = [
+    {
+      name: "Inicio",
+      href: user ? "/dashboard" : "/",
+      icon: Home,
+    },
     {
       name: "Calculadoras",
       href: "/calculadoras",
@@ -102,356 +117,243 @@ function Navigation() {
     setActiveDropdown(activeDropdown === itemName ? null : itemName)
   }
 
-  const renderDesktopNav = () => (
-    <div className="hidden lg:flex items-center gap-1">
-      {navConfig.map((item) => {
-        const Icon = item.icon
-        const hasDropdown = item.dropdown && item.dropdown.length > 0
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed)
+  }
 
-        if (hasDropdown) {
-          return (
-            <div key={item.name} className="relative" data-dropdown>
-              <button
-                data-dropdown-button
-                onClick={(e) => handleDropdownClick(e, item.name)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive(item.href) || item.dropdown?.some((sub: any) => sub && isActive(sub.href))
-                    ? "bg-primary/10 text-primary"
-                    : "text-foreground/70 hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {item.name}
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                    activeDropdown === item.name ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
+  const toggleMobileSidebar = () => {
+    setIsMobileOpen(!isMobileOpen)
+  }
 
-              {activeDropdown === item.name && (
-                <div
-                  className="absolute top-full left-0 mt-2 min-w-[280px] bg-card border border-border rounded-xl shadow-lg z-50 py-1.5 animate-in fade-in-0 zoom-in-95 duration-200"
-                  data-dropdown
-                >
-                  {item.href && (
-                    <>
-                      <Link
-                        href={item.href}
-                        className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors mx-1.5 rounded-lg"
-                        onClick={() => setActiveDropdown(null)}
-                      >
-                        <Icon className="w-4 h-4 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">Ver Todos</div>
-                          <div className="text-xs text-muted-foreground">
-                            Vista general de {item.name.toLowerCase()}
-                          </div>
-                        </div>
-                      </Link>
-                      <div className="h-px bg-border my-1.5 mx-1.5" />
-                    </>
-                  )}
-                  {item.dropdown?.map((sub) => (
-                    <Link
-                      key={sub.name}
-                      href={sub.href}
-                      className={`block px-3 py-2.5 text-sm transition-colors mx-1.5 rounded-lg ${
-                        isActive(sub.href) ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
-                      }`}
-                      onClick={() => setActiveDropdown(null)}
-                    >
-                      <div className="font-medium">{sub.name}</div>
-                      {sub.description && <div className="text-xs text-muted-foreground mt-0.5">{sub.description}</div>}
-                    </Link>
-                  ))}
-                </div>
-              )}
+  const renderSidebarContent = () => (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border">
+        {!isCollapsed && (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">R</span>
             </div>
-          )
-        }
+            <span className="font-bold text-lg text-foreground">RIALTOR</span>
+          </div>
+        )}
+        <button
+          onClick={toggleSidebar}
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors hidden lg:block"
+        >
+          {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+        </button>
+        <button
+          onClick={toggleMobileSidebar}
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg lg:hidden"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
 
-        return (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-              isActive(item.href)
-                ? "bg-primary/10 text-primary"
-                : "text-foreground/70 hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <Icon className="w-4 h-4" />
-            {item.name}
-          </Link>
-        )
-      })}
-    </div>
-  )
+      {/* Navigation Items */}
+      <div className="flex-1 overflow-y-auto py-4">
+        <nav className="px-3 space-y-1">
+          {navConfig.map((item) => {
+            const Icon = item.icon
+            const hasDropdown = item.dropdown && item.dropdown.length > 0
+            const isItemActive = isActive(item.href) || (hasDropdown && item.dropdown?.some((sub: any) => sub && isActive(sub.href)))
+            const isDropdownOpen = activeDropdown === item.name
 
-  const renderMobileNav = () => (
-    <div className="lg:hidden px-3 py-4 bg-background border-t border-border">
-      <div className="space-y-1">
-        {navConfig.map((item) => {
-          const Icon = item.icon
-          const hasDropdown = item.dropdown && item.dropdown.length > 0
-
-          return (
-            <div key={item.name} data-dropdown>
-              {hasDropdown ? (
-                <>
+            if (hasDropdown) {
+              return (
+                <div key={item.name} className="space-y-1">
                   <button
                     data-dropdown-button
                     onClick={(e) => handleDropdownClick(e, item.name)}
-                    className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      isActive(item.href) || item.dropdown?.some((sub: any) => sub && isActive(sub.href))
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground hover:bg-muted"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
+                      isItemActive
+                        ? "bg-primary/10 text-primary border border-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5" />
-                      {item.name}
-                    </div>
-                    <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-200 ${
-                        activeDropdown === item.name ? "rotate-180" : ""
-                      }`}
-                    />
+                    <Icon className={`w-5 h-5 flex-shrink-0 ${isItemActive ? "text-primary" : ""}`} />
+                    {!isCollapsed && (
+                      <>
+                        <span className="flex-1 text-left">{item.name}</span>
+                        <ChevronRight
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            isDropdownOpen ? "rotate-90" : ""
+                          }`}
+                        />
+                      </>
+                    )}
                   </button>
 
-                  {activeDropdown === item.name && (
-                    <div className="ml-4 mt-1 space-y-1" data-dropdown>
+                  {!isCollapsed && isDropdownOpen && (
+                    <div className="ml-8 space-y-1 animate-in slide-in-from-left-2 duration-200" data-dropdown>
                       {item.href && (
                         <Link
                           href={item.href}
-                          className="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-                          onClick={() => {
-                            setActiveDropdown(null)
-                            setIsOpen(false)
-                          }}
+                          className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                         >
-                          Ver Todos
+                          <div className="w-2 h-2 bg-muted-foreground/50 rounded-full"></div>
+                          <span>Ver Todos</span>
                         </Link>
                       )}
                       {item.dropdown?.map((sub) => (
                         <Link
                           key={sub.name}
                           href={sub.href}
-                          className={`block px-3 py-2 text-sm rounded-lg transition-colors ${
-                            isActive(sub.href) ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
+                          className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
+                            isActive(sub.href)
+                              ? "bg-primary/10 text-primary"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
                           }`}
-                          onClick={() => {
-                            setActiveDropdown(null)
-                            setIsOpen(false)
-                          }}
                         >
-                          {sub.name}
+                          <div className={`w-2 h-2 rounded-full ${isActive(sub.href) ? "bg-primary" : "bg-muted-foreground/50"}`}></div>
+                          <span>{sub.name}</span>
                         </Link>
                       ))}
                     </div>
                   )}
-                </>
-              ) : (
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive(item.href) ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Icon className="w-5 h-5" />
-                  {item.name}
-                </Link>
+                </div>
+              )
+            }
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
+                  isItemActive
+                    ? "bg-primary/10 text-primary border border-primary/20"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <Icon className={`w-5 h-5 flex-shrink-0 ${isItemActive ? "text-primary" : ""}`} />
+                {!isCollapsed && (
+                  <span className="flex-1">{item.name}</span>
+                )}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+
+      {/* User Section */}
+      <div className="border-t border-border p-4">
+        {user ? (
+          <div className="space-y-3">
+            {/* User Info */}
+            <div className="flex items-center gap-3 px-3 py-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center flex-shrink-0">
+                <User2 className="w-4 h-4 text-primary-foreground" />
+              </div>
+              {!isCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-foreground truncate text-sm">{user.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                </div>
               )}
             </div>
-          )
-        })}
-      </div>
-    </div>
-  )
 
-  return (
-    <nav
-      className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border"
-      suppressHydrationWarning
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Desktop Navigation */}
-          {renderDesktopNav()}
-
-          <div className="flex items-center gap-2">
-            {/* Notifications */}
-            {user && (
-              <button className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full ring-2 ring-background" />
-              </button>
-            )}
-
-            {/* User Dropdown */}
-            {user && (
-              <div className="relative hidden lg:block" data-dropdown>
-                <button
-                  data-dropdown-button
-                  onClick={(e) => handleDropdownClick(e, "user")}
-                  className="flex items-center gap-2 px-2 py-1.5 text-foreground hover:bg-muted rounded-lg transition-colors"
-                >
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                    <User2 className="w-4 h-4 text-primary-foreground" />
+            {/* User Actions */}
+            {!isCollapsed && (
+              <div className="space-y-1">
+                {/* Notifications */}
+                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
+                  <div className="relative">
+                    <Bell className="w-4 h-4" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></span>
                   </div>
-                  <span className="text-sm font-medium max-w-[120px] truncate">{user.name}</span>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <span>Notificaciones</span>
                 </button>
 
-                {activeDropdown === "user" && (
-                  <div
-                    className="absolute right-0 top-full mt-2 min-w-[220px] bg-card border border-border rounded-xl shadow-lg z-50 py-1.5 animate-in fade-in-0 zoom-in-95 duration-200"
-                    data-dropdown
-                  >
-                    <div className="px-3 py-2.5 border-b border-border">
-                      <div className="font-medium text-foreground truncate">{user.name}</div>
-                      <div className="text-sm text-muted-foreground truncate">{user.email}</div>
-                    </div>
-
-                    {isAdmin && (
-                      <Link
-                        href="/admin"
-                        className="flex items-center gap-3 px-3 py-2.5 text-sm text-primary hover:bg-primary/10 transition-colors mx-1.5 rounded-lg mt-1.5"
-                        onClick={() => setActiveDropdown(null)}
-                      >
-                        <Shield className="w-4 h-4" />
-                        Panel de Administración
-                      </Link>
-                    )}
-
-                    <Link
-                      href="/dashboard"
-                      className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors mx-1.5 rounded-lg"
-                      onClick={() => setActiveDropdown(null)}
-                    >
-                      <Settings className="w-4 h-4" />
-                      Dashboard
-                    </Link>
-
-                    <div className="h-px bg-border my-1.5 mx-1.5" />
-
-                    <button
-                      onClick={() => {
-                        logout()
-                        setActiveDropdown(null)
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors mx-1.5 rounded-lg mb-1.5"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Cerrar Sesión
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* CTA Buttons */}
-            {!user && (
-              <div className="hidden lg:flex items-center gap-2">
-                <Link
-                  href="/auth/login"
-                  className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
-                >
-                  Iniciar Sesión
-                </Link>
-                <Link
-                  href="/auth/register"
-                  className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 shadow-sm hover:shadow transition-all"
-                >
-                  Registrarte
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-foreground hover:bg-muted rounded-lg transition-colors"
-            >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isOpen && (
-        <div className="lg:hidden border-t border-border bg-background">
-          {renderMobileNav()}
-
-          {/* Mobile user section */}
-          {user ? (
-            <div className="px-3 py-4 border-t border-border">
-              <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                  <User2 className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground truncate">{user.name}</div>
-                  <div className="text-sm text-muted-foreground truncate">{user.email}</div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
+                {/* Admin Panel */}
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
                   >
                     <Shield className="w-4 h-4" />
-                    Panel de Administración
+                    <span>Panel Admin</span>
                   </Link>
                 )}
 
+                {/* Settings */}
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
-                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                 >
                   <Settings className="w-4 h-4" />
-                  Dashboard
+                  <span>Dashboard</span>
                 </Link>
 
+                {/* Logout */}
                 <button
-                  onClick={() => {
-                    logout()
-                    setIsOpen(false)
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg transition-colors"
+                  onClick={logout}
+                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
-                  Cerrar Sesión
+                  <span>Cerrar Sesión</span>
                 </button>
               </div>
-            </div>
-          ) : (
-            <div className="px-3 py-4 border-t border-border space-y-2">
+            )}
+          </div>
+        ) : (
+          !isCollapsed && (
+            <div className="space-y-2">
               <Link
                 href="/auth/login"
-                className="block w-full px-4 py-2.5 text-center text-foreground font-medium border border-border rounded-lg hover:bg-muted transition-colors"
-                onClick={() => setIsOpen(false)}
+                className="block w-full px-4 py-2.5 text-center text-foreground font-medium border border-border rounded-lg hover:bg-muted transition-colors text-sm"
               >
                 Iniciar Sesión
               </Link>
               <Link
                 href="/auth/register"
-                className="block w-full px-4 py-2.5 text-center text-primary-foreground font-medium bg-primary rounded-lg hover:bg-primary/90 shadow-sm transition-all"
-                onClick={() => setIsOpen(false)}
+                className="block w-full px-4 py-2.5 text-center text-primary-foreground font-medium bg-primary rounded-lg hover:bg-primary/90 shadow-sm transition-all text-sm"
               >
                 Registrarte
               </Link>
             </div>
-          )}
-        </div>
+          )
+        )}
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside
+        className={`fixed left-0 top-0 z-40 h-screen bg-card border-r border-border transition-all duration-300 ease-in-out hidden lg:flex flex-col ${
+          isCollapsed ? "w-16" : "w-64"
+        }`}
+      >
+        {renderSidebarContent()}
+      </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"
+          onClick={toggleMobileSidebar}
+        />
       )}
-    </nav>
+
+      {/* Mobile Sidebar */}
+      <aside
+        className={`fixed left-0 top-0 z-40 h-screen bg-card border-r border-border transition-transform duration-300 ease-in-out lg:hidden w-64 ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {renderSidebarContent()}
+      </aside>
+
+      {/* Mobile Menu Button */}
+      <button
+        onClick={toggleMobileSidebar}
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 bg-card border border-border rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+      >
+        <Menu className="w-5 h-5 text-foreground" />
+      </button>
+    </>
   )
 }
 
