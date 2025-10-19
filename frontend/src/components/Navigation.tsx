@@ -24,11 +24,13 @@ import {
   Home,
   PanelLeftClose,
   PanelLeftOpen,
+  DollarSign,
 } from "lucide-react"
 
 function Navigation() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const pathname = usePathname()
   const { user, logout } = useAuth()
   const { isCollapsed, setIsCollapsed } = useSidebar()
@@ -40,9 +42,12 @@ function Navigation() {
       const target = event.target as Element
       const isDropdownButton = target.closest("[data-dropdown-button]")
       const isDropdown = target.closest("[data-dropdown]")
+      const isUserButton = target.closest("[data-user-button]")
+      const isUserMenu = target.closest("[data-user-menu]")
 
-      if (!isDropdownButton && !isDropdown) {
+      if (!isDropdownButton && !isDropdown && !isUserButton && !isUserMenu) {
         setActiveDropdown(null)
+        setIsUserMenuOpen(false)
       }
     }
 
@@ -106,6 +111,12 @@ function Navigation() {
       icon: Download,
       description: "Archivos y contenido descargable",
     },
+    {
+      name: "Mis Finanzas",
+      href: "/finanzas",
+      icon: DollarSign,
+      description: "Gestión financiera personal",
+    },
   ]
 
   const isActive = (href: string) => pathname?.startsWith(href)
@@ -114,6 +125,12 @@ function Navigation() {
     e.stopPropagation()
     e.preventDefault()
     setActiveDropdown(activeDropdown === itemName ? null : itemName)
+  }
+
+  const handleUserMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setIsUserMenuOpen(!isUserMenuOpen)
   }
 
   const toggleSidebar = () => {
@@ -240,23 +257,38 @@ function Navigation() {
       {/* User Section */}
       <div className="border-t border-border p-4">
         {user ? (
-          <div className="space-y-3">
-            {/* User Info */}
-            <div className="flex items-center gap-3 px-3 py-2">
+          <div className="space-y-1">
+            {/* User Info Button */}
+            <button
+              data-user-button
+              onClick={handleUserMenuClick}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${
+                isUserMenuOpen
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center flex-shrink-0">
                 <User2 className="w-4 h-4 text-primary-foreground" />
               </div>
               {!isCollapsed && (
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground truncate text-sm">{user.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">{user.email}</div>
-                </div>
+                <>
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="font-medium text-foreground truncate text-sm">{user.name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                  </div>
+                  <ChevronRight
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      isUserMenuOpen ? "rotate-90" : ""
+                    }`}
+                  />
+                </>
               )}
-            </div>
+            </button>
 
             {/* User Actions */}
-            {!isCollapsed && (
-              <div className="space-y-1">
+            {!isCollapsed && isUserMenuOpen && (
+              <div className="ml-8 space-y-1 animate-in slide-in-from-left-2 duration-200" data-user-menu>
                 {/* Admin Panel */}
                 {isAdmin && (
                   <Link
@@ -268,7 +300,7 @@ function Navigation() {
                   </Link>
                 )}
 
-                {/* Settings */}
+                {/* Dashboard */}
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
