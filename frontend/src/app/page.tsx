@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useAuth } from "./auth/authContext"
 
-// Simple SVG icon components to replace lucide-react
+// SVG icon components
 const BookOpen = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
@@ -92,25 +92,9 @@ const ArrowRight = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const Sparkles = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M5 3l1.5 1.5L5 6l-1.5-1.5L5 3zM19 3l1.5 1.5L19 6l-1.5-1.5L19 3zM12 1l1.5 1.5L12 4l-1.5-1.5L12 1zM12 20l1.5 1.5L12 23l-1.5-1.5L12 20zM5 21l1.5-1.5L5 18l-1.5 1.5L5 21zM19 21l1.5-1.5L19 18l-1.5 1.5L19 21z"
-    />
-  </svg>
-)
-
 const TrendingUp = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-    />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
   </svg>
 )
 
@@ -127,12 +111,7 @@ const UserPlus = ({ className }: { className?: string }) => (
 
 const Check = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M5 13l4 4L19 7"
-    />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
   </svg>
 )
 
@@ -147,71 +126,75 @@ const Crown = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const Play = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+    />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+)
+
 export default function Home() {
-  // Features con hipervínculos activos para todos los usuarios
   const features = [
     {
       name: "Informes y Novedades de Mercado",
-      description: "Datos precisos del mercado argentino: evolución de precios por zona, demanda real y tendencias que marcan la diferencia en tus ventas.",
+      description:
+        "Datos precisos del mercado argentino: evolución de precios por zona, demanda real y tendencias que marcan la diferencia en tus ventas.",
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-600",
+      gradient: "from-blue-500 to-cyan-500",
     },
     {
       name: "Consultor Inmobiliario IA",
-      description: "Tu asesor 24/7 especializado en Argentina: negocia mejor, tasá propiedades con precisión y resolví dudas complejas al instante.",
+      description:
+        "Tu asesor 24/7 especializado en Argentina: negocia mejor, tasá propiedades con precisión y resolví dudas complejas al instante.",
       icon: User2,
       href: "https://www.rialtor.app/chat",
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50",
-      textColor: "text-purple-600",
+      gradient: "from-violet-500 to-purple-500",
     },
     {
       name: "Calculadoras Profesionales",
-      description: "Calculadoras actualizadas con la legislación argentina: gastos de escritura, impuestos provinciales, comisiones y todo lo que necesitas para cerrar operaciones.",
+      description:
+        "Calculadoras actualizadas con la legislación argentina: gastos de escritura, impuestos provinciales, comisiones y todo lo que necesitas para cerrar operaciones.",
       icon: Calculator,
       href: "https://www.rialtor.app/calculadoras",
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50",
-      textColor: "text-green-600",
+      gradient: "from-emerald-500 to-teal-500",
     },
     {
       name: "Documentos Inteligentes",
-      description: "Generá contratos, reservas y boletos adaptados a la legislación argentina. Ahorra horas de trabajo y evitá errores costosos.",
+      description:
+        "Generá contratos, reservas y boletos adaptados a la legislación argentina. Ahorra horas de trabajo y evitá errores costosos.",
       icon: FileText,
       href: "https://www.rialtor.app/documents",
-      color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-50",
-      textColor: "text-orange-600",
+      gradient: "from-orange-500 to-amber-500",
     },
     {
       name: "Créditos Hipotecarios",
-      description: "Accedé a todas las opciones de financiación vigentes: tasas, requisitos y bancos. Ayudá a tus clientes a encontrar el crédito perfecto.",
+      description:
+        "Accedé a todas las opciones de financiación vigentes: tasas, requisitos y bancos. Ayudá a tus clientes a encontrar el crédito perfecto.",
       icon: BadgeDollarSign,
       href: "https://www.rialtor.app/hipotecarios",
-      color: "from-emerald-500 to-emerald-600",
-      bgColor: "bg-emerald-50",
-      textColor: "text-emerald-600",
+      gradient: "from-green-500 to-emerald-500",
     },
     {
       name: "Generador de Placas",
-      description: "Creá placas profesionales con IA que venden más. Subí fotos y obtené imágenes optimizadas para redes sociales y portales argentinos.",
+      description:
+        "Creá placas profesionales con IA que venden más. Subí fotos y obtené imágenes optimizadas para redes sociales y portales argentinos.",
       icon: ShieldCheck,
       href: "https://www.rialtor.app/placas",
-      color: "from-indigo-500 to-indigo-600",
-      bgColor: "bg-indigo-50",
-      textColor: "text-indigo-600",
+      gradient: "from-indigo-500 to-blue-500",
     },
     {
       name: "Seguro de Caución",
-      description: "Compará y simulá seguros de caución para alquileres. Encontrá la mejor opción para tus clientes y generá ingresos adicionales.",
+      description:
+        "Compará y simulá seguros de caución para alquileres. Encontrá la mejor opción para tus clientes y generá ingresos adicionales.",
       icon: Shield,
       href: "https://www.rialtor.app/creditos",
-      color: "from-teal-500 to-teal-600",
-      bgColor: "bg-teal-50",
-      textColor: "text-teal-600",
+      gradient: "from-cyan-500 to-blue-500",
     },
   ]
 
@@ -225,9 +208,6 @@ export default function Home() {
   }
 
   const [recentArticles, setRecentArticles] = useState<Article[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searching, setSearching] = useState(false)
-  const [searchResults, setSearchResults] = useState(null)
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
   const { user } = useAuth()
 
@@ -248,498 +228,156 @@ export default function Home() {
     const el = document.getElementById("demo-video")
     if (el) {
       el.scrollIntoView({ behavior: "smooth" })
-      // Wait for scroll to complete, then play video
       setTimeout(() => {
-        const video = el.querySelector('video') as HTMLVideoElement
+        const video = el.querySelector("video") as HTMLVideoElement
         if (video) {
-          video.play().catch(e => {
-            console.log('Video autoplay failed:', e)
+          video.play().catch((e) => {
+            console.log("Video autoplay failed:", e)
           })
         }
-      }, 1000) // Wait 1 second for scroll to complete
+      }, 1000)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex flex-col">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 py-8 lg:py-16">
-        {/* Simplified background pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)`,
-              backgroundSize: "20px 20px",
-            }}
-          ></div>
-        </div>
+      <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-        {/* Content container */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium mb-6">
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Potenciá tu negocio inmobiliario en Argentina
-          </div>
+        {/* Gradient orbs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">RIALTOR</span>
-            <br />
-            <span className="text-2xl md:text-4xl lg:text-5xl text-slate-300 font-light">La revolución inmobiliaria llegó</span>
-          </h1>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
+          <div className="text-center space-y-8">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 backdrop-blur-sm">
+              <TrendingUp className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-muted-foreground">
+                Potenciá tu negocio inmobiliario en Argentina
+              </span>
+            </div>
 
-          <p className="text-xl md:text-2xl text-slate-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-            Cerrá más operaciones con IA, herramientas especializadas y datos precisos del mercado argentino.
-            <span className="text-blue-300 font-semibold"> Cientos de agentes ya confian en nosotros.</span>
-          </p>
+            {/* Main heading */}
+            <div className="space-y-6">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-balance">
+                <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                  RIALTOR
+                </span>
+              </h1>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-medium text-muted-foreground text-balance">
+                La revolución inmobiliaria llegó
+              </p>
+            </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
-              onClick={handleScrollToDemo}
-              className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              Ver Demo en 2 Minutos
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            {/* Description */}
+            <p className="max-w-3xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed text-balance">
+              Cerrá más operaciones con IA, herramientas especializadas y datos precisos del mercado argentino.
+              <span className="text-foreground font-semibold"> Cientos de agentes ya confían en nosotros.</span>
+            </p>
 
-            <Link
-              href="/auth/register"
-              className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300"
-            >
-              <UserPlus className="w-5 h-5 mr-2" />
-              Registrarte
-            </Link>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+              <button
+                onClick={handleScrollToDemo}
+                className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                <Play className="w-5 h-5" />
+                Ver Demo en 2 Minutos
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <Link
+                href="/auth/register"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/80 transition-all duration-300 border border-border"
+              >
+                <UserPlus className="w-5 h-5" />
+                Registrarte Gratis
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Features Section - Constellation */}
-      <section className="w-full bg-gradient-to-br from-slate-50 via-white to-blue-50 py-24 lg:py-32">
+      {/* Features Section */}
+      <section className="py-24 lg:py-32 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+          {/* Section Header */}
+          <div className="text-center mb-20 space-y-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance">
               Todo lo que un martillero necesita para vender más
             </h2>
-            <p className="text-xl text-slate-600 max-w-4xl mx-auto">
-              Desde informes de mercado actualizados hasta contratos inteligentes: herramientas diseñadas específicamente
-              para el mercado inmobiliario argentino y sus desafíos únicos.
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto text-balance">
+              Desde informes de mercado actualizados hasta contratos inteligentes: herramientas diseñadas
+              específicamente para el mercado inmobiliario argentino y sus desafíos únicos.
             </p>
           </div>
 
-          {/* Constellation Layout - Hidden on mobile, shown on lg and up */}
-          <div className="hidden lg:block relative w-full h-[900px] flex items-center justify-center overflow-visible">
-            {/* Animated background circles with modern gradients */}
-            <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
-              {/* Innermost circle - vibrant gradient */}
-              <div 
-                className="absolute w-[400px] h-[400px] rounded-full opacity-60"
-                style={{
-                  background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.1) 50%, transparent 70%)',
-                  animation: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                }}
-              ></div>
-              
-              {/* Middle circle - purple accent */}
-              <div 
-                className="absolute w-[550px] h-[550px] rounded-full opacity-40"
-                style={{
-                  background: 'radial-gradient(circle, rgba(147, 51, 234, 0.12) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 70%)',
-                  animation: 'pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                  animationDelay: '1s'
-                }}
-              ></div>
-              
-              {/* Outer circle - soft blue glow */}
-              <div 
-                className="absolute w-[700px] h-[700px] rounded-full opacity-30"
-                style={{
-                  background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.05) 50%, transparent 70%)',
-                  animation: 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                  animationDelay: '2s'
-                }}
-              ></div>
-              
-              {/* Orbital ring effect */}
-              <div className="absolute w-[480px] h-[480px] rounded-full border-2 border-blue-400/20 animate-spin" style={{ animationDuration: '20s' }}></div>
-            </div>
-
-            {/* Central Logo with modern glassmorphism - Perfectly Round */}
-            <div className="absolute inset-0 flex items-center justify-center z-20">
-              <div className="relative group">
-                {/* Outer glow effect */}
-                <div className="absolute -inset-8 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
-                
-                {/* Rotating gradient border */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full opacity-75 blur-sm animate-spin" style={{ animationDuration: '3s' }}></div>
-                
-                {/* Main logo container - Perfect Circle */}
-                <div className="relative w-48 h-48 bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 backdrop-blur-xl rounded-full shadow-2xl border border-white/50 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                  {/* Inner glow */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10"></div>
-                  
-                  {/* Logo text with gradient */}
-                  <span className="relative text-4xl font-black bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent drop-shadow-lg">
-                    RIALTOR
-                  </span>
-                </div>
-                
-                {/* Floating particles effect */}
-                <div className="absolute -inset-12 pointer-events-none">
-                  {[...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-2 h-2 bg-blue-400 rounded-full opacity-40 animate-ping"
-                      style={{
-                        top: `${Math.random() * 100}%`,
-                        left: `${Math.random() * 100}%`,
-                        animationDelay: `${i * 0.5}s`,
-                        animationDuration: '3s'
-                      }}
-                    ></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* SVG overlay for connection lines with gradients */}
-            <svg
-              className="absolute inset-0 w-full h-full z-30 pointer-events-none"
-              viewBox="0 0 900 900"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <defs>
-                {/* Gradient definitions for lines */}
-                <linearGradient id="lineGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 0.3 }} />
-                  <stop offset="50%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.8 }} />
-                  <stop offset="100%" style={{ stopColor: '#ec4899', stopOpacity: 0.3 }} />
-                </linearGradient>
-                <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 0.3 }} />
-                  <stop offset="50%" style={{ stopColor: '#a855f7', stopOpacity: 0.8 }} />
-                  <stop offset="100%" style={{ stopColor: '#3b82f6', stopOpacity: 0.3 }} />
-                </linearGradient>
-                
-                {/* Glow filter for lines */}
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              {/* Animated gradient lines */}
-              {features.map((_, i) => {
-                const angle = (360 / features.length) * i - 90
-                const rad = (angle * Math.PI) / 180
-                const cx = 450
-                const cy = 450
-                const centerR = 100 // Logo radius (ajustado para círculo de 200px = w-48 h-48)
-                const outerR = 330 // Distance to cards (normalizado)
-                const sx = cx + Math.cos(rad) * centerR
-                const sy = cy + Math.sin(rad) * centerR
-                const ex = cx + Math.cos(rad) * outerR
-                const ey = cy + Math.sin(rad) * outerR
-
-                return (
-                  <g key={`line-${i}`}>
-                    {/* Outer glow line */}
-                    <line
-                      x1={sx}
-                      y1={sy}
-                      x2={ex}
-                      y2={ey}
-                      stroke={i % 2 === 0 ? 'url(#lineGradient1)' : 'url(#lineGradient2)'}
-                      strokeWidth={6}
-                      strokeLinecap="round"
-                      filter="url(#glow)"
-                      opacity={0.4}
-                    >
-                      <animate
-                        attributeName="stroke-opacity"
-                        values="0.3;0.6;0.3"
-                        dur="3s"
-                        repeatCount="indefinite"
-                        begin={`${i * 0.2}s`}
-                      />
-                    </line>
-                    
-                    {/* Main line */}
-                    <line
-                      x1={sx}
-                      y1={sy}
-                      x2={ex}
-                      y2={ey}
-                      stroke={i % 2 === 0 ? 'url(#lineGradient1)' : 'url(#lineGradient2)'}
-                      strokeWidth={2.5}
-                      strokeLinecap="round"
-                      className="transition-all duration-300"
-                    >
-                      <animate
-                        attributeName="stroke-opacity"
-                        values="0.5;1;0.5"
-                        dur="2s"
-                        repeatCount="indefinite"
-                        begin={`${i * 0.15}s`}
-                      />
-                    </line>
-                    
-                    {/* Animated dots traveling along lines */}
-                    <circle r="4" fill="#8b5cf6" opacity="0.8" filter="url(#glow)">
-                      <animateMotion
-                        dur="4s"
-                        repeatCount="indefinite"
-                        begin={`${i * 0.5}s`}
-                      >
-                        <mpath href={`#path${i}`} />
-                      </animateMotion>
-                      <animate
-                        attributeName="opacity"
-                        values="0;0.8;0"
-                        dur="4s"
-                        repeatCount="indefinite"
-                        begin={`${i * 0.5}s`}
-                      />
-                    </circle>
-                    
-                    {/* Hidden path for dot animation */}
-                    <path
-                      id={`path${i}`}
-                      d={`M ${sx} ${sy} L ${ex} ${ey}`}
-                      fill="none"
-                      stroke="none"
-                    />
-                  </g>
-                )
-              })}
-            </svg>
-
-            {/* Modern Feature Cards around the logo - Perfectly Round */}
-            {features.map((feature, idx) => {
-              const angle = (360 / features.length) * idx - 90
-              const radius = 400
-              const x = Math.cos((angle * Math.PI) / 180) * radius
-              const y = Math.sin((angle * Math.PI) / 180) * radius
-              
-              // Determine tooltip position based on angle
-              const isTop = y < -100
-              const isBottom = y > 100
-              const isLeft = x < -100
-              const isRight = x > 100
-
-              return (
-                <div
-                  key={feature.name}
-                  className="absolute z-40 pointer-events-auto"
-                  style={{
-                    left: "50%",
-                    top: "50%",
-                    transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
-                  }}
-                >
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, idx) => (
+              <a
+                key={feature.name}
+                href={feature.href}
+                className="group relative"
+                onMouseEnter={() => setHoveredFeature(idx)}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <div className="relative h-full p-8 bg-card border border-border rounded-2xl hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                  {/* Gradient overlay on hover */}
                   <div
-                    className="group relative cursor-pointer"
-                    onMouseEnter={() => setHoveredFeature(idx)}
-                    onMouseLeave={() => setHoveredFeature(null)}
-                    onClick={() => window.location.href = feature.href}
+                    className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
+                  ></div>
+
+                  {/* Icon */}
+                  <div
+                    className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} p-3 mb-6 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}
                   >
-                    {/* Perfectly Round Card Container */}
-                    <div className="relative w-40 h-40">
-                      {/* Animated gradient border on hover */}
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-75 blur transition-opacity duration-500"></div>
-                      
-                      {/* Main card with glassmorphism - Perfect Circle */}
-                      <div className="relative w-full h-full bg-white/80 backdrop-blur-xl border border-white/60 rounded-full shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-110 flex items-center justify-center">
-                        {/* Gradient overlay on hover */}
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-10 rounded-full transition-opacity duration-500`}
-                        ></div>
+                    <feature.icon className="w-full h-full text-white" />
+                  </div>
 
-                        {/* Icon and content container */}
-                        <div className="relative flex flex-col items-center text-center space-y-2 p-4">
-                          {/* Icon with gradient background */}
-                          <div className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 overflow-hidden`}
-                            style={{
-                              background: `linear-gradient(135deg, ${feature.color.includes('blue') ? '#3b82f6' : feature.color.includes('purple') ? '#8b5cf6' : feature.color.includes('green') ? '#10b981' : feature.color.includes('orange') ? '#f97316' : feature.color.includes('emerald') ? '#059669' : feature.color.includes('indigo') ? '#6366f1' : '#3b82f6'}, ${feature.color.includes('blue') ? '#60a5fa' : feature.color.includes('purple') ? '#a855f7' : feature.color.includes('green') ? '#34d399' : feature.color.includes('orange') ? '#fb923c' : feature.color.includes('emerald') ? '#10b981' : feature.color.includes('indigo') ? '#818cf8' : '#60a5fa'})`
-                            }}
-                          >
-                            {/* Icon glow effect */}
-                            <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
-                            
-                            <feature.icon className="relative h-7 w-7 text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
-                          </div>
+                  {/* Content */}
+                  <div className="relative space-y-3">
+                    <h3 className="text-xl font-bold text-card-foreground group-hover:text-primary transition-colors">
+                      {feature.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                  </div>
 
-                          {/* Feature name with better typography */}
-                          <h3 className="relative text-xs font-bold text-slate-900 leading-tight px-1 group-hover:text-blue-700 transition-colors duration-300">
-                            {feature.name}
-                          </h3>
-                        </div>
-
-                        {/* Decorative center dot */}
-                        <div className={`absolute bottom-3 w-1.5 h-1.5 rounded-full ${feature.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                      </div>
-                    </div>
-
-                    {/* Smart Tooltip with Intelligent Positioning */}
-                    {hoveredFeature === idx && (
-                      <div 
-                        className={`absolute z-[99999] animate-in fade-in slide-in-from-bottom-3 duration-300 ${
-                          isTop ? 'top-full mt-6' : 
-                          isBottom ? 'bottom-full mb-6' : 
-                          'bottom-full mb-6'
-                        } ${
-                          isLeft ? 'left-0' : 
-                          isRight ? 'right-0' : 
-                          'left-1/2 -translate-x-1/2'
-                        }`}
-                      >
-                        <div className="relative">
-                          {/* Tooltip glow effect */}
-                          <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl blur-lg opacity-50"></div>
-                          
-                          {/* Tooltip content */}
-                          <div className="relative px-6 py-5 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 max-w-xs min-w-[280px]">
-                            {/* Inner gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-2xl"></div>
-                            
-                            {/* Description text */}
-                            <p className="relative text-white/95 leading-relaxed font-medium text-center text-sm">
-                              {feature.description}
-                            </p>
-                            
-                            {/* Decorative dots */}
-                            <div className="absolute top-2 right-2 flex space-x-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-blue-400/50"></div>
-                              <div className="w-1.5 h-1.5 rounded-full bg-purple-400/50"></div>
-                              <div className="w-1.5 h-1.5 rounded-full bg-pink-400/50"></div>
-                            </div>
-                          </div>
-
-                          {/* Enhanced arrow - positioned based on card location */}
-                          {!isTop && (
-                            <div className={`absolute ${
-                              isLeft ? 'left-6' : 
-                              isRight ? 'right-6' : 
-                              'left-1/2 -translate-x-1/2'
-                            } top-full -mt-px`}>
-                              <div className="relative">
-                                <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[12px] border-transparent border-t-slate-900"></div>
-                                {/* Arrow glow */}
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-purple-500/30 blur-md"></div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Arrow for top positioned tooltips */}
-                          {isTop && (
-                            <div className={`absolute ${
-                              isLeft ? 'left-6' : 
-                              isRight ? 'right-6' : 
-                              'left-1/2 -translate-x-1/2'
-                            } bottom-full -mb-px`}>
-                              <div className="relative">
-                                <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-b-[12px] border-transparent border-b-slate-900"></div>
-                                {/* Arrow glow */}
-                                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-purple-500/30 blur-md"></div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                  {/* Arrow indicator */}
+                  <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className="w-5 h-5 text-primary" />
                   </div>
                 </div>
-              )
-            })}
-          </div>
-
-          {/* Tablet Layout - Shown on md to lg */}
-          <div className="hidden md:block lg:hidden">
-            <div className="grid grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {features.map((feature, idx) => (
-                <a
-                  key={feature.name}
-                  href={feature.href}
-                  className="block h-full"
-                  title={`Ir a ${feature.name}`}
-                >
-                  <div className="group h-full">
-                    <div className="relative h-full p-6 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:shadow-xl hover:border-slate-300 transition-all duration-300 transform hover:-translate-y-1">
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
-                      ></div>
-
-                      <div
-                        className={`relative w-14 h-14 ${feature.bgColor} rounded-xl flex items-center justify-center mb-4`}
-                      >
-                        <feature.icon className={`h-7 w-7 ${feature.textColor}`} />
-                      </div>
-
-                      <h3 className="relative text-lg font-bold text-slate-900 mb-3">{feature.name}</h3>
-
-                      <p className="relative text-slate-600 text-sm leading-relaxed">{feature.description}</p>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Mobile Grid - Shown only on mobile */}
-          <div className="md:hidden">
-            <div className="grid grid-cols-1 gap-6">
-              {features.map((feature, idx) => (
-                <a
-                  key={feature.name}
-                  href={feature.href}
-                  className="block h-full"
-                  title={`Ir a ${feature.name}`}
-                >
-                  <div className="group h-full">
-                    <div className="relative h-full p-6 bg-white/90 backdrop-blur-sm border border-slate-200/50 rounded-2xl hover:shadow-lg hover:border-slate-300 transition-all duration-300">
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
-                      ></div>
-
-                      <div
-                        className={`relative w-12 h-12 ${feature.bgColor} rounded-xl flex items-center justify-center mb-4`}
-                      >
-                        <feature.icon className={`h-6 w-6 ${feature.textColor}`} />
-                      </div>
-
-                      <h3 className="relative text-lg font-bold text-slate-900 mb-3">{feature.name}</h3>
-
-                      <p className="relative text-slate-600 text-sm leading-relaxed">{feature.description}</p>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
+              </a>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Demo Video Section */}
-      <section id="demo-video" className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Descubrí cómo cerrar más operaciones en Argentina</h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Vea en 2 minutos cómo RIALTOR transforma la forma de trabajar de los martilleros argentinos con herramientas
-              que realmente marcan la diferencia en resultados.
+      <section id="demo-video" className="py-24 lg:py-32 bg-background">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance">
+              Descubrí cómo cerrar más operaciones en Argentina
+            </h2>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+              Vea en 2 minutos cómo RIALTOR transforma la forma de trabajar de los martilleros argentinos con
+              herramientas que realmente marcan la diferencia en resultados.
             </p>
           </div>
 
-          <div className="relative">
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-xl opacity-20"></div>
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 backdrop-blur-sm">
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-2xl">
               <video
                 src="/docs/Videos/RIALTOR.mp4"
                 title="Demo RIALTOR"
                 controls
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover bg-muted"
                 preload="metadata"
               >
                 Tu navegador no soporta el elemento de video.
@@ -750,124 +388,107 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 bg-slate-50">
+      <section className="py-24 lg:py-32 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance">
               Planes que se adaptan a tu negocio
             </h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
               Elegí el plan perfecto para potenciar tu carrera inmobiliaria en Argentina
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Plan Mensual */}
+            {/* Monthly Plan */}
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
-              <div className="relative bg-white rounded-2xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Plan Mensual</h3>
-                  <div className="flex items-center justify-center">
-                    <span className="text-4xl font-bold text-slate-900">$25</span>
-                    <span className="text-lg text-slate-600 ml-2">USD/mes</span>
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-primary/50 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
+              <div className="relative bg-card rounded-2xl p-8 border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+                <div className="text-center mb-8 space-y-2">
+                  <h3 className="text-2xl font-bold">Plan Mensual</h3>
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-5xl font-bold">$25</span>
+                    <span className="text-muted-foreground">USD/mes</span>
                   </div>
-                  <p className="text-slate-600 mt-2">Facturación mensual</p>
+                  <p className="text-sm text-muted-foreground">Facturación mensual</p>
                 </div>
 
                 <div className="space-y-4 mb-8">
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Todas las herramientas inmobiliarias</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Calculadora de créditos hipotecarios</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Generación de documentos legales</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Sistema de placas automáticas</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Tasas bancarias actualizadas</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Soporte técnico incluido</span>
-                  </div>
+                  {[
+                    "Todas las herramientas inmobiliarias",
+                    "Calculadora de créditos hipotecarios",
+                    "Generación de documentos legales",
+                    "Sistema de placas automáticas",
+                    "Tasas bancarias actualizadas",
+                    "Soporte técnico incluido",
+                  ].map((item) => (
+                    <div key={item} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-3 h-3 text-primary" />
+                      </div>
+                      <span className="text-sm text-muted-foreground">{item}</span>
+                    </div>
+                  ))}
                 </div>
 
                 <Link
                   href="/auth/register"
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors duration-200"
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
                 >
                   Comenzar ahora
                 </Link>
               </div>
             </div>
 
-            {/* Plan Anual */}
+            {/* Annual Plan */}
             <div className="relative group">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center z-10">
-                <Crown className="w-4 h-4 mr-1" />
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-accent to-accent/80 text-accent-foreground px-4 py-1 rounded-full text-sm font-medium flex items-center gap-1 z-10 shadow-lg">
+                <Crown className="w-4 h-4" />
                 Más Popular
               </div>
-              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
-              <div className="relative bg-white rounded-2xl p-8 shadow-xl border-2 border-purple-200 hover:shadow-2xl transition-all duration-300">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Plan Anual</h3>
-                  <div className="flex items-center justify-center">
-                    <span className="text-lg text-slate-500 line-through mr-2">$300</span>
-                    <span className="text-4xl font-bold text-slate-900">$240</span>
-                    <span className="text-lg text-slate-600 ml-2">USD/año</span>
+              <div className="absolute -inset-1 bg-gradient-to-r from-accent to-primary rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+              <div className="relative bg-card rounded-2xl p-8 border-2 border-accent hover:shadow-2xl transition-all duration-300">
+                <div className="text-center mb-8 space-y-2">
+                  <h3 className="text-2xl font-bold">Plan Anual</h3>
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-lg text-muted-foreground line-through">$300</span>
+                    <span className="text-5xl font-bold">$240</span>
+                    <span className="text-muted-foreground">USD/año</span>
                   </div>
-                  <div className="flex items-center justify-center mt-2">
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                      Ahorrás 20% ($60 USD)
-                    </span>
+                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium">
+                    Ahorrás 20% ($60 USD)
                   </div>
-                  <p className="text-slate-600 mt-2">Equivale a $20 USD/mes</p>
+                  <p className="text-sm text-muted-foreground">Equivale a $20 USD/mes</p>
                 </div>
 
                 <div className="space-y-4 mb-8">
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Todas las herramientas inmobiliarias</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Calculadora de créditos hipotecarios</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Generación de documentos legales</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Sistema de placas automáticas</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Tasas bancarias actualizadas</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700">Soporte técnico prioritario</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
-                    <span className="text-slate-700 font-medium">2 meses gratis incluidos</span>
-                  </div>
+                  {[
+                    "Todas las herramientas inmobiliarias",
+                    "Calculadora de créditos hipotecarios",
+                    "Generación de documentos legales",
+                    "Sistema de placas automáticas",
+                    "Tasas bancarias actualizadas",
+                    "Soporte técnico prioritario",
+                    "2 meses gratis incluidos",
+                  ].map((item, idx) => (
+                    <div key={item} className="flex items-start gap-3">
+                      <div
+                        className={`w-5 h-5 rounded-full ${idx === 6 ? "bg-accent/20" : "bg-primary/10"} flex items-center justify-center flex-shrink-0 mt-0.5`}
+                      >
+                        <Check className={`w-3 h-3 ${idx === 6 ? "text-accent" : "text-primary"}`} />
+                      </div>
+                      <span
+                        className={`text-sm ${idx === 6 ? "text-foreground font-medium" : "text-muted-foreground"}`}
+                      >
+                        {item}
+                      </span>
+                    </div>
+                  ))}
                 </div>
 
                 <Link
                   href="/auth/register"
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg"
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-accent to-primary text-accent-foreground font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg"
                 >
                   Elegir plan anual
                 </Link>
@@ -876,152 +497,110 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-slate-600 text-sm">
+            <p className="text-sm text-muted-foreground">
               Todos los precios están en dólares estadounidenses. Sin permanencia, cancelá cuando quieras.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Footer */}
-      <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-t border-slate-700/50 py-20">
+      {/* Footer */}
+      <footer className="bg-card border-t border-border py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Brand */}
-            <div className="md:col-span-1">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="relative">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-30"></div>
-                  <img src="/images/logoblanco.png" alt="Logo Rialtor" className="relative w-12 h-12 object-contain" />
+            <div className="md:col-span-1 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="relative w-10 h-10">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-lg blur opacity-50"></div>
+                  <img
+                    src="/images/logoblanco.png"
+                    alt="Logo Rialtor"
+                    className="relative w-full h-full object-contain"
+                  />
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   RIALTOR
                 </span>
               </div>
-              <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-                La plataforma definitiva para martilleros y agentes inmobiliarios en Argentina.
-                Herramientas especializadas que entienden nuestro mercado único.
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                La plataforma definitiva para martilleros y agentes inmobiliarios en Argentina. Herramientas
+                especializadas que entienden nuestro mercado único.
               </p>
             </div>
 
             {/* Herramientas */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-6">Herramientas para Martilleros</h3>
+              <h3 className="text-lg font-semibold mb-6">Herramientas para Martilleros</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <Link
-                    href="/news"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Mercado Inmobiliario Argentino
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/documents"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Contratos y Formularios
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/calculadoras"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Calculadoras Fiscales
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/chat"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Asistente IA 24/7
-                  </Link>
-                </li>
+                {[
+                  { name: "Mercado Inmobiliario Argentino", href: "/news" },
+                  { name: "Contratos y Formularios", href: "/documents" },
+                  { name: "Calculadoras Fiscales", href: "/calculadoras" },
+                  { name: "Asistente IA 24/7", href: "/chat" },
+                ].map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                    >
+                      <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Soporte */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-6">Soporte</h3>
+              <h3 className="text-lg font-semibold mb-6">Soporte</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <Link
-                    href="/ayuda"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Centro de Ayuda
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/contacto"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Contacto
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/capacitacion"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Capacitación
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/documentacion"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Documentación
-                  </Link>
-                </li>
+                {[
+                  { name: "Centro de Ayuda", href: "/ayuda" },
+                  { name: "Contacto", href: "/contacto" },
+                  { name: "Capacitación", href: "/capacitacion" },
+                  { name: "Documentación", href: "/documentacion" },
+                ].map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                    >
+                      <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Legal */}
             <div>
-              <h3 className="text-lg font-semibold text-white mb-6">Legal</h3>
+              <h3 className="text-lg font-semibold mb-6">Legal</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <a
-                    href="https://www.remax.com.ar/terminos"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Términos y Condiciones
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.remax.com.ar/privacidad"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-blue-400 transition-colors duration-200 flex items-center group"
-                  >
-                    <ArrowRight className="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Política de Privacidad
-                  </a>
-                </li>
+                {[
+                  { name: "Términos y Condiciones", href: "https://www.remax.com.ar/terminos" },
+                  { name: "Política de Privacidad", href: "https://www.remax.com.ar/privacidad" },
+                ].map((link) => (
+                  <li key={link.name}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                    >
+                      <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {link.name}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-slate-700/50 mt-16 pt-8 text-center">
-            <p className="text-slate-500 text-sm">© 2025 RIALTOR. Todos los derechos reservados.</p>
+          <div className="border-t border-border mt-16 pt-8 text-center">
+            <p className="text-sm text-muted-foreground">© 2025 RIALTOR. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
