@@ -14,7 +14,6 @@ import {
   User2,
   ChevronDown,
   ChevronRight,
-  Bell,
   Settings,
   Shield,
   Calculator,
@@ -131,9 +130,11 @@ function Navigation() {
       <div className="flex items-center justify-between p-4 border-b border-border">
         {!isCollapsed && (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">R</span>
-            </div>
+            <img
+              src="/images/favicon.ico"
+              alt="RIALTOR Logo"
+              className="w-8 h-8 rounded-lg"
+            />
             <span className="font-bold text-lg text-foreground">RIALTOR</span>
           </div>
         )}
@@ -256,15 +257,6 @@ function Navigation() {
             {/* User Actions */}
             {!isCollapsed && (
               <div className="space-y-1">
-                {/* Notifications */}
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
-                  <div className="relative">
-                    <Bell className="w-4 h-4" />
-                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full"></span>
-                  </div>
-                  <span>Notificaciones</span>
-                </button>
-
                 {/* Admin Panel */}
                 {isAdmin && (
                   <Link
