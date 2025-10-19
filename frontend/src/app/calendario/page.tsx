@@ -118,6 +118,9 @@ const localizer = dateFnsLocalizer({
   },
 })
 
+// Zona horaria de Argentina
+const TIMEZONE = 'America/Argentina/Buenos_Aires'
+
 interface CalendarEvent {
   id?: string
   title: string
