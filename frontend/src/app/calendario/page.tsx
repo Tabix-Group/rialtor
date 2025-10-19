@@ -9,6 +9,93 @@ import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
 import { es } from "date-fns/locale"
 import "react-big-calendar/lib/css/react-big-calendar.css"
+
+// Custom styles for calendar
+const calendarStyles = `
+  .custom-calendar .rbc-calendar {
+    font-family: inherit;
+  }
+  
+  .custom-calendar .rbc-header {
+    padding: 12px 8px;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--muted));
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  
+  .custom-calendar .rbc-month-view {
+    border-radius: 12px;
+  }
+  
+  .custom-calendar .rbc-week-view,
+  .custom-calendar .rbc-day-view {
+    border-radius: 12px;
+  }
+  
+  .custom-calendar .rbc-time-view .rbc-time-gutter {
+    font-size: 12px;
+    color: hsl(var(--muted-foreground));
+  }
+  
+  .custom-calendar .rbc-time-view .rbc-time-slot {
+    border-top: 1px solid hsl(var(--border));
+  }
+  
+  .custom-calendar .rbc-time-view .rbc-current-time-indicator {
+    background-color: hsl(var(--primary));
+  }
+  
+  .custom-calendar .rbc-today {
+    background-color: hsl(var(--primary) / 0.05);
+  }
+  
+  .custom-calendar .rbc-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 12px;
+  }
+  
+  .custom-calendar .rbc-toolbar button {
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--background));
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .custom-calendar .rbc-toolbar button:hover {
+    background-color: hsl(var(--muted));
+    border-color: hsl(var(--primary));
+  }
+  
+  .custom-calendar .rbc-toolbar button.rbc-active {
+    background-color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  
+  .custom-calendar .rbc-toolbar-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin: 0 16px;
+  }
+`
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style")
+  styleSheet.type = "text/css"
+  styleSheet.innerText = calendarStyles
+  document.head.appendChild(styleSheet)
+}
 import {
   Calendar,
   Plus,
@@ -17,6 +104,7 @@ import {
   ChevronLeft,
   TrendingUp,
   ArrowUpRight,
+  Clock,
 } from "lucide-react"
 
 const localizer = dateFnsLocalizer({
@@ -24,7 +112,9 @@ const localizer = dateFnsLocalizer({
   parse,
   startOfWeek,
   getDay,
-  locales: { es },
+  locales: {
+    es: es,
+  },
 })
 
 interface CalendarEvent {
@@ -216,7 +306,7 @@ export default function CalendarioPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -252,8 +342,8 @@ export default function CalendarioPage() {
         </div>
       </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-card rounded-2xl border border-border p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -315,8 +405,8 @@ export default function CalendarioPage() {
           </div>
         </div>
 
-        {/* Calendar */}
-        <div className="bg-card rounded-2xl border border-border p-6 shadow-lg">
+      {/* Calendar */}
+      <div className="bg-card rounded-2xl border border-border p-6 shadow-lg">
           {calendarLoading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
@@ -325,7 +415,7 @@ export default function CalendarioPage() {
               </div>
             </div>
           ) : (
-            <div className="h-[600px]">
+            <div className="h-[700px]">
               <BigCalendar
                 localizer={localizer}
                 events={calendarEvents}
@@ -348,6 +438,14 @@ export default function CalendarioPage() {
                   noEventsInRange: "No hay eventos en este rango.",
                   showMore: (total) => `+ Ver ${total} más`,
                 }}
+                formats={{
+                  dayHeaderFormat: (date) => format(date, "EEEE", { locale: es }),
+                  dayRangeHeaderFormat: ({ start, end }) =>
+                    `${format(start, "d MMM", { locale: es })} - ${format(end, "d MMM", { locale: es })}`,
+                  monthHeaderFormat: (date) => format(date, "MMMM yyyy", { locale: es }),
+                  dayFormat: (date) => format(date, "d", { locale: es }),
+                  timeGutterFormat: (date) => format(date, "HH:mm", { locale: es }),
+                }}
                 onSelectSlot={({ start, end }) => {
                   setNewEvent({
                     ...newEvent,
@@ -362,14 +460,15 @@ export default function CalendarioPage() {
                 components={{
                   event: CustomEvent,
                 }}
+                className="custom-calendar"
               />
             </div>
           )}
         </div>
 
-        {/* Upcoming Events */}
-        {getUpcomingEvents().length > 0 && (
-          <div className="mt-8 bg-card rounded-2xl border border-border p-6">
+      {/* Upcoming Events */}
+      {getUpcomingEvents().length > 0 && (
+        <div className="mt-8 bg-card rounded-2xl border border-border p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-primary" />
@@ -401,8 +500,8 @@ export default function CalendarioPage() {
           </div>
         )}
 
-        {/* Context Menu */}
-        {contextMenu && (
+      {/* Context Menu */}
+      {contextMenu && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
             <div
@@ -431,90 +530,141 @@ export default function CalendarioPage() {
           </>
         )}
 
-        {/* Event Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl border border-border">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-foreground">{editingEvent ? "Editar Evento" : "Nuevo Evento"}</h3>
-                <button
-                  onClick={() => {
-                    setShowModal(false)
-                    setEditingEvent(null)
-                    setNewEvent({ title: "", description: "", start: "", end: "" })
-                  }}
-                  className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 transition-colors"
-                >
-                  <X className="w-4 h-4 text-foreground" />
-                </button>
+      {/* Event Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl border border-border max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground">
+                    {editingEvent ? "Editar Evento" : "Nuevo Evento"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {editingEvent ? "Modifica los detalles del evento" : "Crea un nuevo evento en tu calendario"}
+                  </p>
+                </div>
               </div>
+              <button
+                onClick={() => {
+                  setShowModal(false)
+                  setEditingEvent(null)
+                  setNewEvent({ title: "", description: "", start: "", end: "" })
+                }}
+                className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center hover:bg-muted/80 transition-colors"
+              >
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
 
+            <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }} className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">Título</label>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                    <Calendar className="w-4 h-4" />
+                    Título del Evento
+                  </label>
                   <input
                     type="text"
                     value={newEvent.title}
                     onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground"
-                    placeholder="Título del evento"
+                    className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground placeholder:text-muted-foreground"
+                    placeholder="Ej: Reunión con cliente, Cita médica..."
+                    required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">Descripción</label>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                    <Edit className="w-4 h-4" />
+                    Descripción (Opcional)
+                  </label>
                   <textarea
                     value={newEvent.description}
                     onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none text-foreground"
-                    rows={3}
-                    placeholder="Descripción opcional"
+                    className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none text-foreground placeholder:text-muted-foreground"
+                    rows={4}
+                    placeholder="Agrega detalles adicionales sobre el evento..."
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Inicio</label>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                      <Clock className="w-4 h-4" />
+                      Fecha y Hora de Inicio
+                    </label>
                     <input
                       type="datetime-local"
                       value={newEvent.start}
                       onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground"
+                      className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground"
+                      required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">Fin</label>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
+                      <Clock className="w-4 h-4" />
+                      Fecha y Hora de Fin
+                    </label>
                     <input
                       type="datetime-local"
                       value={newEvent.end}
                       onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground"
+                      className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground"
+                      required
                     />
                   </div>
                 </div>
+
+                {/* Preview */}
+                {newEvent.title && newEvent.start && (
+                  <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                    <h4 className="text-sm font-semibold text-foreground mb-2">Vista Previa</h4>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{newEvent.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {newEvent.start && format(new Date(newEvent.start), "EEEE, d 'de' MMMM 'a las' HH:mm", { locale: es })}
+                          {newEvent.end && ` - ${format(new Date(newEvent.end), "HH:mm", { locale: es })}`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center gap-3 mt-6">
+              <div className="flex items-center gap-3 pt-4 border-t border-border">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowModal(false)
                     setEditingEvent(null)
                     setNewEvent({ title: "", description: "", start: "", end: "" })
                   }}
-                  className="flex-1 px-6 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold text-sm"
+                  className="flex-1 px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold text-sm"
                 >
                   Cancelar
                 </button>
                 <button
-                  onClick={handleAddEvent}
-                  className="flex-1 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all font-semibold text-sm"
+                  type="submit"
+                  disabled={!newEvent.title || !newEvent.start || !newEvent.end}
+                  className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold text-sm flex items-center justify-center gap-2"
                 >
-                  {editingEvent ? "Actualizar" : "Crear Evento"}
+                  <Plus className="w-4 h-4" />
+                  {editingEvent ? "Actualizar Evento" : "Crear Evento"}
                 </button>
               </div>
-            </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </>
   )
 }
