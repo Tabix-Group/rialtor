@@ -25,6 +25,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   DollarSign,
+  Calendar,
 } from "lucide-react"
 
 function Navigation() {
@@ -71,6 +72,12 @@ function Navigation() {
       href: "/finanzas",
       icon: DollarSign,
       description: "Gestión financiera personal",
+    },
+    {
+      name: "Calendario",
+      href: "/calendario",
+      icon: Calendar,
+      description: "Gestiona tu agenda y eventos",
     },
     {
       name: "Calculadoras",
