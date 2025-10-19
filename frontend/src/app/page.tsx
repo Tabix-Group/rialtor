@@ -263,7 +263,7 @@ export default function Home() {
             {/* Main heading */}
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-balance">
-                <span className="text-gradient">
+                <span className="text-foreground">
                   RIALTOR
                 </span>
               </h1>
@@ -511,15 +511,7 @@ export default function Home() {
             {/* Brand */}
             <div className="md:col-span-1 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10">
-                  <div className="absolute inset-0 bg-gradient-primary rounded-lg blur opacity-50"></div>
-                  <img
-                    src="/images/logoblanco.png"
-                    alt="Logo Rialtor"
-                    className="relative w-full h-full object-contain"
-                  />
-                </div>
-                <span className="text-2xl font-bold text-gradient">
+                <span className="text-2xl font-bold text-foreground">
                   RIALTOR
                 </span>
               </div>
@@ -600,7 +592,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-border mt-16 pt-8 text-center">
-            <p className="text-sm text-muted-foreground">© 2025 RIALTOR. Todos los derechos reservados.</p>
+            <p className="text-sm text-white bg-black px-4 py-2 rounded-lg inline-block">© 2025 RIALTOR. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
