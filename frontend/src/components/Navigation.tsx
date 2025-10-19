@@ -181,9 +181,21 @@ function Navigation() {
             if (hasDropdown) {
               return (
                 <div key={item.name} className="space-y-1">
-                  <button
+                  <Link
+                    href={item.href}
                     data-dropdown-button
-                    onClick={(e) => handleDropdownClick(e, item.name)}
+                    onClick={(e) => {
+                      // If clicking on the chevron area or with modifier keys, toggle dropdown
+                      // Otherwise, allow navigation
+                      const target = e.target as HTMLElement
+                      const isChevronClick = target.closest('svg') || target.tagName === 'svg'
+                      const hasModifier = e.ctrlKey || e.metaKey || e.shiftKey
+
+                      if (isChevronClick || hasModifier) {
+                        e.preventDefault()
+                        handleDropdownClick(e, item.name)
+                      }
+                    }}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
                       isItemActive
                         ? "bg-primary/10 text-primary border border-primary/20"
@@ -195,25 +207,21 @@ function Navigation() {
                       <>
                         <span className="flex-1 text-left">{item.name}</span>
                         <ChevronRight
-                          className={`w-4 h-4 transition-transform duration-200 ${
+                          className={`w-4 h-4 transition-transform duration-200 cursor-pointer ${
                             isDropdownOpen ? "rotate-90" : ""
                           }`}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleDropdownClick(e, item.name)
+                          }}
                         />
                       </>
                     )}
-                  </button>
+                  </Link>
 
                   {!isCollapsed && isDropdownOpen && (
                     <div className="ml-8 space-y-1 animate-in slide-in-from-left-2 duration-200" data-dropdown>
-                      {item.href && (
-                        <Link
-                          href={item.href}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-                        >
-                          <div className="w-2 h-2 bg-muted-foreground/50 rounded-full"></div>
-                          <span>Ver Todos</span>
-                        </Link>
-                      )}
                       {item.dropdown?.map((sub) => (
                         <Link
                           key={sub.name}
