@@ -67,6 +67,12 @@ function Navigation() {
       icon: Home,
     },
     {
+      name: "Mis Finanzas",
+      href: "/finanzas",
+      icon: DollarSign,
+      description: "Gestión financiera personal",
+    },
+    {
       name: "Calculadoras",
       href: "/calculadoras",
       icon: Calculator,
@@ -110,12 +116,6 @@ function Navigation() {
       href: "/descargas",
       icon: Download,
       description: "Archivos y contenido descargable",
-    },
-    {
-      name: "Mis Finanzas",
-      href: "/finanzas",
-      icon: DollarSign,
-      description: "Gestión financiera personal",
     },
   ]
 
