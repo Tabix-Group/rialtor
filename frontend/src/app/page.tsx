@@ -242,13 +242,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-background via-background to-muted/20">
+      <section className="relative overflow-hidden bg-gradient-subtle">
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
         {/* Gradient orbs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
           <div className="text-center space-y-8">
@@ -263,7 +263,7 @@ export default function Home() {
             {/* Main heading */}
             <div className="space-y-6">
               <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-balance">
-                <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                <span className="text-gradient">
                   RIALTOR
                 </span>
               </h1>
@@ -282,7 +282,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
               <button
                 onClick={handleScrollToDemo}
-                className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+                className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-primary/20"
               >
                 <Play className="w-5 h-5" />
                 Ver Demo en 2 Minutos
@@ -291,7 +291,7 @@ export default function Home() {
 
               <Link
                 href="/auth/register"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-secondary text-secondary-foreground font-semibold rounded-xl hover:bg-secondary/80 transition-all duration-300 border border-border"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground font-semibold rounded-xl hover:bg-accent/90 transition-all duration-300 border border-accent/20 shadow-md hover:shadow-lg hover:scale-105"
               >
                 <UserPlus className="w-5 h-5" />
                 Registrarte Gratis
@@ -302,7 +302,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 lg:py-32 bg-muted/30">
+      <section className="py-24 lg:py-32 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center mb-20 space-y-4">
@@ -388,7 +388,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 lg:py-32 bg-muted/30">
+      <section className="py-24 lg:py-32 bg-gradient-subtle">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance">
@@ -442,11 +442,11 @@ export default function Home() {
 
             {/* Annual Plan */}
             <div className="relative group">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-accent to-accent/80 text-accent-foreground px-4 py-1 rounded-full text-sm font-medium flex items-center gap-1 z-10 shadow-lg">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground px-4 py-1 rounded-full text-sm font-medium flex items-center gap-1 z-10 shadow-lg border border-accent/20">
                 <Crown className="w-4 h-4" />
                 Más Popular
               </div>
-              <div className="absolute -inset-1 bg-gradient-to-r from-accent to-primary rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
+              <div className="absolute -inset-1 bg-gradient-accent rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
               <div className="relative bg-card rounded-2xl p-8 border-2 border-accent hover:shadow-2xl transition-all duration-300">
                 <div className="text-center mb-8 space-y-2">
                   <h3 className="text-2xl font-bold">Plan Anual</h3>
@@ -488,7 +488,7 @@ export default function Home() {
 
                 <Link
                   href="/auth/register"
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-accent to-primary text-accent-foreground font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg"
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-accent text-accent-foreground font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg border border-accent/20"
                 >
                   Elegir plan anual
                 </Link>
@@ -512,14 +512,14 @@ export default function Home() {
             <div className="md:col-span-1 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-lg blur opacity-50"></div>
+                  <div className="absolute inset-0 bg-gradient-primary rounded-lg blur opacity-50"></div>
                   <img
                     src="/images/logoblanco.png"
                     alt="Logo Rialtor"
                     className="relative w-full h-full object-contain"
                   />
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <span className="text-2xl font-bold text-gradient">
                   RIALTOR
                 </span>
               </div>

@@ -419,21 +419,21 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative overflow-hidden border-b border-border bg-card">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-transparent"></div>
+      <div className="relative overflow-hidden border-b border-border bg-gradient-subtle">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
             {/* Content */}
             <div className="flex-1 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/50 rounded-full border border-border">
-                <Crown className="w-4 h-4 text-accent-foreground" />
-                <span className="text-sm font-semibold text-accent-foreground">Cuenta Premium Activa</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/10 border border-accent/20 rounded-full">
+                <Crown className="w-4 h-4 text-accent" />
+                <span className="text-sm font-semibold text-accent">Cuenta Premium Activa</span>
               </div>
 
               <div>
-                <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-3 tracking-tight text-balance">
-                  Bienvenido, <span className="text-primary">{user?.name?.split(" ")[0]}</span>
+                <h1 className="text-4xl lg:text-5xl font-bold mb-3 tracking-tight text-balance">
+                  Bienvenido, <span className="text-gradient">{user?.name?.split(" ")[0]}</span>
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed text-pretty">
                   Tu centro de comando profesional. Accede a todas las herramientas y recursos que necesitas para
@@ -500,18 +500,18 @@ export default function DashboardPage() {
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Premium Status */}
-          <div className="bg-gradient-to-br from-accent via-accent/90 to-accent/80 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group relative overflow-hidden border border-border">
+          <div className="bg-gradient-accent rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group relative overflow-hidden border border-accent/20">
             <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5"></div>
             <div className="relative">
               <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 bg-background/10 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
-                  <Award className="w-5 h-5 text-accent-foreground" />
+                <div className="w-11 h-11 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
+                  <Award className="w-5 h-5 text-white" />
                 </div>
-                <Crown className="w-5 h-5 text-accent-foreground/80" />
+                <Crown className="w-5 h-5 text-white/80" />
               </div>
-              <p className="text-sm font-semibold text-accent-foreground/90 mb-1">Estado Premium</p>
-              <p className="text-3xl font-bold text-accent-foreground mb-1">Activo</p>
-              <p className="text-xs text-accent-foreground/80">Acceso ilimitado a todo</p>
+              <p className="text-sm font-semibold text-white/90 mb-1">Estado Premium</p>
+              <p className="text-3xl font-bold text-white mb-1">Activo</p>
+              <p className="text-xs text-white/80">Acceso ilimitado a todo</p>
             </div>
           </div>
 
@@ -599,8 +599,8 @@ export default function DashboardPage() {
                       <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                         <feature.icon className="w-5 h-5 text-primary" />
                       </div>
-                      <div className="px-2 py-0.5 bg-accent/50 rounded-md">
-                        <span className="text-xs font-bold text-accent-foreground">{feature.badge}</span>
+                      <div className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-md">
+                        <span className="text-xs font-bold text-primary">{feature.badge}</span>
                       </div>
                     </div>
 
