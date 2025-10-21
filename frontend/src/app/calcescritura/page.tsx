@@ -83,13 +83,8 @@ export default function CalceEscrituraPage() {
       // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
       const stampRate = location === 'CABA' ? 0.035 : 0.02
       if (stampExemption && location === 'CABA') {
-        // Exemption logic for first property in CABA
-        const exemptAmount = 205332000 / numericExchangeRate // Convert ARS to USD
-        if (numericTransactionPrice > exemptAmount) {
-          stamps = (numericTransactionPrice - exemptAmount) * (stampRate / 2)
-        } else {
-          stamps = 0
-        }
+        // Full exemption for first property in CABA
+        stamps = 0
       } else {
         stamps = numericTransactionPrice * (stampRate / 2)
       }
@@ -379,17 +374,17 @@ export default function CalceEscrituraPage() {
                   )}
 
                   {/* Stamps */}
-                  {calculations.stamps > 0 && (
+                  {(calculations.stamps > 0 || (stampExemption && location === 'CABA' && activeTab === 'comprador')) && (
                     <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <div>
                         <div className="font-medium text-gray-900">Sellos</div>
                         <div className="text-sm text-gray-500">
-                          {location === 'CABA' ? '1,75%' : '1,00%'} {stampExemption && location === 'CABA' ? '(con exención)' : ''}
+                          {stampExemption && location === 'CABA' && calculations.stamps === 0 ? 'Exento' : `${location === 'CABA' ? '1,75%' : '1,00%'}`}
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold text-gray-900">{formatARS(calculations.stamps * numericExchangeRate)}</div>
-                        <div className="text-sm text-gray-500">{formatUSD(calculations.stamps)}</div>
+                        <div className="font-semibold text-gray-900">{calculations.stamps === 0 && stampExemption && location === 'CABA' ? 'Exento' : formatARS(calculations.stamps * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{calculations.stamps === 0 && stampExemption && location === 'CABA' ? '' : formatUSD(calculations.stamps)}</div>
                       </div>
                     </div>
                   )}
