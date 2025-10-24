@@ -111,7 +111,7 @@ router.get('/events', authenticateToken, async (req, res) => {
     });
 
     if (!token) {
-      return res.status(401).json({ error: 'Calendario no conectado' });
+      return res.status(401).json({ error: 'CALENDAR_NOT_CONNECTED' });
     }
 
     oauth2Client.setCredentials({
@@ -129,7 +129,17 @@ router.get('/events', authenticateToken, async (req, res) => {
       orderBy: 'startTime'
     });
 
-    res.json(response.data.items);
+    // Mapear eventos de Google al formato esperado por el frontend
+    const events = (response.data.items || []).map(event => ({
+      id: event.id,
+      title: event.summary || 'Sin título',
+      description: event.description || '',
+      start: event.start.dateTime || event.start.date,
+      end: event.end.dateTime || event.end.date,
+      source: 'google'
+    }));
+
+    res.json({ events });
   } catch (error) {
     console.error('Error obteniendo eventos:', error);
     res.status(500).json({ error: 'Error al obtener eventos' });
@@ -150,7 +160,7 @@ router.post('/events', authenticateToken, async (req, res) => {
     });
 
     if (!token) {
-      return res.status(401).json({ error: 'Calendario no conectado' });
+      return res.status(401).json({ error: 'CALENDAR_NOT_CONNECTED' });
     }
 
     oauth2Client.setCredentials({
@@ -160,7 +170,7 @@ router.post('/events', authenticateToken, async (req, res) => {
     });
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-    const event = await calendar.events.insert({
+    const response = await calendar.events.insert({
       calendarId: 'primary',
       resource: {
         summary,
@@ -170,7 +180,17 @@ router.post('/events', authenticateToken, async (req, res) => {
       }
     });
 
-    res.json(event.data);
+    // Mapear la respuesta al formato esperado por el frontend
+    const event = {
+      id: response.data.id,
+      title: response.data.summary || 'Sin título',
+      description: response.data.description || '',
+      start: response.data.start.dateTime || response.data.start.date,
+      end: response.data.end.dateTime || response.data.end.date,
+      source: 'google'
+    };
+
+    res.json({ event });
   } catch (error) {
     console.error('Error creando evento:', error);
     res.status(500).json({ error: 'Error al crear evento' });
@@ -191,7 +211,7 @@ router.delete('/events/:eventId', authenticateToken, async (req, res) => {
     });
 
     if (!token) {
-      return res.status(401).json({ error: 'Calendario no conectado' });
+      return res.status(401).json({ error: 'CALENDAR_NOT_CONNECTED' });
     }
 
     oauth2Client.setCredentials({

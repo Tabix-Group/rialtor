@@ -231,18 +231,26 @@ export default function CalendarioPage() {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return
 
     try {
+      // Mapear campos del frontend al formato del backend de Google Calendar
+      const eventData = {
+        summary: newEvent.title,
+        description: newEvent.description,
+        start: newEvent.start,
+        end: newEvent.end,
+      }
+
       let res
       if (editingEvent) {
         res = await authenticatedFetch(`/api/calendar/events/${editingEvent.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newEvent),
+          body: JSON.stringify(eventData),
         })
       } else {
         res = await authenticatedFetch("/api/calendar/events", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newEvent),
+          body: JSON.stringify(eventData),
         })
       }
 
