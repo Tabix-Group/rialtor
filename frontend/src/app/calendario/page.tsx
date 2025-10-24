@@ -199,8 +199,32 @@ export default function CalendarioPage() {
     }
   }
 
-  const handleConnectCalendar = () => {
-    window.location.href = "/api/calendar/auth"
+  const handleConnectCalendar = async () => {
+    try {
+      const response = await fetch("/api/calendar/auth", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.authUrl) {
+          window.location.href = data.authUrl
+        } else {
+          console.error("No auth URL received:", data)
+          alert("Error al obtener URL de autorización")
+        }
+      } else {
+        const error = await response.json()
+        console.error("Calendar auth error:", error)
+        alert("Error al conectar calendario: " + error.error)
+      }
+    } catch (error) {
+      console.error("Error connecting calendar:", error)
+      alert("Error al conectar calendario")
+    }
   }
 
   const handleAddEvent = async () => {
