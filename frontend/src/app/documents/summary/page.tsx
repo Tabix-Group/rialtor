@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { FileText, Upload, Sparkles, AlertCircle, CheckCircle2, FileType, Ruler, Database, Zap } from 'lucide-react';
+import { authenticatedFetch } from '@/utils/api';
 
 export default function DocumentSummaryPage() {
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -23,30 +24,28 @@ export default function DocumentSummaryPage() {
       fd.append('file', file);
       fd.append('category', 'ChatUpload');
 
-      // Get auth token from localStorage
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      const authHeaders: Record<string, string> = {};
-      if (token) {
-        authHeaders['Authorization'] = `Bearer ${token}`;
-      }
+      console.log('[UPLOAD] Starting file upload...');
 
-      // Upload via frontend proxy
-      const uploadRes = await fetch('/api/documents', { 
+      // Upload directly to backend using authenticatedFetch
+      const uploadRes = await authenticatedFetch('/api/documents', { 
         method: 'POST', 
-        headers: authHeaders,
         body: fd 
       });
-      if (!uploadRes.ok) throw new Error('Error al subir el archivo');
+      if (!uploadRes.ok) {
+        const errorData = await uploadRes.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Error al subir el archivo');
+      }
       const uploadData = await uploadRes.json();
       const docId = uploadData?.document?.id;
       if (!docId) throw new Error('No se recibió id del documento');
 
-      // Request summary
-      const sumRes = await fetch('/api/documents/summary', {
+      console.log('[UPLOAD] File uploaded successfully, requesting summary...');
+
+      // Request summary directly from backend using authenticatedFetch
+      const sumRes = await authenticatedFetch('/api/documents/summary', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ id: docId })
       });

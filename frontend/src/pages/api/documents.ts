@@ -23,17 +23,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (
       value &&
       key.toLowerCase() !== 'host' &&
-      key.toLowerCase() !== 'content-length'
+      key.toLowerCase() !== 'content-length' &&
+      key.toLowerCase() !== 'authorization' // Handle authorization separately
     ) {
       headersProxy[key] = Array.isArray(value) ? value.join(',') : value;
     }
   });
 
-  // Ensure authorization header is included
+  // Ensure authorization header is properly formatted
   if (headers.authorization) {
-    headersProxy['Authorization'] = Array.isArray(headers.authorization) 
+    const authValue = Array.isArray(headers.authorization) 
       ? headers.authorization[0] 
       : headers.authorization;
+    headersProxy['authorization'] = authValue;
+    console.log('[PROXY] Authorization header forwarded:', authValue.substring(0, 20) + '...');
+  } else {
+    console.log('[PROXY] No authorization header in request');
   }
 
 

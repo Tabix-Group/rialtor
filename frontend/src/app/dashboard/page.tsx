@@ -34,6 +34,7 @@ import {
   ChevronLeft,
   Edit,
   X,
+  Video,
 } from "lucide-react"
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
@@ -74,13 +75,15 @@ interface CalendarEvent {
   end: Date
   description?: string
   source?: "google" | "local"
+  meetLink?: string | null
 }
 
 const CustomEvent = ({ event }: { event: CalendarEvent }) => {
   return (
     <div className="relative group cursor-pointer">
-      <div className="bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-medium truncate hover:shadow-lg transition-all duration-200">
-        {event.title}
+      <div className="bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-medium truncate hover:shadow-lg transition-all duration-200 flex items-center gap-1">
+        {event.meetLink && <Video className="w-3 h-3 flex-shrink-0" />}
+        <span className="truncate">{event.title}</span>
       </div>
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none border border-border shadow-xl">
         <div className="font-semibold">{event.title}</div>
@@ -88,6 +91,12 @@ const CustomEvent = ({ event }: { event: CalendarEvent }) => {
         <div className="text-muted-foreground mt-1">
           {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
         </div>
+        {event.meetLink && (
+          <div className="flex items-center gap-1 mt-1 text-primary">
+            <Video className="w-3 h-3" />
+            <span>Google Meet disponible</span>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -151,20 +160,23 @@ export default function DashboardPage() {
     try {
       const res = await authenticatedFetch("/api/calendar/events")
       if (res.ok) {
-        const events = await res.json()
+        const data = await res.json()
+        // Validar que data.events existe y es un array
+        const eventsArray = Array.isArray(data.events) ? data.events : (Array.isArray(data) ? data : [])
         setCalendarEvents(
-          events.map((e: any) => ({
-            id: e.id,
-            title: e.summary,
-            start: new Date(e.start.dateTime || e.start.date),
-            end: new Date(e.end.dateTime || e.end.date),
-            description: e.description,
+          eventsArray.map((event: any) => ({
+            id: event.id,
+            title: event.title,
+            start: new Date(event.start),
+            end: new Date(event.end),
+            description: event.description,
+            meetLink: event.meetLink || null,
           })),
         )
         setCalendarConnected(true)
       } else {
         const errorData = await res.json().catch(() => ({}))
-        if (errorData.error === "Calendario no conectado") {
+        if (errorData.error === "CALENDAR_NOT_CONNECTED" || errorData.error === "Calendario no conectado") {
           setCalendarEvents([])
           setCalendarConnected(false)
         } else {
@@ -200,28 +212,31 @@ export default function DashboardPage() {
       if (editingEvent && editingEvent.id) {
         res = await authenticatedFetch(`/api/calendar/events/${editingEvent.id}`, {
           method: "PUT",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(eventData),
         })
       } else {
         res = await authenticatedFetch("/api/calendar/events", {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(eventData),
         })
       }
 
       if (res.ok) {
-        const savedEvent = await res.json()
+        const data = await res.json()
 
         if (editingEvent) {
           setCalendarEvents(
             calendarEvents.map((e) =>
               e.id === editingEvent.id
                 ? {
-                    id: savedEvent.id,
+                    id: data.event?.id || editingEvent.id,
                     title: newEvent.title,
                     start: new Date(newEvent.start),
                     end: new Date(newEvent.end),
                     description: newEvent.description,
+                    meetLink: data.event?.meetLink || null,
                   }
                 : e,
             ),
@@ -230,11 +245,12 @@ export default function DashboardPage() {
           setCalendarEvents([
             ...calendarEvents,
             {
-              id: savedEvent.id,
+              id: data.event?.id || `temp-${Date.now()}`,
               title: newEvent.title,
               start: new Date(newEvent.start),
               end: new Date(newEvent.end),
               description: newEvent.description,
+              meetLink: data.event?.meetLink || null,
             },
           ])
         }
@@ -722,6 +738,18 @@ export default function DashboardPage() {
                     transform: "translate(-50%, -100%)",
                   }}
                 >
+                  {contextMenu.event.meetLink && (
+                    <button
+                      onClick={() => {
+                        window.open(contextMenu.event.meetLink!, '_blank')
+                        setContextMenu(null)
+                      }}
+                      className="w-full px-4 py-2.5 text-left hover:bg-primary/10 transition-colors flex items-center gap-3 text-primary font-medium text-sm"
+                    >
+                      <Video className="w-4 h-4" />
+                      Abrir Google Meet
+                    </button>
+                  )}
                   <button
                     onClick={handleEditEvent}
                     className="w-full px-4 py-2.5 text-left hover:bg-muted transition-colors flex items-center gap-3 text-foreground font-medium text-sm"
