@@ -107,6 +107,7 @@ import {
   TrendingUp,
   ArrowUpRight,
   Clock,
+  Video,
 } from "lucide-react"
 
 const localizer = dateFnsLocalizer({
@@ -129,20 +130,28 @@ interface CalendarEvent {
   end: Date
   description?: string
   source?: "google" | "local"
+  meetLink?: string | null
 }
 
 const CustomEvent = ({ event }: { event: CalendarEvent }) => {
   return (
     <div className="relative group cursor-pointer">
-      <div className="bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-medium truncate hover:shadow-lg transition-all duration-200">
-        {event.title}
+      <div className="bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-medium truncate hover:shadow-lg transition-all duration-200 flex items-center gap-1">
+        {event.meetLink && <Video className="w-3 h-3 flex-shrink-0" />}
+        <span className="truncate">{event.title}</span>
       </div>
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none border border-border shadow-xl">
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none border border-border shadow-xl min-w-max">
         <div className="font-semibold">{event.title}</div>
         {event.description && <div className="text-muted-foreground mt-1">{event.description}</div>}
         <div className="text-muted-foreground mt-1">
           {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
         </div>
+        {event.meetLink && (
+          <div className="flex items-center gap-1 mt-1 text-primary">
+            <Video className="w-3 h-3" />
+            <span>Google Meet disponible</span>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -161,6 +170,7 @@ export default function CalendarioPage() {
     description: "",
     start: "",
     end: "",
+    addMeet: false,
   })
 
   useEffect(() => {
@@ -179,6 +189,7 @@ export default function CalendarioPage() {
             ...event,
             start: new Date(event.start),
             end: new Date(event.end),
+            meetLink: event.meetLink || null,
           }))
         )
         setCalendarConnected(true)
@@ -237,6 +248,7 @@ export default function CalendarioPage() {
         description: newEvent.description,
         start: newEvent.start,
         end: newEvent.end,
+        addMeet: newEvent.addMeet,
       }
 
       let res
@@ -280,13 +292,14 @@ export default function CalendarioPage() {
               start: new Date(newEvent.start),
               end: new Date(newEvent.end),
               source: "local",
+              meetLink: data.event.meetLink || null,
             },
           ])
         }
 
         setShowModal(false)
         setEditingEvent(null)
-        setNewEvent({ title: "", description: "", start: "", end: "" })
+        setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false })
       }
     } catch (error) {
       console.error("Error saving event:", error)
@@ -311,6 +324,7 @@ export default function CalendarioPage() {
         description: contextMenu.event.description || "",
         start: format(contextMenu.event.start, "yyyy-MM-dd'T'HH:mm"),
         end: format(contextMenu.event.end, "yyyy-MM-dd'T'HH:mm"),
+        addMeet: false,
       })
       setShowModal(true)
       setContextMenu(null)
@@ -346,35 +360,37 @@ export default function CalendarioPage() {
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-primary" />
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">Mi Calendario</h1>
-                <p className="text-muted-foreground mt-1">
+              <div className="min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">Mi Calendario</h1>
+                <p className="text-sm sm:text-base text-muted-foreground mt-0.5 sm:mt-1 hidden sm:block">
                   Gestiona tu agenda sincronizada con Google Calendar
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {!calendarConnected && (
                 <button
                   onClick={handleConnectCalendar}
-                  className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-xl hover:bg-accent/90 transition-all duration-200 font-semibold text-sm"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 bg-accent text-accent-foreground px-3 sm:px-4 py-2 rounded-xl hover:bg-accent/90 transition-all duration-200 font-semibold text-xs sm:text-sm whitespace-nowrap"
                 >
-                  <Plus className="w-4 h-4" />
-                  Conectar Google
+                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Conectar Google</span>
+                  <span className="sm:hidden">Google</span>
                 </button>
               )}
               <button
                 onClick={() => setShowModal(true)}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition-all duration-200 font-semibold text-sm"
+                className="inline-flex items-center gap-1.5 sm:gap-2 bg-primary text-primary-foreground px-3 sm:px-4 py-2 rounded-xl hover:bg-primary/90 transition-all duration-200 font-semibold text-xs sm:text-sm whitespace-nowrap"
               >
-                <Plus className="w-4 h-4" />
-                Nuevo Evento
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Nuevo Evento</span>
+                <span className="sm:hidden">Nuevo</span>
               </button>
             </div>
           </div>
@@ -444,16 +460,16 @@ export default function CalendarioPage() {
         </div>
 
         {/* Calendar */}
-        <div className="bg-card rounded-2xl border border-border p-6 shadow-lg">
+        <div className="bg-card rounded-2xl border border-border p-3 sm:p-4 lg:p-6 shadow-lg">
           {calendarLoading ? (
-            <div className="flex items-center justify-center py-20">
+            <div className="flex items-center justify-center py-12 sm:py-16 lg:py-20">
               <div className="text-center">
-                <div className="w-12 h-12 border-4 border-border border-t-primary rounded-full animate-spin mx-auto"></div>
-                <p className="mt-4 text-muted-foreground font-semibold text-sm">Cargando calendario...</p>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-border border-t-primary rounded-full animate-spin mx-auto"></div>
+                <p className="mt-3 sm:mt-4 text-muted-foreground font-semibold text-xs sm:text-sm">Cargando calendario...</p>
               </div>
             </div>
           ) : (
-            <div className="h-[700px]">
+            <div className="h-[500px] sm:h-[600px] lg:h-[700px]">
               <BigCalendar
                 localizer={localizer}
                 events={calendarEvents}
@@ -514,32 +530,46 @@ export default function CalendarioPage() {
 
         {/* Upcoming Events */}
         {getUpcomingEvents().length > 0 && (
-          <div className="mt-8 bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-primary" />
+          <div className="mt-6 sm:mt-8 bg-card rounded-2xl border border-border p-4 sm:p-5 lg:p-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5 lg:mb-6">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">Próximos Eventos</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-foreground">Próximos Eventos</h3>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {getUpcomingEvents().map((event, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-primary" />
+                <div key={index} className="flex items-start sm:items-center justify-between p-3 sm:p-4 bg-muted/50 rounded-xl border border-border hover:bg-muted/70 transition-all gap-2">
+                  <div className="flex items-start sm:items-center gap-2 sm:gap-3 lg:gap-4 flex-1 min-w-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground">{event.title}</h4>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <h4 className="font-semibold text-sm sm:text-base text-foreground truncate">{event.title}</h4>
+                        {event.meetLink && (
+                          <Video className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
+                        )}
+                      </div>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                         {format(event.start, "EEEE, d 'de' MMMM 'a las' HH:mm", { locale: es })}
                       </p>
                       {event.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{event.description}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate hidden sm:block">{event.description}</p>
+                      )}
+                      {event.meetLink && (
+                        <button
+                          onClick={() => window.open(event.meetLink!, '_blank')}
+                          className="text-xs text-primary hover:underline mt-1 sm:mt-1.5 flex items-center gap-1"
+                        >
+                          <Video className="w-3 h-3" />
+                          Unirse a Meet
+                        </button>
                       )}
                     </div>
                   </div>
-                  <ArrowUpRight className="w-5 h-5 text-muted-foreground" />
+                  <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground flex-shrink-0" />
                 </div>
               ))}
             </div>
@@ -558,6 +588,18 @@ export default function CalendarioPage() {
                 transform: "translate(-50%, -100%)",
               }}
             >
+              {contextMenu.event.meetLink && (
+                <button
+                  onClick={() => {
+                    window.open(contextMenu.event.meetLink!, '_blank')
+                    setContextMenu(null)
+                  }}
+                  className="w-full px-4 py-2.5 text-left hover:bg-primary/10 transition-colors flex items-center gap-3 text-primary font-medium text-sm"
+                >
+                  <Video className="w-4 h-4" />
+                  Abrir Google Meet
+                </button>
+              )}
               <button
                 onClick={handleEditEvent}
                 className="w-full px-4 py-2.5 text-left hover:bg-muted transition-colors flex items-center gap-3 text-foreground font-medium text-sm"
@@ -578,18 +620,18 @@ export default function CalendarioPage() {
 
         {/* Event Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl border border-border max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                    <Plus className="w-5 h-5 text-primary" />
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 max-w-lg w-full mx-2 sm:mx-4 shadow-2xl border border-border max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+              <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-6 lg:mb-8 gap-3">
+                <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-foreground">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
                       {editingEvent ? "Editar Evento" : "Nuevo Evento"}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 hidden sm:block">
                       {editingEvent ? "Modifica los detalles del evento" : "Crea un nuevo evento en tu calendario"}
                     </p>
                   </div>
@@ -598,85 +640,106 @@ export default function CalendarioPage() {
                   onClick={() => {
                     setShowModal(false)
                     setEditingEvent(null)
-                    setNewEvent({ title: "", description: "", start: "", end: "" })
+                    setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false })
                   }}
-                  className="w-10 h-10 bg-muted rounded-xl flex items-center justify-center hover:bg-muted/80 transition-colors"
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-muted rounded-xl flex items-center justify-center hover:bg-muted/80 transition-colors flex-shrink-0"
                 >
-                  <X className="w-5 h-5 text-foreground" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />
                 </button>
               </div>
 
-              <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }} className="space-y-6">
-                <div className="space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }} className="space-y-4 sm:space-y-5 lg:space-y-6">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-                      <Calendar className="w-4 h-4" />
+                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
+                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       Título del Evento
                     </label>
                     <input
                       type="text"
                       value={newEvent.title}
                       onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                      className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground placeholder:text-muted-foreground"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base text-foreground placeholder:text-muted-foreground"
                       placeholder="Ej: Reunión con cliente, Cita médica..."
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-                      <Edit className="w-4 h-4" />
+                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
+                      <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       Descripción (Opcional)
                     </label>
                     <textarea
                       value={newEvent.description}
                       onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                      className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none text-foreground placeholder:text-muted-foreground"
-                      rows={4}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none text-sm sm:text-base text-foreground placeholder:text-muted-foreground"
+                      rows={3}
                       placeholder="Agrega detalles adicionales sobre el evento..."
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-                        <Clock className="w-4 h-4" />
+                      <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
+                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         Fecha y Hora de Inicio
                       </label>
                       <input
                         type="datetime-local"
                         value={newEvent.start}
                         onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                        className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base text-foreground"
                         required
                       />
                     </div>
                     <div>
-                      <label className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-                        <Clock className="w-4 h-4" />
+                      <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
+                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         Fecha y Hora de Fin
                       </label>
                       <input
                         type="datetime-local"
                         value={newEvent.end}
                         onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                        className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-foreground"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base text-foreground"
                         required
                       />
                     </div>
                   </div>
 
+                  {/* Google Meet Option */}
+                  <div className="bg-muted/30 rounded-xl p-3 sm:p-4 border border-border">
+                    <label className="flex items-start sm:items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newEvent.addMeet}
+                        onChange={(e) => setNewEvent({ ...newEvent, addMeet: e.target.checked })}
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 flex-shrink-0 mt-0.5 sm:mt-0"
+                      />
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <Video className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span className="text-xs sm:text-sm font-semibold text-foreground">
+                          Agregar enlace de Google Meet
+                        </span>
+                      </div>
+                    </label>
+                    <p className="text-xs text-muted-foreground ml-7 sm:ml-8 mt-1">
+                      Se generará automáticamente un enlace para videollamada
+                    </p>
+                  </div>
+
                   {/* Preview */}
                   {newEvent.title && newEvent.start && (
-                    <div className="bg-muted/50 rounded-xl p-4 border border-border">
-                      <h4 className="text-sm font-semibold text-foreground mb-2">Vista Previa</h4>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <Calendar className="w-4 h-4 text-primary" />
+                    <div className="bg-muted/50 rounded-xl p-3 sm:p-4 border border-border">
+                      <h4 className="text-xs sm:text-sm font-semibold text-foreground mb-2">Vista Previa</h4>
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{newEvent.title}</p>
-                          <p className="text-sm text-muted-foreground">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm sm:text-base text-foreground truncate">{newEvent.title}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
                             {newEvent.start && format(new Date(newEvent.start), "EEEE, d 'de' MMMM 'a las' HH:mm", { locale: es })}
                             {newEvent.end && ` - ${format(new Date(newEvent.end), "HH:mm", { locale: es })}`}
                           </p>
@@ -686,25 +749,26 @@ export default function CalendarioPage() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 pt-4 border-t border-border">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
                   <button
                     type="button"
                     onClick={() => {
                       setShowModal(false)
                       setEditingEvent(null)
-                      setNewEvent({ title: "", description: "", start: "", end: "" })
+                      setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false })
                     }}
-                    className="flex-1 px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold text-sm"
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold text-xs sm:text-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={!newEvent.title || !newEvent.start || !newEvent.end}
-                    className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold text-sm flex items-center justify-center gap-2"
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2"
                   >
-                    <Plus className="w-4 h-4" />
-                    {editingEvent ? "Actualizar Evento" : "Crear Evento"}
+                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">{editingEvent ? "Actualizar Evento" : "Crear Evento"}</span>
+                    <span className="sm:hidden">{editingEvent ? "Actualizar" : "Crear"}</span>
                   </button>
                 </div>
               </form>

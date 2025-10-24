@@ -136,7 +136,8 @@ router.get('/events', authenticateToken, async (req, res) => {
       description: event.description || '',
       start: event.start.dateTime || event.start.date,
       end: event.end.dateTime || event.end.date,
-      source: 'google'
+      source: 'google',
+      meetLink: event.hangoutLink || null
     }));
 
     res.json({ events });
@@ -155,6 +156,11 @@ router.post('/events', authenticateToken, async (req, res) => {
       return res.status(500).json({ error: 'Database not available' });
     }
 
+    // Validar campos requeridos
+    if (!summary || !start || !end) {
+      return res.status(400).json({ error: 'Faltan campos requeridos: summary, start, end' });
+    }
+
     const token = await prisma.calendarToken.findUnique({
       where: { userId: req.user.id }
     });
@@ -169,15 +175,32 @@ router.post('/events', authenticateToken, async (req, res) => {
       expiry_date: token.expiryDate ? token.expiryDate.getTime() : null
     });
 
+    // Formatear fechas con timezone
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
     const response = await calendar.events.insert({
       calendarId: 'primary',
       resource: {
         summary,
         description,
-        start: { dateTime: start },
-        end: { dateTime: end }
-      }
+        start: { 
+          dateTime: startDate.toISOString(),
+          timeZone: 'America/Argentina/Buenos_Aires'
+        },
+        end: { 
+          dateTime: endDate.toISOString(),
+          timeZone: 'America/Argentina/Buenos_Aires'
+        },
+        conferenceData: req.body.addMeet ? {
+          createRequest: {
+            requestId: `${Date.now()}-${Math.random()}`,
+            conferenceSolutionKey: { type: 'hangoutsMeet' }
+          }
+        } : undefined
+      },
+      conferenceDataVersion: req.body.addMeet ? 1 : 0
     });
 
     // Mapear la respuesta al formato esperado por el frontend
@@ -187,13 +210,18 @@ router.post('/events', authenticateToken, async (req, res) => {
       description: response.data.description || '',
       start: response.data.start.dateTime || response.data.start.date,
       end: response.data.end.dateTime || response.data.end.date,
-      source: 'google'
+      source: 'google',
+      meetLink: response.data.hangoutLink || null
     };
 
     res.json({ event });
   } catch (error) {
     console.error('Error creando evento:', error);
-    res.status(500).json({ error: 'Error al crear evento' });
+    console.error('Error details:', error.message);
+    res.status(500).json({ 
+      error: 'Error al crear evento',
+      details: error.message 
+    });
   }
 });
 
