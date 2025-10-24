@@ -120,11 +120,19 @@ router.get('/events', authenticateToken, async (req, res) => {
       expiry_date: token.expiryDate ? token.expiryDate.getTime() : null
     });
 
+    // Obtener eventos de los últimos 3 meses hasta 6 meses en el futuro
+    const now = new Date();
+    const threeMonthsAgo = new Date(now);
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    const sixMonthsAhead = new Date(now);
+    sixMonthsAhead.setMonth(now.getMonth() + 6);
+
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
     const response = await calendar.events.list({
       calendarId: 'primary',
-      timeMin: new Date().toISOString(),
-      maxResults: 50,
+      timeMin: threeMonthsAgo.toISOString(),
+      timeMax: sixMonthsAhead.toISOString(),
+      maxResults: 250,
       singleEvents: true,
       orderBy: 'startTime'
     });

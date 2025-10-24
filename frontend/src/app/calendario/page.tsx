@@ -18,25 +18,25 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-header {
-    padding: 8px 4px;
+    padding: 10px 6px;
     font-weight: 600;
     color: hsl(var(--foreground));
     background-color: hsl(var(--muted));
     border-bottom: 1px solid hsl(var(--border));
-    font-size: 11px;
+    font-size: 13px;
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-header {
-      padding: 10px 6px;
-      font-size: 13px;
+      padding: 12px 8px;
+      font-size: 14px;
     }
   }
 
   @media (min-width: 1024px) {
     .custom-calendar .rbc-header {
-      padding: 12px 8px;
-      font-size: 14px;
+      padding: 14px 10px;
+      font-size: 15px;
     }
   }
 
@@ -45,19 +45,19 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-month-row {
-    min-height: 40px;
+    min-height: 60px;
     overflow: hidden;
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-month-row {
-      min-height: 60px;
+      min-height: 70px;
     }
   }
 
   @media (min-width: 1024px) {
     .custom-calendar .rbc-month-row {
-      min-height: 80px;
+      min-height: 90px;
     }
   }
 
@@ -66,15 +66,15 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-date-cell {
-    padding: 2px 4px;
-    font-size: 10px;
+    padding: 4px 6px;
+    font-size: 12px;
     text-align: right;
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-date-cell {
-      padding: 4px 6px;
-      font-size: 12px;
+      padding: 5px 7px;
+      font-size: 13px;
     }
   }
 
@@ -86,23 +86,23 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-event {
-    padding: 1px 3px;
-    font-size: 10px;
+    padding: 2px 4px;
+    font-size: 11px;
     margin: 1px 0;
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-event {
-      padding: 2px 4px;
-      font-size: 11px;
+      padding: 3px 5px;
+      font-size: 12px;
       margin: 2px 0;
     }
   }
 
   @media (min-width: 1024px) {
     .custom-calendar .rbc-event {
-      padding: 2px 5px;
-      font-size: 12px;
+      padding: 3px 6px;
+      font-size: 13px;
     }
   }
 
@@ -113,14 +113,14 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-show-more {
-    font-size: 9px;
-    padding: 1px 3px;
+    font-size: 10px;
+    padding: 2px 4px;
     margin: 1px 2px;
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-show-more {
-      font-size: 10px;
+      font-size: 11px;
       padding: 2px 5px;
     }
   }
@@ -131,19 +131,19 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-time-view .rbc-time-gutter {
-    font-size: 10px;
+    font-size: 11px;
     color: hsl(var(--muted-foreground));
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-time-view .rbc-time-gutter {
-      font-size: 11px;
+      font-size: 12px;
     }
   }
 
   @media (min-width: 1024px) {
     .custom-calendar .rbc-time-view .rbc-time-gutter {
-      font-size: 12px;
+      font-size: 13px;
     }
   }
 
@@ -161,9 +161,9 @@ const calendarStyles = `
 
   .custom-calendar .rbc-toolbar {
     flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: 12px;
-    padding: 8px;
+    gap: 6px;
+    margin-bottom: 14px;
+    padding: 10px;
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 12px;
@@ -171,15 +171,15 @@ const calendarStyles = `
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-toolbar {
-      gap: 6px;
-      margin-bottom: 16px;
-      padding: 12px;
+      gap: 8px;
+      margin-bottom: 18px;
+      padding: 14px;
     }
   }
 
   @media (min-width: 1024px) {
     .custom-calendar .rbc-toolbar {
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 24px;
       padding: 16px;
     }
@@ -189,23 +189,23 @@ const calendarStyles = `
     color: hsl(var(--foreground));
     border: 1px solid hsl(var(--border));
     background-color: hsl(var(--background));
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.2s;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-toolbar button {
-      padding: 7px 12px;
-      font-size: 12px;
+      padding: 9px 14px;
+      font-size: 13px;
     }
   }
 
   @media (min-width: 1024px) {
     .custom-calendar .rbc-toolbar button {
-      padding: 8px 16px;
+      padding: 10px 16px;
       font-size: 14px;
     }
   }
@@ -222,22 +222,22 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-toolbar-label {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: hsl(var(--foreground));
-    margin: 0 8px;
+    margin: 0 10px;
   }
 
   @media (min-width: 640px) {
     .custom-calendar .rbc-toolbar-label {
-      font-size: 16px;
-      margin: 0 12px;
+      font-size: 17px;
+      margin: 0 14px;
     }
   }
 
   @media (min-width: 1024px) {
     .custom-calendar .rbc-toolbar-label {
-      font-size: 18px;
+      font-size: 19px;
       margin: 0 16px;
     }
   }
@@ -337,8 +337,10 @@ export default function CalendarioPage() {
 
       if (res.ok) {
         const data = await res.json()
+        // Validar que data.events existe y es un array
+        const eventsArray = Array.isArray(data.events) ? data.events : (Array.isArray(data) ? data : [])
         setCalendarEvents(
-          data.events.map((event: any) => ({
+          eventsArray.map((event: any) => ({
             ...event,
             start: new Date(event.start),
             end: new Date(event.end),
@@ -622,7 +624,7 @@ export default function CalendarioPage() {
               </div>
             </div>
           ) : (
-            <div className="h-[500px] sm:h-[600px] lg:h-[700px]">
+            <div className="h-[600px] sm:h-[650px] lg:h-[750px]">
               <BigCalendar
                 localizer={localizer}
                 events={calendarEvents}
@@ -789,17 +791,17 @@ export default function CalendarioPage() {
         {/* Event Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-start sm:items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
-            <div className="bg-card rounded-t-2xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 max-w-lg w-full sm:mx-4 shadow-2xl border-t sm:border border-border my-auto sm:my-4 max-h-screen sm:max-h-[90vh] overflow-y-auto">
-              <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-6 lg:mb-8 gap-3 sticky top-0 bg-card z-10 pb-3 sm:pb-0 sm:static">
-                <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+            <div className="bg-card rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 max-w-lg w-full sm:mx-4 shadow-2xl border-t sm:border border-border my-auto sm:my-4 max-h-screen sm:max-h-[90vh] overflow-y-auto">
+              <div className="flex items-start sm:items-center justify-between mb-5 sm:mb-6 lg:mb-8 gap-3 sticky top-0 bg-card z-10 pb-4 sm:pb-0 sm:static">
+                <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
+                    <h3 className="text-xl sm:text-2xl lg:text-2xl font-bold text-foreground">
                       {editingEvent ? "Editar Evento" : "Nuevo Evento"}
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 hidden sm:block">
+                    <p className="text-sm sm:text-sm text-muted-foreground mt-1 sm:mt-1 hidden sm:block">
                       {editingEvent ? "Modifica los detalles del evento" : "Crea un nuevo evento en tu calendario"}
                     </p>
                   </div>
@@ -810,104 +812,104 @@ export default function CalendarioPage() {
                     setEditingEvent(null)
                     setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false })
                   }}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-muted rounded-xl flex items-center justify-center hover:bg-muted/80 transition-colors flex-shrink-0"
+                  className="w-10 h-10 sm:w-10 sm:h-10 bg-muted rounded-xl flex items-center justify-center hover:bg-muted/80 transition-colors flex-shrink-0"
                 >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-foreground" />
+                  <X className="w-5 h-5 sm:w-5 sm:h-5 text-foreground" />
                 </button>
               </div>
 
-              <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }} className="space-y-4 sm:space-y-5 lg:space-y-6">
-                <div className="space-y-3 sm:space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }} className="space-y-5 sm:space-y-5 lg:space-y-6">
+                <div className="space-y-4 sm:space-y-4">
                   <div>
-                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
-                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
+                      <Calendar className="w-4 h-4 sm:w-4 sm:h-4" />
                       Título del Evento
                     </label>
                     <input
                       type="text"
                       value={newEvent.title}
                       onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base text-foreground placeholder:text-muted-foreground"
+                      className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base sm:text-base text-foreground placeholder:text-muted-foreground"
                       placeholder="Ej: Reunión con cliente, Cita médica..."
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
-                      <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
+                      <Edit className="w-4 h-4 sm:w-4 sm:h-4" />
                       Descripción (Opcional)
                     </label>
                     <textarea
                       value={newEvent.description}
                       onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none text-sm sm:text-base text-foreground placeholder:text-muted-foreground"
+                      className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none text-base sm:text-base text-foreground placeholder:text-muted-foreground"
                       rows={3}
                       placeholder="Agrega detalles adicionales sobre el evento..."
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4">
                     <div>
-                      <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
-                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
+                        <Clock className="w-4 h-4 sm:w-4 sm:h-4" />
                         Fecha y Hora de Inicio
                       </label>
                       <input
                         type="datetime-local"
                         value={newEvent.start}
                         onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base text-foreground"
+                        className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base sm:text-base text-foreground"
                         required
                       />
                     </div>
                     <div>
-                      <label className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-foreground mb-2 sm:mb-3">
-                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
+                        <Clock className="w-4 h-4 sm:w-4 sm:h-4" />
                         Fecha y Hora de Fin
                       </label>
                       <input
                         type="datetime-local"
                         value={newEvent.end}
                         onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm sm:text-base text-foreground"
+                        className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base sm:text-base text-foreground"
                         required
                       />
                     </div>
                   </div>
 
                   {/* Google Meet Option */}
-                  <div className="bg-muted/30 rounded-xl p-3 sm:p-4 border border-border">
+                  <div className="bg-muted/30 rounded-xl p-4 sm:p-4 border border-border">
                     <label className="flex items-start sm:items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={newEvent.addMeet}
                         onChange={(e) => setNewEvent({ ...newEvent, addMeet: e.target.checked })}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 flex-shrink-0 mt-0.5 sm:mt-0"
+                        className="w-5 h-5 sm:w-5 sm:h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 flex-shrink-0 mt-0.5 sm:mt-0"
                       />
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <Video className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span className="text-xs sm:text-sm font-semibold text-foreground">
+                        <span className="text-sm sm:text-sm font-semibold text-foreground">
                           Agregar enlace de Google Meet
                         </span>
                       </div>
                     </label>
-                    <p className="text-xs text-muted-foreground ml-7 sm:ml-8 mt-1">
+                    <p className="text-xs text-muted-foreground ml-8 sm:ml-8 mt-1">
                       Se generará automáticamente un enlace para videollamada
                     </p>
                   </div>
 
                   {/* Preview */}
                   {newEvent.title && newEvent.start && (
-                    <div className="bg-muted/50 rounded-xl p-3 sm:p-4 border border-border">
-                      <h4 className="text-xs sm:text-sm font-semibold text-foreground mb-2">Vista Previa</h4>
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+                    <div className="bg-muted/50 rounded-xl p-4 sm:p-4 border border-border">
+                      <h4 className="text-sm sm:text-sm font-semibold text-foreground mb-2">Vista Previa</h4>
+                      <div className="flex items-center gap-3 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-8 sm:h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Calendar className="w-4 h-4 sm:w-4 sm:h-4 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm sm:text-base text-foreground truncate">{newEvent.title}</p>
-                          <p className="text-xs sm:text-sm text-muted-foreground">
+                          <p className="font-medium text-base sm:text-base text-foreground truncate">{newEvent.title}</p>
+                          <p className="text-sm sm:text-sm text-muted-foreground">
                             {newEvent.start && format(new Date(newEvent.start), "EEEE, d 'de' MMMM 'a las' HH:mm", { locale: es })}
                             {newEvent.end && ` - ${format(new Date(newEvent.end), "HH:mm", { locale: es })}`}
                           </p>
@@ -917,7 +919,7 @@ export default function CalendarioPage() {
                   )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3 pt-4 sm:pt-4 border-t border-border">
                   <button
                     type="button"
                     onClick={() => {
@@ -925,18 +927,17 @@ export default function CalendarioPage() {
                       setEditingEvent(null)
                       setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false })
                     }}
-                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold text-xs sm:text-sm"
+                    className="flex-1 px-5 sm:px-6 py-3 sm:py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold text-sm sm:text-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={!newEvent.title || !newEvent.start || !newEvent.end}
-                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2"
+                    className="flex-1 px-5 sm:px-6 py-3 sm:py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold text-sm sm:text-sm flex items-center justify-center gap-2 sm:gap-2"
                   >
-                    <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">{editingEvent ? "Actualizar Evento" : "Crear Evento"}</span>
-                    <span className="sm:hidden">{editingEvent ? "Actualizar" : "Crear"}</span>
+                    <Plus className="w-4 h-4 sm:w-4 sm:h-4" />
+                    <span>{editingEvent ? "Actualizar Evento" : "Crear Evento"}</span>
                   </button>
                 </div>
               </form>
