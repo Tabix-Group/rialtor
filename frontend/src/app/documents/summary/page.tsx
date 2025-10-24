@@ -23,8 +23,19 @@ export default function DocumentSummaryPage() {
       fd.append('file', file);
       fd.append('category', 'ChatUpload');
 
+      // Get auth token from localStorage
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const authHeaders: Record<string, string> = {};
+      if (token) {
+        authHeaders['Authorization'] = `Bearer ${token}`;
+      }
+
       // Upload via frontend proxy
-      const uploadRes = await fetch('/api/documents', { method: 'POST', body: fd });
+      const uploadRes = await fetch('/api/documents', { 
+        method: 'POST', 
+        headers: authHeaders,
+        body: fd 
+      });
       if (!uploadRes.ok) throw new Error('Error al subir el archivo');
       const uploadData = await uploadRes.json();
       const docId = uploadData?.document?.id;
@@ -33,7 +44,10 @@ export default function DocumentSummaryPage() {
       // Request summary
       const sumRes = await fetch('/api/documents/summary', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ id: docId })
       });
       if (!sumRes.ok) {

@@ -29,6 +29,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   });
 
+  // Ensure authorization header is included
+  if (headers.authorization) {
+    headersProxy['Authorization'] = Array.isArray(headers.authorization) 
+      ? headers.authorization[0] 
+      : headers.authorization;
+  }
+
 
   if (method === 'POST' || method === 'PUT') {
     // Read the incoming request into a buffer
