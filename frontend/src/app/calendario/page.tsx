@@ -18,15 +18,111 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-header {
-    padding: 12px 8px;
+    padding: 8px 4px;
     font-weight: 600;
     color: hsl(var(--foreground));
     background-color: hsl(var(--muted));
     border-bottom: 1px solid hsl(var(--border));
+    font-size: 11px;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-header {
+      padding: 10px 6px;
+      font-size: 13px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-header {
+      padding: 12px 8px;
+      font-size: 14px;
+    }
   }
 
   .custom-calendar .rbc-month-view {
     border-radius: 12px;
+  }
+
+  .custom-calendar .rbc-month-row {
+    min-height: 40px;
+    overflow: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-month-row {
+      min-height: 60px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-month-row {
+      min-height: 80px;
+    }
+  }
+
+  .custom-calendar .rbc-day-bg {
+    padding: 0;
+  }
+
+  .custom-calendar .rbc-date-cell {
+    padding: 2px 4px;
+    font-size: 10px;
+    text-align: right;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-date-cell {
+      padding: 4px 6px;
+      font-size: 12px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-date-cell {
+      padding: 6px 8px;
+      font-size: 14px;
+    }
+  }
+
+  .custom-calendar .rbc-event {
+    padding: 1px 3px;
+    font-size: 10px;
+    margin: 1px 0;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-event {
+      padding: 2px 4px;
+      font-size: 11px;
+      margin: 2px 0;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-event {
+      padding: 2px 5px;
+      font-size: 12px;
+    }
+  }
+
+  .custom-calendar .rbc-event-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .custom-calendar .rbc-show-more {
+    font-size: 9px;
+    padding: 1px 3px;
+    margin: 1px 2px;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-show-more {
+      font-size: 10px;
+      padding: 2px 5px;
+    }
   }
 
   .custom-calendar .rbc-week-view,
@@ -35,8 +131,20 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-time-view .rbc-time-gutter {
-    font-size: 12px;
+    font-size: 10px;
     color: hsl(var(--muted-foreground));
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-time-view .rbc-time-gutter {
+      font-size: 11px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-time-view .rbc-time-gutter {
+      font-size: 12px;
+    }
   }
 
   .custom-calendar .rbc-time-view .rbc-time-slot {
@@ -53,22 +161,53 @@ const calendarStyles = `
 
   .custom-calendar .rbc-toolbar {
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 24px;
-    padding: 16px;
+    gap: 4px;
+    margin-bottom: 12px;
+    padding: 8px;
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-toolbar {
+      gap: 6px;
+      margin-bottom: 16px;
+      padding: 12px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-toolbar {
+      gap: 8px;
+      margin-bottom: 24px;
+      padding: 16px;
+    }
   }
 
   .custom-calendar .rbc-toolbar button {
     color: hsl(var(--foreground));
     border: 1px solid hsl(var(--border));
     background-color: hsl(var(--background));
-    padding: 8px 16px;
+    padding: 6px 10px;
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.2s;
+    font-size: 11px;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-toolbar button {
+      padding: 7px 12px;
+      font-size: 12px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-toolbar button {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
   }
 
   .custom-calendar .rbc-toolbar button:hover {
@@ -83,10 +222,24 @@ const calendarStyles = `
   }
 
   .custom-calendar .rbc-toolbar-label {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     color: hsl(var(--foreground));
-    margin: 0 16px;
+    margin: 0 8px;
+  }
+
+  @media (min-width: 640px) {
+    .custom-calendar .rbc-toolbar-label {
+      font-size: 16px;
+      margin: 0 12px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .custom-calendar .rbc-toolbar-label {
+      font-size: 18px;
+      margin: 0 16px;
+    }
   }
 `
 
@@ -477,7 +630,7 @@ export default function CalendarioPage() {
                 endAccessor="end"
                 style={{ height: "100%" }}
                 views={["month", "week", "day"]}
-                defaultView="month"
+                defaultView="week"
                 min={new Date(2024, 0, 1, 7, 0, 0)} // 7 AM
                 max={new Date(2024, 0, 1, 23, 0, 0)} // 11 PM
                 step={30}
@@ -497,10 +650,25 @@ export default function CalendarioPage() {
                   showMore: (total) => `+ Ver ${total} más`,
                 }}
                 formats={{
-                  dayHeaderFormat: (date) => format(date, "EEEE", { locale: es }),
+                  dayHeaderFormat: (date) => {
+                    // Mobile: 1-2 letras, Tablet: 3 letras, Desktop: completo
+                    if (typeof window !== 'undefined') {
+                      if (window.innerWidth < 640) {
+                        return format(date, "EEEEE", { locale: es }) // 1 letra
+                      } else if (window.innerWidth < 1024) {
+                        return format(date, "EEE", { locale: es }) // 3 letras
+                      }
+                    }
+                    return format(date, "EEEE", { locale: es }) // Completo
+                  },
                   dayRangeHeaderFormat: ({ start, end }) =>
                     `${format(start, "d MMM", { locale: es })} - ${format(end, "d MMM", { locale: es })}`,
-                  monthHeaderFormat: (date) => format(date, "MMMM yyyy", { locale: es }),
+                  monthHeaderFormat: (date) => {
+                    if (typeof window !== 'undefined' && window.innerWidth < 640) {
+                      return format(date, "MMM yyyy", { locale: es })
+                    }
+                    return format(date, "MMMM yyyy", { locale: es })
+                  },
                   dayFormat: (date) => format(date, "d", { locale: es }),
                   timeGutterFormat: (date) => format(date, "HH:mm", { locale: es }),
                 }}
@@ -620,9 +788,9 @@ export default function CalendarioPage() {
 
         {/* Event Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-            <div className="bg-card rounded-2xl p-4 sm:p-6 lg:p-8 max-w-lg w-full mx-2 sm:mx-4 shadow-2xl border border-border max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-              <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-6 lg:mb-8 gap-3">
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-start sm:items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
+            <div className="bg-card rounded-t-2xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 max-w-lg w-full sm:mx-4 shadow-2xl border-t sm:border border-border my-auto sm:my-4 max-h-screen sm:max-h-[90vh] overflow-y-auto">
+              <div className="flex items-start sm:items-center justify-between mb-4 sm:mb-6 lg:mb-8 gap-3 sticky top-0 bg-card z-10 pb-3 sm:pb-0 sm:static">
                 <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
