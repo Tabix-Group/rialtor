@@ -545,7 +545,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
             {/* Brand */}
             <div className="md:col-span-1 space-y-4">
               <span className="text-2xl font-bold">RIALTOR</span>
@@ -555,24 +555,36 @@ export default function Home() {
             </div>
 
             {/* Herramientas */}
-            <div>
+            <div className="md:col-span-2">
               <h3 className="font-semibold mb-6">Herramientas</h3>
               <ul className="space-y-3 text-sm">
                 {[
-                  { name: "Mercado Inmobiliario", href: "/news" },
-                  { name: "Contratos y Formularios", href: "/documents" },
-                  { name: "Calculadoras Fiscales", href: "/calculadoras" },
-                  { name: "Asistente IA 24/7", href: "/chat" },
-                ].map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
+                  { name: "Informes y Novedades de Mercado", href: "/news", requiresAuth: false },
+                  { name: "Consultor Inmobiliario IA", href: "/chat", requiresAuth: true },
+                  { name: "Calculadoras Profesionales", href: "/calculadoras", requiresAuth: true },
+                  { name: "Documentos Inteligentes", href: "/documents", requiresAuth: true },
+                  { name: "Créditos Hipotecarios", href: "/hipotecarios", requiresAuth: true },
+                  { name: "Generador de Placas", href: "/placas", requiresAuth: true },
+                  { name: "Seguro de Caución", href: "/creditos", requiresAuth: true },
+                  { name: "Mis Finanzas", href: "/finanzas", requiresAuth: true },
+                  { name: "Calendario Profesional", href: "/calendario", requiresAuth: true },
+                  { name: "Resumidor Inteligente", href: "/documents/summary", requiresAuth: true },
+                ].map((tool) =>
+                  tool.requiresAuth && !user ? (
+                    <li key={tool.name} className="text-muted-foreground">
+                      {tool.name}
+                    </li>
+                  ) : (
+                    <li key={tool.name}>
+                      <Link
+                        href={tool.href}
+                        className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                      >
+                        {tool.name}
+                      </Link>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
 
@@ -580,21 +592,27 @@ export default function Home() {
             <div>
               <h3 className="font-semibold mb-6">Soporte</h3>
               <ul className="space-y-3 text-sm">
-                {[
-                  { name: "Centro de Ayuda", href: "/ayuda" },
-                  { name: "Contacto", href: "/contacto" },
-                  { name: "Capacitación", href: "/capacitacion" },
-                  { name: "Documentación", href: "/documentacion" },
-                ].map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
+                <li>
+                  <Link
+                    href="/centro-ayuda"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    Centro de Ayuda
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contacto"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    Contacto
+                  </Link>
+                </li>
+                <li className="text-muted-foreground">
+                  <a href="mailto:rialtor@rialtor.app" className="hover:text-foreground transition-colors duration-200">
+                    rialtor@rialtor.app
+                  </a>
+                </li>
               </ul>
             </div>
 
@@ -602,21 +620,22 @@ export default function Home() {
             <div>
               <h3 className="font-semibold mb-6">Legal</h3>
               <ul className="space-y-3 text-sm">
-                {[
-                  { name: "Términos y Condiciones", href: "https://www.remax.com.ar/terminos" },
-                  { name: "Política de Privacidad", href: "https://www.remax.com.ar/privacidad" },
-                ].map((link) => (
-                  <li key={link.name}>
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
-                    >
-                      {link.name}
-                    </a>
-                  </li>
-                ))}
+                <li>
+                  <Link
+                    href="/terminos"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    Términos y Condiciones
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/politica-privacidad"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    Política de Privacidad
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
