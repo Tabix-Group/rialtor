@@ -147,6 +147,17 @@ const Check = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const Sparkles = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+    />
+  </svg>
+)
+
 export default function Home() {
   const features = [
     {
@@ -156,7 +167,6 @@ export default function Home() {
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
       requiresAuth: false,
-      gradient: "from-blue-500 to-cyan-500",
     },
     {
       name: "Consultor Inmobiliario IA",
@@ -165,7 +175,6 @@ export default function Home() {
       icon: User2,
       href: "https://www.rialtor.app/chat",
       requiresAuth: true,
-      gradient: "from-violet-500 to-purple-500",
     },
     {
       name: "Calculadoras Profesionales",
@@ -174,7 +183,6 @@ export default function Home() {
       icon: Calculator,
       href: "https://www.rialtor.app/calculadoras",
       requiresAuth: true,
-      gradient: "from-emerald-500 to-teal-500",
     },
     {
       name: "Documentos Inteligentes",
@@ -183,7 +191,6 @@ export default function Home() {
       icon: FileText,
       href: "https://www.rialtor.app/documents",
       requiresAuth: true,
-      gradient: "from-orange-500 to-amber-500",
     },
     {
       name: "Créditos Hipotecarios",
@@ -192,7 +199,6 @@ export default function Home() {
       icon: BadgeDollarSign,
       href: "https://www.rialtor.app/hipotecarios",
       requiresAuth: true,
-      gradient: "from-green-500 to-emerald-500",
     },
     {
       name: "Generador de Placas",
@@ -201,7 +207,6 @@ export default function Home() {
       icon: ShieldCheck,
       href: "https://www.rialtor.app/placas",
       requiresAuth: true,
-      gradient: "from-indigo-500 to-blue-500",
     },
     {
       name: "Seguro de Caución",
@@ -210,7 +215,6 @@ export default function Home() {
       icon: Shield,
       href: "https://www.rialtor.app/creditos",
       requiresAuth: true,
-      gradient: "from-cyan-500 to-blue-500",
     },
     {
       name: "Mis Finanzas",
@@ -219,7 +223,6 @@ export default function Home() {
       icon: BadgeDollarSign,
       href: "/finanzas",
       requiresAuth: true,
-      gradient: "from-green-500 to-lime-500",
     },
     {
       name: "Calendario Profesional",
@@ -228,7 +231,6 @@ export default function Home() {
       icon: Calendar,
       href: "/calendario",
       requiresAuth: true,
-      gradient: "from-purple-500 to-pink-500",
     },
     {
       name: "Resumidor Inteligente",
@@ -237,7 +239,6 @@ export default function Home() {
       icon: FileText,
       href: "/documents/summary",
       requiresAuth: true,
-      gradient: "from-yellow-500 to-orange-500",
     },
   ]
 
@@ -251,7 +252,6 @@ export default function Home() {
   }
 
   const [recentArticles, setRecentArticles] = useState<Article[]>([])
-  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -285,56 +285,49 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-subtle">
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+      <section className="relative overflow-hidden">
+        {/* Minimal gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background"></div>
 
-        {/* Gradient orbs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+        {/* Subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-40">
-          <div className="text-center space-y-8">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 lg:pt-40 lg:pb-48">
+          <div className="max-w-4xl mx-auto text-center space-y-12">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50 backdrop-blur-sm">
-              <TrendingUp className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">
-                Potenciá tu negocio inmobiliario en Argentina
-              </span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">Potenciá tu negocio inmobiliario en Argentina</span>
             </div>
 
             {/* Main heading */}
             <div className="space-y-6">
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight text-balance">
-                <span className="text-foreground">
-                  RIALTOR
-                </span>
-              </h1>
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-medium text-muted-foreground text-balance">
+              <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-balance">RIALTOR</h1>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-muted-foreground text-balance">
                 La revolución inmobiliaria llegó
               </p>
             </div>
 
             {/* Description */}
-            <p className="max-w-3xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed text-balance">
+            <p className="max-w-2xl mx-auto text-lg text-muted-foreground leading-relaxed text-pretty">
               Cerrá más operaciones con IA, herramientas especializadas y datos precisos del mercado argentino.
-              <span className="text-foreground font-semibold"> Cientos de agentes ya confían en nosotros.</span>
+              <span className="text-foreground font-medium"> Cientos de agentes ya confían en nosotros.</span>
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
               <button
                 onClick={handleScrollToDemo}
-                className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 border border-primary/20"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-foreground text-background font-medium rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
                 <Play className="w-5 h-5" />
                 Ver Demo en 2 Minutos
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
 
               <Link
                 href="/auth/register"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground font-semibold rounded-xl hover:bg-accent/90 transition-all duration-300 border border-accent/20 shadow-md hover:shadow-lg hover:scale-105"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-full hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-[1.02]"
               >
                 <UserPlus className="w-5 h-5" />
                 Registrarte Gratis
@@ -345,104 +338,78 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 lg:py-32 bg-background">
+      <section className="py-32 lg:py-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance">
-              Todo lo que un martillero necesita para vender más
+          <div className="max-w-3xl mx-auto text-center mb-20 space-y-4">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance leading-tight">
+              Todo lo que necesitas para vender más
             </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto text-balance">
-              Desde informes de mercado actualizados hasta contratos inteligentes: herramientas diseñadas
-              específicamente para el mercado inmobiliario argentino y sus desafíos únicos.
+            <p className="text-lg text-muted-foreground text-pretty">
+              Herramientas diseñadas específicamente para el mercado inmobiliario argentino
             </p>
           </div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, idx) => (
-              (!feature.requiresAuth || user) ? (
-                <a
-                  key={feature.name}
-                  href={feature.href}
-                  className="group relative"
-                  onMouseEnter={() => setHoveredFeature(idx)}
-                  onMouseLeave={() => setHoveredFeature(null)}
-                >
-                  <div className="relative h-full p-8 bg-card border border-border rounded-2xl hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                    {/* Gradient overlay on hover */}
-                    <div
-                      className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
-                    ></div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature) =>
+              !feature.requiresAuth || user ? (
+                <a key={feature.name} href={feature.href} className="group relative">
+                  <div className="relative h-full p-8 bg-card border border-border rounded-3xl hover:border-foreground/20 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
                     {/* Icon */}
-                    <div
-                      className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} p-3 mb-6 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}
-                    >
-                      <feature.icon className="w-full h-full text-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-6 group-hover:bg-foreground/10 transition-colors duration-300">
+                      <feature.icon className="w-6 h-6 text-foreground" />
                     </div>
 
                     {/* Content */}
-                    <div className="relative space-y-3">
-                      <h3 className="text-xl font-bold text-card-foreground group-hover:text-primary transition-colors">
-                        {feature.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-semibold text-balance leading-tight">{feature.name}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{feature.description}</p>
                     </div>
 
                     {/* Arrow indicator */}
-                    <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ArrowRight className="w-5 h-5 text-primary" />
+                    <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
+                      <ArrowRight className="w-5 h-5 text-foreground" />
                     </div>
                   </div>
                 </a>
               ) : (
-                <div
-                  key={feature.name}
-                  className="group relative opacity-60 cursor-not-allowed"
-                  onMouseEnter={() => setHoveredFeature(idx)}
-                  onMouseLeave={() => setHoveredFeature(null)}
-                >
-                  <div className="relative h-full p-8 bg-card border border-border rounded-2xl">
+                <div key={feature.name} className="group relative opacity-50">
+                  <div className="relative h-full p-8 bg-card border border-border rounded-3xl">
                     {/* Icon */}
-                    <div
-                      className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} p-3 mb-6 shadow-lg opacity-50`}
-                    >
-                      <feature.icon className="w-full h-full text-white" />
+                    <div className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-6">
+                      <feature.icon className="w-6 h-6 text-foreground" />
                     </div>
 
                     {/* Content */}
-                    <div className="relative space-y-3">
-                      <h3 className="text-xl font-bold text-card-foreground">
-                        {feature.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                      <p className="text-xs text-muted-foreground italic">Requiere registro</p>
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-semibold text-balance leading-tight">{feature.name}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{feature.description}</p>
+                      <p className="text-xs text-muted-foreground italic pt-2">Requiere registro</p>
                     </div>
                   </div>
                 </div>
-              )
-            ))}
+              ),
+            )}
           </div>
         </div>
       </section>
 
       {/* Demo Video Section */}
-      <section id="demo-video" className="py-24 lg:py-32 bg-background">
+      <section id="demo-video" className="py-32 lg:py-40 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance">
-              Descubrí cómo cerrar más operaciones en Argentina
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance leading-tight">
+              Descubrí cómo cerrar más operaciones
             </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Vea en 2 minutos cómo RIALTOR transforma la forma de trabajar de los martilleros argentinos con
-              herramientas que realmente marcan la diferencia en resultados.
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+              Vea en 2 minutos cómo RIALTOR transforma la forma de trabajar de los martilleros argentinos
             </p>
           </div>
 
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-2xl">
+            <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-border shadow-2xl">
               <video
                 src="/docs/Videos/RIALTOR.mp4"
                 title="Demo RIALTOR"
@@ -458,110 +425,111 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 lg:py-32 bg-gradient-subtle">
+      <section className="py-32 lg:py-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance">
+          <div className="text-center mb-20 space-y-4">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance leading-tight">
               Planes que se adaptan a tu negocio
             </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
-              Elegí el plan perfecto para potenciar tu carrera inmobiliaria en Argentina
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+              Elegí el plan perfecto para potenciar tu carrera inmobiliaria
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Monthly Plan */}
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-primary/50 rounded-2xl blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
-              <div className="relative bg-card rounded-2xl p-8 border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300">
-                <div className="text-center mb-8 space-y-2">
-                  <h3 className="text-2xl font-bold">Plan Mensual</h3>
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-5xl font-bold">$25</span>
-                    <span className="text-muted-foreground">USD/mes</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Facturación mensual</p>
-                </div>
-
-                <div className="space-y-4 mb-8">
-                  {[
-                    "Todas las herramientas inmobiliarias",
-                    "Calculadora de créditos hipotecarios",
-                    "Generación de documentos legales",
-                    "Sistema de placas automáticas",
-                    "Tasas bancarias actualizadas",
-                    "Soporte técnico incluido",
-                  ].map((item) => (
-                    <div key={item} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-primary" />
-                      </div>
-                      <span className="text-sm text-muted-foreground">{item}</span>
+              <div className="relative bg-card rounded-3xl p-10 border border-border hover:border-foreground/20 hover:shadow-2xl transition-all duration-500">
+                <div className="space-y-8">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-semibold">Plan Mensual</h3>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-6xl font-bold">$25</span>
+                      <span className="text-muted-foreground">USD/mes</span>
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <Link
-                  href="/auth/register"
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
-                >
-                  Comenzar ahora
-                </Link>
+                  <div className="space-y-4">
+                    {[
+                      "Todas las herramientas inmobiliarias",
+                      "Calculadora de créditos hipotecarios",
+                      "Generación de documentos legales",
+                      "Sistema de placas automáticas",
+                      "Tasas bancarias actualizadas",
+                      "Soporte técnico incluido",
+                    ].map((item) => (
+                      <div key={item} className="flex items-start gap-3">
+                        <div className="w-5 h-5 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Check className="w-3 h-3 text-foreground" />
+                        </div>
+                        <span className="text-sm text-muted-foreground">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link
+                    href="/auth/register"
+                    className="w-full inline-flex items-center justify-center px-6 py-4 bg-foreground text-background font-medium rounded-full hover:bg-foreground/90 transition-all duration-300"
+                  >
+                    Comenzar ahora
+                  </Link>
+                </div>
               </div>
             </div>
 
             {/* Annual Plan */}
             <div className="relative group">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground px-4 py-1 rounded-full text-sm font-medium flex items-center gap-1 z-10 shadow-lg border border-accent/20">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 z-10 shadow-lg">
                 <Crown className="w-4 h-4" />
                 Más Popular
               </div>
-              <div className="absolute -inset-1 bg-gradient-accent rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-300"></div>
-              <div className="relative bg-card rounded-2xl p-8 border-2 border-accent hover:shadow-2xl transition-all duration-300">
-                <div className="text-center mb-8 space-y-2">
-                  <h3 className="text-2xl font-bold">Plan Anual</h3>
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-lg text-muted-foreground line-through">$300</span>
-                    <span className="text-5xl font-bold">$240</span>
-                    <span className="text-muted-foreground">USD/año</span>
-                  </div>
-                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium">
-                    Ahorrás 20% ($60 USD)
-                  </div>
-                  <p className="text-sm text-muted-foreground">Equivale a $20 USD/mes</p>
-                </div>
-
-                <div className="space-y-4 mb-8">
-                  {[
-                    "Todas las herramientas inmobiliarias",
-                    "Calculadora de créditos hipotecarios",
-                    "Generación de documentos legales",
-                    "Sistema de placas automáticas",
-                    "Tasas bancarias actualizadas",
-                    "Soporte técnico prioritario",
-                    "2 meses gratis incluidos",
-                  ].map((item, idx) => (
-                    <div key={item} className="flex items-start gap-3">
-                      <div
-                        className={`w-5 h-5 rounded-full ${idx === 6 ? "bg-accent/20" : "bg-primary/10"} flex items-center justify-center flex-shrink-0 mt-0.5`}
-                      >
-                        <Check className={`w-3 h-3 ${idx === 6 ? "text-accent" : "text-primary"}`} />
-                      </div>
-                      <span
-                        className={`text-sm ${idx === 6 ? "text-foreground font-medium" : "text-muted-foreground"}`}
-                      >
-                        {item}
-                      </span>
+              <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 to-primary/5 rounded-3xl blur-xl opacity-50"></div>
+              <div className="relative bg-card rounded-3xl p-10 border-2 border-primary/50 hover:border-primary hover:shadow-2xl transition-all duration-500">
+                <div className="space-y-8">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-semibold">Plan Anual</h3>
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-lg text-muted-foreground line-through">$300</span>
+                      <span className="text-6xl font-bold">$240</span>
+                      <span className="text-muted-foreground">USD/año</span>
                     </div>
-                  ))}
-                </div>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                      Ahorrás 20% ($60 USD)
+                    </div>
+                  </div>
 
-                <Link
-                  href="/auth/register"
-                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-accent text-accent-foreground font-semibold rounded-xl hover:opacity-90 transition-all shadow-lg border border-accent/20"
-                >
-                  Elegir plan anual
-                </Link>
+                  <div className="space-y-4">
+                    {[
+                      "Todas las herramientas inmobiliarias",
+                      "Calculadora de créditos hipotecarios",
+                      "Generación de documentos legales",
+                      "Sistema de placas automáticas",
+                      "Tasas bancarias actualizadas",
+                      "Soporte técnico prioritario",
+                      "2 meses gratis incluidos",
+                    ].map((item, idx) => (
+                      <div key={item} className="flex items-start gap-3">
+                        <div
+                          className={`w-5 h-5 rounded-full ${idx === 6 ? "bg-primary/20" : "bg-foreground/10"} flex items-center justify-center flex-shrink-0 mt-0.5`}
+                        >
+                          <Check className={`w-3 h-3 ${idx === 6 ? "text-primary" : "text-foreground"}`} />
+                        </div>
+                        <span
+                          className={`text-sm ${idx === 6 ? "text-foreground font-medium" : "text-muted-foreground"}`}
+                        >
+                          {item}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link
+                    href="/auth/register"
+                    className="w-full inline-flex items-center justify-center px-6 py-4 bg-primary text-primary-foreground font-medium rounded-full hover:bg-primary/90 transition-all duration-300 shadow-lg"
+                  >
+                    Elegir plan anual
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -575,28 +543,23 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-20">
+      <footer className="border-t border-border py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Brand */}
             <div className="md:col-span-1 space-y-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold text-foreground">
-                  RIALTOR
-                </span>
-              </div>
+              <span className="text-2xl font-bold">RIALTOR</span>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                La plataforma definitiva para martilleros y agentes inmobiliarios en Argentina. Herramientas
-                especializadas que entienden nuestro mercado único.
+                La plataforma definitiva para martilleros y agentes inmobiliarios en Argentina.
               </p>
             </div>
 
             {/* Herramientas */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">Herramientas para Martilleros</h3>
+              <h3 className="font-semibold mb-6">Herramientas</h3>
               <ul className="space-y-3 text-sm">
                 {[
-                  { name: "Mercado Inmobiliario Argentino", href: "/news" },
+                  { name: "Mercado Inmobiliario", href: "/news" },
                   { name: "Contratos y Formularios", href: "/documents" },
                   { name: "Calculadoras Fiscales", href: "/calculadoras" },
                   { name: "Asistente IA 24/7", href: "/chat" },
@@ -604,9 +567,8 @@ export default function Home() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
-                      <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       {link.name}
                     </Link>
                   </li>
@@ -616,7 +578,7 @@ export default function Home() {
 
             {/* Soporte */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">Soporte</h3>
+              <h3 className="font-semibold mb-6">Soporte</h3>
               <ul className="space-y-3 text-sm">
                 {[
                   { name: "Centro de Ayuda", href: "/ayuda" },
@@ -627,9 +589,8 @@ export default function Home() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
-                      <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       {link.name}
                     </Link>
                   </li>
@@ -639,7 +600,7 @@ export default function Home() {
 
             {/* Legal */}
             <div>
-              <h3 className="text-lg font-semibold mb-6">Legal</h3>
+              <h3 className="font-semibold mb-6">Legal</h3>
               <ul className="space-y-3 text-sm">
                 {[
                   { name: "Términos y Condiciones", href: "https://www.remax.com.ar/terminos" },
@@ -650,9 +611,8 @@ export default function Home() {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2 group"
+                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
-                      <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       {link.name}
                     </a>
                   </li>
@@ -661,8 +621,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="border-t border-border mt-16 pt-8 text-center">
-            <p className="text-sm text-white bg-black px-4 py-2 rounded-lg inline-block">© 2025 RIALTOR. Todos los derechos reservados.</p>
+          <div className="border-t border-border pt-8 text-center">
+            <p className="text-sm text-muted-foreground">© 2025 RIALTOR. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
