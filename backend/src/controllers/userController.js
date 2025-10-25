@@ -220,10 +220,55 @@ const updateUser = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.query;
-    // Eliminar primero los roleAssignments
+
+    // Eliminar todas las dependencias del usuario en orden correcto
+    // Primero eliminar elementos que dependen de otros elementos
+
+    // 1. Eliminar comentarios (dependen de artículos)
+    await prisma.comment.deleteMany({ where: { authorId: id } });
+
+    // 2. Eliminar attachments (dependen de artículos)
+    await prisma.attachment.deleteMany({ where: { article: { authorId: id } } });
+
+    // 3. Eliminar artículos
+    await prisma.article.deleteMany({ where: { authorId: id } });
+
+    // 4. Eliminar mensajes de chat (dependen de sesiones)
+    await prisma.chatMessage.deleteMany({ where: { session: { userId: id } } });
+
+    // 5. Eliminar sesiones de chat
+    await prisma.chatSession.deleteMany({ where: { userId: id } });
+
+    // 6. Eliminar solicitudes de documentos
+    await prisma.documentRequest.deleteMany({ where: { userId: id } });
+
+    // 7. Eliminar plantillas de documentos
+    await prisma.documentTemplate.deleteMany({ where: { userId: id } });
+
+    // 8. Eliminar historial de calculadoras
+    await prisma.calculatorHistory.deleteMany({ where: { userId: id } });
+
+    // 9. Eliminar placas de propiedades
+    await prisma.propertyPlaque.deleteMany({ where: { userId: id } });
+
+    // 10. Eliminar archivos subidos
+    await prisma.fileUpload.deleteMany({ where: { userId: id } });
+
+    // 11. Eliminar transacciones financieras
+    await prisma.financeTransaction.deleteMany({ where: { userId: id } });
+
+    // 12. Eliminar favoritos de documentos
+    await prisma.documentFavorite.deleteMany({ where: { userId: id } });
+
+    // 13. Eliminar token de calendario
+    await prisma.calendarToken.deleteMany({ where: { userId: id } });
+
+    // 14. Eliminar asignaciones de roles
     await prisma.roleAssignment.deleteMany({ where: { userId: id } });
-    // Luego eliminar el usuario
+
+    // Finalmente eliminar el usuario
     await prisma.user.delete({ where: { id } });
+
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
     next(error);
