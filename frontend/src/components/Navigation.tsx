@@ -137,7 +137,17 @@ function Navigation() {
   const handleUserMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    setIsUserMenuOpen(!isUserMenuOpen)
+
+    // Si la sidebar está colapsada, expandirla primero
+    if (isCollapsed) {
+      setIsCollapsed(false)
+      // Esperar a que se expanda antes de abrir el menú
+      setTimeout(() => {
+        setIsUserMenuOpen(true)
+      }, 300)
+    } else {
+      setIsUserMenuOpen(!isUserMenuOpen)
+    }
   }
 
   const toggleSidebar = () => {
@@ -199,7 +209,14 @@ function Navigation() {
                       const isChevronClick = target.closest('svg') || target.tagName === 'svg'
                       const hasModifier = e.ctrlKey || e.metaKey || e.shiftKey
 
-                      if (isChevronClick || hasModifier) {
+                      if (isCollapsed) {
+                        // When collapsed, expand sidebar and open dropdown
+                        e.preventDefault()
+                        setIsCollapsed(false)
+                        setTimeout(() => {
+                          setActiveDropdown(item.name)
+                        }, 300)
+                      } else if (isChevronClick || hasModifier) {
                         e.preventDefault()
                         handleDropdownClick(e, item.name)
                       }
