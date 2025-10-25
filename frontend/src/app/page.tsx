@@ -451,12 +451,18 @@ export default function Home() {
 
                   <div className="space-y-4">
                     {[
-                      "Todas las herramientas inmobiliarias",
-                      "Calculadora de créditos hipotecarios",
-                      "Generación de documentos legales",
-                      "Sistema de placas automáticas",
-                      "Tasas bancarias actualizadas",
-                      "Soporte técnico incluido",
+                      "Consultor Inmobiliario IA 24/7",
+                      "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
+                      "Generación de Documentos Inteligentes",
+                      "Créditos Hipotecarios y Tasas Actualizadas",
+                      "Generador de Placas Profesionales con IA",
+                      "Sistema de Gestión Financiera",
+                      "Calendario Profesional Integrado",
+                      "Resumidor Inteligente de Documentos",
+                      "Base de Conocimiento Inmobiliario",
+                      "Panel de Administración Completo",
+                      "Almacenamiento Seguro en la Nube",
+                      "Soporte Técnico Incluido",
                     ].map((item) => (
                       <div key={item} className="flex items-start gap-3">
                         <div className="w-5 h-5 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -500,22 +506,29 @@ export default function Home() {
 
                   <div className="space-y-4">
                     {[
-                      "Todas las herramientas inmobiliarias",
-                      "Calculadora de créditos hipotecarios",
-                      "Generación de documentos legales",
-                      "Sistema de placas automáticas",
-                      "Tasas bancarias actualizadas",
-                      "Soporte técnico prioritario",
-                      "2 meses gratis incluidos",
+                      "Consultor Inmobiliario IA 24/7",
+                      "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
+                      "Generación de Documentos Inteligentes",
+                      "Créditos Hipotecarios y Tasas Actualizadas",
+                      "Generador de Placas Profesionales con IA",
+                      "Sistema de Gestión Financiera",
+                      "Calendario Profesional Integrado",
+                      "Resumidor Inteligente de Documentos",
+                      "Base de Conocimiento Inmobiliario",
+                      "Panel de Administración Completo",
+                      "Almacenamiento Seguro en la Nube",
+                      "Soporte Técnico Prioritario",
+                      "2 Meses Gratis Incluidos",
+                      "Actualizaciones Anticipadas",
                     ].map((item, idx) => (
                       <div key={item} className="flex items-start gap-3">
                         <div
-                          className={`w-5 h-5 rounded-full ${idx === 6 ? "bg-primary/20" : "bg-foreground/10"} flex items-center justify-center flex-shrink-0 mt-0.5`}
+                          className={`w-5 h-5 rounded-full ${idx >= 12 ? "bg-primary/20" : "bg-foreground/10"} flex items-center justify-center flex-shrink-0 mt-0.5`}
                         >
-                          <Check className={`w-3 h-3 ${idx === 6 ? "text-primary" : "text-foreground"}`} />
+                          <Check className={`w-3 h-3 ${idx >= 12 ? "text-primary" : "text-foreground"}`} />
                         </div>
                         <span
-                          className={`text-sm ${idx === 6 ? "text-foreground font-medium" : "text-muted-foreground"}`}
+                          className={`text-sm ${idx >= 12 ? "text-foreground font-medium" : "text-muted-foreground"}`}
                         >
                           {item}
                         </span>
