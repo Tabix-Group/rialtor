@@ -177,7 +177,8 @@ function Navigation() {
       </div>
 
       {/* Navigation Items */}
-      <div className="flex-1 overflow-y-auto py-4">
+      {user && (
+        <div className="flex-1 overflow-y-auto py-4">
         <nav className="px-3 space-y-1">
           {navConfig.map((item) => {
             const Icon = item.icon
@@ -268,6 +269,7 @@ function Navigation() {
           })}
         </nav>
       </div>
+      )}
 
       {/* User Section */}
       <div className="border-t border-border p-4">

@@ -109,9 +109,12 @@ const UserPlus = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const Check = ({ className }: { className?: string }) => (
+const Calendar = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth={2} />
+    <line x1="16" y1="2" x2="16" y2="6" strokeWidth={2} />
+    <line x1="8" y1="2" x2="8" y2="6" strokeWidth={2} />
+    <line x1="3" y1="10" x2="21" y2="10" strokeWidth={2} />
   </svg>
 )
 
@@ -138,6 +141,12 @@ const Play = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const Check = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+)
+
 export default function Home() {
   const features = [
     {
@@ -146,6 +155,7 @@ export default function Home() {
         "Datos precisos del mercado argentino: evolución de precios por zona, demanda real y tendencias que marcan la diferencia en tus ventas.",
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
+      requiresAuth: false,
       gradient: "from-blue-500 to-cyan-500",
     },
     {
@@ -154,6 +164,7 @@ export default function Home() {
         "Tu asesor 24/7 especializado en Argentina: negocia mejor, tasá propiedades con precisión y resolví dudas complejas al instante.",
       icon: User2,
       href: "https://www.rialtor.app/chat",
+      requiresAuth: true,
       gradient: "from-violet-500 to-purple-500",
     },
     {
@@ -162,6 +173,7 @@ export default function Home() {
         "Calculadoras actualizadas con la legislación argentina: gastos de escritura, impuestos provinciales, comisiones y todo lo que necesitas para cerrar operaciones.",
       icon: Calculator,
       href: "https://www.rialtor.app/calculadoras",
+      requiresAuth: true,
       gradient: "from-emerald-500 to-teal-500",
     },
     {
@@ -170,6 +182,7 @@ export default function Home() {
         "Generá contratos, reservas y boletos adaptados a la legislación argentina. Ahorra horas de trabajo y evitá errores costosos.",
       icon: FileText,
       href: "https://www.rialtor.app/documents",
+      requiresAuth: true,
       gradient: "from-orange-500 to-amber-500",
     },
     {
@@ -178,6 +191,7 @@ export default function Home() {
         "Accedé a todas las opciones de financiación vigentes: tasas, requisitos y bancos. Ayudá a tus clientes a encontrar el crédito perfecto.",
       icon: BadgeDollarSign,
       href: "https://www.rialtor.app/hipotecarios",
+      requiresAuth: true,
       gradient: "from-green-500 to-emerald-500",
     },
     {
@@ -186,6 +200,7 @@ export default function Home() {
         "Creá placas profesionales con IA que venden más. Subí fotos y obtené imágenes optimizadas para redes sociales y portales argentinos.",
       icon: ShieldCheck,
       href: "https://www.rialtor.app/placas",
+      requiresAuth: true,
       gradient: "from-indigo-500 to-blue-500",
     },
     {
@@ -194,7 +209,35 @@ export default function Home() {
         "Compará y simulá seguros de caución para alquileres. Encontrá la mejor opción para tus clientes y generá ingresos adicionales.",
       icon: Shield,
       href: "https://www.rialtor.app/creditos",
+      requiresAuth: true,
       gradient: "from-cyan-500 to-blue-500",
+    },
+    {
+      name: "Mis Finanzas",
+      description:
+        "Gestioná tu negocio inmobiliario: seguí ingresos, gastos, comisiones y mantené el control total de tus finanzas personales.",
+      icon: BadgeDollarSign,
+      href: "/finanzas",
+      requiresAuth: true,
+      gradient: "from-green-500 to-lime-500",
+    },
+    {
+      name: "Calendario Profesional",
+      description:
+        "Organizá tus citas, visitas y eventos inmobiliarios. Nunca pierdas una oportunidad con nuestro calendario integrado.",
+      icon: Calendar,
+      href: "/calendario",
+      requiresAuth: true,
+      gradient: "from-purple-500 to-pink-500",
+    },
+    {
+      name: "Resumidor Inteligente",
+      description:
+        "Resume documentos extensos al instante con IA. Ahorra tiempo leyendo contratos, informes y documentos legales.",
+      icon: FileText,
+      href: "/documents/summary",
+      requiresAuth: true,
+      gradient: "from-yellow-500 to-orange-500",
     },
   ]
 
@@ -318,40 +361,67 @@ export default function Home() {
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, idx) => (
-              <a
-                key={feature.name}
-                href={feature.href}
-                className="group relative"
-                onMouseEnter={() => setHoveredFeature(idx)}
-                onMouseLeave={() => setHoveredFeature(null)}
-              >
-                <div className="relative h-full p-8 bg-card border border-border rounded-2xl hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                  {/* Gradient overlay on hover */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
-                  ></div>
+              (!feature.requiresAuth || user) ? (
+                <a
+                  key={feature.name}
+                  href={feature.href}
+                  className="group relative"
+                  onMouseEnter={() => setHoveredFeature(idx)}
+                  onMouseLeave={() => setHoveredFeature(null)}
+                >
+                  <div className="relative h-full p-8 bg-card border border-border rounded-2xl hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    {/* Gradient overlay on hover */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}
+                    ></div>
 
-                  {/* Icon */}
-                  <div
-                    className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} p-3 mb-6 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}
-                  >
-                    <feature.icon className="w-full h-full text-white" />
+                    {/* Icon */}
+                    <div
+                      className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} p-3 mb-6 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}
+                    >
+                      <feature.icon className="w-full h-full text-white" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="relative space-y-3">
+                      <h3 className="text-xl font-bold text-card-foreground group-hover:text-primary transition-colors">
+                        {feature.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                    </div>
+
+                    {/* Arrow indicator */}
+                    <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ArrowRight className="w-5 h-5 text-primary" />
+                    </div>
                   </div>
+                </a>
+              ) : (
+                <div
+                  key={feature.name}
+                  className="group relative opacity-60 cursor-not-allowed"
+                  onMouseEnter={() => setHoveredFeature(idx)}
+                  onMouseLeave={() => setHoveredFeature(null)}
+                >
+                  <div className="relative h-full p-8 bg-card border border-border rounded-2xl">
+                    {/* Icon */}
+                    <div
+                      className={`relative w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} p-3 mb-6 shadow-lg opacity-50`}
+                    >
+                      <feature.icon className="w-full h-full text-white" />
+                    </div>
 
-                  {/* Content */}
-                  <div className="relative space-y-3">
-                    <h3 className="text-xl font-bold text-card-foreground group-hover:text-primary transition-colors">
-                      {feature.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
-                  </div>
-
-                  {/* Arrow indicator */}
-                  <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ArrowRight className="w-5 h-5 text-primary" />
+                    {/* Content */}
+                    <div className="relative space-y-3">
+                      <h3 className="text-xl font-bold text-card-foreground">
+                        {feature.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                      <p className="text-xs text-muted-foreground italic">Requiere registro</p>
+                    </div>
                   </div>
                 </div>
-              </a>
+              )
             ))}
           </div>
         </div>
