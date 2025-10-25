@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { useAuth } from "./auth/authContext"
 
 // SVG icon components
@@ -303,9 +304,14 @@ export default function Home() {
             {/* Main heading */}
             <div className="space-y-6">
               <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-balance">RIALTOR</h1>
-              <p className="text-2xl sm:text-3xl lg:text-4xl font-light text-muted-foreground text-balance">
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="text-2xl sm:text-3xl lg:text-4xl font-light text-muted-foreground text-balance"
+              >
                 La revolución inmobiliaria llegó
-              </p>
+              </motion.p>
             </div>
 
             {/* Description */}
