@@ -224,7 +224,9 @@ export default function NewsPage() {
                                                     </div>
 
                                                     <h2 className="text-3xl font-black text-black mb-6 leading-tight uppercase tracking-wide">
-                                                        {news[0].title}
+                                                        <Link href={news[0].externalUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 transition-colors">
+                                                            {news[0].title}
+                                                        </Link>
                                                     </h2>
 
                                                     <p className="text-lg text-gray-700 mb-6 leading-relaxed font-serif">
@@ -240,13 +242,6 @@ export default function NewsPage() {
                                                         >
                                                             <span>Leer artículo completo</span>
                                                             <ExternalLink className="w-5 h-5" />
-                                                        </Link>
-
-                                                        <Link
-                                                            href={`/news/${news[0].id}`}
-                                                            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-black text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors"
-                                                        >
-                                                            <span>Ver detalles</span>
                                                         </Link>
                                                     </div>
                                                 </div>
@@ -267,7 +262,9 @@ export default function NewsPage() {
                                                                     )}
                                                                 </div>
                                                                 <Link
-                                                                    href={`/news/${item.id}`}
+                                                                    href={item.externalUrl}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
                                                                     className="text-sm font-bold text-black hover:text-gray-600 leading-tight block"
                                                                 >
                                                                     {item.title}
@@ -312,7 +309,7 @@ export default function NewsPage() {
                                             </div>
 
                                             <h2 className="text-2xl font-bold text-black mb-4 leading-tight hover:text-gray-700 transition-colors">
-                                                <Link href={`/news/${item.id}`} className="block">
+                                                <Link href={item.externalUrl} target="_blank" rel="noopener noreferrer" className="block">
                                                     {item.title}
                                                 </Link>
                                             </h2>
@@ -331,13 +328,6 @@ export default function NewsPage() {
                                                     <span>Leer más</span>
                                                     <ExternalLink className="w-4 h-4" />
                                                 </Link>
-
-                                                <Link
-                                                    href={`/news/${item.id}`}
-                                                    className="text-black hover:text-gray-600 font-bold uppercase tracking-wide text-sm"
-                                                >
-                                                    Ver detalles →
-                                                </Link>
                                             </div>
                                         </div>
                                     </article>
@@ -351,10 +341,18 @@ export default function NewsPage() {
                                     <h3 className="text-lg font-bold text-black mb-6 uppercase tracking-wide border-b-2 border-gray-300 pb-2">
                                         Últimas noticias
                                     </h3>
-                                    <div className="space-y-4">
-                                        {news.slice(4, 8).map((item, index) => (
-                                            <div key={item.id} className="border-b border-gray-200 pb-4 last:border-b-0">
-                                                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                                    <div className="space-y-3">
+                                        {news.slice(0, 5).map((item, index) => (
+                                            <div key={item.id} className="border-b border-gray-200 pb-3 last:border-b-0">
+                                                <Link
+                                                    href={item.externalUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm font-bold text-black hover:text-gray-600 leading-tight block"
+                                                >
+                                                    {item.title}
+                                                </Link>
+                                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                                                     <span className="font-medium">{formatDate(item.publishedAt)}</span>
                                                     {item.category && (
                                                         <>
@@ -365,23 +363,6 @@ export default function NewsPage() {
                                                         </>
                                                     )}
                                                 </div>
-                                                <Link
-                                                    href={`/news/${item.id}`}
-                                                    className="text-sm font-bold text-black hover:text-gray-600 leading-tight block mb-2"
-                                                >
-                                                    {item.title}
-                                                </Link>
-                                                <p className="text-xs text-gray-600 leading-relaxed mb-3 line-clamp-2">
-                                                    {item.synopsis}
-                                                </p>
-                                                <Link
-                                                    href={item.externalUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-xs font-bold text-black uppercase tracking-wide hover:text-gray-600"
-                                                >
-                                                    Leer más →
-                                                </Link>
                                             </div>
                                         ))}
                                     </div>
