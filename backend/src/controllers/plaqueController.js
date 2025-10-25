@@ -663,9 +663,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         mainBoxFill: 'rgba(255, 255, 255, 0.92)',
         mainTextColor: '#1a202c',
         accentColor: '#76685d',
-        priceBoxFill: '#76685d',
-        priceTextColor: '#FFFFFF',
-        corredoresBoxFill: '#76685d',
+        priceBoxFill: 'rgba(200, 200, 200, 0.7)',
+        priceTextColor: '#000000',
+        corredoresBoxFill: 'rgba(50, 50, 50, 0.7)',
         corredoresTextColor: '#FFFFFF'
       },
       elegant: {
@@ -1062,7 +1062,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const origenBoxX = width - origenBoxWidth - originMargin;
     const origenBoxY = height - origenBoxHeight - originMargin;
     svg += `  <g filter="url(#f1)">\n`;
-    svg += `    <rect x="${origenBoxX}" y="${origenBoxY}" width="${origenBoxWidth}" height="${origenBoxHeight}" rx="8" fill="#76685d" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    svg += `    <rect x="${origenBoxX}" y="${origenBoxY}" width="${origenBoxWidth}" height="${origenBoxHeight}" rx="8" fill="rgba(50, 50, 50, 0.7)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
     svg += `  </g>\n`;
 
     svg += `  <text x="${origenBoxX + 10}" y="${origenBoxY + origenSize * 0.9}" text-anchor="start" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: #FFFFFF;">${origenSafe}</text>\n`;
