@@ -36,12 +36,12 @@ export default function Contacto() {
 
               <section>
                 <h2 className="text-2xl font-semibold mb-4">¿En qué podemos ayudarte?</h2>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• Soporte técnico y resolución de problemas</li>
-                  <li>• Consultas sobre funcionalidades</li>
-                  <li>• Sugerencias y feedback</li>
-                  <li>• Información sobre planes y precios</li>
-                  <li>• Reporte de bugs o errores</li>
+                <ul className="space-y-2 text-muted-foreground list-disc list-inside">
+                  <li>Soporte técnico y resolución de problemas</li>
+                  <li>Consultas sobre funcionalidades</li>
+                  <li>Sugerencias y feedback</li>
+                  <li>Información sobre planes y precios</li>
+                  <li>Reporte de bugs o errores</li>
                 </ul>
               </section>
             </div>
