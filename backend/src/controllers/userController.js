@@ -251,8 +251,8 @@ const deleteUser = async (req, res, next) => {
     // 9. Eliminar placas de propiedades
     await prisma.propertyPlaque.deleteMany({ where: { userId: id } });
 
-    // 10. Eliminar archivos subidos
-    await prisma.fileUpload.deleteMany({ where: { userId: id } });
+    // 10. Eliminar archivos subidos (usa uploadedBy en lugar de userId)
+    await prisma.fileUpload.deleteMany({ where: { uploadedBy: id } });
 
     // 11. Eliminar transacciones financieras
     await prisma.financeTransaction.deleteMany({ where: { userId: id } });
