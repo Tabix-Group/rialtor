@@ -322,10 +322,13 @@ export default function PlacasPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Generador de Placas
-              </h1>
-              <p className="mt-2 text-gray-600">
+              <div className="flex items-center gap-3 mb-2">
+                <ImageIcon className="w-8 h-8 text-blue-600" />
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Generador de Placas
+                </h1>
+              </div>
+              <p className="text-lg text-gray-600">
                 Crea placas profesionales para tus propiedades con IA y patrones geométricos decorativos
               </p>
               <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">

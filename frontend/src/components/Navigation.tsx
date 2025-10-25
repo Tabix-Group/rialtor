@@ -63,21 +63,21 @@ function Navigation() {
 
   const navConfig = [
     {
-      name: "Inicio",
+      name: "Mi Panel",
       href: user ? "/dashboard" : "/",
       icon: Home,
+    },
+    {
+      name: "Mi Calendario",
+      href: "/calendario",
+      icon: Calendar,
+      description: "Gestiona tu agenda y eventos",
     },
     {
       name: "Mis Finanzas",
       href: "/finanzas",
       icon: DollarSign,
       description: "Gestión financiera personal",
-    },
-    {
-      name: "Calendario",
-      href: "/calendario",
-      icon: Calendar,
-      description: "Gestiona tu agenda y eventos",
     },
     {
       name: "Calculadoras",
@@ -153,14 +153,14 @@ function Navigation() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         {!isCollapsed && (
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img
               src="/images/favicon.ico"
               alt="RIALTOR Logo"
               className="w-8 h-8 rounded-lg"
             />
             <span className="font-bold text-lg text-foreground">RIALTOR</span>
-          </div>
+          </Link>
         )}
         <button
           onClick={toggleSidebar}
