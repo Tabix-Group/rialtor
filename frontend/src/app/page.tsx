@@ -411,7 +411,7 @@ export default function Home() {
             <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-border shadow-2xl">
               <video
-                src="/docs/Videos/RIALTOR.mp4"
+                src="/docs/Videos/demo.mp4"
                 title="Demo RIALTOR"
                 controls
                 className="w-full h-full object-cover bg-muted"
