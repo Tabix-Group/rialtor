@@ -755,11 +755,16 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     };
 
     const lines = [];
-    // Tamaños de fuente adaptativos con sistema mejorado
-    const precioSize = Math.max(24, Math.min(42, Math.floor(width / 25 * finalScaleFactor)));
-    const infoSize = Math.max(14, Math.min(22, Math.floor(width / 40 * finalScaleFactor)));
-    const contactoSize = Math.max(12, Math.min(18, Math.floor(width / 50 * finalScaleFactor)));
-    const labelSize = Math.max(11, Math.min(16, Math.floor(width / 60 * finalScaleFactor)));
+    // Tamaños de fuente adaptativos mejorados para ocupar ~25% de la imagen
+    // Factor de escala basado en el área de la imagen para mejor proporción
+    const imageArea = width * height;
+    const baseScale = Math.sqrt(imageArea) / 100;
+    
+    // Aumentar significativamente los tamaños para que sean más visibles (25% del espacio)
+    const precioSize = Math.max(36, Math.min(72, Math.floor(width / 18 * finalScaleFactor * baseScale / 10)));
+    const infoSize = Math.max(20, Math.min(38, Math.floor(width / 28 * finalScaleFactor * baseScale / 10)));
+    const contactoSize = Math.max(16, Math.min(28, Math.floor(width / 35 * finalScaleFactor * baseScale / 10)));
+    const labelSize = Math.max(14, Math.min(24, Math.floor(width / 45 * finalScaleFactor * baseScale / 10)));
     
     lines.push({ text: `${moneda} ${formatPrice(precio)}`, cls: 'precio', size: precioSize });
 
@@ -780,10 +785,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (email) lines.push({ icon: svgIconsMain.correo, text: email, cls: 'contacto', size: contactoSize });
 
     // Calcular ancho máximo para el box
+    // Tamaño de icono dinámico para cálculo de ancho
+    const iconSizeCalc = Math.max(20, Math.min(36, Math.floor(infoSize * 1.2)));
+    const iconSpacingCalc = Math.floor(iconSizeCalc * 1.3);
+    
     let maxLineWidth = 0;
     for (const ln of lines) {
       if (ln.cls === 'precio') continue;
-      const textWidth = ln.text.length * (ln.size * 0.6) + (ln.icon ? 22 : 0) + 40;
+      const textWidth = ln.text.length * (ln.size * 0.65) + (ln.icon ? iconSpacingCalc : 0) + 60;
       if (textWidth > maxLineWidth) maxLineWidth = textWidth;
     }
 
@@ -791,16 +800,17 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     const corredoresText = corredores || null;
 
     // Crear dos boxes: uno para precio (arriba derecha) y otro para info (abajo)
-    const margin = 20;
-    const padding = Math.max(14, Math.floor(18 * finalScaleFactor));
-    // Espaciado entre líneas adaptativo: se reduce si hay muchos campos
-    const lineHeight = Math.max(20, Math.floor((width / 50) * finalScaleFactor) - Math.floor(fieldCount / 4));
+    // Aumentar margen y padding para mejor visibilidad
+    const margin = Math.max(25, Math.floor(width / 40));
+    const padding = Math.max(20, Math.floor(28 * finalScaleFactor));
+    // Espaciado entre líneas adaptativo mejorado
+    const lineHeight = Math.max(28, Math.floor((width / 35) * finalScaleFactor) - Math.floor(fieldCount / 5));
 
-    // Calcular tamaño dinámico del box de precio basado en el contenido
+    // Calcular tamaño dinámico del box de precio - más grande para mejor visibilidad
     const precioText = `${moneda} ${formatPrice(precio)}`;
-    const precioTextWidth = precioText.length * Math.floor(precioSize * 0.6);
-    const precioBoxWidth = Math.max(200, Math.min(precioTextWidth + padding * 2, Math.floor(width * 0.35)));
-    const precioBoxHeight = Math.max(80, Math.floor(height * 0.10));
+    const precioTextWidth = precioText.length * Math.floor(precioSize * 0.65);
+    const precioBoxWidth = Math.max(280, Math.min(precioTextWidth + padding * 3, Math.floor(width * 0.45)));
+    const precioBoxHeight = Math.max(100, Math.floor(height * 0.15));
     const precioBoxX = width - precioBoxWidth - margin;
     const precioBoxY = margin;
 
@@ -818,11 +828,11 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     if (contacto) infoLineCount++;
     if (email) infoLineCount++;
 
-    const infoBoxWidth = Math.max(350, maxLineWidth);
-    // Usar espaciado adaptativo calculado anteriormente
-    const infoBoxHeight = Math.max(100, Math.min(infoLineCount * (lineHeight + adaptiveSpacing) + padding * 2, Math.floor(height * 0.45)));
+    const infoBoxWidth = Math.max(450, maxLineWidth);
+    // Usar espaciado adaptativo calculado anteriormente - aumentar altura para ~25% de la imagen
+    const infoBoxHeight = Math.max(150, Math.min(infoLineCount * (lineHeight + adaptiveSpacing) + padding * 3, Math.floor(height * 0.55)));
     const infoBoxX = width - infoBoxWidth - margin;
-    const infoBoxY = precioBoxY + precioBoxHeight + 10;
+    const infoBoxY = precioBoxY + precioBoxHeight + Math.floor(margin / 2);
 
     let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n`;
@@ -871,14 +881,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" style="font-family: 'DejaVu Sans', 'Arial Black', sans-serif; font-size: ${precioSize}px; font-weight: 900; fill: ${selectedScheme.priceTextColor};">${escapeForSvg(precioText)}</text>\n`;
 
     // Dibujar información en su box (ahora con wrapping y cálculo de alto dinámico)
-    const infoX = infoBoxX + 20;
+    const infoX = infoBoxX + padding;
     // Filtrar líneas que no son precio
     const infoLines = lines.filter(ln => ln.cls !== 'precio');
 
-    // Calcular ancho útil para texto dentro del box (restar padding y espacio para icono)
-    const maxInfoWidthCap = Math.floor(width * 0.55);
-    const effectiveInfoBoxWidth = Math.max(350, Math.min(maxLineWidth, maxInfoWidthCap));
-    const maxTextWidth = Math.max(80, effectiveInfoBoxWidth - padding * 2 - 28);
+    // Calcular ancho útil para texto dentro del box - aumentado para mejor visibilidad
+    const maxInfoWidthCap = Math.floor(width * 0.65);
+    const effectiveInfoBoxWidth = Math.max(450, Math.min(maxLineWidth, maxInfoWidthCap));
+    const maxTextWidth = Math.max(120, effectiveInfoBoxWidth - padding * 3 - 35);
 
     // Calcular cuántas líneas renderizadas ocupará realmente el contenido (considerando wrapping)
     let renderedLinesCount = 0;
@@ -925,16 +935,26 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
 
     // Ahora renderizamos las líneas envueltas dentro del box
     let cursorY = finalInfoBoxY + padding + Math.floor(lineHeight / 2);
-    const baseTextX = finalInfoBoxX + 20;
+    const baseTextX = finalInfoBoxX + padding;
+    // Calcular tamaño de icono dinámico basado en el tamaño de fuente
+    const iconSize = Math.max(20, Math.min(36, Math.floor(infoSize * 1.2)));
+    const iconSpacing = Math.floor(iconSize * 1.3);
+    
     for (let idx = 0; idx < linesWrapCache.length; idx++) {
       const { ln, parts } = linesWrapCache[idx];
-      const iconSvg = ln.icon && (ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon]) ? (ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon]) : null;
+      let iconSvg = ln.icon && (ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon]) ? (ln.icon.startsWith('<svg') ? ln.icon : svgIconsMain[ln.icon]) : null;
+      
+      // Escalar el icono SVG dinámicamente
+      if (iconSvg) {
+        iconSvg = iconSvg.replace(/width="18" height="18"/, `width="${iconSize}" height="${iconSize}"`);
+      }
+      
       for (let p = 0; p < parts.length; p++) {
         const part = escapeForSvg(parts[p]);
-        const textX = baseTextX + (iconSvg && p === 0 ? 22 : 0);
+        const textX = baseTextX + (iconSvg && p === 0 ? iconSpacing : 0);
         if (iconSvg && p === 0) {
           const iconX = baseTextX;
-          const iconY = cursorY - Math.floor((ln.size || infoSize) * 0.72);
+          const iconY = cursorY - Math.floor((ln.size || infoSize) * 0.75);
           svg += `  <g transform="translate(${iconX}, ${iconY})">${iconSvg}</g>\n`;
         }
         if (ln.cls === 'label') {
@@ -951,13 +971,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
 
     // Render corredores box bottom-left if present
     if (corredoresText) {
-      const corrFontSize = Math.max(11, Math.floor((width / 80) * finalScaleFactor));
-      const corrChar = Math.max(6, Math.floor(corrFontSize * 0.6));
-      const margin = 20;
-      const maxCorrBoxW = Math.min(Math.floor(width * 0.6), 520);
-      const estW = corredoresText.length * corrChar + padding * 2;
-      const cW = Math.min(maxCorrBoxW, Math.max(200, estW));
-      const cMaxChars = Math.max(20, Math.floor((cW - padding * 2) / corrChar));
+      // Aumentar tamaño de fuente para corredores proporcionalmente
+      const corrFontSize = Math.max(16, Math.floor((width / 55) * finalScaleFactor * baseScale / 10));
+      const corrChar = Math.max(8, Math.floor(corrFontSize * 0.65));
+      const corrMargin = Math.max(25, Math.floor(width / 40));
+      const maxCorrBoxW = Math.min(Math.floor(width * 0.7), 650);
+      const estW = corredoresText.length * corrChar + padding * 3;
+      const cW = Math.min(maxCorrBoxW, Math.max(250, estW));
+      const cMaxChars = Math.max(20, Math.floor((cW - padding * 3) / corrChar));
       // split into parts
       const safeCorr = escapeForSvg(corredoresText);
       // word-wrap based on cMaxChars estimate
@@ -979,16 +1000,16 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
         }
       }
       if (line) corrParts.push(line);
-      const cH = Math.max(30, corrParts.length * (Math.max(12, corrFontSize) + adaptiveSpacing) + padding);
-      const cX = margin;
-      const cY = height - 12;
+      const cH = Math.max(50, corrParts.length * (Math.max(18, corrFontSize) + adaptiveSpacing) + padding * 2);
+      const cX = corrMargin;
+      const cY = height - Math.floor(corrMargin / 2);
       // compute final width to accommodate the longest wrapped part (by chars -> pixels estimate)
       let maxPartLen = 0;
       for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
       // Use a more generous character width estimate and add extra margin
-      const charWidthGenerous = Math.max(8, Math.floor(corrFontSize * 0.6));
-      const neededForParts = maxPartLen * charWidthGenerous + padding * 2;
-      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 200));
+      const charWidthGenerous = Math.max(10, Math.floor(corrFontSize * 0.65));
+      const neededForParts = maxPartLen * charWidthGenerous + padding * 3;
+      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 250));
       // draw rect with final width - usar color del esquema seleccionado
       svg += `  <g filter="url(#f1)">\n`;
       svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="${selectedScheme.corredoresBoxFill}" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
@@ -1006,20 +1027,20 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
 
     const origenText = 'Rialtor.app';
     const origenSafe = escapeForSvg(origenText);
-    const origenSize = Math.max(12, Math.floor(width / 80));
-    const originMargin = 12;
+    const origenSize = Math.max(14, Math.floor(width / 60 * baseScale / 10));
+    const originMargin = Math.max(18, Math.floor(width / 60));
     const origenX = width - originMargin;
     const origenY = height - originMargin;
 
     // Render descripcion bottom-right (above logo) if present
     if (descripcion) {
       const descSafe = escapeForSvg(descripcion);
-      const descSize = Math.max(12, Math.floor(width / 70));
-      const descPadding = 14;
+      const descSize = Math.max(16, Math.floor(width / 50 * baseScale / 10));
+      const descPadding = Math.max(16, Math.floor(padding * 0.8));
 
-      // Calculate description box dimensions
-      const maxDescWidth = Math.min(Math.floor(width * 0.4), 320);
-      const charWidth = Math.max(6, Math.floor(descSize * 0.55));
+      // Calculate description box dimensions - aumentar ancho máximo
+      const maxDescWidth = Math.min(Math.floor(width * 0.5), 450);
+      const charWidth = Math.max(8, Math.floor(descSize * 0.6));
       const maxCharsPerLine = Math.floor((maxDescWidth - descPadding * 2) / charWidth);
 
       // Word wrap description
@@ -1057,34 +1078,34 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     }
 
     // Box para origen bottom-right
-    const origenBoxWidth = origenText.length * (origenSize * 0.6) + 36;
-    const origenBoxHeight = Math.max(30, origenSize + 18);
+    const origenBoxWidth = origenText.length * (origenSize * 0.65) + 48;
+    const origenBoxHeight = Math.max(40, origenSize + 24);
     const origenBoxX = width - origenBoxWidth - originMargin;
     const origenBoxY = height - origenBoxHeight - originMargin;
     svg += `  <g filter="url(#f1)">\n`;
-    svg += `    <rect x="${origenBoxX}" y="${origenBoxY}" width="${origenBoxWidth}" height="${origenBoxHeight}" rx="8" fill="rgba(50, 50, 50, 0.7)" opacity="1" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+    svg += `    <rect x="${origenBoxX}" y="${origenBoxY}" width="${origenBoxWidth}" height="${origenBoxHeight}" rx="10" fill="rgba(50, 50, 50, 0.75)" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
     svg += `  </g>\n`;
 
-    svg += `  <text x="${origenBoxX + 10}" y="${origenBoxY + origenSize * 0.9}" text-anchor="start" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; fill: #FFFFFF;">${origenSafe}</text>\n`;
+    svg += `  <text x="${origenBoxX + 14}" y="${origenBoxY + origenSize + 8}" text-anchor="start" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size: ${origenSize}px; font-weight: 600; fill: #FFFFFF;">${origenSafe}</text>\n`;
 
     // Agregar marca en esquina superior izquierda si existe
     if (brand) {
       const brandSafe = escapeForSvg(brand);
-      const brandSize = Math.max(14, Math.floor(width / 50));
-      const brandMargin = 20;
+      const brandSize = Math.max(18, Math.floor(width / 40 * baseScale / 10));
+      const brandMargin = Math.max(25, Math.floor(width / 40));
       const brandX = brandMargin;
       const brandY = brandMargin + brandSize;
       
       // Calcular ancho del texto de forma más conservadora para asegurar que quepa
       const approxCharWidth = brandSize * 0.75; // Factor más alto para asegurar que quepa
       const brandTextWidth = brandSafe.length * approxCharWidth;
-      const brandBoxWidth = brandTextWidth + 32; // Más padding extra para seguridad
-      const brandBoxHeight = brandSize + 20;
+      const brandBoxWidth = brandTextWidth + 40; // Más padding extra para seguridad
+      const brandBoxHeight = brandSize + 28;
       
       // Fondo con opacidad del 50%
-      svg += `  <rect x="${brandX - 16}" y="${brandY - brandSize - 12}" width="${brandBoxWidth}" height="${brandBoxHeight}" rx="6" fill="rgba(255,255,255,0.5)" stroke="rgba(0,0,0,0.1)" stroke-width="1" />\n`;
+      svg += `  <rect x="${brandX - 20}" y="${brandY - brandSize - 16}" width="${brandBoxWidth}" height="${brandBoxHeight}" rx="8" fill="rgba(255,255,255,0.5)" stroke="rgba(0,0,0,0.1)" stroke-width="1.5" />\n`;
       
-      svg += `  <text x="${brandX}" y="${brandY}" text-anchor="start" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${brandSize}px; font-weight: 600; fill: #000000;">${brandSafe}</text>\n`;
+      svg += `  <text x="${brandX}" y="${brandY}" text-anchor="start" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${brandSize}px; font-weight: 700; fill: #000000;">${brandSafe}</text>\n`;
     }
 
     svg += `</svg>`;

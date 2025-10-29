@@ -293,19 +293,37 @@ export default function DocumentSummaryPage() {
 
           <div className="p-8">
             <div className="mb-4">
-              <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" id="file-upload" />
+              <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" id="file-upload" disabled={loading} />
               <label
                 htmlFor="file-upload"
-                className="flex items-center justify-center w-full px-6 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors"
+                className={`flex items-center justify-center w-full px-6 py-8 border-2 border-dashed rounded-lg transition-colors ${
+                  loading 
+                    ? 'border-indigo-400 bg-indigo-50 cursor-not-allowed' 
+                    : 'border-gray-300 cursor-pointer hover:border-indigo-500'
+                }`}
               >
                 <div className="text-center">
-                  <Upload className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                  <p className="text-sm text-gray-600">
-                    {fileRef.current?.files?.[0] ? fileRef.current.files[0].name : 'Haz clic para seleccionar un archivo'}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    PDF, DOC, DOCX o TXT (máx. 10MB)
-                  </p>
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent mx-auto mb-3"></div>
+                      <p className="text-sm text-indigo-700 font-medium">
+                        Procesando documento...
+                      </p>
+                      <p className="text-xs text-indigo-600 mt-1">
+                        Por favor espera mientras analizamos el archivo
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                      <p className="text-sm text-gray-600">
+                        {fileRef.current?.files?.[0] ? fileRef.current.files[0].name : 'Haz clic para seleccionar un archivo'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        PDF, DOC, DOCX o TXT (máx. 10MB)
+                      </p>
+                    </>
+                  )}
                 </div>
               </label>
             </div>
