@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { useAuth } from "./auth/authContext"
+import EconomicIndicatorsCard from "../components/EconomicIndicatorsCard"
 
 // SVG icon components
 const BookOpen = ({ className }: { className?: string }) => (
@@ -168,6 +169,15 @@ export default function Home() {
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
       requiresAuth: false,
+    },
+    {
+      name: "Indicadores de Mercado",
+      description:
+        "Datos en tiempo real del mercado inmobiliario y cotizaciones actualizadas automáticamente. Dólar, precios por m² y escrituraciones.",
+      icon: TrendingUp,
+      href: "/indicadores",
+      requiresAuth: false,
+      isSpecial: true, // Flag para renderizar el componente especial
     },
     {
       name: "Consultor Inmobiliario IA",
@@ -358,8 +368,14 @@ export default function Home() {
 
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) =>
-              !feature.requiresAuth || user ? (
+            {features.map((feature) => {
+              // Renderizar el componente especial de indicadores
+              if (feature.isSpecial && feature.name === "Indicadores de Mercado") {
+                return <EconomicIndicatorsCard key={feature.name} />
+              }
+
+              // Renderizar features normales
+              return !feature.requiresAuth || user ? (
                 <a key={feature.name} href={feature.href} className="group relative">
                   <div className="relative h-full p-8 bg-card border border-border rounded-3xl hover:border-foreground/20 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
                     {/* Icon */}
@@ -395,8 +411,8 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              ),
-            )}
+              )
+            })}
           </div>
         </div>
       </section>

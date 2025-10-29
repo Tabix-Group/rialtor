@@ -7,6 +7,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSidebar } from "../contexts/SidebarContext"
+import EconomicIndicators from "./EconomicIndicators"
 import {
   Menu,
   X,
@@ -26,6 +27,7 @@ import {
   PanelLeftOpen,
   DollarSign,
   Calendar,
+  TrendingUp,
 } from "lucide-react"
 
 function Navigation() {
@@ -66,6 +68,12 @@ function Navigation() {
       name: "Mi Panel",
       href: user ? "/dashboard" : "/",
       icon: Home,
+    },
+    {
+      name: "Indicadores",
+      href: "/indicadores",
+      icon: TrendingUp,
+      description: "Indicadores económicos e inmobiliarios en tiempo real",
     },
     {
       name: "Mi Calendario",
@@ -286,6 +294,13 @@ function Navigation() {
           })}
         </nav>
       </div>
+      )}
+
+      {/* Economic Indicators Widget (only when expanded and user logged in) */}
+      {user && !isCollapsed && (
+        <div className="border-t border-border">
+          <EconomicIndicators />
+        </div>
       )}
 
       {/* User Section */}
