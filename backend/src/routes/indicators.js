@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const indicatorsController = require('../controllers/indicatorsController');
 const { authenticate } = require('../middleware/auth');
-const { checkPermissions } = require('../middleware/permissions');
+const { checkPermission } = require('../middleware/permissions');
 
 /**
  * @route   GET /api/indicators/dolar
@@ -30,6 +30,6 @@ router.get('/all', indicatorsController.getAllIndicators);
  * @desc    Limpia el cache de indicadores
  * @access  Private (Admin only)
  */
-router.post('/clear-cache', authenticate, checkPermissions(['manage_system']), indicatorsController.clearCache);
+router.post('/clear-cache', authenticate, checkPermission('manage_system'), indicatorsController.clearCache);
 
 module.exports = router;
