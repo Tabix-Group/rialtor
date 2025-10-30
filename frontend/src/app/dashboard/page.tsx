@@ -7,6 +7,7 @@ import { useAuth } from "../auth/authContext"
 import { useRouter } from "next/navigation"
 import { authenticatedFetch } from "@/utils/api"
 import Link from "next/link"
+import EconomicIndicators from "@/components/EconomicIndicators"
 import {
   Calculator,
   FileText,
@@ -35,6 +36,8 @@ import {
   Edit,
   X,
   Video,
+  DollarSign,
+  Building2,
 } from "lucide-react"
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
@@ -116,6 +119,7 @@ export default function DashboardPage() {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; event: CalendarEvent } | null>(null)
   const [calendarExpanded, setCalendarExpanded] = useState(false)
   const [calendarConnected, setCalendarConnected] = useState(false)
+  const [indicatorsExpanded, setIndicatorsExpanded] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -771,6 +775,7 @@ export default function DashboardPage() {
         ) : (
           <div className="mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Calendar Card */}
               <div
                 onClick={() => setCalendarExpanded(true)}
                 className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50 group cursor-pointer"
@@ -807,6 +812,77 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Economic Indicators Card */}
+              <div
+                onClick={() => setIndicatorsExpanded(true)}
+                className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50 group cursor-pointer"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                    <DollarSign className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-accent/50 rounded-full">
+                    <TrendingUp className="w-3.5 h-3.5 text-accent-foreground" />
+                    <span className="text-xs font-bold text-accent-foreground">Live</span>
+                  </div>
+                </div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Indicadores</p>
+                <p className="text-3xl font-bold text-foreground mb-3">Mercado</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <DollarSign className="w-3 h-3" />
+                    <span className="truncate">Dólar Blue</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Building2 className="w-3 h-3" />
+                    <span className="truncate">Precio m² CABA</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground">Ver detalles</span>
+                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Economic Indicators Expanded */}
+        {indicatorsExpanded && (
+          <div className="bg-card rounded-2xl border border-border p-6 mb-8 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Indicadores de Mercado</h3>
+                  <p className="text-sm text-muted-foreground">Datos en tiempo real del mercado inmobiliario</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIndicatorsExpanded(false)}
+                  className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-xl hover:bg-muted/80 transition-all duration-200 font-semibold text-sm"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Minimizar
+                </button>
+                <Link
+                  href="/indicadores"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition-all duration-200 font-semibold text-sm"
+                >
+                  Ver página completa
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="max-h-[600px] overflow-y-auto">
+              <EconomicIndicators />
             </div>
           </div>
         )}
