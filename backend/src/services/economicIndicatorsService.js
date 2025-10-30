@@ -28,7 +28,10 @@ class EconomicIndicatorsService {
 
       // API pública de dólar argentina (dolarapi.com)
       const response = await axios.get('https://dolarapi.com/v1/dolares', {
-        timeout: 5000
+        timeout: 3000,
+        headers: {
+          'User-Agent': 'RIALTOR/1.0'
+        }
       });
 
       const data = response.data;
