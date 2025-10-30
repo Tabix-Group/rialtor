@@ -25,7 +25,7 @@ const filesRoutes = require('./routes/files');
 const formsRoutes = require('./routes/forms');
 const financesRoutes = require('./routes/finances');
 const favoritesRoutes = require('./routes/favorites');
-const indicatorsRoutes = require('./routes/indicators');
+// const indicatorsRoutes = require('./routes/indicators'); // Temporalmente deshabilitado
 
 const app = express();
 // Confía en el primer proxy (Railway/Nginx)
@@ -210,7 +210,7 @@ app.use('/api/files', filesRoutes);
 app.use('/api/forms', formsRoutes);
 app.use('/api/finances', financesRoutes);
 app.use('/api/favorites', favoritesRoutes);
-app.use('/api/indicators', indicatorsRoutes);
+// app.use('/api/indicators', indicatorsRoutes); // Temporalmente deshabilitado
 app.use('/api/calendar', require('./routes/calendar'));
 app.use('/api/calendar', require('./routes/calendar'));
 
