@@ -7,7 +7,6 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSidebar } from "../contexts/SidebarContext"
-import EconomicIndicators from "./EconomicIndicators"
 import {
   Menu,
   X,
@@ -294,13 +293,6 @@ function Navigation() {
           })}
         </nav>
       </div>
-      )}
-
-      {/* Economic Indicators Widget (only when expanded and user logged in) */}
-      {user && !isCollapsed && (
-        <div className="border-t border-border">
-          <EconomicIndicators />
-        </div>
       )}
 
       {/* User Section */}
