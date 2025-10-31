@@ -1,5 +1,13 @@
 const { PrismaClient } = require('@prisma/client');
-const { syncWorldPropertyJournal, cleanOldNews, getImportStats } = require('../services/rssService');
+const { 
+    syncWorldPropertyJournal, 
+    syncAllRSSSources, 
+    syncRSSSource,
+    cleanOldNews, 
+    getImportStats,
+    getRSSSources,
+    RSS_SOURCES 
+} = require('../services/rssService');
 
 const prisma = new PrismaClient();
 
@@ -198,9 +206,12 @@ const getCategories = async (req, res, next) => {
 // POST /api/news/sync - Sync news from RSS feed (admin only)
 const syncRSSFeed = async (req, res, next) => {
     try {
-        const { limit = 20 } = req.body;
+        const { limit = 20, sources = null } = req.body;
 
-        const result = await syncWorldPropertyJournal(limit);
+        // Si no se especifican fuentes, sincronizar todas
+        const result = sources 
+            ? await syncAllRSSSources(limit, sources)
+            : await syncAllRSSSources(limit);
 
         if (result.success) {
             res.json({
@@ -213,6 +224,49 @@ const syncRSSFeed = async (req, res, next) => {
                 stats: result.stats
             });
         }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// POST /api/news/sync/:source - Sync specific RSS source (admin only)
+const syncSpecificSource = async (req, res, next) => {
+    try {
+        const { source } = req.params;
+        const { limit = 20 } = req.body;
+
+        // Verificar que la fuente existe
+        const sourceConfig = RSS_SOURCES[source];
+        if (!sourceConfig) {
+            return res.status(404).json({ 
+                error: `Fuente RSS no encontrada: ${source}`,
+                availableSources: Object.keys(RSS_SOURCES)
+            });
+        }
+
+        const result = await syncRSSSource(sourceConfig, limit);
+
+        if (result.success) {
+            res.json({
+                message: `${sourceConfig.name}: ${result.stats.imported} importadas, ${result.stats.updated} actualizadas, ${result.stats.skipped} omitidas`,
+                stats: result.stats
+            });
+        } else {
+            res.status(500).json({
+                error: result.error,
+                stats: result.stats
+            });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET /api/news/sources - Get available RSS sources (admin only)
+const getRSSSourcesList = async (req, res, next) => {
+    try {
+        const sources = getRSSSources();
+        res.json({ sources });
     } catch (error) {
         next(error);
     }
@@ -262,6 +316,8 @@ module.exports = {
     getAllNewsAdmin,
     getCategories,
     syncRSSFeed,
+    syncSpecificSource,
+    getRSSSourcesList,
     cleanOldNewsItems,
     getNewsStats
 };

@@ -4,40 +4,70 @@
  */
 
 require('dotenv').config();
-const { syncWorldPropertyJournal, getImportStats } = require('./src/services/rssService');
+const { syncAllRSSSources, syncRSSSource, getImportStats, getRSSSources, RSS_SOURCES } = require('./src/services/rssService');
 
 async function testRSSSync() {
     console.log('='.repeat(60));
-    console.log('TEST: Sincronización de noticias RSS');
+    console.log('TEST: Sincronización de noticias RSS - Múltiples Fuentes');
     console.log('='.repeat(60));
     console.log('');
 
     try {
-        // Probar sincronización
-        console.log('📡 Iniciando sincronización de prueba (límite: 10 noticias)...');
-        const result = await syncWorldPropertyJournal(10);
+        // Listar fuentes disponibles
+        const sources = getRSSSources();
+        console.log('📡 Fuentes RSS disponibles:');
+        sources.forEach((source, idx) => {
+            console.log(`  ${idx + 1}. ${source.name}`);
+            console.log(`     URL: ${source.url}`);
+            console.log(`     Categoría: ${source.category}`);
+        });
+        console.log('');
+
+        // Probar sincronización de todas las fuentes
+        console.log('='.repeat(60));
+        console.log('Sincronización de TODAS las fuentes (límite: 10 noticias c/u)...');
+        console.log('='.repeat(60));
+        console.log('');
+
+        const result = await syncAllRSSSources(10);
 
         console.log('');
-        console.log('Resultado:');
+        console.log('Resultado General:');
         console.log('  ✓ Éxito:', result.success);
         console.log('  📊 Mensaje:', result.message);
         
         if (result.stats) {
             console.log('');
-            console.log('Estadísticas:');
-            console.log('  - Total procesadas:', result.stats.total);
-            console.log('  - Importadas:', result.stats.imported);
-            console.log('  - Actualizadas:', result.stats.updated);
-            console.log('  - Omitidas:', result.stats.skipped);
+            console.log('Estadísticas Consolidadas:');
+            console.log('  - Total de fuentes:', result.stats.totalSources);
+            console.log('  - Fuentes exitosas:', result.stats.successfulSources);
+            console.log('  - Fuentes fallidas:', result.stats.failedSources);
+            console.log('  - Total importadas:', result.stats.totalImported);
+            console.log('  - Total actualizadas:', result.stats.totalUpdated);
+            console.log('  - Total omitidas:', result.stats.totalSkipped);
             
-            if (result.stats.errors.length > 0) {
-                console.log('  - Errores:', result.stats.errors.length);
-                console.log('');
-                console.log('Errores:');
-                result.stats.errors.forEach((err, idx) => {
-                    console.log(`  ${idx + 1}. ${err.title}: ${err.error}`);
-                });
+            if (result.stats.totalErrors > 0) {
+                console.log('  - Total errores:', result.stats.totalErrors);
             }
+
+            console.log('');
+            console.log('Detalles por fuente:');
+            result.stats.bySource.forEach((sourceResult, idx) => {
+                console.log('');
+                console.log(`  ${idx + 1}. ${sourceResult.stats.source}:`);
+                console.log(`     ✓ Éxito: ${sourceResult.success}`);
+                console.log(`     - Procesadas: ${sourceResult.stats.total}`);
+                console.log(`     - Importadas: ${sourceResult.stats.imported}`);
+                console.log(`     - Actualizadas: ${sourceResult.stats.updated}`);
+                console.log(`     - Omitidas: ${sourceResult.stats.skipped}`);
+                
+                if (sourceResult.stats.errors && sourceResult.stats.errors.length > 0) {
+                    console.log(`     ⚠️  Errores: ${sourceResult.stats.errors.length}`);
+                    sourceResult.stats.errors.forEach((err, errIdx) => {
+                        console.log(`        ${errIdx + 1}. ${err.title}: ${err.error}`);
+                    });
+                }
+            });
         }
 
         // Obtener estadísticas generales

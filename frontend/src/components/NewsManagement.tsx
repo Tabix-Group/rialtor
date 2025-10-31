@@ -28,6 +28,13 @@ interface Category {
     color: string
 }
 
+interface RSSSource {
+    key: string
+    name: string
+    url: string
+    category: string
+}
+
 interface NewsResponse {
     news: NewsItem[]
     pagination: {
@@ -41,6 +48,7 @@ interface NewsResponse {
 export default function NewsManagement() {
     const [news, setNews] = useState<NewsItem[]>([])
     const [categories, setCategories] = useState<Category[]>([])
+    const [rssSources, setRssSources] = useState<RSSSource[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [editingNews, setEditingNews] = useState<NewsItem | null>(null)
@@ -49,6 +57,7 @@ export default function NewsManagement() {
     const [pagination, setPagination] = useState<NewsResponse['pagination'] | null>(null)
     const [syncing, setSyncing] = useState(false)
     const [syncMessage, setSyncMessage] = useState<string | null>(null)
+    const [showSyncOptions, setShowSyncOptions] = useState(false)
     const [formData, setFormData] = useState({
         title: '',
         synopsis: '',
@@ -60,6 +69,7 @@ export default function NewsManagement() {
 
     useEffect(() => {
         fetchCategories()
+        fetchRSSSources()
         fetchNews(currentPage, pageSize)
     }, [currentPage, pageSize])
 
@@ -82,6 +92,18 @@ export default function NewsManagement() {
             console.log('Categories set in state:', data.categories || [])
         } catch (error) {
             console.error('Error fetching categories:', error)
+        }
+    }
+
+    const fetchRSSSources = async () => {
+        try {
+            const response = await authenticatedFetch('/api/news/sources')
+            if (response.ok) {
+                const data = await response.json()
+                setRssSources(data.sources || [])
+            }
+        } catch (error) {
+            console.error('Error fetching RSS sources:', error)
         }
     }
 
@@ -221,8 +243,8 @@ export default function NewsManagement() {
                 setSyncMessage(`✅ ${data.message}`)
                 await fetchNews(currentPage, pageSize)
                 
-                // Limpiar mensaje después de 5 segundos
-                setTimeout(() => setSyncMessage(null), 5000)
+                // Limpiar mensaje después de 8 segundos
+                setTimeout(() => setSyncMessage(null), 8000)
             } else {
                 setSyncMessage(`❌ Error: ${data.error || 'No se pudo sincronizar'}`)
             }
@@ -231,6 +253,39 @@ export default function NewsManagement() {
             setSyncMessage('❌ Error al sincronizar noticias')
         } finally {
             setSyncing(false)
+            setShowSyncOptions(false)
+        }
+    }
+
+    const handleSyncSpecificSource = async (sourceKey: string) => {
+        try {
+            setSyncing(true)
+            setSyncMessage(null)
+            
+            const response = await authenticatedFetch(`/api/news/sync/${sourceKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ limit: 30 })
+            })
+
+            const data = await response.json()
+
+            if (response.ok) {
+                setSyncMessage(`✅ ${data.message}`)
+                await fetchNews(currentPage, pageSize)
+                
+                setTimeout(() => setSyncMessage(null), 8000)
+            } else {
+                setSyncMessage(`❌ Error: ${data.error || 'No se pudo sincronizar'}`)
+            }
+        } catch (error) {
+            console.error('Error syncing specific source:', error)
+            setSyncMessage('❌ Error al sincronizar fuente')
+        } finally {
+            setSyncing(false)
+            setShowSyncOptions(false)
         }
     }
 
@@ -259,14 +314,50 @@ export default function NewsManagement() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h4 className="text-lg font-semibold text-gray-900">Noticias ({pagination?.total || news.length})</h4>
                 <div className="flex flex-wrap gap-3">
-                    <button
-                        onClick={handleSyncRSS}
-                        disabled={syncing}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-                        {syncing ? 'Sincronizando...' : 'Sincronizar RSS'}
-                    </button>
+                    {/* Sync Dropdown */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowSyncOptions(!showSyncOptions)}
+                            disabled={syncing}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                            {syncing ? 'Sincronizando...' : 'Sincronizar RSS'}
+                            <span className="text-xs">▼</span>
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {showSyncOptions && !syncing && (
+                            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                                <div className="py-1">
+                                    <button
+                                        onClick={handleSyncRSS}
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        <span className="font-semibold">Sincronizar todas las fuentes</span>
+                                    </button>
+                                    <div className="border-t border-gray-200 my-1"></div>
+                                    <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+                                        Fuentes individuales:
+                                    </div>
+                                    {rssSources.map((source) => (
+                                        <button
+                                            key={source.key}
+                                            onClick={() => handleSyncSpecificSource(source.key)}
+                                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">{source.name}</span>
+                                                <span className="text-xs text-gray-500">{source.category}</span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     <button
                         onClick={() => {
                             setEditingNews(null)
