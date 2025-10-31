@@ -163,9 +163,9 @@ const Sparkles = ({ className }: { className?: string }) => (
 export default function Home() {
   const features = [
     {
-      name: "Informes y Novedades de Mercado",
+      name: "Centro de Noticias RSS",
       description:
-        "Datos precisos del mercado argentino: evolución de precios por zona, demanda real y tendencias que marcan la diferencia en tus ventas.",
+        "Actualización diaria automática de 6 fuentes especializadas del sector inmobiliario: noticias internacionales, mercado nacional, tendencias, construcción, tecnología PropTech y análisis CABA.",
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
       requiresAuth: false,
@@ -594,7 +594,7 @@ export default function Home() {
               <h3 className="font-semibold mb-6">Herramientas</h3>
               <ul className="space-y-3 text-sm">
                 {[
-                  { name: "Informes y Novedades de Mercado", href: "/news", requiresAuth: false },
+                  { name: "Centro de Noticias RSS", href: "/news", requiresAuth: false },
                   { name: "Consultor Inmobiliario IA", href: "/chat", requiresAuth: true },
                   { name: "Calculadoras Profesionales", href: "/calculadoras", requiresAuth: true },
                   { name: "Documentos Inteligentes", href: "/documents", requiresAuth: true },
