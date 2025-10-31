@@ -9,6 +9,7 @@ require('dotenv').config();
 
 const { errorHandler } = require('./middleware/errorHandler');
 const { notFound } = require('./middleware/notFound');
+const { startCronJobs } = require('./services/cronJobs');
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -230,6 +231,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔗 API: http://localhost:${PORT}/api`);
   console.log(`💡 Health check: http://localhost:${PORT}/health`);
   console.log(`🗄️ Database connection: ${process.env.DATABASE_URL ? 'configured' : 'missing'}`);
+  
+  // Iniciar tareas programadas (cron jobs)
+  startCronJobs();
 });
 
 module.exports = app;

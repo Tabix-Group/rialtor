@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { syncWorldPropertyJournal, cleanOldNews, getImportStats } = require('../services/rssService');
 
 const prisma = new PrismaClient();
 
@@ -194,6 +195,64 @@ const getCategories = async (req, res, next) => {
     }
 };
 
+// POST /api/news/sync - Sync news from RSS feed (admin only)
+const syncRSSFeed = async (req, res, next) => {
+    try {
+        const { limit = 20 } = req.body;
+
+        const result = await syncWorldPropertyJournal(limit);
+
+        if (result.success) {
+            res.json({
+                message: result.message,
+                stats: result.stats
+            });
+        } else {
+            res.status(500).json({
+                error: result.message,
+                stats: result.stats
+            });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// DELETE /api/news/clean-old - Clean old news (admin only)
+const cleanOldNewsItems = async (req, res, next) => {
+    try {
+        const { daysOld = 90 } = req.body;
+
+        const result = await cleanOldNews(daysOld);
+
+        if (result.success) {
+            res.json({
+                message: result.message,
+                deletedCount: result.deletedCount
+            });
+        } else {
+            res.status(500).json({ error: result.error });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// GET /api/news/stats - Get import statistics (admin only)
+const getNewsStats = async (req, res, next) => {
+    try {
+        const result = await getImportStats();
+
+        if (result.success) {
+            res.json({ stats: result.stats });
+        } else {
+            res.status(500).json({ error: result.error });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getNews,
     getNewsById,
@@ -201,5 +260,8 @@ module.exports = {
     updateNews,
     deleteNews,
     getAllNewsAdmin,
-    getCategories
+    getCategories,
+    syncRSSFeed,
+    cleanOldNewsItems,
+    getNewsStats
 };

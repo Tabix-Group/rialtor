@@ -44,6 +44,7 @@
     "pdf-parse": "^1.1.1",
     "pizzip": "^3.2.0",
     "prisma": "^5.7.1",
+    "rss-parser": "^3.13.0",
     "sanitize-html": "^2.11.0",
     "sharp": "^0.33.1",
     "slugify": "^1.6.6",

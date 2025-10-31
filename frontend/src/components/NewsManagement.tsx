@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, ExternalLink, Calendar, Eye, EyeOff } from 'lucide-react'
+import { Plus, Edit, Trash2, ExternalLink, Calendar, Eye, EyeOff, RefreshCw, Download } from 'lucide-react'
 import { authenticatedFetch, publicFetch } from '@/utils/api'
 
 interface NewsItem {
@@ -47,6 +47,8 @@ export default function NewsManagement() {
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [pagination, setPagination] = useState<NewsResponse['pagination'] | null>(null)
+    const [syncing, setSyncing] = useState(false)
+    const [syncMessage, setSyncMessage] = useState<string | null>(null)
     const [formData, setFormData] = useState({
         title: '',
         synopsis: '',
@@ -200,6 +202,38 @@ export default function NewsManagement() {
         })
     }
 
+    const handleSyncRSS = async () => {
+        try {
+            setSyncing(true)
+            setSyncMessage(null)
+            
+            const response = await authenticatedFetch('/api/news/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ limit: 30 })
+            })
+
+            const data = await response.json()
+
+            if (response.ok) {
+                setSyncMessage(`✅ ${data.message}`)
+                await fetchNews(currentPage, pageSize)
+                
+                // Limpiar mensaje después de 5 segundos
+                setTimeout(() => setSyncMessage(null), 5000)
+            } else {
+                setSyncMessage(`❌ Error: ${data.error || 'No se pudo sincronizar'}`)
+            }
+        } catch (error) {
+            console.error('Error syncing RSS:', error)
+            setSyncMessage('❌ Error al sincronizar noticias')
+        } finally {
+            setSyncing(false)
+        }
+    }
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-ES', {
             year: 'numeric',
@@ -221,21 +255,38 @@ export default function NewsManagement() {
 
     return (
         <div className="space-y-6">
-            {/* Header with Add Button */}
-            <div className="flex justify-between items-center">
-                <h4 className="text-lg font-semibold text-gray-900">Noticias ({news.length})</h4>
-                <button
-                    onClick={() => {
-                        setEditingNews(null)
-                        resetForm()
-                        setShowForm(true)
-                    }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                    <Plus className="w-4 h-4" />
-                    Agregar Noticia
-                </button>
+            {/* Header with Add Button and Sync */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h4 className="text-lg font-semibold text-gray-900">Noticias ({pagination?.total || news.length})</h4>
+                <div className="flex flex-wrap gap-3">
+                    <button
+                        onClick={handleSyncRSS}
+                        disabled={syncing}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                        {syncing ? 'Sincronizando...' : 'Sincronizar RSS'}
+                    </button>
+                    <button
+                        onClick={() => {
+                            setEditingNews(null)
+                            resetForm()
+                            setShowForm(true)
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Agregar Noticia
+                    </button>
+                </div>
             </div>
+
+            {/* Sync Message */}
+            {syncMessage && (
+                <div className={`p-4 rounded-lg ${syncMessage.startsWith('✅') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                    <p className="text-sm font-medium">{syncMessage}</p>
+                </div>
+            )}
 
             {/* Form Modal */}
             {showForm && (
