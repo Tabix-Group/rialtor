@@ -165,7 +165,7 @@ export default function Home() {
     {
       name: "Centro de Noticias",
       description:
-        "Actualización diaria automática de fuentes especializadas del sector inmobiliario: noticias internacionales, mercado nacional, tendencias, construcción, tecnología PropTech, análisis CABA, desarrollo de índices de costos.",
+        "Actualización diaria automática de fuentes especializadas del sector inmobiliario: noticias internacionales, mercado nacional, tendencias, construcción, tecnología PropTech, análisis CABA, desarrollo, índices y costos.",
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
       requiresAuth: false,
