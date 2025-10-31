@@ -163,9 +163,9 @@ const Sparkles = ({ className }: { className?: string }) => (
 export default function Home() {
   const features = [
     {
-      name: "Centro de Noticias RSS",
+      name: "Centro de Noticias",
       description:
-        "Actualización diaria automática de 8 fuentes especializadas del sector inmobiliario: noticias internacionales, mercado nacional, tendencias, construcción, tecnología PropTech, análisis CABA, desarrollo en Córdoba e índices de costos.",
+        "Actualización diaria automática de fuentes especializadas del sector inmobiliario: noticias internacionales, mercado nacional, tendencias, construcción, tecnología PropTech, análisis CABA, desarrollo de índices de costos.",
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
       requiresAuth: false,
