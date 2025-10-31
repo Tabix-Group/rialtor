@@ -6,13 +6,15 @@ Sistema automatizado para importar noticias de **múltiples fuentes RSS** del se
 
 ## 🌟 Características
 
-- ✅ **6 fuentes RSS integradas**:
+- ✅ **8 fuentes RSS integradas**:
   - World Property Journal (Internacional)
   - Reporte Inmobiliario (Mercado Nacional)
   - ArgenProp (Tendencias)
   - Grupo Construya (Construcción)
   - Tokko Broker Blog (Tecnología Inmobiliaria)
   - Mercado Inmobiliario CABA (CABA)
+  - Punto a Punto (Desarrollo Córdoba)
+  - Revista Construcción (Índices y Costos)
 - ✅ Sincronización automática diaria a las 8 AM (hora Argentina)
 - ✅ Sincronización manual desde el panel (todas las fuentes o individual)
 - ✅ Evita duplicados mediante URL única
@@ -53,6 +55,16 @@ Sistema automatizado para importar noticias de **múltiples fuentes RSS** del se
 - **URL**: https://mercadoinmobiliariocaba.com/feed/
 - **Categoría**: CABA (Verde Azulado #14B8A6)
 - **Descripción**: Noticias del mercado inmobiliario en Buenos Aires
+
+### 7. Punto a Punto
+- **URL**: https://puntoapunto.com.ar/feed/
+- **Categoría**: Desarrollo Córdoba (Rojo #EF4444)
+- **Descripción**: Desarrollismo inmobiliario y urbanizaciones en Córdoba
+
+### 8. Revista Construcción
+- **URL**: https://www.revistaconstruccion.com.ar/feed/
+- **Categoría**: Índices y Costos (Índigo #6366F1)
+- **Descripción**: Índices de costos de construcción y análisis técnico del sector
 
 ## 🚀 Instalación
 
@@ -134,6 +146,8 @@ Content-Type: application/json
 - `CONSTRUYA` - Grupo Construya
 - `TOKKO_BROKER` - Tokko Broker Blog
 - `MERCADO_CABA` - Mercado Inmobiliario CABA
+- `PUNTO_A_PUNTO` - Punto a Punto
+- `REVISTA_CONSTRUCCION` - Revista Construcción
 
 **Respuesta:**
 ```json
@@ -265,6 +279,8 @@ Las noticias importadas se muestran en `/news` con:
   - **Construcción** (púrpura) - Grupo Construya
   - **Tecnología Inmobiliaria** (rosa) - Tokko Broker Blog
   - **CABA** (verde azulado) - Mercado Inmobiliario CABA
+  - **Desarrollo Córdoba** (rojo) - Punto a Punto
+  - **Índices y Costos** (índigo) - Revista Construcción
 - 🔗 Enlaces directos a artículos completos
 - 📅 Fechas de publicación
 - ✍️ Synopsis del contenido (max 500 caracteres)
@@ -337,6 +353,8 @@ Cada noticia importada incluye:
 | Grupo Construya | Construcción | #8B5CF6 (Púrpura) | construccion |
 | Tokko Broker Blog | Tecnología Inmobiliaria | #EC4899 (Rosa) | tecnologia-inmobiliaria |
 | Mercado Inmobiliario CABA | CABA | #14B8A6 (Verde Azulado) | caba |
+| Punto a Punto | Desarrollo Córdoba | #EF4444 (Rojo) | desarrollo-cordoba |
+| Revista Construcción | Índices y Costos | #6366F1 (Índigo) | indices-costos |
 
 ## 🔄 Flujo de Sincronización
 
@@ -448,8 +466,8 @@ Los logs de sincronización incluyen el prefijo `[RSS Sync]`:
 
 ### Métricas Clave
 
-- **Total de fuentes**: 6
-- **Noticias por sincronización**: Hasta 30 por fuente (180 total)
+- **Total de fuentes**: 8
+- **Noticias por sincronización**: Hasta 30 por fuente (240 total)
 - **Frecuencia**: Diaria a las 8:00 AM (Argentina)
 - **Retención**: 90 días
 - **Tasa de éxito esperada**: >95%
@@ -470,6 +488,8 @@ Para problemas o consultas, revisar:
 - **Grupo Construya**: https://www.grupoconstruya.com.ar
 - **Tokko Broker**: https://www.tokkobroker.com
 - **Mercado Inmobiliario CABA**: https://mercadoinmobiliariocaba.com
+- **Punto a Punto**: https://puntoapunto.com.ar
+- **Revista Construcción**: https://www.revistaconstruccion.com.ar
 
 ## ✨ Créditos
 
@@ -480,6 +500,8 @@ Sistema desarrollado para **Rialtor** integrando contenido de:
 - **Grupo Construya** - Noticias de construcción y desarrollo
 - **Tokko Broker** - Blog sobre tecnología e innovación inmobiliaria
 - **Mercado Inmobiliario CABA** - Noticias del mercado porteño
+- **Punto a Punto** - Desarrollismo y urbanizaciones en Córdoba
+- **Revista Construcción** - Índices de costos y análisis técnico del sector
 
 Tecnologías utilizadas:
 - **rss-parser** - Parseo de feeds RSS
@@ -491,5 +513,5 @@ Tecnologías utilizadas:
 ---
 
 **Última actualización**: Octubre 2025  
-**Versión**: 2.1 (6 fuentes RSS verificadas)  
+**Versión**: 3.0 (8 fuentes RSS verificadas)  
 **Mantenido por**: Equipo Rialtor

@@ -61,6 +61,22 @@ const RSS_SOURCES = {
         categorySlug: 'caba',
         categoryColor: '#14B8A6',
         categoryDescription: 'Noticias del mercado inmobiliario en Buenos Aires'
+    },
+    PUNTO_A_PUNTO: {
+        url: 'https://puntoapunto.com.ar/feed/',
+        name: 'Punto a Punto',
+        categoryName: 'Desarrollo Córdoba',
+        categorySlug: 'desarrollo-cordoba',
+        categoryColor: '#EF4444',
+        categoryDescription: 'Desarrollismo inmobiliario y urbanizaciones en Córdoba'
+    },
+    REVISTA_CONSTRUCCION: {
+        url: 'https://www.revistaconstruccion.com.ar/feed/',
+        name: 'Revista Construcción',
+        categoryName: 'Índices y Costos',
+        categorySlug: 'indices-costos',
+        categoryColor: '#6366F1',
+        categoryDescription: 'Índices de costos de construcción y análisis técnico del sector'
     }
 };
 

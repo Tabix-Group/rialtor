@@ -165,7 +165,7 @@ export default function Home() {
     {
       name: "Centro de Noticias RSS",
       description:
-        "Actualización diaria automática de 6 fuentes especializadas del sector inmobiliario: noticias internacionales, mercado nacional, tendencias, construcción, tecnología PropTech y análisis CABA.",
+        "Actualización diaria automática de 8 fuentes especializadas del sector inmobiliario: noticias internacionales, mercado nacional, tendencias, construcción, tecnología PropTech, análisis CABA, desarrollo en Córdoba e índices de costos.",
       icon: BookOpen,
       href: "https://www.rialtor.app/news",
       requiresAuth: false,
@@ -594,7 +594,7 @@ export default function Home() {
               <h3 className="font-semibold mb-6">Herramientas</h3>
               <ul className="space-y-3 text-sm">
                 {[
-                  { name: "Centro de Noticias RSS", href: "/news", requiresAuth: false },
+                  { name: "Centro de Noticias", href: "/news", requiresAuth: false },
                   { name: "Consultor Inmobiliario IA", href: "/chat", requiresAuth: true },
                   { name: "Calculadoras Profesionales", href: "/calculadoras", requiresAuth: true },
                   { name: "Documentos Inteligentes", href: "/documents", requiresAuth: true },
