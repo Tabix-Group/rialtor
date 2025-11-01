@@ -8,8 +8,8 @@ const getCategories = async (req, res, next) => {
     const categories = await prisma.category.findMany({
       where: { isActive: true },
       include: {
-        articles: {
-          where: { status: 'PUBLISHED' },
+        news: {
+          where: { isActive: true },
           select: { id: true }
         },
         children: {
@@ -23,8 +23,8 @@ const getCategories = async (req, res, next) => {
     // Add article count to each category
     const categoriesWithCount = categories.map(category => ({
       ...category,
-      articleCount: category.articles.length,
-      articles: undefined // Remove articles from response
+      articleCount: category.news.length,
+      news: undefined // Remove news from response
     }));
 
     res.json({ categories: categoriesWithCount });
@@ -184,7 +184,7 @@ const updateCategory = async (req, res, next) => {
       include: {
         parent: true,
         children: true,
-        articles: {
+        news: {
           select: { id: true }
         }
       }
@@ -193,8 +193,8 @@ const updateCategory = async (req, res, next) => {
     res.json({ 
       category: {
         ...category,
-        articleCount: category.articles.length,
-        articles: undefined
+        articleCount: category.news.length,
+        news: undefined
       }
     });
   } catch (error) {
