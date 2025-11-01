@@ -5,10 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
     Send,
     MessageCircle,
-    Mic,
-    MicOff,
-    Volume2,
-    VolumeX,
     Loader2,
     RefreshCw,
     Sparkles,
@@ -32,12 +28,6 @@ export default function ChatPage() {
     } = useAssistantChat()
 
     const [inputValue, setInputValue] = useState('')
-    const [isRecording, setIsRecording] = useState(false)
-    const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
-    const [audioChunks, setAudioChunks] = useState<Blob[]>([])
-    const [recordingDuration, setRecordingDuration] = useState(0)
-    const [recordingInterval, setRecordingInterval] = useState<NodeJS.Timeout | null>(null)
-    const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
     // Focus input when page loads
     useEffect(() => {
@@ -67,140 +57,6 @@ export default function ChatPage() {
     const handleQuickSuggestion = (text: string) => {
         setInputValue(text)
         inputRef.current?.focus()
-    }
-
-    // Audio recording functions
-    const startRecording = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    sampleRate: 44100
-                }
-            })
-
-            let mimeType = 'audio/webm;codecs=opus'
-            if (!MediaRecorder.isTypeSupported(mimeType)) {
-                mimeType = 'audio/webm'
-                if (!MediaRecorder.isTypeSupported(mimeType)) {
-                    mimeType = 'audio/mp4'
-                    if (!MediaRecorder.isTypeSupported(mimeType)) {
-                        mimeType = ''
-                    }
-                }
-            }
-
-            const recorder = new MediaRecorder(stream, {
-                mimeType: mimeType || undefined
-            })
-
-            setAudioChunks([])
-            setIsRecording(true)
-            setRecordingDuration(0)
-
-            const interval = setInterval(() => {
-                setRecordingDuration(prev => prev + 1)
-            }, 1000)
-            setRecordingInterval(interval)
-
-            recorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    setAudioChunks(prev => [...prev, event.data])
-                }
-            }
-
-            recorder.onstop = () => {
-                if (recordingInterval) {
-                    clearInterval(recordingInterval)
-                    setRecordingInterval(null)
-                }
-                stream.getTracks().forEach(track => track.stop())
-            }
-
-            setMediaRecorder(recorder)
-            recorder.start(1000)
-        } catch (error) {
-            console.error('Error accessing microphone:', error)
-            alert('No se pudo acceder al micrófono. Verifica los permisos.')
-        }
-    }
-
-    const stopRecording = () => {
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop()
-        }
-        setIsRecording(false)
-        if (recordingInterval) {
-            clearInterval(recordingInterval)
-            setRecordingInterval(null)
-        }
-    }
-
-    useEffect(() => {
-        if (!isRecording && audioChunks.length > 0) {
-            setTimeout(() => sendAudioMessage(), 500)
-        }
-    }, [isRecording, audioChunks])
-
-    const sendAudioMessage = async () => {
-        try {
-            if (audioChunks.length === 0) return
-
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
-            if (audioBlob.size < 1000) {
-                alert('La grabación es muy corta.')
-                return
-            }
-
-            const reader = new FileReader()
-            reader.onloadend = async () => {
-                try {
-                    const base64 = reader.result as string
-                    const base64Data = base64.split(',')[1]
-
-                    if (!base64Data || base64Data.length < 100) {
-                        alert('Error al procesar el audio.')
-                        return
-                    }
-
-                    await sendMessage('', base64Data, true)
-                    setAudioChunks([])
-                } catch (error) {
-                    console.error('Error enviando mensaje de audio:', error)
-                    alert('Error al enviar el mensaje de voz.')
-                }
-            }
-            reader.onerror = () => {
-                alert('Error al procesar el audio.')
-            }
-            reader.readAsDataURL(audioBlob)
-        } catch (error) {
-            console.error('Error sending audio:', error)
-            alert('Error al procesar el audio.')
-        }
-    }
-
-    const playAudioResponse = (base64Audio: string) => {
-        try {
-            const audioData = `data:audio/mp3;base64,${base64Audio}`
-            const audio = new Audio(audioData)
-
-            setIsPlayingAudio(true)
-            audio.onended = () => setIsPlayingAudio(false)
-            audio.onerror = () => setIsPlayingAudio(false)
-
-            audio.play()
-        } catch (error) {
-            console.error('Error playing audio:', error)
-            setIsPlayingAudio(false)
-        }
-    }
-
-    const formatRecordingTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60)
-        const secs = seconds % 60
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     }
 
     return (
@@ -267,28 +123,6 @@ export default function ChatPage() {
                                             sources={message.sources}
                                             calculation={message.calculation}
                                         />
-
-                                        {/* Audio controls para respuestas del asistente */}
-                                        {!message.isUser && message.audioBase64 && (
-                                            <div className="mt-3 flex items-center space-x-2">
-                                                <motion.button
-                                                    whileHover={{ scale: 1.05 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    onClick={() => playAudioResponse(message.audioBase64!)}
-                                                    disabled={isPlayingAudio}
-                                                    className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors disabled:opacity-50"
-                                                >
-                                                    {isPlayingAudio ? (
-                                                        <VolumeX className="w-4 h-4" />
-                                                    ) : (
-                                                        <Volume2 className="w-4 h-4" />
-                                                    )}
-                                                    <span className="text-sm">
-                                                        {isPlayingAudio ? 'Reproduciendo...' : 'Escuchar respuesta'}
-                                                    </span>
-                                                </motion.button>
-                                            </div>
-                                        )}
 
                                         <p className={`text-xs mt-2 ${message.isUser ? 'text-blue-100' : 'text-gray-500'}`}>
                                             {new Date(message.timestamp).toLocaleTimeString([], {
@@ -373,24 +207,6 @@ export default function ChatPage() {
 
                     {/* Input Area */}
                     <div className="p-6 bg-white border-t border-gray-200">
-                        {/* Indicador de grabación */}
-                        {isRecording && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-center space-x-3"
-                            >
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                                <span className="text-blue-700 font-medium text-sm">
-                                    Grabando... {formatRecordingTime(recordingDuration)}
-                                </span>
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                            </motion.div>
-                        )}
 
                         <div className="flex items-end space-x-4">
                             <div className="flex-1 relative">
@@ -399,8 +215,8 @@ export default function ChatPage() {
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onKeyPress={handleKeyPress}
-                                    placeholder={isRecording ? "Mantén presionado el micrófono y habla..." : "Escribe tu consulta inmobiliaria..."}
-                                    disabled={isLoading || isRecording}
+                                    placeholder="Escribe tu consulta inmobiliaria..."
+                                    disabled={isLoading}
                                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400 transition-all resize-none min-h-[44px] max-h-32"
                                     rows={1}
                                     style={{ height: 'auto', minHeight: '44px' }}
@@ -412,31 +228,12 @@ export default function ChatPage() {
                                 />
                             </div>
 
-                            {/* Botón del micrófono */}
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={isRecording ? stopRecording : startRecording}
-                                disabled={isLoading}
-                                className={`p-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl ${
-                                    isRecording
-                                        ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                            >
-                                {isRecording ? (
-                                    <MicOff className="w-5 h-5" />
-                                ) : (
-                                    <Mic className="w-5 h-5" />
-                                )}
-                            </motion.button>
-
                             {/* Botón de enviar */}
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleSendMessage}
-                                disabled={!inputValue.trim() || isLoading || isRecording}
+                                disabled={!inputValue.trim() || isLoading}
                                 className="p-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center"
                             >
                                 {isLoading ? (
