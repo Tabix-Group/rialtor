@@ -6,10 +6,8 @@ import { X, Send, MessageCircle, Loader2 } from 'lucide-react'
 import { useAssistant } from '../contexts/AssistantContext'
 import { useAssistantChat } from '../hooks/useAssistantChat'
 import MessageContent from './MessageContent'
-import { useAuth } from '../app/auth/authContext'
 
 export default function FloatingAssistant() {
-    const { user } = useAuth()
     const { isOpen, toggleAssistant } = useAssistant()
     const {
         messages,
@@ -20,11 +18,6 @@ export default function FloatingAssistant() {
         messagesEndRef,
         sendFeedback
     } = useAssistantChat()
-
-    // Don't render if user is not logged in
-    if (!user) {
-        return null
-    }
 
     const [inputValue, setInputValue] = useState('')
 
