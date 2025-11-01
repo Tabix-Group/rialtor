@@ -39,12 +39,11 @@ Cuando te pidan calcular honorarios o gastos de escrituración, SIEMPRE usa las 
 - calcular_gastos_escrituracion: Para gastos de escrituración por provincia
 
 **INFORMACIÓN EN TIEMPO REAL:**
-- Mi conocimiento tiene un corte en octubre de 2023
 - Para información actualizada (precios del dólar HOY, noticias recientes, datos actuales):
-  * Sé honesto y di que no tienes acceso a información en tiempo real
-  * Proporciona información general y contexto histórico
-  * Recomienda fuentes confiables donde pueden consultar: Ámbito, Bloomberg, BCRA, etc.
-  * Si puedes, da rangos históricos o tendencias generales
+  * USA LA HERRAMIENTA buscar_informacion_web para obtener datos en tiempo real
+  * Proporciona fuentes confiables y enlaces verificados
+  * Incluye fecha de la información consultada
+  * Si la búsqueda falla, menciona que no se pudo acceder a datos en tiempo real
 
 **CONTEXTO ARGENTINO:**
 - Conocimiento profundo del mercado inmobiliario argentino (CABA, GBA, provincias)
@@ -61,8 +60,8 @@ Cuando te pidan calcular honorarios o gastos de escrituración, SIEMPRE usa las 
 - Sé transparente sobre limitaciones
 
 **CUANDO NO TENGAS INFORMACIÓN ACTUALIZADA:**
-- Sé honesto: "Mi información tiene corte en octubre 2023"
-- Da contexto histórico si es relevante
+- Usa la herramienta buscar_informacion_web para obtener datos actualizados
+- Si la herramienta no está disponible, sé honesto sobre limitaciones técnicas
 - Recomienda fuentes confiables actualizadas
 - Ofrece ayuda con lo que SÍ puedes hacer
 
@@ -129,6 +128,33 @@ const AVAILABLE_TOOLS = [
           }
         },
         required: ['valor_propiedad', 'provincia']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'buscar_informacion_web',
+      description: 'Busca información actualizada en la web sobre temas inmobiliarios argentinos, precios del dólar, noticias del mercado, etc.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'La consulta de búsqueda en español o inglés'
+          },
+          topic: {
+            type: 'string',
+            enum: ['dolar', 'noticias_inmobiliarias', 'tasas_interes', 'normativas', 'precios_propiedades', 'mercado_general'],
+            description: 'Categoría del tema para optimizar la búsqueda'
+          },
+          max_results: {
+            type: 'number',
+            description: 'Número máximo de resultados (1-5)',
+            default: 3
+          }
+        },
+        required: ['query']
       }
     }
   },
@@ -260,6 +286,73 @@ async function consultarPropiedades(filters) {
   };
 }
 
+// Función auxiliar: Buscar información en la web usando Tavily
+async function buscarInformacionWeb({ query, topic = 'mercado_general', max_results = 3 }) {
+  try {
+    if (!process.env.TAVILY_API_KEY) {
+      return {
+        success: false,
+        error: 'API de búsqueda web no configurada',
+        message: 'La búsqueda web requiere configuración de TAVILY_API_KEY'
+      };
+    }
+
+    // Configurar query según el topic
+    let searchQuery = query;
+    if (topic === 'dolar') {
+      searchQuery = `${query} precio dólar Argentina hoy`;
+    } else if (topic === 'noticias_inmobiliarias') {
+      searchQuery = `${query} noticias inmobiliarias Argentina`;
+    } else if (topic === 'tasas_interes') {
+      searchQuery = `${query} tasas interés hipotecarios Argentina`;
+    } else if (topic === 'normativas') {
+      searchQuery = `${query} normativa inmobiliaria Argentina cambios recientes`;
+    }
+
+    console.log('[WEB_SEARCH] Buscando:', searchQuery);
+
+    const response = await axios.post('https://api.tavily.com/search', {
+      api_key: process.env.TAVILY_API_KEY,
+      query: searchQuery,
+      search_depth: 'advanced',
+      include_images: false,
+      include_answer: true,
+      include_raw_content: false,
+      max_results: Math.min(max_results, 5),
+      include_domains: topic === 'dolar' ? ['dolarhoy.com', 'ambito.com', 'cronista.com'] : undefined
+    });
+
+    if (response.data && response.data.results) {
+      return {
+        success: true,
+        query: searchQuery,
+        topic,
+        results: response.data.results.map(result => ({
+          title: result.title,
+          url: result.url,
+          content: result.content,
+          score: result.score
+        })),
+        answer: response.data.answer || null,
+        search_date: new Date().toISOString()
+      };
+    } else {
+      return {
+        success: false,
+        error: 'No se encontraron resultados',
+        query: searchQuery
+      };
+    }
+  } catch (error) {
+    console.error('[WEB_SEARCH] Error:', error);
+    return {
+      success: false,
+      error: error.message,
+      query
+    };
+  }
+}
+
 // Manejador de Function Calling
 async function handleFunctionCall(functionName, functionArgs) {
   console.log('[FUNCTION_CALL]', functionName, functionArgs);
@@ -271,6 +364,9 @@ async function handleFunctionCall(functionName, functionArgs) {
       
       case 'calcular_gastos_escrituracion':
         return calcularGastosEscrituracion(functionArgs);
+      
+      case 'buscar_informacion_web':
+        return await buscarInformacionWeb(functionArgs);
       
       case 'consultar_propiedades':
         return await consultarPropiedades(functionArgs);
