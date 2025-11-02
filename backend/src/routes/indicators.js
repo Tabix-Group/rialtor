@@ -27,6 +27,20 @@ router.get('/real-estate', indicatorsController.getRealEstateData);
 router.get('/all', indicatorsController.getAllIndicators);
 
 /**
+ * @route   GET /api/indicators/economic-indexes
+ * @desc    Obtiene índices económicos de Argentina
+ * @access  Public
+ */
+router.get('/economic-indexes', indicatorsController.getEconomicIndexes);
+
+/**
+ * @route   GET /api/indicators/economic-indexes/:indicator/chart
+ * @desc    Obtiene datos históricos de un índice para gráficos
+ * @access  Public
+ */
+router.get('/economic-indexes/:indicator/chart', indicatorsController.getEconomicIndexChart);
+
+/**
  * @route   POST /api/indicators/clear-cache
  * @desc    Limpia el cache de indicadores
  * @access  Public (temporalmente sin autenticación)

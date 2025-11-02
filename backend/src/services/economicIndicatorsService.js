@@ -6,9 +6,11 @@ class EconomicIndicatorsService {
     this.cache = {
       dolarData: null,
       realEstateData: null,
+      economicIndexesData: null,
       lastUpdate: {
         dolar: null,
-        realEstate: null
+        realEstate: null,
+        economicIndexes: null
       }
     };
     this.CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
@@ -208,31 +210,112 @@ class EconomicIndicatorsService {
   }
 
   /**
+   * Obtiene índices económicos de Argentina
+   */
+  async getEconomicIndexes() {
+    try {
+      // Verificar cache
+      if (this.cache.economicIndexesData && 
+          this.cache.lastUpdate.economicIndexes && 
+          Date.now() - this.cache.lastUpdate.economicIndexes < this.CACHE_DURATION) {
+        return this.cache.economicIndexesData;
+      }
+
+      // Datos mock por ahora - serán reemplazados por datos reales de INDEC
+      const result = {
+        ipc: {
+          date: new Date().toISOString().split('T')[0],
+          value: 1524.5,
+          variation: 2.3
+        },
+        cac: {
+          general: {
+            date: new Date().toISOString().split('T')[0],
+            value: 1456.7,
+            variation: 1.8
+          },
+          materiales: {
+            date: new Date().toISOString().split('T')[0],
+            value: 1234.2,
+            variation: 2.1
+          },
+          manoObra: {
+            date: new Date().toISOString().split('T')[0],
+            value: 1678.9,
+            variation: 1.5
+          }
+        },
+        icc: {
+          date: new Date().toISOString().split('T')[0],
+          value: 1345.6,
+          variation: 2.7
+        },
+        is: {
+          date: new Date().toISOString().split('T')[0],
+          value: 1890.3,
+          variation: 3.1
+        },
+        lastUpdated: new Date().toISOString()
+      };
+
+      // Actualizar cache
+      this.cache.economicIndexesData = result;
+      this.cache.lastUpdate.economicIndexes = Date.now();
+
+      return result;
+    } catch (error) {
+      console.error('Error fetching economic indexes:', error.message);
+      
+      if (this.cache.economicIndexesData) {
+        return { ...this.cache.economicIndexesData, fromCache: true };
+      }
+
+      // Devolver datos por defecto
+      return {
+        ipc: null,
+        cac: {
+          general: null,
+          materiales: null,
+          manoObra: null
+        },
+        icc: null,
+        is: null,
+        lastUpdated: new Date().toISOString(),
+        error: 'No se pudieron obtener los índices económicos'
+      };
+    }
+  }
+
+  /**
    * Obtiene todos los indicadores
    */
   async getAllIndicators() {
-    const [dolarData, realEstateData] = await Promise.all([
+    const [dolarData, realEstateData, economicIndexesData] = await Promise.all([
       this.getDolarRates(),
-      this.getRealEstateData()
+      this.getRealEstateData(),
+      this.getEconomicIndexes()
     ]);
 
     return {
       dolar: dolarData,
       mercadoInmobiliario: realEstateData,
+      indicesEconomicos: economicIndexesData,
       timestamp: new Date().toISOString()
     };
   }
 
-  /**
+    /**
    * Limpia el cache manualmente
    */
   clearCache() {
     this.cache = {
       dolarData: null,
       realEstateData: null,
+      economicIndexesData: null,
       lastUpdate: {
         dolar: null,
-        realEstate: null
+        realEstate: null,
+        economicIndexes: null
       }
     };
   }

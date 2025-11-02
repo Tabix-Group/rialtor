@@ -101,6 +101,17 @@ exports.getAllIndicators = async (req, res, next) => {
           },
           lastUpdated: new Date().toISOString()
         },
+        indicesEconomicos: {
+          ipc: null,
+          cac: {
+            general: null,
+            materiales: null,
+            manoObra: null
+          },
+          icc: null,
+          is: null,
+          lastUpdated: new Date().toISOString()
+        },
         timestamp: new Date().toISOString()
       }
     });
@@ -119,5 +130,76 @@ exports.clearCache = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+
+/**
+ * Obtiene índices económicos de Argentina
+ */
+exports.getEconomicIndexes = async (req, res, next) => {
+  try {
+    const data = await economicIndicatorsService.getEconomicIndexes();
+    res.json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Error in getEconomicIndexes controller:', error.message);
+    res.status(200).json({
+      success: false,
+      error: 'No se pudieron obtener los índices económicos',
+      data: {
+        ipc: null,
+        cac: {
+          general: null,
+          materiales: null,
+          manoObra: null
+        },
+        icc: null,
+        is: null,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+  }
+};
+
+/**
+ * Obtiene datos de gráfico para un índice económico específico
+ */
+exports.getEconomicIndexChart = async (req, res, next) => {
+  try {
+    const { indicator } = req.params;
+    
+    // Datos mock para gráficos - serán reemplazados por datos reales
+    const mockData = [];
+    const baseDate = new Date();
+    for (let i = 23; i >= 0; i--) {
+      const date = new Date(baseDate.getFullYear(), baseDate.getMonth() - i, 1);
+      mockData.push({
+        date: date.toISOString().split('T')[0],
+        value: 1000 + Math.random() * 500,
+        variation: (Math.random() - 0.5) * 10
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        indicator,
+        name: indicator.toUpperCase(),
+        chartData: mockData
+      }
+    });
+  } catch (error) {
+    console.error('Error in getEconomicIndexChart controller:', error.message);
+    res.status(200).json({
+      success: false,
+      error: 'No se pudieron obtener los datos del gráfico',
+      data: {
+        indicator: req.params.indicator,
+        chartData: [],
+        error: error.message
+      }
+    });
   }
 };

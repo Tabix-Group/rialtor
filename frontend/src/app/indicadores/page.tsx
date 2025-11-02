@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { TrendingUp, TrendingDown, DollarSign, Building2, FileText, RefreshCw, Info } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, Building2, FileText, RefreshCw, Info, BarChart3 } from "lucide-react"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 interface DolarRate {
   compra: number
@@ -62,11 +63,42 @@ interface IndicatorsData {
   timestamp: string
 }
 
+interface EconomicIndex {
+  nombre: string
+  valor: number
+  variacion: number
+  fecha: string
+  descripcion: string
+}
+
+interface EconomicIndexesData {
+  ipc: EconomicIndex
+  cacGeneral: EconomicIndex
+  cacMateriales: EconomicIndex
+  cacManoObra: EconomicIndex
+  icc: EconomicIndex
+  is: EconomicIndex
+  lastUpdated: string
+}
+
+interface ChartDataPoint {
+  fecha: string
+  valor: number
+}
+
+interface EconomicIndexChartData {
+  data: ChartDataPoint[]
+  indicador: string
+  periodo: string
+}
+
 export default function IndicadoresPage() {
   const [data, setData] = useState<IndicatorsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+  const [economicIndexes, setEconomicIndexes] = useState<EconomicIndexesData | null>(null)
+  const [economicCharts, setEconomicCharts] = useState<Record<string, EconomicIndexChartData>>({})
 
   const fetchIndicators = async () => {
     try {
@@ -93,12 +125,53 @@ export default function IndicadoresPage() {
     }
   }
 
+  const fetchEconomicIndexes = async () => {
+    try {
+      const response = await fetch("/api/indicators/economic-indexes")
+      
+      if (!response.ok) {
+        throw new Error("Error al obtener los índices económicos")
+      }
+
+      const result = await response.json()
+      
+      if (result.success && result.data) {
+        setEconomicIndexes(result.data)
+      }
+    } catch (err) {
+      console.error("Error fetching economic indexes:", err)
+    }
+  }
+
+  const fetchEconomicIndexChart = async (indicator: string) => {
+    try {
+      const response = await fetch(`/api/indicators/economic-indexes/${indicator}/chart`)
+      
+      if (!response.ok) {
+        throw new Error(`Error al obtener el gráfico del índice ${indicator}`)
+      }
+
+      const result = await response.json()
+      
+      if (result.success && result.data) {
+        setEconomicCharts(prev => ({
+          ...prev,
+          [indicator]: result.data
+        }))
+      }
+    } catch (err) {
+      console.error(`Error fetching chart for ${indicator}:`, err)
+    }
+  }
+
   useEffect(() => {
     fetchIndicators()
+    fetchEconomicIndexes()
 
     // Actualizar cada 5 minutos
     const interval = setInterval(() => {
       fetchIndicators()
+      fetchEconomicIndexes()
     }, 5 * 60 * 1000)
 
     return () => clearInterval(interval)
@@ -188,7 +261,10 @@ export default function IndicadoresPage() {
             )}
           </div>
           <button
-            onClick={fetchIndicators}
+            onClick={() => {
+              fetchIndicators()
+              fetchEconomicIndexes()
+            }}
             disabled={loading}
             className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background font-medium rounded-full hover:bg-foreground/90 transition-all disabled:opacity-50"
           >
@@ -475,6 +551,216 @@ export default function IndicadoresPage() {
           </div>
         </section>
 
+        {/* Índices Económicos */}
+        {economicIndexes && (
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold">Índices Económicos</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* IPC */}
+              <div 
+                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => fetchEconomicIndexChart('ipc')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">IPC (Inflación)</h3>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.ipc.variacion)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.ipc.variacion)}`}>
+                      {getVariationIcon(economicIndexes.ipc.variacion)}
+                      {formatCurrency(Math.abs(economicIndexes.ipc.variacion), 2)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.ipc.valor, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.ipc.descripcion}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Actualizado: {new Date(economicIndexes.ipc.fecha).toLocaleDateString("es-AR")}
+                  </div>
+                </div>
+              </div>
+
+              {/* CAC General */}
+              <div 
+                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => fetchEconomicIndexChart('cacGeneral')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">CAC General</h3>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacGeneral.variacion)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacGeneral.variacion)}`}>
+                      {getVariationIcon(economicIndexes.cacGeneral.variacion)}
+                      {formatCurrency(Math.abs(economicIndexes.cacGeneral.variacion), 2)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacGeneral.valor, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.cacGeneral.descripcion}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Actualizado: {new Date(economicIndexes.cacGeneral.fecha).toLocaleDateString("es-AR")}
+                  </div>
+                </div>
+              </div>
+
+              {/* CAC Materiales */}
+              <div 
+                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => fetchEconomicIndexChart('cacMateriales')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">CAC Materiales</h3>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacMateriales.variacion)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacMateriales.variacion)}`}>
+                      {getVariationIcon(economicIndexes.cacMateriales.variacion)}
+                      {formatCurrency(Math.abs(economicIndexes.cacMateriales.variacion), 2)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacMateriales.valor, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.cacMateriales.descripcion}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Actualizado: {new Date(economicIndexes.cacMateriales.fecha).toLocaleDateString("es-AR")}
+                  </div>
+                </div>
+              </div>
+
+              {/* CAC Mano de Obra */}
+              <div 
+                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => fetchEconomicIndexChart('cacManoObra')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">CAC Mano de Obra</h3>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacManoObra.variacion)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacManoObra.variacion)}`}>
+                      {getVariationIcon(economicIndexes.cacManoObra.variacion)}
+                      {formatCurrency(Math.abs(economicIndexes.cacManoObra.variacion), 2)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacManoObra.valor, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.cacManoObra.descripcion}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Actualizado: {new Date(economicIndexes.cacManoObra.fecha).toLocaleDateString("es-AR")}
+                  </div>
+                </div>
+              </div>
+
+              {/* ICC */}
+              <div 
+                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => fetchEconomicIndexChart('icc')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">ICC (Construcción)</h3>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.icc.variacion)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.icc.variacion)}`}>
+                      {getVariationIcon(economicIndexes.icc.variacion)}
+                      {formatCurrency(Math.abs(economicIndexes.icc.variacion), 2)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.icc.valor, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.icc.descripcion}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Actualizado: {new Date(economicIndexes.icc.fecha).toLocaleDateString("es-AR")}
+                  </div>
+                </div>
+              </div>
+
+              {/* IS */}
+              <div 
+                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => fetchEconomicIndexChart('is')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">IS (Salarios)</h3>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.is.variacion)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.is.variacion)}`}>
+                      {getVariationIcon(economicIndexes.is.variacion)}
+                      {formatCurrency(Math.abs(economicIndexes.is.variacion), 2)}%
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.is.valor, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.is.descripcion}</div>
+                  <div className="text-xs text-muted-foreground">
+                    Actualizado: {new Date(economicIndexes.is.fecha).toLocaleDateString("es-AR")}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Gráficos de Índices Económicos */}
+        {economicIndexes && Object.keys(economicCharts).length > 0 && (
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold">Series Históricas</h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {Object.entries(economicCharts).map(([indicator, chartData]) => (
+                <div key={indicator} className="bg-card border border-border rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold mb-4 capitalize">
+                    {indicator === 'ipc' ? 'IPC (Inflación)' :
+                     indicator === 'cacGeneral' ? 'CAC General' :
+                     indicator === 'cacMateriales' ? 'CAC Materiales' :
+                     indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
+                     indicator === 'icc' ? 'ICC (Construcción)' :
+                     'IS (Salarios)'}
+                  </h3>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData.data}>
+                        <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                        <XAxis 
+                          dataKey="fecha" 
+                          tick={{ fontSize: 12 }}
+                          tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' })}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 12 }}
+                          domain={['dataMin - 1', 'dataMax + 1']}
+                        />
+                        <Tooltip 
+                          labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR')}
+                          formatter={(value: number) => [formatCurrency(value, 2), 'Valor']}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="valor" 
+                          stroke="#3b82f6" 
+                          strokeWidth={2}
+                          dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                          activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2 text-center">
+                    Período: {chartData.periodo}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Footer Info */}
         <div className="bg-muted/50 border border-border rounded-2xl p-6">
           <div className="flex items-start gap-3">
@@ -487,8 +773,13 @@ export default function IndicadoresPage() {
                 Las cotizaciones del dólar provienen de APIs públicas actualizadas en tiempo real. 
                 Los datos inmobiliarios son estimaciones basadas en Zonaprop, Properati y el Colegio de Escribanos.
               </p>
+              <p>
+                Los índices económicos (IPC, CAC, ICC, IS) se obtienen del Instituto Nacional de Estadística y Censos (INDEC) 
+                y representan indicadores clave de la economía argentina.
+              </p>
               <p className="text-xs">
                 Última actualización: {new Date(data.timestamp).toLocaleString("es-AR")}
+                {economicIndexes && ` | Índices económicos: ${new Date(economicIndexes.lastUpdated).toLocaleString("es-AR")}`}
               </p>
             </div>
           </div>
