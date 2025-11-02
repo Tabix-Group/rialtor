@@ -149,14 +149,48 @@ exports.getEconomicIndexes = async (req, res, next) => {
       success: false,
       error: 'No se pudieron obtener los índices económicos',
       data: {
-        ipc: null,
-        cac: {
-          general: null,
-          materiales: null,
-          manoObra: null
+        ipc: {
+          nombre: 'IPC (Índice de Precios al Consumidor)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
         },
-        icc: null,
-        is: null,
+        cacGeneral: {
+          nombre: 'CAC General',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        cacMateriales: {
+          nombre: 'CAC Materiales',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        cacManoObra: {
+          nombre: 'CAC Mano de Obra',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        icc: {
+          nombre: 'ICC (Índice de Costos de Construcción)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        is: {
+          nombre: 'IS (Índice de Salarios)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
         lastUpdated: new Date().toISOString()
       }
     });
@@ -176,18 +210,17 @@ exports.getEconomicIndexChart = async (req, res, next) => {
     for (let i = 23; i >= 0; i--) {
       const date = new Date(baseDate.getFullYear(), baseDate.getMonth() - i, 1);
       mockData.push({
-        date: date.toISOString().split('T')[0],
-        value: 1000 + Math.random() * 500,
-        variation: (Math.random() - 0.5) * 10
+        fecha: date.toISOString().split('T')[0],
+        valor: 1000 + Math.random() * 500
       });
     }
 
     res.json({
       success: true,
       data: {
-        indicator,
-        name: indicator.toUpperCase(),
-        chartData: mockData
+        data: mockData,
+        indicador: indicator,
+        periodo: 'Últimos 24 meses'
       }
     });
   } catch (error) {
@@ -196,9 +229,9 @@ exports.getEconomicIndexChart = async (req, res, next) => {
       success: false,
       error: 'No se pudieron obtener los datos del gráfico',
       data: {
-        indicator: req.params.indicator,
-        chartData: [],
-        error: error.message
+        data: [],
+        indicador: req.params.indicator,
+        periodo: 'Error al cargar datos'
       }
     });
   }

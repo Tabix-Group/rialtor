@@ -569,18 +569,18 @@ export default function IndicadoresPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">IPC (Inflación)</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.ipc.variacion)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.ipc.variacion)}`}>
-                      {getVariationIcon(economicIndexes.ipc.variacion)}
-                      {formatCurrency(Math.abs(economicIndexes.ipc.variacion), 2)}%
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.ipc?.variacion || 0)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.ipc?.variacion || 0)}`}>
+                      {getVariationIcon(economicIndexes.ipc?.variacion || 0)}
+                      {formatCurrency(Math.abs(economicIndexes.ipc?.variacion || 0), 2)}%
                     </span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.ipc.valor, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.ipc.descripcion}</div>
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.ipc?.valor || 0, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.ipc?.descripcion || 'Cargando...'}</div>
                   <div className="text-xs text-muted-foreground">
-                    Actualizado: {new Date(economicIndexes.ipc.fecha).toLocaleDateString("es-AR")}
+                    Actualizado: {economicIndexes.ipc?.fecha ? new Date(economicIndexes.ipc.fecha).toLocaleDateString("es-AR") : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -592,18 +592,18 @@ export default function IndicadoresPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">CAC General</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacGeneral.variacion)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacGeneral.variacion)}`}>
-                      {getVariationIcon(economicIndexes.cacGeneral.variacion)}
-                      {formatCurrency(Math.abs(economicIndexes.cacGeneral.variacion), 2)}%
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacGeneral?.variacion || 0)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacGeneral?.variacion || 0)}`}>
+                      {getVariationIcon(economicIndexes.cacGeneral?.variacion || 0)}
+                      {formatCurrency(Math.abs(economicIndexes.cacGeneral?.variacion || 0), 2)}%
                     </span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacGeneral.valor, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.cacGeneral.descripcion}</div>
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacGeneral?.valor || 0, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.cacGeneral?.descripcion || 'Cargando...'}</div>
                   <div className="text-xs text-muted-foreground">
-                    Actualizado: {new Date(economicIndexes.cacGeneral.fecha).toLocaleDateString("es-AR")}
+                    Actualizado: {economicIndexes.cacGeneral?.fecha ? new Date(economicIndexes.cacGeneral.fecha).toLocaleDateString("es-AR") : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -615,18 +615,18 @@ export default function IndicadoresPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">CAC Materiales</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacMateriales.variacion)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacMateriales.variacion)}`}>
-                      {getVariationIcon(economicIndexes.cacMateriales.variacion)}
-                      {formatCurrency(Math.abs(economicIndexes.cacMateriales.variacion), 2)}%
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacMateriales?.variacion || 0)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacMateriales?.variacion || 0)}`}>
+                      {getVariationIcon(economicIndexes.cacMateriales?.variacion || 0)}
+                      {formatCurrency(Math.abs(economicIndexes.cacMateriales?.variacion || 0), 2)}%
                     </span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacMateriales.valor, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.cacMateriales.descripcion}</div>
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacMateriales?.valor || 0, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.cacMateriales?.descripcion || 'Cargando...'}</div>
                   <div className="text-xs text-muted-foreground">
-                    Actualizado: {new Date(economicIndexes.cacMateriales.fecha).toLocaleDateString("es-AR")}
+                    Actualizado: {economicIndexes.cacMateriales?.fecha ? new Date(economicIndexes.cacMateriales.fecha).toLocaleDateString("es-AR") : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -638,18 +638,18 @@ export default function IndicadoresPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">CAC Mano de Obra</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacManoObra.variacion)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacManoObra.variacion)}`}>
-                      {getVariationIcon(economicIndexes.cacManoObra.variacion)}
-                      {formatCurrency(Math.abs(economicIndexes.cacManoObra.variacion), 2)}%
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacManoObra?.variacion || 0)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacManoObra?.variacion || 0)}`}>
+                      {getVariationIcon(economicIndexes.cacManoObra?.variacion || 0)}
+                      {formatCurrency(Math.abs(economicIndexes.cacManoObra?.variacion || 0), 2)}%
                     </span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacManoObra.valor, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.cacManoObra.descripcion}</div>
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacManoObra?.valor || 0, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.cacManoObra?.descripcion || 'Cargando...'}</div>
                   <div className="text-xs text-muted-foreground">
-                    Actualizado: {new Date(economicIndexes.cacManoObra.fecha).toLocaleDateString("es-AR")}
+                    Actualizado: {economicIndexes.cacManoObra?.fecha ? new Date(economicIndexes.cacManoObra.fecha).toLocaleDateString("es-AR") : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -661,18 +661,18 @@ export default function IndicadoresPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">ICC (Construcción)</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.icc.variacion)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.icc.variacion)}`}>
-                      {getVariationIcon(economicIndexes.icc.variacion)}
-                      {formatCurrency(Math.abs(economicIndexes.icc.variacion), 2)}%
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.icc?.variacion || 0)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.icc?.variacion || 0)}`}>
+                      {getVariationIcon(economicIndexes.icc?.variacion || 0)}
+                      {formatCurrency(Math.abs(economicIndexes.icc?.variacion || 0), 2)}%
                     </span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.icc.valor, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.icc.descripcion}</div>
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.icc?.valor || 0, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.icc?.descripcion || 'Cargando...'}</div>
                   <div className="text-xs text-muted-foreground">
-                    Actualizado: {new Date(economicIndexes.icc.fecha).toLocaleDateString("es-AR")}
+                    Actualizado: {economicIndexes.icc?.fecha ? new Date(economicIndexes.icc.fecha).toLocaleDateString("es-AR") : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -684,18 +684,18 @@ export default function IndicadoresPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">IS (Salarios)</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.is.variacion)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.is.variacion)}`}>
-                      {getVariationIcon(economicIndexes.is.variacion)}
-                      {formatCurrency(Math.abs(economicIndexes.is.variacion), 2)}%
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.is?.variacion || 0)}`}>
+                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.is?.variacion || 0)}`}>
+                      {getVariationIcon(economicIndexes.is?.variacion || 0)}
+                      {formatCurrency(Math.abs(economicIndexes.is?.variacion || 0), 2)}%
                     </span>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.is.valor, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.is.descripcion}</div>
+                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.is?.valor || 0, 2)}</div>
+                  <div className="text-sm text-muted-foreground">{economicIndexes.is?.descripcion || 'Cargando...'}</div>
                   <div className="text-xs text-muted-foreground">
-                    Actualizado: {new Date(economicIndexes.is.fecha).toLocaleDateString("es-AR")}
+                    Actualizado: {economicIndexes.is?.fecha ? new Date(economicIndexes.is.fecha).toLocaleDateString("es-AR") : 'N/A'}
                   </div>
                 </div>
               </div>

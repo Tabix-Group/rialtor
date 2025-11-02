@@ -224,36 +224,46 @@ class EconomicIndicatorsService {
       // Datos mock por ahora - serán reemplazados por datos reales de INDEC
       const result = {
         ipc: {
-          date: new Date().toISOString().split('T')[0],
-          value: 1524.5,
-          variation: 2.3
+          nombre: 'IPC (Índice de Precios al Consumidor)',
+          valor: 1524.5,
+          variacion: 2.3,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Mide la evolución de los precios de consumo en Argentina'
         },
-        cac: {
-          general: {
-            date: new Date().toISOString().split('T')[0],
-            value: 1456.7,
-            variation: 1.8
-          },
-          materiales: {
-            date: new Date().toISOString().split('T')[0],
-            value: 1234.2,
-            variation: 2.1
-          },
-          manoObra: {
-            date: new Date().toISOString().split('T')[0],
-            value: 1678.9,
-            variation: 1.5
-          }
+        cacGeneral: {
+          nombre: 'CAC General',
+          valor: 1456.7,
+          variacion: 1.8,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Costo de la Construcción - Nivel General'
+        },
+        cacMateriales: {
+          nombre: 'CAC Materiales',
+          valor: 1234.2,
+          variacion: 2.1,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Costo de la Construcción - Materiales'
+        },
+        cacManoObra: {
+          nombre: 'CAC Mano de Obra',
+          valor: 1678.9,
+          variacion: 1.5,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Costo de la Construcción - Mano de Obra'
         },
         icc: {
-          date: new Date().toISOString().split('T')[0],
-          value: 1345.6,
-          variation: 2.7
+          nombre: 'ICC (Índice de Costos de Construcción)',
+          valor: 1345.6,
+          variacion: 2.7,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Índice del costo de la construcción en Argentina'
         },
         is: {
-          date: new Date().toISOString().split('T')[0],
-          value: 1890.3,
-          variation: 3.1
+          nombre: 'IS (Índice de Salarios)',
+          valor: 1890.3,
+          variacion: 3.1,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Índice de evolución de los salarios'
         },
         lastUpdated: new Date().toISOString()
       };
@@ -272,14 +282,48 @@ class EconomicIndicatorsService {
 
       // Devolver datos por defecto
       return {
-        ipc: null,
-        cac: {
-          general: null,
-          materiales: null,
-          manoObra: null
+        ipc: {
+          nombre: 'IPC (Índice de Precios al Consumidor)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
         },
-        icc: null,
-        is: null,
+        cacGeneral: {
+          nombre: 'CAC General',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        cacMateriales: {
+          nombre: 'CAC Materiales',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        cacManoObra: {
+          nombre: 'CAC Mano de Obra',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        icc: {
+          nombre: 'ICC (Índice de Costos de Construcción)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        is: {
+          nombre: 'IS (Índice de Salarios)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
         lastUpdated: new Date().toISOString(),
         error: 'No se pudieron obtener los índices económicos'
       };
