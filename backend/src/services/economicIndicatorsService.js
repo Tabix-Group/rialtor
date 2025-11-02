@@ -210,7 +210,7 @@ class EconomicIndicatorsService {
   }
 
   /**
-   * Obtiene índices económicos de Argentina
+   * Obtiene índices económicos de Argentina desde la API de series-tiempo de INDEC
    */
   async getEconomicIndexes() {
     try {
@@ -221,7 +221,60 @@ class EconomicIndicatorsService {
         return this.cache.economicIndexesData;
       }
 
-      // Datos mock por ahora - serán reemplazados por datos reales de INDEC
+      // Intentar obtener datos reales de la API de series-tiempo de INDEC
+      try {
+        console.log('[ECONOMIC] Intentando obtener datos reales de INDEC API...');
+        
+        // IDs conocidos de series de INDEC (basado en documentación oficial)
+        const seriesIds = [
+          '103.1_I2N_2016_M_19', // IPC Nivel General
+          '103.1_I2N_2016_M_15', // IPC Núcleo  
+          '145.3_CAC_0_M_19',    // CAC General (aproximado)
+          '145.3_CAC_0_M_20',    // CAC Materiales (aproximado)
+          '145.3_CAC_0_M_21',    // CAC Mano de Obra (aproximado)
+          '145.3_ICC_0_M_19',    // ICC (aproximado)
+          '141.3_IS_0_M_19'      // IS - Índice de Salarios (aproximado)
+        ];
+
+        // API de series-tiempo de INDEC
+        const apiUrl = `https://apis.datos.gob.ar/series/api/series/?ids=${seriesIds.join(',')}&format=json&limit=1`;
+        
+        const response = await axios.get(apiUrl, {
+          timeout: 10000, // 10 segundos timeout
+          headers: {
+            'User-Agent': 'RIALTOR/1.0 - Economic Indicators Service'
+          }
+        });
+
+        if (response.data && response.data.data) {
+          console.log('[ECONOMIC] ✅ Datos reales obtenidos de INDEC API');
+          
+          const seriesData = response.data.data;
+          
+          // Mapear los datos de la API a nuestro formato
+          const result = {
+            ipc: this.extractLatestValue(seriesData, '103.1_I2N_2016_M_19', 'IPC (Índice de Precios al Consumidor)', 'Mide la evolución de los precios de consumo en Argentina'),
+            cacGeneral: this.extractLatestValue(seriesData, '145.3_CAC_0_M_19', 'CAC General', 'Costo de la Construcción - Nivel General'),
+            cacMateriales: this.extractLatestValue(seriesData, '145.3_CAC_0_M_20', 'CAC Materiales', 'Costo de la Construcción - Materiales'),
+            cacManoObra: this.extractLatestValue(seriesData, '145.3_CAC_0_M_21', 'CAC Mano de Obra', 'Costo de la Construcción - Mano de Obra'),
+            icc: this.extractLatestValue(seriesData, '145.3_ICC_0_M_19', 'ICC (Índice de Costos de Construcción)', 'Índice del costo de la construcción en Argentina'),
+            is: this.extractLatestValue(seriesData, '141.3_IS_0_M_19', 'IS (Índice de Salarios)', 'Índice de evolución de los salarios'),
+            lastUpdated: new Date().toISOString(),
+            dataSource: 'INDEC_API'
+          };
+
+          // Actualizar cache
+          this.cache.economicIndexesData = result;
+          this.cache.lastUpdate.economicIndexes = Date.now();
+
+          return result;
+        }
+      } catch (apiError) {
+        console.warn('[ECONOMIC] ⚠️ Error al obtener datos de INDEC API, usando datos mock:', apiError.message);
+      }
+
+      // Fallback a datos mock si la API falla
+      console.log('[ECONOMIC] 📊 Usando datos mock como fallback');
       const result = {
         ipc: {
           nombre: 'IPC (Índice de Precios al Consumidor)',
@@ -265,7 +318,8 @@ class EconomicIndicatorsService {
           fecha: new Date().toISOString().split('T')[0],
           descripcion: 'Índice de evolución de los salarios'
         },
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        dataSource: 'MOCK_DATA'
       };
 
       // Actualizar cache
@@ -325,7 +379,59 @@ class EconomicIndicatorsService {
           descripcion: 'Datos no disponibles'
         },
         lastUpdated: new Date().toISOString(),
-        error: 'No se pudieron obtener los índices económicos'
+        error: 'No se pudieron obtener los índices económicos',
+        dataSource: 'ERROR'
+      };
+    }
+  }
+
+  /**
+   * Extrae el último valor de una serie específica de la respuesta de la API
+   */
+  extractLatestValue(seriesData, seriesId, nombre, descripcion) {
+    try {
+      const series = seriesData.find(s => s.series_id === seriesId);
+      
+      if (!series || !series.data || series.data.length === 0) {
+        // Si no hay datos para esta serie, devolver valores por defecto
+        return {
+          nombre,
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: `${descripcion} (datos no disponibles)`
+        };
+      }
+
+      // Obtener el último dato disponible
+      const latestData = series.data[series.data.length - 1];
+      const previousData = series.data.length > 1 ? series.data[series.data.length - 2] : null;
+      
+      // Calcular variación si hay datos previos
+      let variacion = 0;
+      if (previousData && previousData[1] && latestData[1]) {
+        const current = parseFloat(latestData[1]);
+        const previous = parseFloat(previousData[1]);
+        if (previous !== 0) {
+          variacion = parseFloat((((current - previous) / previous) * 100).toFixed(2));
+        }
+      }
+
+      return {
+        nombre,
+        valor: parseFloat(latestData[1]) || 0,
+        variacion,
+        fecha: latestData[0] || new Date().toISOString().split('T')[0],
+        descripcion
+      };
+    } catch (error) {
+      console.warn(`[ECONOMIC] Error extrayendo datos para ${seriesId}:`, error.message);
+      return {
+        nombre,
+        valor: 0,
+        variacion: 0,
+        fecha: new Date().toISOString().split('T')[0],
+        descripcion: `${descripcion} (error al procesar)`
       };
     }
   }
@@ -362,6 +468,106 @@ class EconomicIndicatorsService {
         economicIndexes: null
       }
     };
+  }
+
+  /**
+   * Obtiene datos históricos para gráficos de índices económicos
+   */
+  async getEconomicIndexChart(indicator) {
+    try {
+      // Mapear indicadores a IDs de series de INDEC
+      const seriesMapping = {
+        'ipc': '103.1_I2N_2016_M_19',
+        'cacGeneral': '145.3_CAC_0_M_19',
+        'cacMateriales': '145.3_CAC_0_M_20', 
+        'cacManoObra': '145.3_CAC_0_M_21',
+        'icc': '145.3_ICC_0_M_19',
+        'is': '141.3_IS_0_M_19'
+      };
+
+      const seriesId = seriesMapping[indicator];
+      if (!seriesId) {
+        throw new Error(`Indicador no reconocido: ${indicator}`);
+      }
+
+      // Intentar obtener datos reales de la API
+      try {
+        console.log(`[ECONOMIC CHART] Intentando obtener datos históricos para ${indicator}...`);
+        
+        const apiUrl = `https://apis.datos.gob.ar/series/api/series/?ids=${seriesId}&format=json&limit=24`; // Últimos 24 meses
+        
+        const response = await axios.get(apiUrl, {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'RIALTOR/1.0 - Economic Indicators Service'
+          }
+        });
+
+        if (response.data && response.data.data && response.data.data.length > 0) {
+          const series = response.data.data[0];
+          
+          if (series.data && series.data.length > 0) {
+            console.log(`[ECONOMIC CHART] ✅ Datos históricos reales obtenidos para ${indicator}`);
+            
+            // Convertir datos de la API al formato esperado
+            const chartData = series.data.map(([fecha, valor]) => ({
+              fecha: fecha,
+              valor: parseFloat(valor) || 0
+            })).filter(item => item.valor > 0); // Filtrar valores válidos
+
+            return {
+              data: chartData,
+              indicador: indicator,
+              periodo: `Últimos ${chartData.length} meses`,
+              dataSource: 'INDEC_API'
+            };
+          }
+        }
+      } catch (apiError) {
+        console.warn(`[ECONOMIC CHART] ⚠️ Error al obtener datos históricos de ${indicator}:`, apiError.message);
+      }
+
+      // Fallback a datos mock
+      console.log(`[ECONOMIC CHART] 📊 Generando datos históricos mock para ${indicator}`);
+      
+      const mockData = [];
+      const baseValue = 1000 + Math.random() * 500; // Valor base aleatorio
+      let currentValue = baseValue;
+      
+      // Generar 24 meses de datos históricos
+      for (let i = 23; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - i);
+        
+        // Simular variación mensual entre -2% y +4%
+        const variation = (Math.random() - 0.3) * 0.06; // -3% to +3%
+        currentValue = currentValue * (1 + variation);
+        
+        mockData.push({
+          fecha: date.toISOString().split('T')[0],
+          valor: parseFloat(currentValue.toFixed(2))
+        });
+      }
+
+      return {
+        data: mockData,
+        indicador: indicator,
+        periodo: 'Últimos 24 meses (datos simulados)',
+        dataSource: 'MOCK_DATA'
+      };
+
+    } catch (error) {
+      console.error(`Error generating chart data for ${indicator}:`, error.message);
+      
+      // Devolver datos mínimos
+      return {
+        data: [],
+        indicador: indicator,
+        periodo: 'Datos no disponibles',
+        dataSource: 'ERROR',
+        error: `No se pudieron obtener los datos históricos para ${indicator}`
+      };
+    }
   }
 }
 

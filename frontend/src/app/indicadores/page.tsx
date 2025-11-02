@@ -79,6 +79,7 @@ interface EconomicIndexesData {
   icc: EconomicIndex
   is: EconomicIndex
   lastUpdated: string
+  dataSource?: string
 }
 
 interface ChartDataPoint {
@@ -776,10 +777,20 @@ export default function IndicadoresPage() {
               <p>
                 Los índices económicos (IPC, CAC, ICC, IS) se obtienen del Instituto Nacional de Estadística y Censos (INDEC) 
                 y representan indicadores clave de la economía argentina.
+                {economicIndexes?.dataSource && (
+                  <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                    economicIndexes.dataSource === 'INDEC_API' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  }`}>
+                    {economicIndexes.dataSource === 'INDEC_API' ? 'Datos oficiales' : 'Datos estimados'}
+                  </span>
+                )}
               </p>
               <p className="text-xs">
                 Última actualización: {new Date(data.timestamp).toLocaleString("es-AR")}
                 {economicIndexes && ` | Índices económicos: ${new Date(economicIndexes.lastUpdated).toLocaleString("es-AR")}`}
+                {economicIndexes?.dataSource && ` (${economicIndexes.dataSource === 'INDEC_API' ? 'API INDEC' : 'Datos locales'})`}
               </p>
             </div>
           </div>

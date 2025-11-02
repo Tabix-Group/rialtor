@@ -203,25 +203,11 @@ exports.getEconomicIndexes = async (req, res, next) => {
 exports.getEconomicIndexChart = async (req, res, next) => {
   try {
     const { indicator } = req.params;
-    
-    // Datos mock para gráficos - serán reemplazados por datos reales
-    const mockData = [];
-    const baseDate = new Date();
-    for (let i = 23; i >= 0; i--) {
-      const date = new Date(baseDate.getFullYear(), baseDate.getMonth() - i, 1);
-      mockData.push({
-        fecha: date.toISOString().split('T')[0],
-        valor: 1000 + Math.random() * 500
-      });
-    }
+    const data = await economicIndicatorsService.getEconomicIndexChart(indicator);
 
     res.json({
       success: true,
-      data: {
-        data: mockData,
-        indicador: indicator,
-        periodo: 'Últimos 24 meses'
-      }
+      data
     });
   } catch (error) {
     console.error('Error in getEconomicIndexChart controller:', error.message);
@@ -231,7 +217,8 @@ exports.getEconomicIndexChart = async (req, res, next) => {
       data: {
         data: [],
         indicador: req.params.indicator,
-        periodo: 'Error al cargar datos'
+        periodo: 'Error al cargar datos',
+        dataSource: 'ERROR'
       }
     });
   }
