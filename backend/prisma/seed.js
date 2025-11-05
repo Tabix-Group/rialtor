@@ -45,7 +45,8 @@ async function main() {
     { name: 'upload_files', description: 'Subir archivos' },
     { name: 'generate_documents', description: 'Generar documentos' },
     { name: 'use_calculators', description: 'Usar calculadoras' },
-    { name: 'access_chat', description: 'Acceder al chat IA' }
+    { name: 'access_chat', description: 'Acceder al chat IA' },
+    { name: 'use_placas', description: 'Usar generador de placas' }
   ];
 
   for (const perm of permissions) {
@@ -89,7 +90,8 @@ async function main() {
           { name: 'generate_documents' },
           { name: 'use_calculators' },
           { name: 'access_chat' },
-          { name: 'manage_content' }
+          { name: 'manage_content' },
+          { name: 'use_placas' }
         ]
       }
     }

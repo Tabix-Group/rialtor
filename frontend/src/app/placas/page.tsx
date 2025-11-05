@@ -182,9 +182,10 @@ export default function PlacasPage() {
       return;
     }
 
-    if (modelType === 'premium' && !propertyData.agentImage) {
-      alert('Para el modelo premium, se requiere la imagen del agente');
-      return;
+    // Validación opcional para imagen del agente en premium (solo mostrar warning)
+    if (modelType === 'premium' && !propertyData.agentImage?.trim()) {
+      const confirmWithoutImage = confirm('Para el modelo premium se recomienda agregar la imagen del agente. ¿Desea continuar sin ella?');
+      if (!confirmWithoutImage) return;
     }
 
     setCreating(true);
@@ -687,7 +688,7 @@ export default function PlacasPage() {
                         value={propertyData.antiguedad}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 5 aÃ±os"
+                        placeholder="Ej: 5 años"
                       />
                     </div>
 
@@ -730,7 +731,7 @@ export default function PlacasPage() {
                       onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       rows={2}
-                      placeholder="Ej: HernÃ¡n Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
+                      placeholder="Ej: Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
                     />
                   </div>
 
@@ -743,7 +744,7 @@ export default function PlacasPage() {
                       onChange={(e) => setPropertyData(prev => ({ ...prev, descripcion: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                       rows={3}
-                      placeholder="InformaciÃ³n adicional sobre la propiedad..."
+                      placeholder="Información adicional sobre la propiedad..."
                     />
                   </div>
 
@@ -777,7 +778,7 @@ export default function PlacasPage() {
                           onChange={(e) => setPropertyData(prev => ({ ...prev, agentImage: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           placeholder="URL de la imagen del agente"
-                          required={modelType === 'premium'}
+                          required={false}
                         />
                       </div>
 
