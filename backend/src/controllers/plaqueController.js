@@ -1001,8 +1001,34 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     svg += `    </filter>\n`;
     svg += `  </defs>\n`;
 
-    // Texto del precio centrado con color específico para cada modelo
-    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" class="${isPremium ? 'premium-price' : 'precio'}" style="fill: ${priceTextColor};">${escapeForSvg(precioText)}</text>\n`;
+    // Para premium, calcular el tamaño de fuente que mejor llene el box
+    let finalPrecioSize = precioSize;
+    if (isPremium) {
+      // Calcular tamaño de fuente basado en el espacio disponible
+      const availableWidth = precioBoxWidth - (padding * 2);
+      const availableHeight = precioBoxHeight - (padding * 2);
+      
+      // Estimar ancho del texto (aproximadamente 0.6 del font-size por carácter)
+      const estimatedCharWidth = precioSize * 0.6;
+      const estimatedTextWidth = precioText.length * estimatedCharWidth;
+      
+      // Si el texto es más grande que el espacio disponible, ajustar
+      if (estimatedTextWidth > availableWidth) {
+        finalPrecioSize = Math.floor((availableWidth / precioText.length) / 0.6);
+      }
+      
+      // Asegurar que use el 80% del espacio disponible en altura como mínimo
+      const minSizeByHeight = Math.floor(availableHeight * 0.8);
+      if (finalPrecioSize < minSizeByHeight && precioText.length < 15) {
+        finalPrecioSize = minSizeByHeight;
+      }
+      
+      // Límites para el tamaño
+      finalPrecioSize = Math.max(40, Math.min(90, finalPrecioSize));
+    }
+
+    // Texto del precio centrado con color específico para cada modelo y tamaño calculado
+    svg += `  <text x="${precioCenterX}" y="${precioCenterY + finalPrecioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" class="${isPremium ? 'premium-price' : 'precio'}" style="fill: ${priceTextColor}; font-size: ${finalPrecioSize}px;">${escapeForSvg(precioText)}</text>\n`;
 
     // Dibujar información en su box (ahora con wrapping y cálculo de alto dinámico)
     const infoX = infoBoxX + padding;
