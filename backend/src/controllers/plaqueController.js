@@ -44,7 +44,8 @@ const createPropertyPlaque = async (req, res, next) => {
     const {
       title,
       description,
-      propertyData
+      propertyData,
+      modelType = 'standard' // Nuevo: tipo de modelo (standard o premium)
     } = req.body;
 
     console.log('[PLACAS] Usuario ID:', userId);
@@ -94,6 +95,15 @@ const createPropertyPlaque = async (req, res, next) => {
       });
     }
 
+    // Validar imagen del agente para modelo premium
+    if (modelType === 'premium' && !propertyInfo.agentImage) {
+      console.error('[PLACAS] Falta imagen del agente para modelo premium');
+      return res.status(400).json({
+        error: 'Imagen del agente requerida',
+        message: 'Para el modelo premium, se requiere la imagen del agente'
+      });
+    }
+
     console.log('[PLACAS] Validación exitosa, creando registro en BD...');
 
     // Crear registro inicial
@@ -105,7 +115,8 @@ const createPropertyPlaque = async (req, res, next) => {
         propertyData: JSON.stringify(propertyInfo),
         originalImages: JSON.stringify([]), // Se llenará después
         generatedImages: JSON.stringify([]),
-        status: 'PROCESSING'
+        status: 'PROCESSING',
+        modelType // Nuevo campo
       }
     });
 
@@ -113,7 +124,7 @@ const createPropertyPlaque = async (req, res, next) => {
     console.log('[PLACAS] Iniciando procesamiento asíncrono...');
 
     // Procesar imágenes de forma asíncrona
-    processImagesAndGeneratePlaques(plaque.id, req.files, propertyInfo)
+    processImagesAndGeneratePlaques(plaque.id, req.files, propertyInfo, modelType)
       .catch(error => {
         console.error('[PLACAS] Error en procesamiento asíncrono:', error);
         // Actualizar estado a error
@@ -146,7 +157,7 @@ const createPropertyPlaque = async (req, res, next) => {
 /**
  * Procesar imágenes y generar placas (función asíncrona)
  */
-async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
+async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo, modelType = 'standard') {
   try {
     console.log('[PLACAS] Iniciando procesamiento de imágenes para placa:', plaqueId);
     console.log('[PLACAS] Datos de propiedad:', JSON.stringify(propertyInfo, null, 2));
@@ -190,7 +201,7 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
 
         // Generar overlay y procesar la imagen (createPlaqueOverlay descarga la imagen y compone el SVG)
         console.log('[PLACAS] Generando overlay...');
-        const plaqueImageBuffer = await createPlaqueOverlay(originalUrl, propertyInfo, imageAnalysis);
+        const plaqueImageBuffer = await createPlaqueOverlay(originalUrl, propertyInfo, imageAnalysis, null, modelType);
         console.log('[PLACAS] Overlay generado, tamaño del buffer:', plaqueImageBuffer.length);
 
         // Subir imagen final a Cloudinary
@@ -234,7 +245,7 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo) {
 /**
  * Crear overlay de información sobre la imagen con soporte para múltiples formatos
  */
-async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis, outputFormat = null) {
+async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis, outputFormat = null, modelType = 'standard') {
   try {
     console.log('[PLACAS] Descargando imagen de:', imageUrl);
     
@@ -352,7 +363,7 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis, output
 
 
     // Generar el SVG llamando a la función factorizada (module-level)
-    const svgOverlay = createPlaqueSvgString(width, height, propertyInfo, imageAnalysis);
+    const svgOverlay = createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, modelType);
     console.log('[PLACAS] SVG generado (long):', svgOverlay.substring(0, 200) + '...');
 
     // Aplicar overlay a la imagen con configuración explícita de codificación
@@ -427,7 +438,7 @@ function escapeForSvg(s) {
 }
 
     // Función factorizada para generar el string SVG del overlay.
-function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
+function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, modelType = 'standard') {
   try {
     const precio = String(propertyInfo.precio || 'Consultar').replace(/[^\d]/g, '');
     const moneda = propertyInfo.moneda || 'USD';
@@ -700,6 +711,17 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     // Seleccionar esquema de color (se puede hacer configurable desde propertyInfo)
     const selectedScheme = colorSchemes[propertyInfo.colorScheme || 'professional'];
     
+    // Lógica para modelo premium
+    const isPremium = modelType === 'premium';
+    if (isPremium) {
+      // Cambiar esquema a luxury por defecto para premium
+      selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.95)';
+      selectedScheme.priceBoxFill = 'url(#luxuryGradient)';
+      selectedScheme.priceTextColor = '#FFFFFF';
+      selectedScheme.corredoresBoxFill = 'rgba(0, 0, 0, 0.9)';
+      selectedScheme.corredoresTextColor = '#FFD700';
+    }
+    
     const mainBoxFill = selectedScheme.mainBoxFill;
     const mainTextColor = selectedScheme.mainTextColor;
 
@@ -850,15 +872,34 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
     svg += `    <filter id="f1" x="-20%" y="-20%" width="140%" height="140%">\n`;
     svg += `      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.45" />\n`;
     svg += `    </filter>\n`;
+    
+    // Gradientes premium
+    if (isPremium) {
+      svg += `    <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">\n`;
+      svg += `      <stop offset="0%" stop-color="#000000" stop-opacity="0.9" />\n`;
+      svg += `      <stop offset="50%" stop-color="#8B4513" stop-opacity="0.8" />\n`;
+      svg += `      <stop offset="100%" stop-color="#FFD700" stop-opacity="0.7" />\n`;
+      svg += `    </linearGradient>\n`;
+      svg += `    <filter id="premiumShadow">\n`;
+      svg += `      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.6" />\n`;
+      svg += `    </filter>\n`;
+      svg += `    <pattern id="elegantWaves" patternUnits="userSpaceOnUse" width="50" height="50">\n`;
+      svg += `      <path d="M0,25 Q12.5,0 25,25 T50,25" stroke="#FFD700" stroke-width="1" fill="none" opacity="0.3" />\n`;
+      svg += `    </pattern>\n`;
+    }
+    
     svg += `    <style><![CDATA[\n`;
     svg += `      .precio { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${precioSize}px; font-weight: 700; fill: ${mainTextColor}; }\n`;
     svg += `      .info { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${infoSize}px; fill: ${mainTextColor}; font-weight: 600; }\n`;
     svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${mainTextColor}; font-weight: 500; }\n`;
     svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${mainTextColor}; opacity: 0.9; font-weight: 600; }\n`;
+    if (isPremium) {
+      svg += `      .premium { font-family: 'Playfair Display', serif; }\n`;
+    }
     svg += `    ]]></style>\n`;
     svg += `  </defs>\n`;
 
-    svg += `  <g filter="url(#f1)">\n`;
+    svg += `  <g filter="${isPremium ? 'url(#premiumShadow)' : 'url(#f1)'}">\n`;
     // Box para precio (arriba derecha) - usar color del esquema seleccionado
     svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="14" fill="${selectedScheme.priceBoxFill}" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
     // Box para información (abajo)
@@ -1106,6 +1147,33 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis) {
       svg += `  <rect x="${brandX - 20}" y="${brandY - brandSize - 16}" width="${brandBoxWidth}" height="${brandBoxHeight}" rx="8" fill="rgba(255,255,255,0.5)" stroke="rgba(0,0,0,0.1)" stroke-width="1.5" />\n`;
       
       svg += `  <text x="${brandX}" y="${brandY}" text-anchor="start" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${brandSize}px; font-weight: 700; fill: #000000;">${brandSafe}</text>\n`;
+    }
+
+    // Zócalo del agente para modelo premium
+    if (isPremium && propertyInfo.agentImage) {
+      const agentBoxHeight = Math.floor(height * 0.25); // 25% inferior
+      const agentBoxY = height - agentBoxHeight;
+      const agentImageSize = 60;
+      const agentX = 20;
+      const agentY = agentBoxY + 20;
+      const textX = agentX + agentImageSize + 20;
+
+      // Fondo del zócalo
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="url(#luxuryGradient)" opacity="0.95" />\n`;
+
+      // Imagen del agente (circular)
+      svg += `  <clipPath id="agentClip">\n`;
+      svg += `    <circle cx="${agentX + agentImageSize/2}" cy="${agentY + agentImageSize/2}" r="${agentImageSize/2}" />\n`;
+      svg += `  </clipPath>\n`;
+      svg += `  <image x="${agentX}" y="${agentY}" width="${agentImageSize}" height="${agentImageSize}" href="${propertyInfo.agentImage}" clip-path="url(#agentClip)" />\n`;
+
+      // Texto del agente
+      const agentName = escapeForSvg(propertyInfo.agentName || 'Agente');
+      const agency = escapeForSvg(propertyInfo.agency || 'Agencia');
+      const agentContact = escapeForSvg(propertyInfo.agentContact || '');
+      svg += `  <text x="${textX}" y="${agentY + 20}" class="premium" style="font-size: 18px; fill: #FFD700; font-weight: bold;">${agentName}</text>\n`;
+      svg += `  <text x="${textX}" y="${agentY + 45}" style="font-family: Arial, sans-serif; font-size: 14px; fill: #FFFFFF;">${agency}</text>\n`;
+      svg += `  <text x="${textX}" y="${agentY + 65}" style="font-family: Arial, sans-serif; font-size: 12px; fill: #FFFFFF;">${agentContact}</text>\n`;
     }
 
     svg += `</svg>`;
