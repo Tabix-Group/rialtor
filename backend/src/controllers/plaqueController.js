@@ -30,6 +30,12 @@ const upload = multer({
   }
 });
 
+// Configurar multer para múltiples campos de archivos
+const uploadFields = upload.fields([
+  { name: 'images', maxCount: 2 }, // Imágenes de la propiedad
+  { name: 'agentImage', maxCount: 1 } // Imagen del agente
+]);
+
 /**
  * Crear una nueva placa de propiedad
  */
@@ -38,7 +44,7 @@ const createPropertyPlaque = async (req, res, next) => {
     console.log('[PLACAS] ===== INICIANDO CREACIÓN DE PLACA =====');
     console.log('[PLACAS] Headers:', JSON.stringify(req.headers, null, 2));
     console.log('[PLACAS] Body keys:', Object.keys(req.body));
-    console.log('[PLACAS] Files:', req.files ? req.files.length : 'No files');
+    console.log('[PLACAS] Files:', req.files ? Object.keys(req.files) : 'No files');
 
     const userId = req.user.id;
     const {
@@ -53,18 +59,18 @@ const createPropertyPlaque = async (req, res, next) => {
     console.log('[PLACAS] Description:', description);
     console.log('[PLACAS] PropertyData raw:', propertyData);
 
-    // Validar que se hayan subido imágenes
-    if (!req.files || req.files.length === 0) {
-      console.error('[PLACAS] No se recibieron archivos');
+    // Validar que se hayan subido imágenes de propiedad
+    if (!req.files || !req.files.images || req.files.images.length === 0) {
+      console.error('[PLACAS] No se recibieron imágenes de propiedad');
       return res.status(400).json({
         error: 'Se requiere al menos una imagen',
         message: 'Debe subir al menos una imagen de la propiedad'
       });
     }
 
-    // Limitar número máximo de imágenes a 2
-    if (req.files.length > 2) {
-      console.error('[PLACAS] Demasiadas imágenes:', req.files.length);
+    // Limitar número máximo de imágenes de propiedad a 2
+    if (req.files.images.length > 2) {
+      console.error('[PLACAS] Demasiadas imágenes de propiedad:', req.files.images.length);
       return res.status(400).json({
         error: 'Límite de imágenes excedido',
         message: 'Solo se permiten hasta 2 imágenes por placa'
@@ -82,6 +88,22 @@ const createPropertyPlaque = async (req, res, next) => {
         error: 'Datos de propiedad inválidos',
         message: 'Los datos de la propiedad no tienen un formato válido'
       });
+    }
+
+    // Manejar imagen del agente si fue subida
+    if (req.files && req.files.agentImage && req.files.agentImage.length > 0) {
+      try {
+        console.log('[PLACAS] Subiendo imagen del agente a Cloudinary...');
+        const agentImageResult = await uploadImageToCloudinary(req.files.agentImage[0].buffer, 'placas/agentes');
+        propertyInfo.agentImage = agentImageResult.secure_url;
+        console.log('[PLACAS] Imagen del agente subida:', agentImageResult.secure_url);
+      } catch (error) {
+        console.error('[PLACAS] Error subiendo imagen del agente:', error);
+        return res.status(400).json({
+          error: 'Error procesando imagen del agente',
+          message: 'No se pudo subir la imagen del agente'
+        });
+      }
     }
 
     if (!propertyInfo.precio || !propertyInfo.corredores) {
@@ -121,7 +143,7 @@ const createPropertyPlaque = async (req, res, next) => {
     console.log('[PLACAS] Iniciando procesamiento asíncrono...');
 
     // Procesar imágenes de forma asíncrona
-    processImagesAndGeneratePlaques(plaque.id, req.files, propertyInfo, modelType)
+    processImagesAndGeneratePlaques(plaque.id, req.files.images, propertyInfo, modelType)
       .catch(error => {
         console.error('[PLACAS] Error en procesamiento asíncrono:', error);
         // Actualizar estado a error
@@ -1398,7 +1420,7 @@ function extractPublicIdFromUrl(url) {
 }
 
 module.exports = {
-  upload: upload.array('images', 2), // Máximo 2 imágenes
+  upload: uploadFields, // Middleware actualizado para múltiples campos
   createPropertyPlaque,
   getUserPlaques,
   getPlaqueById,
