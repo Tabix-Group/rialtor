@@ -732,13 +732,20 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     
     // Lógica para modelo premium
     const isPremium = modelType === 'premium';
+    let priceBoxFill, priceTextColor, corredoresBoxFill, corredoresTextColor;
+    
     if (isPremium) {
       // Cambiar esquema a luxury por defecto para premium
       selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.95)';
-      selectedScheme.priceBoxFill = 'url(#premiumPriceGradient)';
-      selectedScheme.priceTextColor = '#FFFFFF';
-      selectedScheme.corredoresBoxFill = 'rgba(0, 0, 0, 0.9)';
-      selectedScheme.corredoresTextColor = '#FFD700';
+      priceBoxFill = 'rgba(26, 26, 26, 0.92)'; // Fondo oscuro sólido
+      priceTextColor = '#FFD700'; // Texto dorado
+      corredoresBoxFill = 'rgba(0, 0, 0, 0.85)';
+      corredoresTextColor = '#FFD700';
+    } else {
+      priceBoxFill = selectedScheme.priceBoxFill;
+      priceTextColor = selectedScheme.priceTextColor;
+      corredoresBoxFill = selectedScheme.corredoresBoxFill;
+      corredoresTextColor = selectedScheme.corredoresTextColor;
     }
     
     const mainBoxFill = selectedScheme.mainBoxFill;
@@ -892,38 +899,11 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     svg += `      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.45" />\n`;
     svg += `    </filter>\n`;
     
-    // Gradientes premium
+    // Filtro de sombra premium
     if (isPremium) {
-      svg += `    <linearGradient id="luxuryGradient" x1="0%" y1="0%" x2="100%" y2="100%">\n`;
-      svg += `      <stop offset="0%" stop-color="#000000" stop-opacity="0.9" />\n`;
-      svg += `      <stop offset="50%" stop-color="#8B4513" stop-opacity="0.8" />\n`;
-      svg += `      <stop offset="100%" stop-color="#FFD700" stop-opacity="0.7" />\n`;
-      svg += `    </linearGradient>\n`;
-      svg += `    <linearGradient id="premiumPriceGradient" x1="0%" y1="0%" x2="100%" y2="100%">\n`;
-      svg += `      <stop offset="0%" stop-color="#1a1a1a" stop-opacity="0.95" />\n`;
-      svg += `      <stop offset="25%" stop-color="#2d3748" stop-opacity="0.9" />\n`;
-      svg += `      <stop offset="50%" stop-color="#4a5568" stop-opacity="0.85" />\n`;
-      svg += `      <stop offset="75%" stop-color="#2d3748" stop-opacity="0.9" />\n`;
-      svg += `      <stop offset="100%" stop-color="#1a1a1a" stop-opacity="0.95" />\n`;
-      svg += `    </linearGradient>\n`;
-      svg += `    <radialGradient id="premiumGlow" cx="50%" cy="50%" r="50%">\n`;
-      svg += `      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.3" />\n`;
-      svg += `      <stop offset="70%" stop-color="#FFD700" stop-opacity="0.1" />\n`;
-      svg += `      <stop offset="100%" stop-color="#FFD700" stop-opacity="0" />\n`;
-      svg += `    </radialGradient>\n`;
       svg += `    <filter id="premiumShadow">\n`;
       svg += `      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.6" />\n`;
       svg += `    </filter>\n`;
-      svg += `    <filter id="premiumGlowFilter">\n`;
-      svg += `      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>\n`;
-      svg += `      <feMerge>\n`;
-      svg += `        <feMergeNode in="coloredBlur"/>\n`;
-      svg += `        <feMergeNode in="SourceGraphic"/>\n`;
-      svg += `      </feMerge>\n`;
-      svg += `    </filter>\n`;
-      svg += `    <pattern id="elegantWaves" patternUnits="userSpaceOnUse" width="50" height="50">\n`;
-      svg += `      <path d="M0,25 Q12.5,0 25,25 T50,25" stroke="#FFD700" stroke-width="1" fill="none" opacity="0.3" />\n`;
-      svg += `    </pattern>\n`;
     }
     
     svg += `    <style><![CDATA[\n`;
@@ -941,7 +921,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     svg += `  <g filter="${isPremium ? 'url(#premiumShadow)' : 'url(#f1)'}">\n`;
     // Box para precio (arriba derecha) - usar color del esquema seleccionado
-    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${selectedScheme.priceBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(255,215,0,0.3)' : 'rgba(0,0,0,0.15)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
+    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${priceBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(255,215,0,0.5)' : 'rgba(0,0,0,0.15)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
     // Box para información (abajo)
     svg += `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${mainBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(255,215,0,0.2)' : 'rgba(0,0,0,0.12)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
     svg += `  </g>\n`;
@@ -958,8 +938,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     svg += `    </filter>\n`;
     svg += `  </defs>\n`;
 
-    // Texto del precio centrado con color del esquema
-    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" class="${isPremium ? 'premium-price' : 'precio'}">${escapeForSvg(precioText)}</text>\n`;
+    // Texto del precio centrado con color específico para cada modelo
+    svg += `  <text x="${precioCenterX}" y="${precioCenterY + precioSize * 0.35}" text-anchor="middle" filter="url(#precioShadow)" class="${isPremium ? 'premium-price' : 'precio'}" style="fill: ${priceTextColor};">${escapeForSvg(precioText)}</text>\n`;
 
     // Dibujar información en su box (ahora con wrapping y cálculo de alto dinámico)
     const infoX = infoBoxX + padding;
@@ -1093,7 +1073,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 250));
       // draw rect with final width - usar color del esquema seleccionado
       svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="${selectedScheme.corredoresBoxFill}" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
+      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="${corredoresBoxFill}" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
       svg += `  </g>\n`;
       // icon and text centered horizontally and vertically
       const centerY = cY - cH + cH / 2;
@@ -1102,7 +1082,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       for (let i = 0; i < corrParts.length; i++) {
         const lineY = startY + i * (lineHeight + adaptiveSpacing);
         const textCenterX = cX + finalCW / 2;
-        svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: ${selectedScheme.corredoresTextColor};">${corrParts[i]}</text>\n`;
+        svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: ${corredoresTextColor};">${corrParts[i]}</text>\n`;
       }
     }
 
@@ -1191,51 +1171,56 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     // Zócalo del agente para modelo premium
     if (isPremium && propertyInfo.agentImage) {
-      const agentBoxHeight = Math.floor(height * 0.25); // 25% inferior
+      const agentBoxHeight = Math.floor(height * 0.20); // 20% inferior (reducido de 25%)
       const agentBoxY = height - agentBoxHeight;
-      const agentImageSize = 70;
-      const agentX = 30;
-      const agentY = agentBoxY + 15;
-      const textX = agentX + agentImageSize + 25;
+      const agentImageSize = 80; // Imagen más grande
+      const agentX = 40;
+      const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
+      const textX = agentX + agentImageSize + 30;
 
-      // Fondo del zócalo con gradiente elegante
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="url(#luxuryGradient)" opacity="0.95" />\n`;
+      // Fondo del zócalo con gradiente elegante más sutil
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(0, 0, 0, 0.85)" opacity="1" />\n`;
       
-      // Patrón de ondas elegante en el fondo
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="url(#elegantWaves)" opacity="0.4" />\n`;
+      // Línea superior decorativa dorada
+      svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#FFD700" stroke-width="2" opacity="0.8" />\n`;
 
-      // Marco dorado alrededor de la imagen
+      // Marco dorado alrededor de la imagen - más grueso y visible
       const frameSize = agentImageSize + 8;
-      const frameX = agentX - 4;
-      const frameY = agentY - 4;
-      svg += `  <circle cx="${agentX + agentImageSize/2}" cy="${agentY + agentImageSize/2}" r="${frameSize/2}" fill="none" stroke="#FFD700" stroke-width="3" opacity="0.8" />\n`;
-      svg += `  <circle cx="${agentX + agentImageSize/2}" cy="${agentY + agentImageSize/2}" r="${frameSize/2 - 1.5}" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.6" />\n`;
+      const frameCenterX = agentX + agentImageSize/2;
+      const frameCenterY = agentY + agentImageSize/2;
+      
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${frameSize/2}" fill="none" stroke="#FFD700" stroke-width="3" opacity="0.9" />\n`;
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${frameSize/2 - 2}" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.5" />\n`;
 
       // Imagen del agente (circular) con borde sutil
       svg += `  <clipPath id="agentClip">\n`;
-      svg += `    <circle cx="${agentX + agentImageSize/2}" cy="${agentY + agentImageSize/2}" r="${agentImageSize/2}" />\n`;
+      svg += `    <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2}" />\n`;
       svg += `  </clipPath>\n`;
-      svg += `  <circle cx="${agentX + agentImageSize/2}" cy="${agentY + agentImageSize/2}" r="${agentImageSize/2}" fill="#f8f9fa" opacity="0.3" />\n`;
-      svg += `  <image x="${agentX}" y="${agentY}" width="${agentImageSize}" height="${agentImageSize}" href="${propertyInfo.agentImage}" clip-path="url(#agentClip)" />\n`;
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2}" fill="#2a2a2a" />\n`;
+      svg += `  <image x="${agentX}" y="${agentY}" width="${agentImageSize}" height="${agentImageSize}" href="${propertyInfo.agentImage}" clip-path="url(#agentClip)" preserveAspectRatio="xMidYMid slice" />\n`;
 
-      // Texto del agente con mejor diseño
+      // Texto del agente con mejor diseño y tamaños ajustados
       const agentName = escapeForSvg(propertyInfo.agentName || 'Agente Inmobiliario');
       const agency = escapeForSvg(propertyInfo.agency || 'Agencia Inmobiliaria');
       const agentContact = escapeForSvg(propertyInfo.agentContact || '');
       
+      const textY = agentY + 20; // Posición Y base para el texto
+      
       // Nombre del agente con efecto de brillo
-      svg += `  <text x="${textX}" y="${agentY + 25}" class="premium" style="font-size: 20px; fill: #FFD700; font-weight: bold; filter: url(#premiumGlowFilter);">${agentName}</text>\n`;
+      svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 24px; fill: #FFD700; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.5);">${agentName}</text>\n`;
       
       // Agencia con fuente más pequeña pero elegante
-      svg += `  <text x="${textX}" y="${agentY + 50}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 14px; fill: #FFFFFF; font-weight: 400;">${agency}</text>\n`;
+      svg += `  <text x="${textX}" y="${textY + 30}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 16px; fill: #FFFFFF; font-weight: 400;">${agency}</text>\n`;
       
       // Contacto si existe
       if (agentContact) {
-        svg += `  <text x="${textX}" y="${agentY + 70}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 12px; fill: #FFFFFF; opacity: 0.9;">${agentContact}</text>\n`;
+        svg += `  <text x="${textX}" y="${textY + 52}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 13px; fill: #CCCCCC; opacity: 0.95;">${agentContact}</text>\n`;
       }
 
-      // Elemento decorativo sutil
-      svg += `  <circle cx="${width - 50}" cy="${agentBoxY + agentBoxHeight/2}" r="15" fill="url(#premiumGlow)" opacity="0.6" />\n`;
+      // Logo de Rialtor.app en el extremo derecho del zócalo
+      const logoX = width - 180;
+      const logoY = agentBoxY + agentBoxHeight / 2;
+      svg += `  <text x="${logoX}" y="${logoY}" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: 18px; font-weight: 700; fill: #FFD700; text-anchor: end;">Rialtor.app</text>\n`;
     }
 
     svg += `</svg>`;
