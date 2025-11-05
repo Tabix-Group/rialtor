@@ -275,6 +275,7 @@ model PropertyPlaque {
   originalImages  String   // JSON array con URLs de imágenes originales
   generatedImages String   // JSON array con URLs de placas generadas
   status          String   @default("PROCESSING")
+  modelType       String   @default("standard") // Tipo de modelo: 'standard' o 'premium'
   aiPrompt        String?
   aiResponse      String?
   metadata        String?  // JSON con metadata adicional

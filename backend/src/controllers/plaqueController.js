@@ -95,13 +95,10 @@ const createPropertyPlaque = async (req, res, next) => {
       });
     }
 
-    // Validar imagen del agente para modelo premium
-    if (modelType === 'premium' && !propertyInfo.agentImage) {
-      console.error('[PLACAS] Falta imagen del agente para modelo premium');
-      return res.status(400).json({
-        error: 'Imagen del agente requerida',
-        message: 'Para el modelo premium, se requiere la imagen del agente'
-      });
+    // Validación opcional para imagen del agente en modelo premium
+    if (modelType === 'premium' && !propertyInfo.agentImage?.trim()) {
+      console.log('[PLACAS] Advertencia: Modelo premium sin imagen del agente');
+      // No fallar, solo loggear
     }
 
     console.log('[PLACAS] Validación exitosa, creando registro en BD...');
