@@ -883,7 +883,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const infoBoxY = precioBoxY + precioBoxHeight + Math.floor(margin / 2);
 
     let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xml:lang="es">\n`;
+    svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="es">\n`;
     
     // Agregar patrón geométrico si existe
     if (geometricPatternSvg) {
@@ -912,9 +912,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     svg += `      .contacto { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${contactoSize}px; fill: ${mainTextColor}; font-weight: 500; }\n`;
     svg += `      .label { font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${labelSize}px; fill: ${mainTextColor}; opacity: 0.9; font-weight: 600; }\n`;
     if (isPremium) {
-      svg += `      .premium { font-family: 'Playfair Display', 'Times New Roman', serif; font-weight: 600; letter-spacing: 0.5px; }\n`;
-      svg += `      .premium-price { font-family: 'Montserrat', 'Arial Black', sans-serif; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }\n`;
-      svg += `      .premium-info { font-family: 'Roboto', 'Arial', sans-serif; font-weight: 500; }\n`;
+      svg += `      .premium { font-family: 'Playfair Display', 'Times New Roman', serif; font-weight: 700; letter-spacing: 0.5px; }\n`;
+      svg += `      .premium-price { font-family: 'Montserrat', 'Arial Black', sans-serif; font-weight: 900; }\n`;
+      svg += `      .premium-info { font-family: 'Roboto', 'Arial', sans-serif; font-weight: 600; }\n`;
     }
     svg += `    ]]></style>\n`;
     svg += `  </defs>\n`;
@@ -1171,56 +1171,61 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     // Zócalo del agente para modelo premium
     if (isPremium && propertyInfo.agentImage) {
-      const agentBoxHeight = Math.floor(height * 0.20); // 20% inferior (reducido de 25%)
+      const agentBoxHeight = Math.floor(height * 0.22); // 22% inferior
       const agentBoxY = height - agentBoxHeight;
-      const agentImageSize = 80; // Imagen más grande
-      const agentX = 40;
+      const agentImageSize = 90; // Imagen más grande
+      const agentX = 50;
       const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
-      const textX = agentX + agentImageSize + 30;
+      const textX = agentX + agentImageSize + 35;
 
       // Fondo del zócalo con gradiente elegante más sutil
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(0, 0, 0, 0.85)" opacity="1" />\n`;
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(0, 0, 0, 0.90)" opacity="1" />\n`;
       
-      // Línea superior decorativa dorada
-      svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#FFD700" stroke-width="2" opacity="0.8" />\n`;
+      // Línea superior decorativa dorada más gruesa
+      svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#FFD700" stroke-width="3" opacity="1" />\n`;
 
-      // Marco dorado alrededor de la imagen - más grueso y visible
-      const frameSize = agentImageSize + 8;
+      // Marco y fondo blanco para la imagen del agente
       const frameCenterX = agentX + agentImageSize/2;
       const frameCenterY = agentY + agentImageSize/2;
       
-      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${frameSize/2}" fill="none" stroke="#FFD700" stroke-width="3" opacity="0.9" />\n`;
-      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${frameSize/2 - 2}" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.5" />\n`;
+      // Fondo blanco sólido detrás de la imagen
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 4}" fill="#FFFFFF" />\n`;
+      
+      // Marco dorado exterior
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 5}" fill="none" stroke="#FFD700" stroke-width="4" opacity="1" />\n`;
 
-      // Imagen del agente (circular) con borde sutil
-      svg += `  <clipPath id="agentClip">\n`;
-      svg += `    <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2}" />\n`;
-      svg += `  </clipPath>\n`;
-      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2}" fill="#2a2a2a" />\n`;
-      svg += `  <image x="${agentX}" y="${agentY}" width="${agentImageSize}" height="${agentImageSize}" href="${propertyInfo.agentImage}" clip-path="url(#agentClip)" preserveAspectRatio="xMidYMid slice" />\n`;
+      // Clip path para la imagen circular
+      svg += `  <defs>\n`;
+      svg += `    <clipPath id="agentClip">\n`;
+      svg += `      <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2}" />\n`;
+      svg += `    </clipPath>\n`;
+      svg += `  </defs>\n`;
+      
+      // Imagen del agente con xlink:href en lugar de href para mejor compatibilidad
+      svg += `  <image x="${agentX}" y="${agentY}" width="${agentImageSize}" height="${agentImageSize}" xlink:href="${propertyInfo.agentImage}" clip-path="url(#agentClip)" preserveAspectRatio="xMidYMid slice" />\n`;
 
       // Texto del agente con mejor diseño y tamaños ajustados
       const agentName = escapeForSvg(propertyInfo.agentName || 'Agente Inmobiliario');
       const agency = escapeForSvg(propertyInfo.agency || 'Agencia Inmobiliaria');
       const agentContact = escapeForSvg(propertyInfo.agentContact || '');
       
-      const textY = agentY + 20; // Posición Y base para el texto
+      const textY = agentY + 25; // Posición Y base para el texto
       
-      // Nombre del agente con efecto de brillo
-      svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 24px; fill: #FFD700; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.5);">${agentName}</text>\n`;
+      // Nombre del agente con efecto de brillo y sombra para legibilidad
+      svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 26px; fill: #FFD700; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(255,215,0,0.5);">${agentName}</text>\n`;
       
-      // Agencia con fuente más pequeña pero elegante
-      svg += `  <text x="${textX}" y="${textY + 30}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 16px; fill: #FFFFFF; font-weight: 400;">${agency}</text>\n`;
+      // Agencia con fuente más pequeña pero elegante y sombra
+      svg += `  <text x="${textX}" y="${textY + 35}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 18px; fill: #FFFFFF; font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">${agency}</text>\n`;
       
-      // Contacto si existe
+      // Contacto si existe con mejor contraste
       if (agentContact) {
-        svg += `  <text x="${textX}" y="${textY + 52}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 13px; fill: #CCCCCC; opacity: 0.95;">${agentContact}</text>\n`;
+        svg += `  <text x="${textX}" y="${textY + 60}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 15px; fill: #E0E0E0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${agentContact}</text>\n`;
       }
 
-      // Logo de Rialtor.app en el extremo derecho del zócalo
-      const logoX = width - 180;
-      const logoY = agentBoxY + agentBoxHeight / 2;
-      svg += `  <text x="${logoX}" y="${logoY}" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: 18px; font-weight: 700; fill: #FFD700; text-anchor: end;">Rialtor.app</text>\n`;
+      // Logo de Rialtor.app en el extremo derecho del zócalo con sombra
+      const logoX = width - 50;
+      const logoY = agentBoxY + agentBoxHeight / 2 + 8;
+      svg += `  <text x="${logoX}" y="${logoY}" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: 22px; font-weight: 700; fill: #FFD700; text-anchor: end; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Rialtor.app</text>\n`;
     }
 
     svg += `</svg>`;
