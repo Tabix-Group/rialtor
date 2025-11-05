@@ -100,6 +100,7 @@ export default function PlacasPage() {
   const [modelType, setModelType] = useState<'standard' | 'premium'>('standard');
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
+  const [agentImageFile, setAgentImageFile] = useState<File | null>(null);
 
   // Proteger ruta
   useEffect(() => {
@@ -169,6 +170,17 @@ export default function PlacasPage() {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleAgentImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAgentImageFile(file);
+    }
+  };
+
+  const removeAgentImage = () => {
+    setAgentImageFile(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -183,7 +195,7 @@ export default function PlacasPage() {
     }
 
     // Validación opcional para imagen del agente en premium (solo mostrar warning)
-    if (modelType === 'premium' && !propertyData.agentImage?.trim()) {
+    if (modelType === 'premium' && !agentImageFile) {
       const confirmWithoutImage = confirm('Para el modelo premium se recomienda agregar la imagen del agente. ¿Desea continuar sin ella?');
       if (!confirmWithoutImage) return;
     }
@@ -200,6 +212,11 @@ export default function PlacasPage() {
       selectedImages.forEach(image => {
         formData.append('images', image);
       });
+
+      // Agregar imagen del agente si existe
+      if (agentImageFile) {
+        formData.append('agentImage', agentImageFile);
+      }
 
       const res = await authenticatedFetch('/api/placas', {
         method: 'POST',
@@ -233,6 +250,7 @@ export default function PlacasPage() {
           agentContact: ''
         });
         setModelType('standard');
+        setAgentImageFile(null);
         fetchPlaques(currentPage);
         alert('Placa creada exitosamente. El procesamiento iniciarÃ¡ en breve.');
       } else {
@@ -402,13 +420,13 @@ export default function PlacasPage() {
                       <div className="flex items-center gap-1 text-xs">
                         <Home className="w-3 h-3 text-blue-600" />
                         <span>{plaque.propertyData.ambientes || 0} amb</span>
-                        {plaque.propertyData.dormitorios && <span>â€¢ {plaque.propertyData.dormitorios} dorm</span>}
-                        {plaque.propertyData.banos && <span>â€¢ {plaque.propertyData.banos} baÃ±os</span>}
+                        {plaque.propertyData.dormitorios && <span>• {plaque.propertyData.dormitorios} dorm</span>}
+                        {plaque.propertyData.banos && <span>• {plaque.propertyData.banos} baños</span>}
                       </div>
                       {plaque.propertyData.m2_totales && (
                         <div className="flex items-center gap-1">
                           <Square className="w-3 h-3 text-purple-600" />
-                          <span>{plaque.propertyData.m2_totales} mÂ²</span>
+                          <span>{plaque.propertyData.m2_totales} m²</span>
                         </div>
                       )}
                     </div>
@@ -499,10 +517,10 @@ export default function PlacasPage() {
                 <h2 className="text-2xl font-bold mb-6">Nueva Placa de Propiedad</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Subida de imÃ¡genes */}
+                  {/* Subida de imágenes */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ImÃ¡genes de la propiedad *
+                      Imágenes de la propiedad *
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       <input
@@ -519,10 +537,10 @@ export default function PlacasPage() {
                       >
                         <Upload className="w-12 h-12 text-gray-400 mb-4" />
                         <span className="text-sm text-gray-600">
-                          Haz clic para seleccionar imÃ¡genes o arrastra aquÃ­
+                          Haz clic para seleccionar imágenes o arrastra aquí
                         </span>
                         <span className="text-xs text-gray-500 mt-1">
-                          MÃ¡ximo 10 imÃ¡genes
+                          Máximo 10 imágenes
                         </span>
                       </label>
                     </div>
@@ -550,6 +568,21 @@ export default function PlacasPage() {
                     )}
                   </div>
 
+                  {/* Selector de modelo */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Modelo de placa
+                    </label>
+                    <select
+                      value={modelType}
+                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="standard">Estándar</option>
+                      <option value="premium">Premium (con zócalo del agente)</option>
+                    </select>
+                  </div>
+
                   {/* Datos de la propiedad */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -567,7 +600,7 @@ export default function PlacasPage() {
                         <option value="Local Comercial">Local Comercial</option>
                         <option value="Oficina">Oficina</option>
                         <option value="Terreno">Terreno</option>
-                        <option value="GalpÃ³n">GalpÃ³n</option>
+                        <option value="Galpón">Galpón</option>
                       </select>
                     </div>
 
@@ -628,7 +661,7 @@ export default function PlacasPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        BaÃ±os
+                        Baños
                       </label>
                       <input
                         type="text"
@@ -681,7 +714,7 @@ export default function PlacasPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         <Clock className="w-4 h-4 inline mr-1" />
-                        AntigÃ¼edad
+                        Antigüedad
                       </label>
                       <input
                         type="text"
@@ -695,7 +728,7 @@ export default function PlacasPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         <MapPin className="w-4 h-4 inline mr-1" />
-                        DirecciÃ³n
+                        Dirección
                       </label>
                       <input
                         type="text"
@@ -723,7 +756,7 @@ export default function PlacasPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Corredores (nombre y matrÃ­cula) *
+                      Corredores (nombre y matrícula) *
                     </label>
                     <textarea
                       required
@@ -737,7 +770,7 @@ export default function PlacasPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      DescripciÃ³n adicional
+                      Descripción adicional
                     </label>
                     <textarea
                       value={propertyData.descripcion}
@@ -748,21 +781,6 @@ export default function PlacasPage() {
                     />
                   </div>
 
-                  {/* Selector de modelo */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Modelo de placa
-                    </label>
-                    <select
-                      value={modelType}
-                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="standard">Estándar</option>
-                      <option value="premium">Premium (con zócalo del agente)</option>
-                    </select>
-                  </div>
-
                   {/* Campos del agente (solo para premium) */}
                   {modelType === 'premium' && (
                     <div className="space-y-4 border-t pt-4">
@@ -770,16 +788,47 @@ export default function PlacasPage() {
                       
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Imagen del agente *
+                          Imagen del agente
                         </label>
-                        <input
-                          type="url"
-                          value={propertyData.agentImage}
-                          onChange={(e) => setPropertyData(prev => ({ ...prev, agentImage: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="URL de la imagen del agente"
-                          required={false}
-                        />
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAgentImageSelect}
+                            className="hidden"
+                            id="agent-image-upload"
+                          />
+                          <label
+                            htmlFor="agent-image-upload"
+                            className="cursor-pointer flex flex-col items-center"
+                          >
+                            <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                            <span className="text-sm text-gray-600">
+                              Haz clic para seleccionar imagen del agente
+                            </span>
+                            <span className="text-xs text-gray-500 mt-1">
+                              JPG, PNG, máximo 5MB
+                            </span>
+                          </label>
+                        </div>
+
+                        {/* Preview de imagen del agente */}
+                        {agentImageFile && (
+                          <div className="mt-3 relative inline-block">
+                            <img
+                              src={URL.createObjectURL(agentImageFile)}
+                              alt="Preview agente"
+                              className="w-20 h-20 object-cover rounded-lg border"
+                            />
+                            <button
+                              type="button"
+                              onClick={removeAgentImage}
+                              className="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full p-1 hover:bg-gray-600"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -866,7 +915,7 @@ export default function PlacasPage() {
                     onClick={() => setSelectedPlaque(null)}
                     className="text-gray-500 hover:text-gray-700"
                   >
-                    âœ•
+                    ✕
                   </button>
                 </div>
 
@@ -910,7 +959,7 @@ export default function PlacasPage() {
 
                   {selectedPlaque.originalImages.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">ImÃ¡genes Originales</h3>
+                      <h3 className="text-lg font-semibold mb-3">Imágenes Originales</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {selectedPlaque.originalImages.map((url, index) => (
                           <img
@@ -936,7 +985,7 @@ export default function PlacasPage() {
                       <span className="font-medium">Precio:</span> {selectedPlaque.propertyData.moneda} {parseInt(selectedPlaque.propertyData.precio).toLocaleString('es-AR')}
                     </div>
                     <div>
-                      <span className="font-medium">DirecciÃ³n:</span> {selectedPlaque.propertyData.direccion}
+                      <span className="font-medium">Dirección:</span> {selectedPlaque.propertyData.direccion}
                     </div>
                     <div>
                       <span className="font-medium">Contacto:</span> {selectedPlaque.propertyData.contacto}
@@ -968,17 +1017,17 @@ export default function PlacasPage() {
                     )}
                     {selectedPlaque.propertyData.m2_totales && (
                       <div>
-                        <span className="font-medium">M2 Totales:</span> {selectedPlaque.propertyData.m2_totales} mÂ²
+                        <span className="font-medium">M2 Totales:</span> {selectedPlaque.propertyData.m2_totales} m²
                       </div>
                     )}
                     {selectedPlaque.propertyData.m2_cubiertos && (
                       <div>
-                        <span className="font-medium">M2 Cubiertos:</span> {selectedPlaque.propertyData.m2_cubiertos} mÂ²
+                        <span className="font-medium">M2 Cubiertos:</span> {selectedPlaque.propertyData.m2_cubiertos} m²
                       </div>
                     )}
                     {selectedPlaque.propertyData.antiguedad && (
                       <div>
-                        <span className="font-medium">AntigÃ¼edad:</span> {selectedPlaque.propertyData.antiguedad}
+                        <span className="font-medium">Antigüedad:</span> {selectedPlaque.propertyData.antiguedad}
                       </div>
                     )}
                     {selectedPlaque.propertyData.email && (
