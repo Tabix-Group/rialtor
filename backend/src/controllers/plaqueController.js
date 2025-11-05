@@ -404,6 +404,63 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis, output
 
     console.log('[PLACAS] Imagen procesada, tamaño final:', processedImage.length, 'bytes');
 
+    // Si es premium y hay imagen del agente, componerla sobre la imagen
+    if (modelType === 'premium' && propertyInfo.agentImage) {
+      try {
+        console.log('[PLACAS] Descargando y procesando imagen del agente...');
+        
+        // Descargar imagen del agente
+        const agentResponse = await fetchWithRetry(propertyInfo.agentImage, 3, 600, 12000);
+        const agentArrayBuffer = await agentResponse.arrayBuffer();
+        const agentBuffer = Buffer.from(agentArrayBuffer);
+        
+        // Calcular posición y tamaño del agente en el footer
+        const agentBoxHeight = Math.floor(height * 0.24);
+        const agentBoxY = height - agentBoxHeight;
+        const agentImageSize = 110;
+        const agentX = 60;
+        const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2;
+        
+        // Procesar imagen del agente: redimensionar a círculo
+        const agentProcessed = await sharp(agentBuffer)
+          .resize(agentImageSize, agentImageSize, {
+            fit: 'cover',
+            position: 'center'
+          })
+          .composite([{
+            // Crear máscara circular
+            input: Buffer.from(
+              `<svg width="${agentImageSize}" height="${agentImageSize}">
+                <circle cx="${agentImageSize/2}" cy="${agentImageSize/2}" r="${agentImageSize/2}" fill="white"/>
+              </svg>`
+            ),
+            blend: 'dest-in'
+          }])
+          .png()
+          .toBuffer();
+        
+        console.log('[PLACAS] Imagen del agente procesada, componiendo...');
+        
+        // Componer la imagen del agente sobre la placa
+        const finalImage = await sharp(processedImage)
+          .composite([{
+            input: agentProcessed,
+            top: Math.round(agentY),
+            left: Math.round(agentX)
+          }])
+          .png({ quality: 90, compressionLevel: 6 })
+          .toBuffer();
+        
+        console.log('[PLACAS] Imagen final con agente compuesta');
+        return finalImage;
+        
+      } catch (agentError) {
+        console.error('[PLACAS] Error procesando imagen del agente:', agentError);
+        // Continuar sin la imagen del agente
+        return processedImage;
+      }
+    }
+
     return processedImage;
 
   } catch (error) {
@@ -808,8 +865,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const imageArea = width * height;
     const baseScale = Math.sqrt(imageArea) / 100;
     
-    // Aumentar significativamente los tamaños para que sean más visibles (25% del espacio)
-    const precioSize = Math.max(36, Math.min(72, Math.floor(width / 18 * finalScaleFactor * baseScale / 10)));
+    // Tamaños de fuente aumentados especialmente para el modelo premium
+    const precioSize = isPremium 
+      ? Math.max(48, Math.min(80, Math.floor(width / 12)))  // Precio mucho más grande en premium
+      : Math.max(36, Math.min(72, Math.floor(width / 18 * finalScaleFactor * baseScale / 10)));
     const infoSize = Math.max(20, Math.min(38, Math.floor(width / 28 * finalScaleFactor * baseScale / 10)));
     const contactoSize = Math.max(16, Math.min(28, Math.floor(width / 35 * finalScaleFactor * baseScale / 10)));
     const labelSize = Math.max(14, Math.min(24, Math.floor(width / 45 * finalScaleFactor * baseScale / 10)));
@@ -857,8 +916,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     // Calcular tamaño dinámico del box de precio - más grande para mejor visibilidad
     const precioText = `${moneda} ${formatPrice(precio)}`;
     const precioTextWidth = precioText.length * Math.floor(precioSize * 0.65);
-    const precioBoxWidth = Math.max(280, Math.min(precioTextWidth + padding * 3, Math.floor(width * 0.45)));
-    const precioBoxHeight = Math.max(100, Math.floor(height * 0.15));
+    const precioBoxWidth = isPremium
+      ? Math.max(350, Math.min(precioTextWidth + padding * 4, Math.floor(width * 0.50)))  // Más ancho en premium
+      : Math.max(280, Math.min(precioTextWidth + padding * 3, Math.floor(width * 0.45)));
+    const precioBoxHeight = isPremium
+      ? Math.max(120, Math.floor(height * 0.18))  // Más alto en premium
+      : Math.max(100, Math.floor(height * 0.15));
     const precioBoxX = width - precioBoxWidth - margin;
     const precioBoxY = margin;
 
@@ -1171,61 +1234,53 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     // Zócalo del agente para modelo premium
     if (isPremium && propertyInfo.agentImage) {
-      const agentBoxHeight = Math.floor(height * 0.22); // 22% inferior
+      const agentBoxHeight = Math.floor(height * 0.24); // 24% inferior - más espacio
       const agentBoxY = height - agentBoxHeight;
-      const agentImageSize = 90; // Imagen más grande
-      const agentX = 50;
+      const agentImageSize = 110; // Imagen mucho más grande
+      const agentX = 60;
       const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
-      const textX = agentX + agentImageSize + 35;
+      const textX = agentX + agentImageSize + 40;
 
       // Fondo del zócalo con gradiente elegante más sutil
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(0, 0, 0, 0.90)" opacity="1" />\n`;
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(0, 0, 0, 0.92)" opacity="1" />\n`;
       
       // Línea superior decorativa dorada más gruesa
-      svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#FFD700" stroke-width="3" opacity="1" />\n`;
+      svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#FFD700" stroke-width="4" opacity="1" />\n`;
 
-      // Marco y fondo blanco para la imagen del agente
+      // Marco y fondo blanco para la imagen del agente (la imagen se compondrá después con Sharp)
       const frameCenterX = agentX + agentImageSize/2;
       const frameCenterY = agentY + agentImageSize/2;
       
-      // Fondo blanco sólido detrás de la imagen
-      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 4}" fill="#FFFFFF" />\n`;
+      // Fondo blanco sólido para el círculo - MÁS GRANDE
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 6}" fill="#FFFFFF" />\n`;
       
-      // Marco dorado exterior
-      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 5}" fill="none" stroke="#FFD700" stroke-width="4" opacity="1" />\n`;
-
-      // Clip path para la imagen circular
-      svg += `  <defs>\n`;
-      svg += `    <clipPath id="agentClip">\n`;
-      svg += `      <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2}" />\n`;
-      svg += `    </clipPath>\n`;
-      svg += `  </defs>\n`;
+      // Marco dorado exterior - MÁS GRUESO
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 7}" fill="none" stroke="#FFD700" stroke-width="5" opacity="1" />\n`;
       
-      // Imagen del agente con xlink:href en lugar de href para mejor compatibilidad
-      svg += `  <image x="${agentX}" y="${agentY}" width="${agentImageSize}" height="${agentImageSize}" xlink:href="${propertyInfo.agentImage}" clip-path="url(#agentClip)" preserveAspectRatio="xMidYMid slice" />\n`;
+      // NOTA: La imagen del agente se compondrá después con Sharp, no con SVG
 
-      // Texto del agente con mejor diseño y tamaños ajustados
+      // Texto del agente con mejor diseño y tamaños MUCHO MÁS GRANDES
       const agentName = escapeForSvg(propertyInfo.agentName || 'Agente Inmobiliario');
       const agency = escapeForSvg(propertyInfo.agency || 'Agencia Inmobiliaria');
       const agentContact = escapeForSvg(propertyInfo.agentContact || '');
       
-      const textY = agentY + 25; // Posición Y base para el texto
+      const textY = agentY + 30; // Posición Y base para el texto
       
-      // Nombre del agente con efecto de brillo y sombra para legibilidad
-      svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 26px; fill: #FFD700; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(255,215,0,0.5);">${agentName}</text>\n`;
+      // Nombre del agente con efecto de brillo y sombra para legibilidad - MÁS GRANDE
+      svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 32px; fill: #FFD700; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0 0 15px rgba(255,215,0,0.6);">${agentName}</text>\n`;
       
-      // Agencia con fuente más pequeña pero elegante y sombra
-      svg += `  <text x="${textX}" y="${textY + 35}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 18px; fill: #FFFFFF; font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">${agency}</text>\n`;
+      // Agencia con fuente más grande y elegante con sombra
+      svg += `  <text x="${textX}" y="${textY + 42}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 22px; fill: #FFFFFF; font-weight: 500; text-shadow: 2px 2px 4px rgba(0,0,0,0.9);">${agency}</text>\n`;
       
-      // Contacto si existe con mejor contraste
+      // Contacto si existe con mejor contraste - MÁS GRANDE
       if (agentContact) {
-        svg += `  <text x="${textX}" y="${textY + 60}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 15px; fill: #E0E0E0; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${agentContact}</text>\n`;
+        svg += `  <text x="${textX}" y="${textY + 72}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 18px; fill: #E8E8E8; opacity: 1; text-shadow: 2px 2px 3px rgba(0,0,0,0.9);">${agentContact}</text>\n`;
       }
 
-      // Logo de Rialtor.app en el extremo derecho del zócalo con sombra
-      const logoX = width - 50;
-      const logoY = agentBoxY + agentBoxHeight / 2 + 8;
-      svg += `  <text x="${logoX}" y="${logoY}" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: 22px; font-weight: 700; fill: #FFD700; text-anchor: end; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Rialtor.app</text>\n`;
+      // Logo de Rialtor.app en el extremo derecho del zócalo con sombra - MÁS GRANDE
+      const logoX = width - 60;
+      const logoY = agentBoxY + agentBoxHeight / 2 + 10;
+      svg += `  <text x="${logoX}" y="${logoY}" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: 26px; font-weight: 700; fill: #FFD700; text-anchor: end; text-shadow: 2px 2px 4px rgba(0,0,0,0.9);">Rialtor.app</text>\n`;
     }
 
     svg += `</svg>`;
