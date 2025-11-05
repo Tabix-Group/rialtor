@@ -43,8 +43,12 @@ interface PropertyData {
   antiguedad?: string;
   contacto: string;
   email?: string;
-  corredores: string; // nombre y matrÃ­cula de los corredores (obligatorio)
+  corredores: string; // nombre y matrícula de los corredores (obligatorio)
   descripcion?: string;
+  agentImage?: string; // Nuevo: imagen del agente para modelo premium
+  agentName?: string; // Nuevo: nombre del agente
+  agency?: string; // Nuevo: agencia
+  agentContact?: string; // Nuevo: contacto del agente
 }
 
 interface PropertyPlaque {
@@ -87,8 +91,13 @@ export default function PlacasPage() {
     contacto: '',
     corredores: '',
     email: '',
-    descripcion: ''
+    descripcion: '',
+    agentImage: '',
+    agentName: '',
+    agency: '',
+    agentContact: ''
   });
+  const [modelType, setModelType] = useState<'standard' | 'premium'>('standard');
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
 
@@ -173,6 +182,11 @@ export default function PlacasPage() {
       return;
     }
 
+    if (modelType === 'premium' && !propertyData.agentImage) {
+      alert('Para el modelo premium, se requiere la imagen del agente');
+      return;
+    }
+
     setCreating(true);
 
     try {
@@ -180,6 +194,7 @@ export default function PlacasPage() {
       formData.append('title', `Placa - ${propertyData.direccion}`);
       formData.append('description', propertyData.descripcion || '');
       formData.append('propertyData', JSON.stringify(propertyData));
+      formData.append('modelType', modelType);
 
       selectedImages.forEach(image => {
         formData.append('images', image);
@@ -210,8 +225,13 @@ export default function PlacasPage() {
           contacto: '',
           corredores: '',
           email: '',
-          descripcion: ''
+          descripcion: '',
+          agentImage: '',
+          agentName: '',
+          agency: '',
+          agentContact: ''
         });
+        setModelType('standard');
         fetchPlaques(currentPage);
         alert('Placa creada exitosamente. El procesamiento iniciarÃ¡ en breve.');
       } else {
@@ -726,6 +746,83 @@ export default function PlacasPage() {
                       placeholder="InformaciÃ³n adicional sobre la propiedad..."
                     />
                   </div>
+
+                  {/* Selector de modelo */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Modelo de placa
+                    </label>
+                    <select
+                      value={modelType}
+                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="standard">Estándar</option>
+                      <option value="premium">Premium (con zócalo del agente)</option>
+                    </select>
+                  </div>
+
+                  {/* Campos del agente (solo para premium) */}
+                  {modelType === 'premium' && (
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Información del Agente</h3>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Imagen del agente *
+                        </label>
+                        <input
+                          type="url"
+                          value={propertyData.agentImage}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, agentImage: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="URL de la imagen del agente"
+                          required={modelType === 'premium'}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Nombre del agente
+                          </label>
+                          <input
+                            type="text"
+                            value={propertyData.agentName}
+                            onChange={(e) => setPropertyData(prev => ({ ...prev, agentName: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Ej: Juan Pérez"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Agencia
+                          </label>
+                          <input
+                            type="text"
+                            value={propertyData.agency}
+                            onChange={(e) => setPropertyData(prev => ({ ...prev, agency: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Ej: RE/MAX Premium"
+                          />
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Contacto del agente
+                          </label>
+                          <input
+                            type="text"
+                            value={propertyData.agentContact}
+                            onChange={(e) => setPropertyData(prev => ({ ...prev, agentContact: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Ej: +54 11 1234-5678 | juan@remax.com"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Botones */}
                   <div className="flex gap-3 pt-4">
