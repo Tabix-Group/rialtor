@@ -313,7 +313,13 @@ export default function Home() {
 
             {/* Main heading */}
             <div className="space-y-6">
-              <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-balance">RIALTOR</h1>
+              <div className="flex justify-center">
+                <img
+                  src="/images/logo.png"
+                  alt="RIALTOR Logo"
+                  className="h-24 sm:h-32 lg:h-40 w-auto"
+                />
+              </div>
               <motion.p 
                 initial={{ opacity: 0, y: 20 }} 
                 animate={{ opacity: 1, y: 0 }} 

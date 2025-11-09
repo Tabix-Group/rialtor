@@ -172,9 +172,9 @@ function Navigation() {
         {!isCollapsed && (
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img
-              src="/images/favicon.ico"
+              src="/images/logo.png"
               alt="RIALTOR Logo"
-              className="w-8 h-8 rounded-lg"
+              className="w-10 h-10 rounded-lg"
             />
             <span className="font-bold text-lg text-foreground">RIALTOR</span>
           </Link>
