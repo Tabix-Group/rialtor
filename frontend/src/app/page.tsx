@@ -177,7 +177,7 @@ export default function Home() {
       icon: TrendingUp,
       href: "/indicadores",
       requiresAuth: false,
-      isSpecial: true, // Flag para renderizar el componente especial
+      isSpecial: true,
     },
     {
       name: "Consultor Inmobiliario IA",
@@ -293,303 +293,401 @@ export default function Home() {
     }
   }
 
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 }
+  }
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Minimal gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background"></div>
+        {/* Enhanced gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.08] via-primary/[0.03] to-background"></div>
 
-        {/* Subtle grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+        {/* Refined grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:48px_48px]"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32 lg:pt-40 lg:pb-48">
-          <div className="max-w-4xl mx-auto text-center space-y-12">
+        {/* Subtle radial gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent"></div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32 lg:pt-36 lg:pb-44">
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="max-w-4xl mx-auto text-center space-y-10"
+          >
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Potenciá tu negocio inmobiliario en Argentina</span>
-            </div>
+            <motion.div 
+              variants={fadeInUp}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300"
+            >
+              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+              <span className="text-sm font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Potenciá tu negocio inmobiliario en Argentina
+              </span>
+            </motion.div>
 
             {/* Main heading */}
-            <div className="space-y-6">
+            <motion.div variants={fadeInUp} className="space-y-8">
               <div className="flex justify-center">
-                <img
-                  src="/images/log.png"
+                <motion.img
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  src="/images/logo.png"
                   alt="RIALTOR Logo"
-                  className="h-24 sm:h-32 lg:h-40 w-auto"
+                  className="h-20 sm:h-28 lg:h-36 w-auto drop-shadow-2xl"
                 />
               </div>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="text-2xl sm:text-3xl lg:text-4xl font-light text-muted-foreground text-balance"
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-light text-foreground/90 text-balance leading-tight tracking-tight"
               >
                 La revolución inmobiliaria llegó
-              </motion.p>
-            </div>
+              </motion.h1>
+            </motion.div>
 
             {/* Description */}
-            <p className="max-w-2xl mx-auto text-lg text-muted-foreground leading-relaxed text-pretty">
+            <motion.p 
+              variants={fadeInUp}
+              className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed text-pretty"
+            >
               Cerrá más operaciones con IA, herramientas especializadas y datos precisos del mercado argentino.
-              <span className="text-foreground font-medium"> Cientos de agentes ya confían en nosotros.</span>
-            </p>
+              <span className="block mt-2 text-foreground font-medium">Cientos de agentes ya confían en nosotros.</span>
+            </motion.p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
-              <button
+            <motion.div 
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+            >
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleScrollToDemo}
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-foreground text-background font-medium rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-foreground text-background font-semibold rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-xl hover:shadow-2xl"
               >
-                <Play className="w-5 h-5" />
+                <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Ver Demo en 2 Minutos
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </motion.button>
 
-              <Link
-                href="/auth/register"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-full hover:bg-primary/90 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-[1.02]"
-              >
-                <UserPlus className="w-5 h-5" />
-                Registrarte Gratis
-              </Link>
-            </div>
-          </div>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href="/auth/register"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-semibold rounded-full hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  Registrarte Gratis
+                </Link>
+              </motion.div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-32 lg:py-40">
+      <section className="py-20 sm:py-28 lg:py-36">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="max-w-3xl mx-auto text-center mb-20 space-y-4">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance leading-tight">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="max-w-3xl mx-auto text-center mb-16 lg:mb-20 space-y-5"
+          >
+            <motion.h2 
+              variants={fadeInUp}
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-balance leading-tight tracking-tight"
+            >
               Todo lo que necesitas para vender más
-            </h2>
-            <p className="text-lg text-muted-foreground text-pretty">
+            </motion.h2>
+            <motion.p 
+              variants={fadeInUp}
+              className="text-base sm:text-lg text-muted-foreground text-pretty"
+            >
               Herramientas diseñadas específicamente para el mercado inmobiliario argentino
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => {
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+          >
+            {features.map((feature, index) => {
               // Renderizar el componente especial de indicadores
               if (feature.isSpecial && feature.name === "Indicadores de Mercado") {
-                return <EconomicIndicatorsCard key={feature.name} />
+                return (
+                  <motion.div key={feature.name} variants={fadeInUp}>
+                    <EconomicIndicatorsCard />
+                  </motion.div>
+                )
               }
 
               // Renderizar features normales
               return !feature.requiresAuth || user ? (
-                <a key={feature.name} href={feature.href} className="group relative">
-                  <div className="relative h-full p-8 bg-card border border-border rounded-3xl hover:border-foreground/20 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
-                    {/* Icon */}
-                    <div className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-6 group-hover:bg-foreground/10 transition-colors duration-300">
-                      <feature.icon className="w-6 h-6 text-foreground" />
-                    </div>
+                <motion.div key={feature.name} variants={fadeInUp}>
+                  <a href={feature.href} className="group relative block h-full">
+                    <div className="relative h-full p-7 lg:p-8 bg-card border border-border rounded-2xl lg:rounded-3xl hover:border-primary/30 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
+                      {/* Hover gradient effect */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      {/* Icon */}
+                      <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-foreground/[0.08] to-foreground/[0.04] flex items-center justify-center mb-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
+                        <feature.icon className="w-6 h-6 text-foreground" />
+                      </div>
 
-                    {/* Content */}
-                    <div className="space-y-3">
-                      <h3 className="text-xl font-semibold text-balance leading-tight">{feature.name}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{feature.description}</p>
-                    </div>
+                      {/* Content */}
+                      <div className="relative space-y-3">
+                        <h3 className="text-lg lg:text-xl font-semibold text-balance leading-snug group-hover:text-primary transition-colors duration-300">
+                          {feature.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
+                          {feature.description}
+                        </p>
+                      </div>
 
-                    {/* Arrow indicator */}
-                    <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
-                      <ArrowRight className="w-5 h-5 text-foreground" />
+                      {/* Arrow indicator */}
+                      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
+                        <ArrowRight className="w-5 h-5 text-primary" />
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                </motion.div>
               ) : (
-                <div key={feature.name} className="group relative opacity-50">
-                  <div className="relative h-full p-8 bg-card border border-border rounded-3xl">
-                    {/* Icon */}
-                    <div className="w-12 h-12 rounded-2xl bg-foreground/5 flex items-center justify-center mb-6">
-                      <feature.icon className="w-6 h-6 text-foreground" />
-                    </div>
+                <motion.div key={feature.name} variants={fadeInUp}>
+                  <div className="group relative h-full opacity-60 hover:opacity-70 transition-opacity duration-300">
+                    <div className="relative h-full p-7 lg:p-8 bg-card border border-border rounded-2xl lg:rounded-3xl">
+                      {/* Icon */}
+                      <div className="w-12 h-12 rounded-xl bg-foreground/5 flex items-center justify-center mb-5">
+                        <feature.icon className="w-6 h-6 text-foreground" />
+                      </div>
 
-                    {/* Content */}
-                    <div className="space-y-3">
-                      <h3 className="text-xl font-semibold text-balance leading-tight">{feature.name}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{feature.description}</p>
-                      <p className="text-xs text-muted-foreground italic pt-2">Requiere registro</p>
+                      {/* Content */}
+                      <div className="space-y-3">
+                        <h3 className="text-lg lg:text-xl font-semibold text-balance leading-snug">{feature.name}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{feature.description}</p>
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-xs font-medium text-muted-foreground mt-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50"></span>
+                          Requiere registro
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               )
             })}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Demo Video Section */}
-      <section id="demo-video" className="py-32 lg:py-40 bg-muted/30">
+      <section id="demo-video" className="py-20 sm:py-28 lg:py-36 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance leading-tight">
-              Descubrí cómo cerrar más operaciones
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Vea en 2 minutos cómo RIALTOR transforma la forma de trabajar de los martilleros argentinos
-            </p>
-          </div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp} className="text-center mb-12 lg:mb-16 space-y-5">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-balance leading-tight tracking-tight">
+                Descubrí cómo cerrar más operaciones
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+                Vea en 2 minutos cómo RIALTOR transforma la forma de trabajar de los martilleros argentinos
+              </p>
+            </motion.div>
 
-          <div className="relative group">
-            <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-primary/10 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative aspect-video w-full rounded-3xl overflow-hidden border border-border shadow-2xl">
-              <video
-                src="/docs/Videos/demo.mp4"
-                title="Demo RIALTOR"
-                controls
-                className="w-full h-full object-cover bg-muted"
-                preload="metadata"
-              >
-                Tu navegador no soporta el elemento de video.
-              </video>
-            </div>
-          </div>
+            <motion.div variants={fadeInUp} className="relative group">
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-3xl opacity-0 group-hover:opacity-70 transition-opacity duration-700"></div>
+              <div className="relative aspect-video w-full rounded-2xl lg:rounded-3xl overflow-hidden border-2 border-border shadow-2xl group-hover:border-primary/30 transition-all duration-500">
+                <video
+                  src="/docs/Videos/demo.mp4"
+                  title="Demo RIALTOR"
+                  controls
+                  className="w-full h-full object-cover bg-muted"
+                  preload="metadata"
+                >
+                  Tu navegador no soporta el elemento de video.
+                </video>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="py-32 lg:py-40">
+      <section className="py-20 sm:py-28 lg:py-36">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance leading-tight">
-              Planes que se adaptan a tu negocio
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Elegí el plan perfecto para potenciar tu carrera inmobiliaria
-            </p>
-          </div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp} className="text-center mb-16 lg:mb-20 space-y-5">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-balance leading-tight tracking-tight">
+                Planes que se adaptan a tu negocio
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+                Elegí el plan perfecto para potenciar tu carrera inmobiliaria
+              </p>
+            </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Monthly Plan */}
-            <div className="relative group">
-              <div className="relative bg-card rounded-3xl p-10 border border-border hover:border-foreground/20 hover:shadow-2xl transition-all duration-500">
-                <div className="space-y-8">
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-semibold">Plan Mensual</h3>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-6xl font-bold">$25</span>
-                      <span className="text-muted-foreground">USD/mes</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {[
-                      "Consultor Inmobiliario IA 24/7",
-                      "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
-                      "Generación de Documentos Inteligentes",
-                      "Créditos Hipotecarios y Tasas Actualizadas",
-                      "Generador de Placas Profesionales con IA",
-                      "Sistema de Gestión Financiera",
-                      "Calendario Profesional Integrado",
-                      "Resumidor Inteligente de Documentos",
-                      "Base de Conocimiento Inmobiliario",
-                      "Panel de Administración Completo",
-                      "Almacenamiento Seguro en la Nube",
-                      "Soporte Técnico Incluido",
-                    ].map((item) => (
-                      <div key={item} className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Check className="w-3 h-3 text-foreground" />
-                        </div>
-                        <span className="text-sm text-muted-foreground">{item}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+              {/* Monthly Plan */}
+              <motion.div variants={fadeInUp} className="relative group">
+                <div className="relative bg-card rounded-2xl lg:rounded-3xl p-8 lg:p-10 border-2 border-border hover:border-foreground/20 hover:shadow-2xl transition-all duration-500 h-full">
+                  <div className="space-y-8">
+                    <div className="space-y-3">
+                      <h3 className="text-2xl lg:text-3xl font-bold">Plan Mensual</h3>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-5xl lg:text-6xl font-bold tracking-tight">$25</span>
+                        <span className="text-muted-foreground font-medium">USD/mes</span>
                       </div>
-                    ))}
-                  </div>
+                    </div>
 
-                  <Link
-                    href="/auth/register"
-                    className="w-full inline-flex items-center justify-center px-6 py-4 bg-foreground text-background font-medium rounded-full hover:bg-foreground/90 transition-all duration-300"
-                  >
-                    Comenzar ahora
-                  </Link>
+                    <div className="space-y-4">
+                      {[
+                        "Consultor Inmobiliario IA 24/7",
+                        "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
+                        "Generación de Documentos Inteligentes",
+                        "Créditos Hipotecarios y Tasas Actualizadas",
+                        "Generador de Placas Profesionales con IA",
+                        "Sistema de Gestión Financiera",
+                        "Calendario Profesional Integrado",
+                        "Resumidor Inteligente de Documentos",
+                        "Base de Conocimiento Inmobiliario",
+                        "Panel de Administración Completo",
+                        "Almacenamiento Seguro en la Nube",
+                        "Soporte Técnico Incluido",
+                      ].map((item) => (
+                        <div key={item} className="flex items-start gap-3">
+                          <div className="w-5 h-5 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-3.5 h-3.5 text-foreground" />
+                          </div>
+                          <span className="text-sm text-muted-foreground leading-relaxed">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Link
+                      href="/auth/register"
+                      className="w-full inline-flex items-center justify-center px-6 py-4 bg-foreground text-background font-semibold rounded-full hover:bg-foreground/90 transition-all duration-300 hover:scale-[1.02] shadow-lg"
+                    >
+                      Comenzar ahora
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+
+              {/* Annual Plan */}
+              <motion.div variants={fadeInUp} className="relative group">
+                <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 z-10 shadow-xl">
+                  <Crown className="w-4 h-4" />
+                  Más Popular
+                </div>
+                <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-primary/10 to-primary/20 rounded-2xl lg:rounded-3xl blur-xl opacity-60"></div>
+                <div className="relative bg-card rounded-2xl lg:rounded-3xl p-8 lg:p-10 border-2 border-primary/50 hover:border-primary hover:shadow-2xl transition-all duration-500 h-full">
+                  <div className="space-y-8">
+                    <div className="space-y-3">
+                      <h3 className="text-2xl lg:text-3xl font-bold">Plan Anual</h3>
+                      <div className="flex items-baseline gap-3 flex-wrap">
+                        <span className="text-xl text-muted-foreground line-through">$300</span>
+                        <span className="text-5xl lg:text-6xl font-bold tracking-tight">$240</span>
+                        <span className="text-muted-foreground font-medium">USD/año</span>
+                      </div>
+                      <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
+                        Ahorrás 20% ($60 USD)
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {[
+                        "Consultor Inmobiliario IA 24/7",
+                        "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
+                        "Generación de Documentos Inteligentes",
+                        "Créditos Hipotecarios y Tasas Actualizadas",
+                        "Generador de Placas Profesionales con IA",
+                        "Sistema de Gestión Financiera",
+                        "Calendario Profesional Integrado",
+                        "Resumidor Inteligente de Documentos",
+                        "Base de Conocimiento Inmobiliario",
+                        "Panel de Administración Completo",
+                        "Almacenamiento Seguro en la Nube",
+                        "Soporte Técnico Prioritario",
+                        "2 Meses Gratis Incluidos",
+                        "Actualizaciones Anticipadas",
+                      ].map((item, idx) => (
+                        <div key={item} className="flex items-start gap-3">
+                          <div
+                            className={`w-5 h-5 rounded-full ${
+                              idx >= 12 ? "bg-primary/20" : "bg-foreground/10"
+                            } flex items-center justify-center flex-shrink-0 mt-0.5`}
+                          >
+                            <Check className={`w-3.5 h-3.5 ${idx >= 12 ? "text-primary" : "text-foreground"}`} />
+                          </div>
+                          <span
+                            className={`text-sm leading-relaxed ${
+                              idx >= 12 ? "text-foreground font-semibold" : "text-muted-foreground"
+                            }`}
+                          >
+                            {item}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Link
+                      href="/auth/register"
+                      className="w-full inline-flex items-center justify-center px-6 py-4 bg-primary text-primary-foreground font-semibold rounded-full hover:bg-primary/90 transition-all duration-300 hover:scale-[1.02] shadow-xl"
+                    >
+                      Elegir plan anual
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
             </div>
 
-            {/* Annual Plan */}
-            <div className="relative group">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1.5 rounded-full text-sm font-medium flex items-center gap-1.5 z-10 shadow-lg">
-                <Crown className="w-4 h-4" />
-                Más Popular
-              </div>
-              <div className="absolute -inset-1 bg-gradient-to-br from-primary/20 to-primary/5 rounded-3xl blur-xl opacity-50"></div>
-              <div className="relative bg-card rounded-3xl p-10 border-2 border-primary/50 hover:border-primary hover:shadow-2xl transition-all duration-500">
-                <div className="space-y-8">
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-semibold">Plan Anual</h3>
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-lg text-muted-foreground line-through">$300</span>
-                      <span className="text-6xl font-bold">$240</span>
-                      <span className="text-muted-foreground">USD/año</span>
-                    </div>
-                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                      Ahorrás 20% ($60 USD)
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {[
-                      "Consultor Inmobiliario IA 24/7",
-                      "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
-                      "Generación de Documentos Inteligentes",
-                      "Créditos Hipotecarios y Tasas Actualizadas",
-                      "Generador de Placas Profesionales con IA",
-                      "Sistema de Gestión Financiera",
-                      "Calendario Profesional Integrado",
-                      "Resumidor Inteligente de Documentos",
-                      "Base de Conocimiento Inmobiliario",
-                      "Panel de Administración Completo",
-                      "Almacenamiento Seguro en la Nube",
-                      "Soporte Técnico Prioritario",
-                      "2 Meses Gratis Incluidos",
-                      "Actualizaciones Anticipadas",
-                    ].map((item, idx) => (
-                      <div key={item} className="flex items-start gap-3">
-                        <div
-                          className={`w-5 h-5 rounded-full ${idx >= 12 ? "bg-primary/20" : "bg-foreground/10"} flex items-center justify-center flex-shrink-0 mt-0.5`}
-                        >
-                          <Check className={`w-3 h-3 ${idx >= 12 ? "text-primary" : "text-foreground"}`} />
-                        </div>
-                        <span
-                          className={`text-sm ${idx >= 12 ? "text-foreground font-medium" : "text-muted-foreground"}`}
-                        >
-                          {item}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Link
-                    href="/auth/register"
-                    className="w-full inline-flex items-center justify-center px-6 py-4 bg-primary text-primary-foreground font-medium rounded-full hover:bg-primary/90 transition-all duration-300 shadow-lg"
-                  >
-                    Elegir plan anual
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-sm text-muted-foreground">
-              Todos los precios están en dólares estadounidenses. Sin permanencia, cancelá cuando quieras.
-            </p>
-          </div>
+            <motion.div variants={fadeInUp} className="text-center mt-10">
+              <p className="text-sm text-muted-foreground">
+                Todos los precios están en dólares estadounidenses. Sin permanencia, cancelá cuando quieras.
+              </p>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
+      <footer className="border-t border-border bg-muted/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-10 lg:gap-12 mb-12 lg:mb-16">
             {/* Brand */}
             <div className="md:col-span-1 space-y-4">
-              <span className="text-2xl font-bold">RIALTOR</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                RIALTOR
+              </span>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 La plataforma definitiva para martilleros y agentes inmobiliarios en Argentina.
               </p>
@@ -597,8 +695,8 @@ export default function Home() {
 
             {/* Herramientas */}
             <div className="md:col-span-2">
-              <h3 className="font-semibold mb-6">Herramientas</h3>
-              <ul className="space-y-3 text-sm">
+              <h3 className="font-semibold text-foreground mb-5">Herramientas</h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 {[
                   { name: "Centro de Noticias", href: "/news", requiresAuth: false },
                   { name: "Consultor Inmobiliario IA", href: "/chat", requiresAuth: true },
@@ -612,14 +710,14 @@ export default function Home() {
                   { name: "Resumidor Inteligente", href: "/documents/summary", requiresAuth: true },
                 ].map((tool) =>
                   tool.requiresAuth && !user ? (
-                    <li key={tool.name} className="text-muted-foreground">
+                    <li key={tool.name} className="text-muted-foreground/60">
                       {tool.name}
                     </li>
                   ) : (
                     <li key={tool.name}>
                       <Link
                         href={tool.href}
-                        className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                        className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
                       >
                         {tool.name}
                       </Link>
@@ -631,12 +729,12 @@ export default function Home() {
 
             {/* Soporte */}
             <div>
-              <h3 className="font-semibold mb-6">Soporte</h3>
+              <h3 className="font-semibold text-foreground mb-5">Soporte</h3>
               <ul className="space-y-3 text-sm">
                 <li>
                   <Link
                     href="/centro-ayuda"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
                   >
                     Centro de Ayuda
                   </Link>
@@ -644,13 +742,16 @@ export default function Home() {
                 <li>
                   <Link
                     href="/contacto"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
                   >
                     Contacto
                   </Link>
                 </li>
-                <li className="text-muted-foreground">
-                  <a href="mailto:rialtor@rialtor.app" className="hover:text-foreground transition-colors duration-200">
+                <li>
+                  <a
+                    href="mailto:rialtor@rialtor.app"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
+                  >
                     rialtor@rialtor.app
                   </a>
                 </li>
@@ -659,12 +760,12 @@ export default function Home() {
 
             {/* Legal */}
             <div>
-              <h3 className="font-semibold mb-6">Legal</h3>
+              <h3 className="font-semibold text-foreground mb-5">Legal</h3>
               <ul className="space-y-3 text-sm">
                 <li>
                   <Link
                     href="/terminos"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
                   >
                     Términos y Condiciones
                   </Link>
@@ -672,7 +773,7 @@ export default function Home() {
                 <li>
                   <Link
                     href="/politica-privacidad"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
                   >
                     Política de Privacidad
                   </Link>
@@ -682,7 +783,9 @@ export default function Home() {
           </div>
 
           <div className="border-t border-border pt-8 text-center">
-            <p className="text-sm text-muted-foreground">© 2025 RIALTOR. Todos los derechos reservados.</p>
+            <p className="text-sm text-muted-foreground">
+              © 2025 RIALTOR. Todos los derechos reservados.
+            </p>
           </div>
         </div>
       </footer>
