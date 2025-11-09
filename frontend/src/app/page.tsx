@@ -343,14 +343,52 @@ export default function Home() {
             {/* Main heading */}
             <motion.div variants={fadeInUp} className="space-y-8">
               <div className="flex justify-center">
-                <motion.img
+                <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
-                  src="/images/logo.png"
-                  alt="RIALTOR Logo"
-                  className="h-20 sm:h-28 lg:h-36 w-auto drop-shadow-2xl"
-                />
+                  className="relative"
+                >
+                  <motion.img
+                    animate={{
+                      y: [0, -8, 0],
+                      rotate: [0, 1, -1, 0]
+                    }}
+                    transition={{
+                      y: {
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      },
+                      rotate: {
+                        duration: 6,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }
+                    }}
+                    whileHover={{
+                      scale: 1.05,
+                      rotate: 0,
+                      transition: { duration: 0.3 }
+                    }}
+                    src="/images/log.png"
+                    alt="RIALTOR Logo"
+                    className="h-20 sm:h-28 lg:h-36 w-auto drop-shadow-2xl filter brightness-110 contrast-105"
+                  />
+                  {/* Glow effect */}
+                  <motion.div
+                    animate={{
+                      opacity: [0.3, 0.6, 0.3],
+                      scale: [1, 1.05, 1]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-full blur-2xl -z-10"
+                  />
+                </motion.div>
               </div>
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
