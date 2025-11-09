@@ -315,7 +315,7 @@ export default function Home() {
             <div className="space-y-6">
               <div className="flex justify-center">
                 <img
-                  src="/images/logo.png"
+                  src="/images/log.png"
                   alt="RIALTOR Logo"
                   className="h-24 sm:h-32 lg:h-40 w-auto"
                 />
