@@ -186,13 +186,13 @@ function Navigation() {
         )}
         <button
           onClick={toggleSidebar}
-          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors hidden lg:block"
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors hidden lg:block lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
         >
           {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
         </button>
         <button
           onClick={toggleMobileSidebar}
-          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg lg:hidden"
+          className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg lg:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100 lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
         >
           <X className="w-5 h-5" />
         </button>
@@ -236,7 +236,7 @@ function Navigation() {
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
                       isItemActive
                         ? "bg-primary/10 text-primary border border-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        : "lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     }`}
                   >
                     <Icon className={`w-5 h-5 flex-shrink-0 ${isItemActive ? "text-primary" : ""}`} />
@@ -266,7 +266,7 @@ function Navigation() {
                           className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
                             isActive(sub.href)
                               ? "bg-primary/10 text-primary"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              : "lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                           }`}
                         >
                           <div className={`w-2 h-2 rounded-full ${isActive(sub.href) ? "bg-primary" : "bg-muted-foreground/50"}`}></div>
@@ -286,7 +286,7 @@ function Navigation() {
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
                   isItemActive
                     ? "bg-primary/10 text-primary border border-primary/20"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
               >
                 <Icon className={`w-5 h-5 flex-shrink-0 ${isItemActive ? "text-primary" : ""}`} />
@@ -311,7 +311,7 @@ function Navigation() {
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${
                 isUserMenuOpen
                   ? "bg-primary/10 text-primary border border-primary/20"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center flex-shrink-0">
@@ -349,7 +349,7 @@ function Navigation() {
                 {/* Dashboard */}
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 >
                   <Settings className="w-4 h-4" />
                   <span>Dashboard</span>
@@ -358,7 +358,7 @@ function Navigation() {
                 {/* Logout */}
                 <button
                   onClick={logout}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-destructive lg:hover:bg-destructive/10 text-gray-600 hover:text-red-600 hover:bg-red-50"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Cerrar Sesión</span>
@@ -371,13 +371,13 @@ function Navigation() {
             <div className="space-y-2">
               <Link
                 href="/auth/login"
-                className="block w-full px-4 py-2.5 text-center text-foreground font-medium border border-border rounded-lg hover:bg-muted transition-colors text-sm"
+                className="block w-full px-4 py-2.5 text-center text-foreground font-medium border border-border rounded-lg hover:bg-muted transition-colors text-sm lg:text-foreground lg:hover:bg-muted"
               >
                 Iniciar Sesión
               </Link>
               <Link
                 href="/auth/register"
-                className="block w-full px-4 py-2.5 text-center text-primary-foreground font-medium bg-primary rounded-lg hover:bg-primary/90 shadow-sm transition-all text-sm"
+                className="block w-full px-4 py-2.5 text-center text-primary-foreground font-medium bg-primary rounded-lg hover:bg-primary/90 shadow-sm transition-all text-sm lg:text-primary-foreground lg:bg-primary lg:hover:bg-primary/90"
               >
                 Registrarte
               </Link>
@@ -419,7 +419,7 @@ function Navigation() {
       {/* Mobile Menu Button */}
       <button
         onClick={toggleMobileSidebar}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 bg-card border border-border rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 bg-card border border-border rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-gray-900 lg:text-foreground"
       >
         <Menu className="w-5 h-5 text-foreground" />
       </button>
