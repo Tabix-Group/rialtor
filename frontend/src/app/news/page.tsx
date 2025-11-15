@@ -122,17 +122,24 @@ export default function NewsPage() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Newspaper Header */}
-            <div className="bg-white border-b-4 border-black">
-                <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="bg-white border-b-2 sm:border-b-4 border-black">
+                <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
                     <div className="text-center">
-                        <div className="flex items-center justify-center gap-4 mb-4">
-                            <Newspaper className="w-16 h-16 text-black" />
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-2 sm:mb-4">
+                            <Newspaper className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-black" />
                             <div>
-                                <h1 className="text-5xl font-black text-black uppercase tracking-wider">Rialtor News</h1>
-                                <p className="text-lg text-gray-600 font-medium">Mercado Inmobiliario • {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-black uppercase tracking-wide lg:tracking-wider">Rialtor News</h1>
+                                <p className="text-sm sm:text-base lg:text-lg text-gray-600 font-medium">
+                                    Mercado Inmobiliario • {new Date().toLocaleDateString('es-ES', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </p>
                             </div>
                         </div>
-                        <p className="text-xl text-gray-700 max-w-4xl mx-auto font-serif italic">
+                        <p className="text-base sm:text-lg lg:text-xl text-gray-700 max-w-4xl mx-auto font-serif italic leading-relaxed px-2">
                             "Las últimas tendencias, análisis y noticias del sector inmobiliario"
                         </p>
                     </div>
@@ -141,16 +148,18 @@ export default function NewsPage() {
 
             <div className="max-w-7xl mx-auto px-4 py-8">
                 {/* Category Navigation */}
-                <div className="bg-white border-2 border-gray-300 rounded-lg p-6 mb-8 shadow-sm">
-                    <div className="flex flex-wrap items-center gap-4">
-                        <span className="text-lg font-bold text-black uppercase tracking-wide">Secciones:</span>
-                        <div className="flex flex-wrap gap-3">
+                <div className="bg-white border-2 border-gray-300 rounded-lg p-3 sm:p-4 lg:p-6 mb-6 sm:mb-8 shadow-sm">
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-2">
+                            <span className="text-base sm:text-lg font-bold text-black uppercase tracking-wide">Secciones:</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 sm:gap-3">
                             <button
                                 onClick={() => {
                                     setSelectedCategory('')
                                     setCurrentPage(1)
                                 }}
-                                className={`px-6 py-3 rounded text-sm font-bold uppercase tracking-wide transition-all border-2 ${
+                                className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wide transition-all border-2 ${
                                     selectedCategory === ''
                                         ? 'bg-black text-white border-black'
                                         : 'bg-white text-black border-gray-300 hover:border-black hover:bg-gray-50'
@@ -165,18 +174,18 @@ export default function NewsPage() {
                                         setSelectedCategory(category.id)
                                         setCurrentPage(1)
                                     }}
-                                    className={`px-6 py-3 rounded text-sm font-bold uppercase tracking-wide transition-all border-2 flex items-center gap-3 ${
+                                    className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wide transition-all border-2 flex items-center gap-1 sm:gap-2 lg:gap-3 ${
                                         selectedCategory === category.id
                                             ? 'bg-black text-white border-black'
                                             : 'bg-white text-black border-gray-300 hover:border-black hover:bg-gray-50'
                                     }`}
                                 >
                                     <div
-                                        className="w-4 h-4 rounded-full border border-gray-400"
+                                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-400 flex-shrink-0"
                                         style={{ backgroundColor: category.color }}
                                     ></div>
-                                    {category.name}
-                                    <span className="text-xs opacity-75 font-normal">({category.articleCount})</span>
+                                    <span className="truncate">{category.name}</span>
+                                    <span className="text-xs opacity-75 font-normal hidden sm:inline">({category.articleCount})</span>
                                 </button>
                             ))}
                         </div>
@@ -195,27 +204,29 @@ export default function NewsPage() {
                         {news.length > 0 && (
                             <div className="mb-12">
                                 <div className="bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm">
-                                    <div className="bg-black text-white px-6 py-3">
-                                        <h2 className="text-xl font-bold uppercase tracking-wide">Portada</h2>
+                                    <div className="bg-black text-white px-4 sm:px-6 py-2 sm:py-3">
+                                        <h2 className="text-base sm:text-xl font-bold uppercase tracking-wide">Portada</h2>
                                     </div>
-                                    <div className="p-8">
-                                        <article className="border-b-2 border-gray-200 pb-8 mb-8">
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <div className="p-4 sm:p-6 lg:p-8">
+                                        <article className="border-b-2 border-gray-200 pb-4 sm:pb-6 lg:pb-8 mb-4 sm:mb-6 lg:mb-8">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                                                 <div>
-                                                    <div className="flex items-center gap-3 text-sm text-gray-500 mb-4 font-medium">
-                                                        <Calendar className="w-5 h-5" />
-                                                        <span className="uppercase tracking-wide">{formatDate(news[0].publishedAt)}</span>
-                                                        <span className="text-black">•</span>
-                                                        <span className="font-bold text-black uppercase">{news[0].source}</span>
+                                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 font-medium">
+                                                        <div className="flex items-center gap-1 sm:gap-2">
+                                                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 sm:w-5 sm:h-5" />
+                                                            <span className="uppercase tracking-wide">{formatDate(news[0].publishedAt)}</span>
+                                                        </div>
+                                                        <span className="text-black hidden sm:inline">•</span>
+                                                        <span className="font-bold text-black uppercase text-xs sm:text-sm">{news[0].source}</span>
                                                         {news[0].category && (
                                                             <>
-                                                                <span className="text-black">•</span>
-                                                                <div className="flex items-center gap-2">
+                                                                <span className="text-black hidden sm:inline">•</span>
+                                                                <div className="flex items-center gap-1 sm:gap-2">
                                                                     <div
-                                                                        className="w-4 h-4 rounded-full border border-gray-400"
+                                                                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-400"
                                                                         style={{ backgroundColor: news[0].category.color }}
                                                                     ></div>
-                                                                    <span className="font-bold uppercase" style={{ color: news[0].category.color }}>
+                                                                    <span className="font-bold uppercase text-xs sm:text-sm" style={{ color: news[0].category.color }}>
                                                                         {news[0].category.name}
                                                                     </span>
                                                                 </div>
@@ -223,34 +234,36 @@ export default function NewsPage() {
                                                         )}
                                                     </div>
 
-                                                    <h2 className="text-3xl font-black text-black mb-6 leading-tight uppercase tracking-wide">
+                                                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-black mb-4 sm:mb-6 leading-tight uppercase tracking-wide">
                                                         <Link href={news[0].externalUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 transition-colors">
                                                             {news[0].title}
                                                         </Link>
                                                     </h2>
 
-                                                    <p className="text-lg text-gray-700 mb-6 leading-relaxed font-serif">
+                                                    <p className="text-sm sm:text-base lg:text-lg text-gray-700 mb-4 sm:mb-6 leading-relaxed font-serif">
                                                         {news[0].synopsis}
                                                     </p>
 
-                                                    <div className="flex gap-4">
+                                                    <div className="flex gap-3 sm:gap-4">
                                                         <Link
                                                             href={news[0].externalUrl}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-bold uppercase tracking-wide hover:bg-gray-800 transition-colors"
+                                                            className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-black text-white font-bold uppercase tracking-wide hover:bg-gray-800 transition-colors text-xs sm:text-sm"
                                                         >
                                                             <span>Leer artículo completo</span>
-                                                            <ExternalLink className="w-5 h-5" />
+                                                            <ExternalLink className="w-3 h-3 sm:w-4 sm:w-5 sm:h-5" />
                                                         </Link>
                                                     </div>
                                                 </div>
-                                                <div className="bg-gray-100 p-6 rounded-lg">
-                                                    <h3 className="text-lg font-bold text-black mb-4 uppercase tracking-wide">Más noticias destacadas</h3>
-                                                    <div className="space-y-4">
+                                                <div className="bg-gray-100 p-3 sm:p-4 lg:p-6 rounded-lg">
+                                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-3 sm:mb-4 uppercase tracking-wide">
+                                                        Más noticias destacadas
+                                                    </h3>
+                                                    <div className="space-y-3 sm:space-y-4">
                                                         {news.slice(1, 4).map((item, index) => (
-                                                            <div key={item.id} className="border-b border-gray-300 pb-3 last:border-b-0">
-                                                                <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                                                            <div key={item.id} className="border-b border-gray-300 pb-2 sm:pb-3 last:border-b-0">
+                                                                <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs text-gray-500 mb-1">
                                                                     <span className="font-medium">{formatDate(item.publishedAt)}</span>
                                                                     {item.category && (
                                                                         <>
@@ -265,7 +278,7 @@ export default function NewsPage() {
                                                                     href={item.externalUrl}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="text-sm font-bold text-black hover:text-gray-600 leading-tight block"
+                                                                    className="text-xs sm:text-sm font-bold text-black hover:text-gray-600 leading-tight block"
                                                                 >
                                                                     {item.title}
                                                                 </Link>
@@ -281,26 +294,28 @@ export default function NewsPage() {
                         )}
 
                         {/* Main News Grid - Newspaper Style */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
                             {/* Left Column - Large Articles */}
-                            <div className="lg:col-span-2 space-y-8">
+                            <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
                                 {news.slice(1, 4).map((item, index) => (
                                     <article key={item.id} className="bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="p-6">
-                                            <div className="flex items-center gap-3 text-sm text-gray-500 mb-4 font-medium">
-                                                <Calendar className="w-4 h-4" />
-                                                <span className="uppercase tracking-wide">{formatDate(item.publishedAt)}</span>
-                                                <span className="text-black">•</span>
-                                                <span className="font-bold text-black">{item.source}</span>
+                                        <div className="p-4 sm:p-6">
+                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 font-medium">
+                                                <div className="flex items-center gap-1 sm:gap-2">
+                                                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                                                    <span className="uppercase tracking-wide">{formatDate(item.publishedAt)}</span>
+                                                </div>
+                                                <span className="text-black hidden sm:inline">•</span>
+                                                <span className="font-bold text-black text-xs sm:text-sm">{item.source}</span>
                                                 {item.category && (
                                                     <>
-                                                        <span className="text-black">•</span>
-                                                        <div className="flex items-center gap-2">
+                                                        <span className="text-black hidden sm:inline">•</span>
+                                                        <div className="flex items-center gap-1 sm:gap-2">
                                                             <div
-                                                                className="w-3 h-3 rounded-full"
+                                                                className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
                                                                 style={{ backgroundColor: item.category.color }}
                                                             ></div>
-                                                            <span className="font-bold" style={{ color: item.category.color }}>
+                                                            <span className="font-bold text-xs sm:text-sm" style={{ color: item.category.color }}>
                                                                 {item.category.name}
                                                             </span>
                                                         </div>
@@ -308,13 +323,13 @@ export default function NewsPage() {
                                                 )}
                                             </div>
 
-                                            <h2 className="text-2xl font-bold text-black mb-4 leading-tight hover:text-gray-700 transition-colors">
+                                            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-black mb-3 sm:mb-4 leading-tight hover:text-gray-700 transition-colors">
                                                 <Link href={item.externalUrl} target="_blank" rel="noopener noreferrer" className="block">
                                                     {item.title}
                                                 </Link>
                                             </h2>
 
-                                            <p className="text-gray-700 mb-6 leading-relaxed font-serif">
+                                            <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6 leading-relaxed font-serif line-clamp-3">
                                                 {item.synopsis}
                                             </p>
 
@@ -323,10 +338,10 @@ export default function NewsPage() {
                                                     href={item.externalUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white font-bold uppercase tracking-wide text-sm hover:bg-gray-800 transition-colors"
+                                                    className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-black text-white font-bold uppercase tracking-wide text-xs sm:text-sm hover:bg-gray-800 transition-colors"
                                                 >
                                                     <span>Leer más</span>
-                                                    <ExternalLink className="w-4 h-4" />
+                                                    <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                                                 </Link>
                                             </div>
                                         </div>
@@ -335,24 +350,24 @@ export default function NewsPage() {
                             </div>
 
                             {/* Right Column - Sidebar */}
-                            <div className="space-y-8">
+                            <div className="space-y-4 sm:space-y-6 lg:space-y-8">
                                 {/* Latest News Sidebar */}
-                                <div className="bg-white border-2 border-gray-300 rounded-lg p-6 shadow-sm">
-                                    <h3 className="text-lg font-bold text-black mb-6 uppercase tracking-wide border-b-2 border-gray-300 pb-2">
+                                <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 shadow-sm">
+                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-4 sm:mb-6 uppercase tracking-wide border-b-2 border-gray-300 pb-2">
                                         Últimas noticias
                                     </h3>
-                                    <div className="space-y-3">
+                                    <div className="space-y-2 sm:space-y-3">
                                         {news.slice(0, 5).map((item, index) => (
-                                            <div key={item.id} className="border-b border-gray-200 pb-3 last:border-b-0">
+                                            <div key={item.id} className="border-b border-gray-200 pb-2 sm:pb-3 last:border-b-0">
                                                 <Link
                                                     href={item.externalUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-sm font-bold text-black hover:text-gray-600 leading-tight block"
+                                                    className="text-xs sm:text-sm font-bold text-black hover:text-gray-600 leading-tight block"
                                                 >
                                                     {item.title}
                                                 </Link>
-                                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                                <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs text-gray-500 mt-1">
                                                     <span className="font-medium">{formatDate(item.publishedAt)}</span>
                                                     {item.category && (
                                                         <>
@@ -369,11 +384,11 @@ export default function NewsPage() {
                                 </div>
 
                                 {/* Categories Summary */}
-                                <div className="bg-white border-2 border-gray-300 rounded-lg p-6 shadow-sm">
-                                    <h3 className="text-lg font-bold text-black mb-6 uppercase tracking-wide border-b-2 border-gray-300 pb-2">
+                                <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 shadow-sm">
+                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-4 sm:mb-6 uppercase tracking-wide border-b-2 border-gray-300 pb-2">
                                         Secciones
                                     </h3>
-                                    <div className="space-y-3">
+                                    <div className="space-y-2 sm:space-y-3">
                                         {categories.map((category) => (
                                             <div key={category.id} className="flex items-center justify-between">
                                                 <button
@@ -381,15 +396,15 @@ export default function NewsPage() {
                                                         setSelectedCategory(category.id)
                                                         setCurrentPage(1)
                                                     }}
-                                                    className="flex items-center gap-3 text-sm font-bold text-black hover:text-gray-600 uppercase tracking-wide"
+                                                    className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-black hover:text-gray-600 uppercase tracking-wide"
                                                 >
                                                     <div
-                                                        className="w-4 h-4 rounded-full border border-gray-400"
+                                                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-400 flex-shrink-0"
                                                         style={{ backgroundColor: category.color }}
                                                     ></div>
-                                                    {category.name}
+                                                    <span className="truncate">{category.name}</span>
                                                 </button>
-                                                <span className="text-sm text-gray-500 font-medium">
+                                                <span className="text-xs text-gray-500 font-medium">
                                                     {category.articleCount}
                                                 </span>
                                             </div>
@@ -401,22 +416,22 @@ export default function NewsPage() {
 
                         {/* Pagination */}
                         {pagination && pagination.pages > 1 && (
-                            <div className="bg-white border-2 border-gray-300 rounded-lg p-6 shadow-sm">
-                                <div className="flex justify-center items-center gap-3">
+                            <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 shadow-sm">
+                                <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
                                     <button
                                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                         disabled={currentPage === 1}
-                                        className="px-6 py-3 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                                     >
                                         ← Anterior
                                     </button>
 
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-1 sm:gap-2 overflow-x-auto">
                                         {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
                                             <button
                                                 key={page}
                                                 onClick={() => setCurrentPage(page)}
-                                                className={`px-4 py-3 border-2 font-bold uppercase tracking-wide transition-all ${
+                                                className={`px-3 sm:px-4 py-2 border-2 font-bold uppercase tracking-wide transition-all flex-shrink-0 text-sm ${
                                                     currentPage === page
                                                         ? 'bg-black text-white border-black'
                                                         : 'bg-white text-black border-gray-300 hover:bg-gray-50 hover:border-black'
@@ -430,7 +445,7 @@ export default function NewsPage() {
                                     <button
                                         onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))}
                                         disabled={currentPage === pagination.pages}
-                                        className="px-6 py-3 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                                     >
                                         Siguiente →
                                     </button>

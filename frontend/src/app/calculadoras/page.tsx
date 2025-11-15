@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { Calculator, ShieldCheck, Home } from 'lucide-react'
+import { Calculator, ShieldCheck, Home, CalendarDays } from 'lucide-react'
 
 export default function CalculadorasPage() {
 
@@ -18,7 +18,7 @@ export default function CalculadorasPage() {
       href: '/dias',
       description: 'Calculá días hábiles y días de corrido entre dos fechas, considerando feriados y fines de semana en Argentina.',
       color: 'bg-green-50',
-      icon: Calculator,
+      icon: CalendarDays,
     },
     {
       name: 'Créditos Hipotecarios',
