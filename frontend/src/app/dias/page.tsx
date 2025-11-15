@@ -189,7 +189,7 @@ export default function DiasPage() {
                             {/* Detalles de días no hábiles */}
                             {result.nonBusinessDays && result.nonBusinessDays.details.length > 0 && (
                                 <div className="mb-8">
-                                    <h4 className="text-xl font-bold text-gray-900 mb-4">Detalle de días no hábiles</h4>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-4">Feriados encontrados</h4>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                         <div className="bg-red-50 p-4 rounded-lg border border-red-200">
@@ -208,7 +208,7 @@ export default function DiasPage() {
 
                                     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                                         <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                                            <h5 className="font-semibold text-gray-900">Lista detallada de días no hábiles</h5>
+                                            <h5 className="font-semibold text-gray-900">Lista de feriados</h5>
                                         </div>
                                         <div className="max-h-60 overflow-y-auto">
                                             {result.nonBusinessDays.details.map((day, index) => (
@@ -224,11 +224,7 @@ export default function DiasPage() {
                                                             </span>
                                                             <span className="text-gray-600 ml-2">({day.day})</span>
                                                         </div>
-                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                            day.reason === 'Fin de semana' 
-                                                                ? 'bg-orange-100 text-orange-800'
-                                                                : 'bg-purple-100 text-purple-800'
-                                                        }`}>
+                                                        <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
                                                             {day.reason}
                                                         </span>
                                                     </div>

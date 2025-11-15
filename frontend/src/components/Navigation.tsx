@@ -96,6 +96,11 @@ function Navigation() {
           href: "/calcescritura",
           description: "Calcula costos de escrituración",
         },
+        {
+          name: "Calculadora de días hábiles",
+          href: "/dias",
+          description: "Calcula días hábiles entre fechas",
+        },
         { name: "Seguros de Caución", href: "/creditos", description: "Compara seguros de caución" },
         { name: "Créditos Hipotecarios", href: "/hipotecarios", description: "Simula créditos hipotecarios" },
       ],

@@ -626,9 +626,8 @@ const calculateDays = async (req, res) => {
     const hd = new Holidays('AR'); // Argentina
 
     let businessDays = 0;
-    const nonBusinessDays = [];
     const holidays = [];
-    const weekends = [];
+    let weekendCount = 0;
 
     const currentDate = new Date(start);
 
@@ -638,16 +637,13 @@ const calculateDays = async (req, res) => {
       const holidayInfo = hd.isHoliday(currentDate);
 
       if (isWeekend) {
-        weekends.push({
-          date: currentDate.toISOString().split('T')[0],
-          day: currentDate.toLocaleDateString('es-AR', { weekday: 'long' }),
-          reason: 'Fin de semana'
-        });
+        weekendCount++;
       } else if (holidayInfo) {
         holidays.push({
           date: currentDate.toISOString().split('T')[0],
           day: currentDate.toLocaleDateString('es-AR', { weekday: 'long' }),
-          reason: holidayInfo.name || 'Feriado'
+          reason: holidayInfo.name || 'Feriado',
+          type: holidayInfo.type || 'public'
         });
       } else {
         businessDays++;
@@ -656,22 +652,19 @@ const calculateDays = async (req, res) => {
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    // Combinar días no hábiles
-    nonBusinessDays.push(...weekends, ...holidays);
-
     const result = {
       startDate: start.toISOString().split('T')[0],
       endDate: end.toISOString().split('T')[0],
       totalDays,
       businessDays,
       nonBusinessDays: {
-        total: nonBusinessDays.length,
-        weekends: weekends.length,
+        total: weekendCount + holidays.length,
+        weekends: weekendCount,
         holidays: holidays.length,
-        details: nonBusinessDays
+        details: holidays // Solo feriados en la lista detallada
       },
       holidays: holidays,
-      weekends: weekends
+      weekends: weekendCount
     };
 
     // Guardar en historial si hay usuario logueado
