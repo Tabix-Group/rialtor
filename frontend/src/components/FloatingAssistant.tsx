@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, MessageCircle, Loader2 } from 'lucide-react'
+import { X, Send, MessageCircle, Loader2, Sparkles } from 'lucide-react'
 import { useAssistant } from '../contexts/AssistantContext'
 import { useAssistantChat } from '../hooks/useAssistantChat'
 import MessageContent from './MessageContent'
@@ -20,6 +20,11 @@ export default function FloatingAssistant() {
     } = useAssistantChat()
 
     const [inputValue, setInputValue] = useState('')
+    const [showTooltip, setShowTooltip] = useState(false)
+    const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(null)
+
+    // Calcular mensajes no leídos (mensajes del asistente que no han sido "vistos")
+    const unreadCount = messages.filter(msg => !msg.isUser && !msg.read).length
 
     // Focus input when chat opens
     useEffect(() => {
@@ -32,6 +37,27 @@ export default function FloatingAssistant() {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages, messagesEndRef])
+
+    // Tooltip automático - aparece después de 3 segundos si no hay interacción
+    useEffect(() => {
+        if (!isOpen && messages.length === 0) {
+            const timeout = setTimeout(() => {
+                setShowTooltip(true)
+            }, 3000)
+            setTooltipTimeout(timeout)
+
+            return () => {
+                clearTimeout(timeout)
+                setTooltipTimeout(null)
+            }
+        } else {
+            setShowTooltip(false)
+            if (tooltipTimeout) {
+                clearTimeout(tooltipTimeout)
+                setTooltipTimeout(null)
+            }
+        }
+    }, [isOpen, messages.length, tooltipTimeout])
 
     const handleSendMessage = async () => {
         if (!inputValue.trim() || isLoading) return
@@ -53,20 +79,75 @@ export default function FloatingAssistant() {
         inputRef.current?.focus()
     }
 
-    // Floating button - Minimalista y premium
+    // Floating button - Más protagonista y llamativo
     if (!isOpen) {
         return (
-            <motion.button
-                className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={toggleAssistant}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-            >
-                <MessageCircle className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-            </motion.button>
+            <div className="fixed bottom-6 right-6 z-50">
+                <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 20,
+                        delay: 1 // Aparece después de que cargue la página
+                    }}
+                    className="relative"
+                >
+                    {/* Tooltip automático */}
+                    <AnimatePresence>
+                        {showTooltip && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                                className="absolute bottom-full right-0 mb-3 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm whitespace-nowrap shadow-xl max-w-xs"
+                            >
+                                ¡Hola! Soy tu asistente inmobiliario 💬
+                                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Badge de mensajes no leídos */}
+                    <AnimatePresence>
+                        {unreadCount > 0 && (
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                exit={{ scale: 0 }}
+                                className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse"
+                            >
+                                {unreadCount}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Botón principal más protagonista */}
+                    <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                            toggleAssistant()
+                            setShowTooltip(false) // Ocultar tooltip al abrir
+                        }}
+                        onMouseEnter={() => setShowTooltip(false)} // Ocultar tooltip al hacer hover
+                        className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white rounded-full shadow-2xl drop-shadow-lg ring-2 ring-blue-400/20 flex items-center justify-center transition-all duration-300 group relative overflow-hidden"
+                    >
+                        {/* Efecto de sparkle animado */}
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            className="absolute inset-0 rounded-full"
+                        >
+                            <Sparkles className="w-6 h-6 absolute top-1 right-1 text-white/60" />
+                            <Sparkles className="w-4 h-4 absolute bottom-1 left-1 text-white/40" />
+                        </motion.div>
+
+                        <MessageCircle className="w-7 h-7 relative z-10 group-hover:scale-110 transition-transform" />
+                    </motion.button>
+                </motion.div>
+            </div>
         )
     }
 
