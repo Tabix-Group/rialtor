@@ -7,6 +7,7 @@ import { Calculator, DollarSign, Percent, TrendingUp, MapPin, Receipt } from 'lu
 import EscribanoCalculator from '../../components/EscribanoCalculator'
 import OtrosGastosCalculator from '../../components/OtrosGastosCalculator'
 import GananciaInmobiliariaCalculator from '../../components/GananciaInmobiliariaCalculator'
+import AjustesCalculator from '../../components/AjustesCalculator'
 import { useAuth } from '../auth/authContext'
 
 interface CalculationResult {
@@ -199,6 +200,7 @@ export default function CalculatorPage() {
           <span className="text-2xl font-extrabold text-gray-900 tracking-tight mb-1">Calculadora Integral</span>
           <nav className="flex gap-4 mt-2 md:mt-0 justify-center">
             <a href="#comision" className="text-red-600 font-semibold hover:underline">Comisión</a>
+            <a href="#ajustes" className="text-indigo-600 font-semibold hover:underline">Ajustes</a>
             <a href="#escribano" className="text-blue-600 font-semibold hover:underline">Escribano</a>
             <a href="#otros" className="text-yellow-600 font-semibold hover:underline">Otros Gastos</a>
             <a href="#ganancia" className="text-green-600 font-semibold hover:underline">Ganancia Inmobiliaria</a>
@@ -281,7 +283,7 @@ export default function CalculatorPage() {
                       <div>
                         <label className="block text-base font-semibold text-gray-700 mb-2 flex items-center gap-1">
                           Cotización oficial USD/ARS
-                          <span className="ml-1 text-xs text-gray-400" title="Cotización oficial del dólar para el cálculo de única vivienda">ⓘ</span>
+                          <span className="ml-1 text-xs text-gray-400" title="Cotización oficial del dólar para el cálculo de vivienda unica de uso permanente">ⓘ</span>
                         </label>
                         <input
                           type="number"
@@ -376,7 +378,7 @@ export default function CalculatorPage() {
                         </div>
                       </div>
                     </div>
-                    {/* Única vivienda en CABA */}
+                    {/* Vivienda unica de uso permanente */}
                     {province === 'caba' && buyerType === 'fisica' && sellerType === 'fisica' && (
                       <div className="flex items-center mb-4 mt-2">
                         <input
@@ -387,7 +389,7 @@ export default function CalculatorPage() {
                           className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-400 accent-blue-500"
                         />
                         <label htmlFor="onlyHome" className="ml-3 text-base text-gray-700 font-medium select-none cursor-pointer">
-                          ¿Comprador única vivienda en CABA?
+                          Vivienda unica de uso permanente
                         </label>
                       </div>
                     )}
@@ -476,6 +478,15 @@ export default function CalculatorPage() {
               </div>
             </section>
             {/* Calculadoras adicionales */}
+            <section id="ajustes" className="mb-12">
+              <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <TrendingUp className="w-8 h-8 text-indigo-500" />
+                  <h2 className="text-2xl font-bold tracking-tight text-indigo-700">Calculadora de ajustes de alquiler</h2>
+                </div>
+                <AjustesCalculator />
+              </div>
+            </section>
             <section id="escribano" className="mb-12">
               <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
                 <div className="flex items-center gap-3 mb-4">

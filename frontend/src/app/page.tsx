@@ -190,7 +190,7 @@ export default function Home() {
     {
       name: "Calculadoras Profesionales",
       description:
-        "Calculadoras actualizadas con la legislación argentina: gastos de escritura, impuestos provinciales, comisiones, días hábiles y todo lo que necesitas para cerrar operaciones.",
+        "Calculadoras actualizadas con la legislación argentina: ajustes de alquiler por IPC, gastos de escritura, impuestos provinciales, comisiones, días hábiles y todo lo que necesitas para cerrar operaciones.",
       icon: Calculator,
       href: "https://www.rialtor.app/calculadoras",
       requiresAuth: true,
@@ -609,7 +609,7 @@ export default function Home() {
                     <div className="space-y-4">
                       {[
                         "Consultor Inmobiliario IA 24/7",
-                        "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
+                        "Calculadoras Profesionales (Honorarios, ITI, Sellos, Ajustes de Alquiler)",
                         "Generación de Documentos Inteligentes",
                         "Créditos Hipotecarios y Tasas Actualizadas",
                         "Generador de Placas Profesionales con IA",
@@ -664,7 +664,7 @@ export default function Home() {
                     <div className="space-y-4">
                       {[
                         "Consultor Inmobiliario IA 24/7",
-                        "Calculadoras Profesionales (Honorarios, ITI, Sellos)",
+                        "Calculadoras Profesionales (Honorarios, ITI, Sellos, Ajustes de Alquiler)",
                         "Generación de Documentos Inteligentes",
                         "Créditos Hipotecarios y Tasas Actualizadas",
                         "Generador de Placas Profesionales con IA",

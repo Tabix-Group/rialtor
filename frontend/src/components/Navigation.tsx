@@ -92,6 +92,11 @@ function Navigation() {
       icon: Calculator,
       dropdown: [
         {
+          name: "Calculadora de ajustes de alquiler",
+          href: "/ajustes",
+          description: "Calcula ajustes por IPC y acuerdos",
+        },
+        {
           name: "Calculadora de gastos inmobiliarios",
           href: "/calcescritura",
           description: "Calcula costos de escrituración",
@@ -101,8 +106,8 @@ function Navigation() {
           href: "/dias",
           description: "Calcula días hábiles entre fechas",
         },
-        { name: "Seguros de Caución", href: "/creditos", description: "Compara seguros de caución" },
         { name: "Créditos Hipotecarios", href: "/hipotecarios", description: "Simula créditos hipotecarios" },
+        { name: "Seguros de Caución", href: "/creditos", description: "Compara seguros de caución" },
       ],
     },
     {

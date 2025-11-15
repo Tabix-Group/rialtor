@@ -7,6 +7,13 @@ export default function CalculadorasPage() {
 
   const calculators = [
     {
+      name: 'Calculadora de ajustes de alquiler',
+      href: '/ajustes',
+      description: 'Calculá ajustes por IPC, acuerdos o índices para contratos de alquiler en Argentina.',
+      color: 'bg-indigo-50',
+      icon: Calculator,
+    },
+    {
       name: 'Calculadora de gastos inmobiliarios',
       href: '/calcescritura',
       description: 'Calculá impuestos, aranceles notariales y costos asociados a la firma de escritura en Argentina por provincia.',
