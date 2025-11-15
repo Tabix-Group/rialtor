@@ -19,6 +19,7 @@ router.post('/escribano', calculatorController.calculateEscribano);
 router.post('/otros-gastos', calculatorController.calculateOtrosGastos);
 router.post('/ganancias', calculatorController.calculateGananciaInmobiliaria);
 router.post('/mortgage', calculatorController.calculateMortgage);
+router.post('/days', calculatorController.calculateDays);
 
 // Historial
 router.get('/history', calculatorController.getCalculatorHistory);

@@ -190,7 +190,7 @@ export default function Home() {
     {
       name: "Calculadoras Profesionales",
       description:
-        "Calculadoras actualizadas con la legislación argentina: gastos de escritura, impuestos provinciales, comisiones y todo lo que necesitas para cerrar operaciones.",
+        "Calculadoras actualizadas con la legislación argentina: gastos de escritura, impuestos provinciales, comisiones, días hábiles y todo lo que necesitas para cerrar operaciones.",
       icon: Calculator,
       href: "https://www.rialtor.app/calculadoras",
       requiresAuth: true,

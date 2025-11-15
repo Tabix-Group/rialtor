@@ -14,6 +14,13 @@ export default function CalculadorasPage() {
       icon: Calculator,
     },
     {
+      name: 'Calculadora de días hábiles',
+      href: '/dias',
+      description: 'Calculá días hábiles y días de corrido entre dos fechas, considerando feriados y fines de semana en Argentina.',
+      color: 'bg-green-50',
+      icon: Calculator,
+    },
+    {
       name: 'Créditos Hipotecarios',
       href: '/hipotecarios',
       description: 'Calculá las cuotas de tu crédito hipotecario usando el sistema de amortización francés.',

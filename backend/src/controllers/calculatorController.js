@@ -598,6 +598,84 @@ const calculateMortgage = async (req, res) => {
   }
 };
 
+// Calculadora de días hábiles
+const calculateDays = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ success: false, message: 'Debe proporcionar fecha de inicio y fin' });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ success: false, message: 'Fechas inválidas' });
+    }
+
+    if (start > end) {
+      return res.status(400).json({ success: false, message: 'La fecha de inicio debe ser anterior a la fecha de fin' });
+    }
+
+    // Calcular días de corrido (incluyendo inicio y fin)
+    const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+    // Calcular días hábiles
+    const Holidays = require('date-holidays');
+    const hd = new Holidays('AR'); // Argentina
+
+    let businessDays = 0;
+    const currentDate = new Date(start);
+
+    while (currentDate <= end) {
+      const dayOfWeek = currentDate.getDay(); // 0 = Domingo, 6 = Sábado
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isHoliday = hd.isHoliday(currentDate);
+
+      if (!isWeekend && !isHoliday) {
+        businessDays++;
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    const result = {
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0],
+      totalDays,
+      businessDays
+    };
+
+    // Guardar en historial si hay usuario logueado
+    if (req.user) {
+      await prisma.calculatorHistory.create({
+        data: {
+          type: 'DAYS',
+          inputs: JSON.stringify({
+            startDate: start.toISOString().split('T')[0],
+            endDate: end.toISOString().split('T')[0]
+          }),
+          result: JSON.stringify(result),
+          userId: req.user.id
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error calculating days:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al calcular días',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getCalculatorConfigs,
   getProvincias,
@@ -607,5 +685,6 @@ module.exports = {
   calculateEscribano,
   calculateOtrosGastos,
   calculateGananciaInmobiliaria,
-  calculateMortgage
+  calculateMortgage,
+  calculateDays
 };
