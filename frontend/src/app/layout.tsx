@@ -6,18 +6,26 @@ import { AssistantProvider } from '../contexts/AssistantContext';
 import { NotificationProvider } from '../contexts/NotificationContext';
 import LayoutWithNav from './LayoutWithNav';
 import ConditionalFloatingAssistant from '../components/ConditionalFloatingAssistant';
+import PWAInstall from '../components/PWAInstall';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'RIALTOR - Revolución InmobiliarIA',
   description: 'Solución integral de recursos, archivos y herramientas para profesionales inmobiliarios',
+  manifest: '/manifest.json',
   icons: {
     icon: [
       { url: '/images/favicon2.png', sizes: 'any' },
       { url: '/images/favicon-96x96.png', sizes: '96x96' }
     ],
     shortcut: '/images/favicon.ico',
+  },
+  themeColor: '#059669',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'RIALTOR',
   },
 };
 
@@ -36,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <main className="flex-grow">{children}</main>
                 </LayoutWithNav>
                 <ConditionalFloatingAssistant />
+                <PWAInstall />
               </div>
             </AssistantProvider>
           </NotificationProvider>

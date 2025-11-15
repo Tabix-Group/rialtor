@@ -621,30 +621,57 @@ const calculateDays = async (req, res) => {
     // Calcular días de corrido (incluyendo inicio y fin)
     const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
-    // Calcular días hábiles
+    // Calcular días hábiles y detalles
     const Holidays = require('date-holidays');
     const hd = new Holidays('AR'); // Argentina
 
     let businessDays = 0;
+    const nonBusinessDays = [];
+    const holidays = [];
+    const weekends = [];
+
     const currentDate = new Date(start);
 
     while (currentDate <= end) {
       const dayOfWeek = currentDate.getDay(); // 0 = Domingo, 6 = Sábado
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const isHoliday = hd.isHoliday(currentDate);
+      const holidayInfo = hd.isHoliday(currentDate);
 
-      if (!isWeekend && !isHoliday) {
+      if (isWeekend) {
+        weekends.push({
+          date: currentDate.toISOString().split('T')[0],
+          day: currentDate.toLocaleDateString('es-AR', { weekday: 'long' }),
+          reason: 'Fin de semana'
+        });
+      } else if (holidayInfo) {
+        holidays.push({
+          date: currentDate.toISOString().split('T')[0],
+          day: currentDate.toLocaleDateString('es-AR', { weekday: 'long' }),
+          reason: holidayInfo.name || 'Feriado'
+        });
+      } else {
         businessDays++;
       }
 
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    // Combinar días no hábiles
+    nonBusinessDays.push(...weekends, ...holidays);
+
     const result = {
       startDate: start.toISOString().split('T')[0],
       endDate: end.toISOString().split('T')[0],
       totalDays,
-      businessDays
+      businessDays,
+      nonBusinessDays: {
+        total: nonBusinessDays.length,
+        weekends: weekends.length,
+        holidays: holidays.length,
+        details: nonBusinessDays
+      },
+      holidays: holidays,
+      weekends: weekends
     };
 
     // Guardar en historial si hay usuario logueado
