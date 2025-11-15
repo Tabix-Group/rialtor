@@ -14,6 +14,7 @@ export default function FloatingAssistant() {
         isLoading,
         sendMessage,
         clearChat,
+        markMessagesAsRead,
         inputRef,
         messagesEndRef,
         sendFeedback
@@ -30,8 +31,9 @@ export default function FloatingAssistant() {
     useEffect(() => {
         if (isOpen) {
             setTimeout(() => inputRef.current?.focus(), 100)
+            markMessagesAsRead() // Mark messages as read when chat opens
         }
-    }, [isOpen, inputRef])
+    }, [isOpen, inputRef, markMessagesAsRead])
 
     // Scroll to bottom when new messages arrive
     useEffect(() => {

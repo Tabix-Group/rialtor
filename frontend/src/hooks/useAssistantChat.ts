@@ -9,6 +9,7 @@ interface Message {
     content: string
     isUser: boolean
     timestamp: string
+    read?: boolean
     audioBase64?: string
     sources?: Array<{
         title: string
@@ -24,6 +25,7 @@ interface UseAssistantChatReturn {
     sessionId: string | null
     sendMessage: (message: string, audioBase64?: string, requestAudioResponse?: boolean) => Promise<void>
     clearChat: () => void
+    markMessagesAsRead: () => void
     inputRef: React.RefObject<HTMLInputElement>
     messagesEndRef: React.RefObject<HTMLDivElement>
     sendFeedback: (messageId: string, type: 'positive' | 'negative') => Promise<void>
@@ -47,7 +49,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
             id: '1',
             content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n¿En qué puedo ayudarte hoy?',
             isUser: false,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            read: false
         }
     ])
     const [isLoading, setIsLoading] = useState(false)
@@ -67,7 +70,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
             id: Date.now().toString(),
             content: content.trim() || (audioBase64 ? '[Mensaje de voz]' : ''),
             isUser: true,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            read: true // User messages are considered read since they just sent them
         }
 
         setMessages(prev => [...prev, userMessage])
@@ -117,6 +121,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
                     content: data.assistantMessage?.content || data.message || 'Lo siento, no pude procesar tu consulta.',
                     isUser: false,
                     timestamp: new Date().toISOString(),
+                    read: false, // Bot messages start as unread
                     audioBase64: data.assistantMessage?.audioBase64 || data.audioBase64,
                     sources: data.assistantMessage?.metadata?.sources,
                     calculation: data.assistantMessage?.metadata?.calculation
@@ -136,7 +141,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
                         id: (Date.now() + 1).toString(),
                         content: 'Lo siento, ocurrió un error. Por favor intenta nuevamente.',
                         isUser: false,
-                        timestamp: new Date().toISOString()
+                        timestamp: new Date().toISOString(),
+                        read: false
                     }
                     setMessages(prev => [...prev, errorMessage])
                 }
@@ -149,7 +155,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
                 id: (Date.now() + 1).toString(),
                 content: 'Lo siento, ocurrió un error. Por favor intenta nuevamente.',
                 isUser: false,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                read: false
             }
             setMessages(prev => [...prev, errorMessage])
         } finally {
@@ -162,9 +169,14 @@ export function useAssistantChat(): UseAssistantChatReturn {
             id: '1',
             content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n¿En qué puedo ayudarte hoy?',
             isUser: false,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            read: false
         }])
         setSessionId(null)
+    }, [])
+
+    const markMessagesAsRead = useCallback(() => {
+        setMessages(prev => prev.map(msg => ({ ...msg, read: true })))
     }, [])
 
     const sendFeedback = useCallback(async (messageId: string, type: 'positive' | 'negative') => {
@@ -196,6 +208,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
         sessionId,
         sendMessage,
         clearChat,
+        markMessagesAsRead,
         inputRef,
         messagesEndRef,
         sendFeedback
