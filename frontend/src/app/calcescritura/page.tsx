@@ -117,7 +117,7 @@ export default function CalceEscrituraPage() {
       notaryFeesIVA = notaryFees * ivaRate
 
       // Reserve fund: up to 6% (no IVA)
-      reserveFund = numericTransactionPrice * 0.06
+      reserveFund = numericTransactionPrice * 0.01
 
       totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + reserveFund
       finalAmount = numericTransactionPrice + totalCosts
@@ -268,7 +268,7 @@ export default function CalceEscrituraPage() {
                     onChange={(e) => setStampExemption(e.target.checked)}
                     className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
                   />
-                  <span className="text-sm text-gray-600">Primera vivienda en CABA</span>
+                  <span className="text-sm text-gray-600">Vivienda única de uso permanente</span>
                 </div>
               </div>
             </div>
@@ -393,7 +393,7 @@ export default function CalceEscrituraPage() {
                   {calculations.writingCosts > 0 && (
                     <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <div>
-                        <div className="font-medium text-gray-900">Gastos de Escrituración</div>
+                        <div className="font-medium text-gray-900">Gastos Administrativos (Estudio de titulos, Diligenciamiento de certificados , otros)</div>
                         <div className="text-sm text-gray-500">2,00%</div>
                       </div>
                       <div className="text-right">
@@ -407,8 +407,8 @@ export default function CalceEscrituraPage() {
                   {calculations.reserveFund > 0 && (
                     <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <div>
-                        <div className="font-medium text-gray-900">Fondo de Reserva</div>
-                        <div className="text-sm text-gray-500">6,00%</div>
+                        <div className="font-medium text-gray-900">Gastos de alhajamiento y equipamiento (1%)</div>
+                        <div className="text-sm text-gray-500">1,00%</div>
                       </div>
                       <div className="text-right">
                         <div className="font-semibold text-gray-900">{formatARS(calculations.reserveFund * numericExchangeRate)}</div>
