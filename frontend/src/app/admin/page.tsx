@@ -675,11 +675,21 @@ export default function AdminPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccionar...</option>
-                  <option value="ipc">IPC (Inflación)</option>
-                  <option value="cacGeneral">CAC General</option>
-                  <option value="cacMateriales">CAC Materiales</option>
-                  <option value="cacManoObra">CAC Mano de Obra</option>
-                  <option value="is">IS (Salarios)</option>
+                  <optgroup label="Índices Económicos">
+                    <option value="ipc">IPC (Inflación)</option>
+                    <option value="cacGeneral">CAC General</option>
+                    <option value="cacMateriales">CAC Materiales</option>
+                    <option value="cacManoObra">CAC Mano de Obra</option>
+                    <option value="is">IS (Salarios)</option>
+                  </optgroup>
+                  <optgroup label="Cotizaciones del Dólar">
+                    <option value="dolarOficialCompra">Dólar Oficial Compra</option>
+                    <option value="dolarOficialVenta">Dólar Oficial Venta</option>
+                    <option value="dolarBlueCompra">Dólar Blue Compra</option>
+                    <option value="dolarBlueVenta">Dólar Blue Venta</option>
+                    <option value="dolarTarjetaCompra">Dólar Tarjeta Compra</option>
+                    <option value="dolarTarjetaVenta">Dólar Tarjeta Venta</option>
+                  </optgroup>
                 </select>
               </div>
               <div>
@@ -739,11 +749,21 @@ export default function AdminPage() {
                     className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Todos</option>
-                    <option value="ipc">IPC (Inflación)</option>
-                    <option value="cacGeneral">CAC General</option>
-                    <option value="cacMateriales">CAC Materiales</option>
-                    <option value="cacManoObra">CAC Mano de Obra</option>
-                    <option value="is">IS (Salarios)</option>
+                    <optgroup label="Índices Económicos">
+                      <option value="ipc">IPC (Inflación)</option>
+                      <option value="cacGeneral">CAC General</option>
+                      <option value="cacMateriales">CAC Materiales</option>
+                      <option value="cacManoObra">CAC Mano de Obra</option>
+                      <option value="is">IS (Salarios)</option>
+                    </optgroup>
+                    <optgroup label="Cotizaciones del Dólar">
+                      <option value="dolarOficialCompra">Dólar Oficial Compra</option>
+                      <option value="dolarOficialVenta">Dólar Oficial Venta</option>
+                      <option value="dolarBlueCompra">Dólar Blue Compra</option>
+                      <option value="dolarBlueVenta">Dólar Blue Venta</option>
+                      <option value="dolarTarjetaCompra">Dólar Tarjeta Compra</option>
+                      <option value="dolarTarjetaVenta">Dólar Tarjeta Venta</option>
+                    </optgroup>
                   </select>
                 </div>
                 <div className="text-sm text-gray-500">
@@ -787,7 +807,14 @@ export default function AdminPage() {
                                index.indicator === 'cacGeneral' ? 'CAC General' :
                                index.indicator === 'cacMateriales' ? 'CAC Materiales' :
                                index.indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
-                               index.indicator === 'is' ? 'IS' : index.indicator}
+                               index.indicator === 'is' ? 'IS' :
+                               index.indicator === 'dolarOficialCompra' ? 'Dólar Oficial Compra' :
+                               index.indicator === 'dolarOficialVenta' ? 'Dólar Oficial Venta' :
+                               index.indicator === 'dolarBlueCompra' ? 'Dólar Blue Compra' :
+                               index.indicator === 'dolarBlueVenta' ? 'Dólar Blue Venta' :
+                               index.indicator === 'dolarTarjetaCompra' ? 'Dólar Tarjeta Compra' :
+                               index.indicator === 'dolarTarjetaVenta' ? 'Dólar Tarjeta Venta' :
+                               index.indicator}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
