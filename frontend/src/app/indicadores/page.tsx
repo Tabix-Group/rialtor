@@ -521,37 +521,6 @@ export default function IndicadoresPage() {
           </div>
         </section>
 
-        {/* Tendencias del Mercado */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold">Tendencias del Mercado</h2>
-          </div>
-
-          <div className="bg-card border border-border rounded-2xl p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-2">Demanda de Alquiler</div>
-                <div className="text-2xl font-bold capitalize">{data.mercadoInmobiliario.tendencias.demandaAlquiler}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-2">Demanda de Venta</div>
-                <div className="text-2xl font-bold capitalize">{data.mercadoInmobiliario.tendencias.demandaVenta}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-2">Stock Disponible</div>
-                <div className="text-2xl font-bold capitalize">{data.mercadoInmobiliario.tendencias.stockDisponible}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-2">Tiempo Promedio Venta</div>
-                <div className="text-2xl font-bold">{data.mercadoInmobiliario.tendencias.tiempoPromedioVenta} días</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Índices Económicos */}
         {economicIndexes && (
           <section>
@@ -775,22 +744,22 @@ export default function IndicadoresPage() {
                 Los datos inmobiliarios son estimaciones basadas en Zonaprop, Properati y el Colegio de Escribanos.
               </p>
               <p>
-                Los índices económicos (IPC, CAC, ICC, IS) se obtienen del Instituto Nacional de Estadística y Censos (INDEC) 
+                Los índices económicos (IPC, CAC, ICC, IS) se gestionan desde el panel de administración 
                 y representan indicadores clave de la economía argentina.
                 {economicIndexes?.dataSource && (
                   <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                    economicIndexes.dataSource === 'INDEC_API' 
+                    economicIndexes.dataSource === 'DATABASE' 
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
                       : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                   }`}>
-                    {economicIndexes.dataSource === 'INDEC_API' ? 'Datos oficiales' : 'Datos estimados'}
+                    {economicIndexes.dataSource === 'DATABASE' ? 'Datos administrados' : 'Datos estimados'}
                   </span>
                 )}
               </p>
               <p className="text-xs">
                 Última actualización: {new Date(data.timestamp).toLocaleString("es-AR")}
                 {economicIndexes && ` | Índices económicos: ${new Date(economicIndexes.lastUpdated).toLocaleString("es-AR")}`}
-                {economicIndexes?.dataSource && ` (${economicIndexes.dataSource === 'INDEC_API' ? 'API INDEC' : 'Datos locales'})`}
+                {economicIndexes?.dataSource && ` (${economicIndexes.dataSource === 'DATABASE' ? 'Base de datos' : 'Datos locales'})`}
               </p>
             </div>
           </div>

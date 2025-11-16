@@ -48,6 +48,14 @@ export default function AdminPage() {
   const [newRate, setNewRate] = useState('');
   const [newTermMonths, setNewTermMonths] = useState('');
 
+  // Economic indices state
+  const [economicIndices, setEconomicIndices] = useState<{ id: string; indicator: string; value: number; date: string; description?: string }[]>([]);
+  const [indicesLoading, setIndicesLoading] = useState(false);
+  const [newIndicator, setNewIndicator] = useState('');
+  const [newIndexValue, setNewIndexValue] = useState('');
+  const [newIndexDate, setNewIndexDate] = useState('');
+  const [newIndexDescription, setNewIndexDescription] = useState('');
+
   // Verificar permisos solo en el cliente
   useEffect(() => {
     if (typeof window !== 'undefined' && user) {
@@ -151,6 +159,27 @@ export default function AdminPage() {
     fetchBankRates();
   }, []);
 
+  // Fetch economic indices
+  useEffect(() => {
+    const fetchEconomicIndices = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) return;
+      setIndicesLoading(true);
+      try {
+        const res = await authenticatedFetch('/api/admin/economic-indices');
+        const data = await res.json();
+        if (data && data.success) {
+          setEconomicIndices(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching economic indices:', error);
+      } finally {
+        setIndicesLoading(false);
+      }
+    };
+    fetchEconomicIndices();
+  }, []);
+
   // Delete bank rate
   const deleteBankRate = async (rateId: string, bankName: string) => {
     if (!confirm(`¿Está seguro de que desea eliminar la tasa del banco "${bankName}"?`)) {
@@ -211,6 +240,64 @@ export default function AdminPage() {
     } catch (error) {
       console.error(error);
       alert('Error al guardar la tasa');
+    }
+  };
+
+  // Delete economic index
+  const deleteEconomicIndex = async (indexId: string, indicator: string) => {
+    if (!confirm(`¿Está seguro de que desea eliminar el índice "${indicator}"?`)) {
+      return;
+    }
+
+    try {
+      const res = await authenticatedFetch(`/api/admin/economic-indices/${indexId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEconomicIndices(prev => prev.filter(idx => idx.id !== indexId));
+        alert('Índice eliminado exitosamente');
+      } else {
+        alert('Error al eliminar el índice');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al eliminar el índice');
+    }
+  };
+
+  // Save economic index
+  const saveEconomicIndex = async () => {
+    if (!newIndicator.trim() || !newIndexValue.trim() || !newIndexDate.trim()) {
+      alert('Por favor complete todos los campos requeridos');
+      return;
+    }
+
+    try {
+      const res = await authenticatedFetch('/api/admin/economic-indices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          indicator: newIndicator.trim(),
+          value: parseFloat(newIndexValue),
+          date: newIndexDate,
+          description: newIndexDescription.trim() || null
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEconomicIndices(prev => [...prev, data.data]);
+        setNewIndicator('');
+        setNewIndexValue('');
+        setNewIndexDate('');
+        setNewIndexDescription('');
+        alert('Índice guardado exitosamente');
+      } else {
+        alert(data.error || 'Error al guardar el índice');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al guardar el índice');
     }
   };
 
@@ -525,6 +612,143 @@ export default function AdminPage() {
     </div>
   )
 
+  const renderIndices = () => (
+    <div className="bg-white rounded-lg shadow">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">Gestión de Índices Económicos</h3>
+      </div>
+      <div className="p-6">
+        {/* Formulario para agregar índices */}
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <h4 className="text-md font-semibold text-gray-900 mb-4">Agregar Índice Económico</h4>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Indicador *</label>
+              <select
+                value={newIndicator}
+                onChange={(e) => setNewIndicator(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="ipc">IPC (Inflación)</option>
+                <option value="cacGeneral">CAC General</option>
+                <option value="cacMateriales">CAC Materiales</option>
+                <option value="cacManoObra">CAC Mano de Obra</option>
+                <option value="icc">ICC (Construcción)</option>
+                <option value="is">IS (Salarios)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Valor *</label>
+              <input
+                type="number"
+                step="0.01"
+                value={newIndexValue}
+                onChange={(e) => setNewIndexValue(e.target.value)}
+                placeholder="Ej: 1524.50"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha *</label>
+              <input
+                type="date"
+                value={newIndexDate}
+                onChange={(e) => setNewIndexDate(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+              <input
+                type="text"
+                value={newIndexDescription}
+                onChange={(e) => setNewIndexDescription(e.target.value)}
+                placeholder="Descripción opcional"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div className="mt-4">
+            <button
+              onClick={saveEconomicIndex}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Guardar Índice
+            </button>
+          </div>
+        </div>
+
+        {/* Lista de índices */}
+        <div>
+          <h4 className="text-md font-semibold text-gray-900 mb-4">Índices Registrados</h4>
+          {indicesLoading ? (
+            <div className="text-center py-8 text-gray-500">Cargando índices...</div>
+          ) : economicIndices.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No hay índices registrados</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Indicador
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Valor
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Fecha
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Descripción
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {economicIndices.map((index) => (
+                    <tr key={index.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {index.indicator === 'ipc' ? 'IPC' :
+                           index.indicator === 'cacGeneral' ? 'CAC General' :
+                           index.indicator === 'cacMateriales' ? 'CAC Materiales' :
+                           index.indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
+                           index.indicator === 'icc' ? 'ICC' :
+                           index.indicator === 'is' ? 'IS' : index.indicator}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{index.value}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-500">{new Date(index.date).toLocaleDateString('es-AR')}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-500">{index.description || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={() => deleteEconomicIndex(index.id, index.indicator)}
+                          className="text-gray-600 hover:text-gray-900"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
@@ -597,6 +821,14 @@ export default function AdminPage() {
                   Tasas
                 </button>
                 <button
+                  onClick={() => setActiveTab('indices')}
+                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'indices' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  <BarChart3 className="w-6 h-6" />
+                  Índices
+                </button>
+                <button
                   onClick={() => setActiveTab('settings')}
                   className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'settings' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
                     }`}
@@ -616,6 +848,7 @@ export default function AdminPage() {
             {activeTab === 'categories' && renderCategories()}
             {activeTab === 'files' && renderFiles()}
             {activeTab === 'rates' && renderRates()}
+            {activeTab === 'indices' && renderIndices()}
             {activeTab === 'settings' && renderSettings()}
           </div>
         </div>

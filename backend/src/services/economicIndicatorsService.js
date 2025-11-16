@@ -210,7 +210,7 @@ class EconomicIndicatorsService {
   }
 
   /**
-   * Obtiene índices económicos de Argentina desde la API de series-tiempo de INDEC
+   * Obtiene índices económicos de Argentina desde la base de datos
    */
   async getEconomicIndexes() {
     try {
@@ -221,59 +221,95 @@ class EconomicIndicatorsService {
         return this.cache.economicIndexesData;
       }
 
-      // Intentar obtener datos reales de la API de series-tiempo de INDEC
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
+
       try {
-        console.log('[ECONOMIC] Intentando obtener datos reales de INDEC API...');
+        console.log('[ECONOMIC] Obteniendo índices económicos desde la base de datos...');
         
-        // IDs conocidos de series de INDEC (basado en documentación oficial)
-        const seriesIds = [
-          '103.1_I2N_2016_M_19', // IPC Nivel General
-          '103.1_I2N_2016_M_15', // IPC Núcleo  
-          '145.3_CAC_0_M_19',    // CAC General (aproximado)
-          '145.3_CAC_0_M_20',    // CAC Materiales (aproximado)
-          '145.3_CAC_0_M_21',    // CAC Mano de Obra (aproximado)
-          '145.3_ICC_0_M_19',    // ICC (aproximado)
-          '141.3_IS_0_M_19'      // IS - Índice de Salarios (aproximado)
-        ];
+        // Obtener los últimos valores para cada indicador
+        const indicators = ['ipc', 'cacGeneral', 'cacMateriales', 'cacManoObra', 'icc', 'is'];
+        const latestIndexes = {};
 
-        // API de series-tiempo de INDEC
-        const apiUrl = `https://apis.datos.gob.ar/series/api/series/?ids=${seriesIds.join(',')}&format=json&limit=1`;
-        
-        const response = await axios.get(apiUrl, {
-          timeout: 10000, // 10 segundos timeout
-          headers: {
-            'User-Agent': 'RIALTOR/1.0 - Economic Indicators Service'
-          }
-        });
-
-        if (response.data && response.data.data) {
-          console.log('[ECONOMIC] ✅ Datos reales obtenidos de INDEC API');
-          
-          const seriesData = response.data.data;
-          
-          // Mapear los datos de la API a nuestro formato
-          const result = {
-            ipc: this.extractLatestValue(seriesData, '103.1_I2N_2016_M_19', 'IPC (Índice de Precios al Consumidor)', 'Mide la evolución de los precios de consumo en Argentina'),
-            cacGeneral: this.extractLatestValue(seriesData, '145.3_CAC_0_M_19', 'CAC General', 'Costo de la Construcción - Nivel General'),
-            cacMateriales: this.extractLatestValue(seriesData, '145.3_CAC_0_M_20', 'CAC Materiales', 'Costo de la Construcción - Materiales'),
-            cacManoObra: this.extractLatestValue(seriesData, '145.3_CAC_0_M_21', 'CAC Mano de Obra', 'Costo de la Construcción - Mano de Obra'),
-            icc: this.extractLatestValue(seriesData, '145.3_ICC_0_M_19', 'ICC (Índice de Costos de Construcción)', 'Índice del costo de la construcción en Argentina'),
-            is: this.extractLatestValue(seriesData, '141.3_IS_0_M_19', 'IS (Índice de Salarios)', 'Índice de evolución de los salarios'),
-            lastUpdated: new Date().toISOString(),
-            dataSource: 'INDEC_API'
-          };
-
-          // Actualizar cache
-          this.cache.economicIndexesData = result;
-          this.cache.lastUpdate.economicIndexes = Date.now();
-
-          return result;
+        for (const indicator of indicators) {
+          const latest = await prisma.economicIndex.findFirst({
+            where: { indicator },
+            orderBy: { date: 'desc' }
+          });
+          latestIndexes[indicator] = latest;
         }
-      } catch (apiError) {
-        console.warn('[ECONOMIC] ⚠️ Error al obtener datos de INDEC API, usando datos mock:', apiError.message);
+
+        // Calcular variaciones comparando con el mes anterior
+        const result = {};
+        const descriptions = {
+          ipc: 'Índice de Precios al Consumidor - Mide la evolución de los precios de consumo en Argentina',
+          cacGeneral: 'Costo de la Construcción - Nivel General',
+          cacMateriales: 'Costo de la Construcción - Materiales',
+          cacManoObra: 'Costo de la Construcción - Mano de Obra',
+          icc: 'Índice del costo de la construcción en Argentina',
+          is: 'Índice de evolución de los salarios'
+        };
+
+        for (const indicator of indicators) {
+          const current = latestIndexes[indicator];
+          if (current) {
+            // Buscar el valor del mes anterior
+            const previousMonth = new Date(current.date);
+            previousMonth.setMonth(previousMonth.getMonth() - 1);
+            
+            const previous = await prisma.economicIndex.findFirst({
+              where: { 
+                indicator,
+                date: {
+                  lt: current.date,
+                  gte: previousMonth
+                }
+              },
+              orderBy: { date: 'desc' }
+            });
+
+            let variation = null;
+            if (previous && previous.value !== 0) {
+              variation = parseFloat((((current.value - previous.value) / previous.value) * 100).toFixed(2));
+            }
+
+            result[indicator.replace('cac', 'cac').replace('icc', 'icc').replace('is', 'is')] = {
+              nombre: this.getIndicatorName(indicator),
+              valor: current.value,
+              variacion: variation,
+              fecha: current.date.toISOString().split('T')[0],
+              descripcion: current.description || descriptions[indicator] || ''
+            };
+          } else {
+            // Si no hay datos, devolver valores por defecto
+            result[indicator.replace('cac', 'cac').replace('icc', 'icc').replace('is', 'is')] = {
+              nombre: this.getIndicatorName(indicator),
+              valor: 0,
+              variacion: null,
+              fecha: new Date().toISOString().split('T')[0],
+              descripcion: descriptions[indicator] || 'Datos no disponibles'
+            };
+          }
+        }
+
+        result.lastUpdated = new Date().toISOString();
+        result.dataSource = 'DATABASE';
+
+        console.log('[ECONOMIC] ✅ Datos obtenidos desde la base de datos');
+
+        // Actualizar cache
+        this.cache.economicIndexesData = result;
+        this.cache.lastUpdate.economicIndexes = Date.now();
+
+        await prisma.$disconnect();
+        return result;
+
+      } catch (dbError) {
+        console.error('[ECONOMIC] Error al consultar la base de datos:', dbError.message);
+        await prisma.$disconnect();
       }
 
-      // Fallback a datos mock si la API falla
+      // Fallback a datos mock si hay error en DB
       console.log('[ECONOMIC] 📊 Usando datos mock como fallback');
       const result = {
         ipc: {
@@ -386,6 +422,21 @@ class EconomicIndicatorsService {
   }
 
   /**
+   * Obtiene el nombre completo del indicador
+   */
+  getIndicatorName(indicator) {
+    const names = {
+      ipc: 'IPC (Índice de Precios al Consumidor)',
+      cacGeneral: 'CAC General',
+      cacMateriales: 'CAC Materiales',
+      cacManoObra: 'CAC Mano de Obra',
+      icc: 'ICC (Índice de Costos de Construcción)',
+      is: 'IS (Índice de Salarios)'
+    };
+    return names[indicator] || indicator;
+  }
+
+  /**
    * Extrae el último valor de una serie específica de la respuesta de la API
    */
   extractLatestValue(seriesData, seriesId, nombre, descripcion) {
@@ -475,59 +526,53 @@ class EconomicIndicatorsService {
    */
   async getEconomicIndexChart(indicator) {
     try {
-      // Mapear indicadores a IDs de series de INDEC
-      const seriesMapping = {
-        'ipc': '103.1_I2N_2016_M_19',
-        'cacGeneral': '145.3_CAC_0_M_19',
-        'cacMateriales': '145.3_CAC_0_M_20', 
-        'cacManoObra': '145.3_CAC_0_M_21',
-        'icc': '145.3_ICC_0_M_19',
-        'is': '141.3_IS_0_M_19'
-      };
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
 
-      const seriesId = seriesMapping[indicator];
-      if (!seriesId) {
-        throw new Error(`Indicador no reconocido: ${indicator}`);
-      }
-
-      // Intentar obtener datos reales de la API
       try {
-        console.log(`[ECONOMIC CHART] Intentando obtener datos históricos para ${indicator}...`);
+        console.log(`[ECONOMIC CHART] Obteniendo datos históricos para ${indicator} desde la base de datos...`);
         
-        const apiUrl = `https://apis.datos.gob.ar/series/api/series/?ids=${seriesId}&format=json&limit=24`; // Últimos 24 meses
-        
-        const response = await axios.get(apiUrl, {
-          timeout: 10000,
-          headers: {
-            'User-Agent': 'RIALTOR/1.0 - Economic Indicators Service'
-          }
+        // Obtener los últimos 24 meses de datos
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 24);
+
+        const historicalData = await prisma.economicIndex.findMany({
+          where: {
+            indicator,
+            date: {
+              gte: startDate,
+              lte: endDate
+            }
+          },
+          orderBy: { date: 'asc' }
         });
 
-        if (response.data && response.data.data && response.data.data.length > 0) {
-          const series = response.data.data[0];
+        if (historicalData.length > 0) {
+          console.log(`[ECONOMIC CHART] ✅ Encontrados ${historicalData.length} registros históricos para ${indicator}`);
           
-          if (series.data && series.data.length > 0) {
-            console.log(`[ECONOMIC CHART] ✅ Datos históricos reales obtenidos para ${indicator}`);
-            
-            // Convertir datos de la API al formato esperado
-            const chartData = series.data.map(([fecha, valor]) => ({
-              fecha: fecha,
-              valor: parseFloat(valor) || 0
-            })).filter(item => item.valor > 0); // Filtrar valores válidos
+          // Convertir al formato esperado
+          const chartData = historicalData.map(record => ({
+            fecha: record.date.toISOString().split('T')[0],
+            valor: record.value
+          }));
 
-            return {
-              data: chartData,
-              indicador: indicator,
-              periodo: `Últimos ${chartData.length} meses`,
-              dataSource: 'INDEC_API'
-            };
-          }
+          await prisma.$disconnect();
+          return {
+            data: chartData,
+            indicador: indicator,
+            periodo: `Últimos ${chartData.length} meses`,
+            dataSource: 'DATABASE'
+          };
         }
-      } catch (apiError) {
-        console.warn(`[ECONOMIC CHART] ⚠️ Error al obtener datos históricos de ${indicator}:`, apiError.message);
+
+        await prisma.$disconnect();
+      } catch (dbError) {
+        console.error(`[ECONOMIC CHART] Error al consultar la base de datos para ${indicator}:`, dbError.message);
+        await prisma.$disconnect();
       }
 
-      // Fallback a datos mock
+      // Fallback a datos mock si no hay datos en DB
       console.log(`[ECONOMIC CHART] 📊 Generando datos históricos mock para ${indicator}`);
       
       const mockData = [];

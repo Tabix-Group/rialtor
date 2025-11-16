@@ -342,3 +342,17 @@ model CalendarToken {
 
   @@map("calendar_tokens")
 }
+
+model EconomicIndex {
+  id          String   @id @default(uuid())
+  indicator   String   // 'ipc', 'cacGeneral', 'cacMateriales', 'cacManoObra', 'icc', 'is'
+  value       Float
+  variation   Float?
+  date        DateTime
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([indicator, date])
+  @@map("economic_indices")
+}

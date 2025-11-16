@@ -533,6 +533,99 @@ async function main() {
 
   console.log('✅ News created');
 
+  // Crear índices económicos de ejemplo
+  const economicIndices = [
+    // IPC - últimos 12 meses
+    { indicator: 'ipc', value: 1524.5, date: new Date('2024-10-01'), description: 'Índice de Precios al Consumidor - Octubre 2024' },
+    { indicator: 'ipc', value: 1489.2, date: new Date('2024-09-01'), description: 'Índice de Precios al Consumidor - Septiembre 2024' },
+    { indicator: 'ipc', value: 1456.7, date: new Date('2024-08-01'), description: 'Índice de Precios al Consumidor - Agosto 2024' },
+    { indicator: 'ipc', value: 1423.1, date: new Date('2024-07-01'), description: 'Índice de Precios al Consumidor - Julio 2024' },
+    { indicator: 'ipc', value: 1390.8, date: new Date('2024-06-01'), description: 'Índice de Precios al Consumidor - Junio 2024' },
+    { indicator: 'ipc', value: 1358.4, date: new Date('2024-05-01'), description: 'Índice de Precios al Consumidor - Mayo 2024' },
+    { indicator: 'ipc', value: 1326.9, date: new Date('2024-04-01'), description: 'Índice de Precios al Consumidor - Abril 2024' },
+    { indicator: 'ipc', value: 1295.3, date: new Date('2024-03-01'), description: 'Índice de Precios al Consumidor - Marzo 2024' },
+    { indicator: 'ipc', value: 1264.7, date: new Date('2024-02-01'), description: 'Índice de Precios al Consumidor - Febrero 2024' },
+    { indicator: 'ipc', value: 1234.1, date: new Date('2024-01-01'), description: 'Índice de Precios al Consumidor - Enero 2024' },
+    { indicator: 'ipc', value: 1204.5, date: new Date('2023-12-01'), description: 'Índice de Precios al Consumidor - Diciembre 2023' },
+    { indicator: 'ipc', value: 1175.8, date: new Date('2023-11-01'), description: 'Índice de Precios al Consumidor - Noviembre 2023' },
+
+    // CAC General
+    { indicator: 'cacGeneral', value: 1456.7, date: new Date('2024-10-01'), description: 'Costo de la Construcción - Nivel General - Octubre 2024' },
+    { indicator: 'cacGeneral', value: 1423.4, date: new Date('2024-09-01'), description: 'Costo de la Construcción - Nivel General - Septiembre 2024' },
+    { indicator: 'cacGeneral', value: 1390.1, date: new Date('2024-08-01'), description: 'Costo de la Construcción - Nivel General - Agosto 2024' },
+    { indicator: 'cacGeneral', value: 1357.8, date: new Date('2024-07-01'), description: 'Costo de la Construcción - Nivel General - Julio 2024' },
+    { indicator: 'cacGeneral', value: 1325.5, date: new Date('2024-06-01'), description: 'Costo de la Construcción - Nivel General - Junio 2024' },
+    { indicator: 'cacGeneral', value: 1293.2, date: new Date('2024-05-01'), description: 'Costo de la Construcción - Nivel General - Mayo 2024' },
+    { indicator: 'cacGeneral', value: 1261.9, date: new Date('2024-04-01'), description: 'Costo de la Construcción - Nivel General - Abril 2024' },
+    { indicator: 'cacGeneral', value: 1230.6, date: new Date('2024-03-01'), description: 'Costo de la Construcción - Nivel General - Marzo 2024' },
+    { indicator: 'cacGeneral', value: 1199.3, date: new Date('2024-02-01'), description: 'Costo de la Construcción - Nivel General - Febrero 2024' },
+    { indicator: 'cacGeneral', value: 1168.0, date: new Date('2024-01-01'), description: 'Costo de la Construcción - Nivel General - Enero 2024' },
+    { indicator: 'cacGeneral', value: 1137.7, date: new Date('2023-12-01'), description: 'Costo de la Construcción - Nivel General - Diciembre 2023' },
+    { indicator: 'cacGeneral', value: 1107.4, date: new Date('2023-11-01'), description: 'Costo de la Construcción - Nivel General - Noviembre 2023' },
+
+    // CAC Materiales
+    { indicator: 'cacMateriales', value: 1234.2, date: new Date('2024-10-01'), description: 'Costo de la Construcción - Materiales - Octubre 2024' },
+    { indicator: 'cacMateriales', value: 1208.5, date: new Date('2024-09-01'), description: 'Costo de la Construcción - Materiales - Septiembre 2024' },
+    { indicator: 'cacMateriales', value: 1182.8, date: new Date('2024-08-01'), description: 'Costo de la Construcción - Materiales - Agosto 2024' },
+    { indicator: 'cacMateriales', value: 1157.1, date: new Date('2024-07-01'), description: 'Costo de la Construcción - Materiales - Julio 2024' },
+    { indicator: 'cacMateriales', value: 1131.4, date: new Date('2024-06-01'), description: 'Costo de la Construcción - Materiales - Junio 2024' },
+    { indicator: 'cacMateriales', value: 1105.7, date: new Date('2024-05-01'), description: 'Costo de la Construcción - Materiales - Mayo 2024' },
+    { indicator: 'cacMateriales', value: 1080.0, date: new Date('2024-04-01'), description: 'Costo de la Construcción - Materiales - Abril 2024' },
+    { indicator: 'cacMateriales', value: 1054.3, date: new Date('2024-03-01'), description: 'Costo de la Construcción - Materiales - Marzo 2024' },
+    { indicator: 'cacMateriales', value: 1028.6, date: new Date('2024-02-01'), description: 'Costo de la Construcción - Materiales - Febrero 2024' },
+    { indicator: 'cacMateriales', value: 1002.9, date: new Date('2024-01-01'), description: 'Costo de la Construcción - Materiales - Enero 2024' },
+    { indicator: 'cacMateriales', value: 977.2, date: new Date('2023-12-01'), description: 'Costo de la Construcción - Materiales - Diciembre 2023' },
+    { indicator: 'cacMateriales', value: 951.5, date: new Date('2023-11-01'), description: 'Costo de la Construcción - Materiales - Noviembre 2023' },
+
+    // CAC Mano de Obra
+    { indicator: 'cacManoObra', value: 1678.9, date: new Date('2024-10-01'), description: 'Costo de la Construcción - Mano de Obra - Octubre 2024' },
+    { indicator: 'cacManoObra', value: 1645.3, date: new Date('2024-09-01'), description: 'Costo de la Construcción - Mano de Obra - Septiembre 2024' },
+    { indicator: 'cacManoObra', value: 1611.7, date: new Date('2024-08-01'), description: 'Costo de la Construcción - Mano de Obra - Agosto 2024' },
+    { indicator: 'cacManoObra', value: 1578.1, date: new Date('2024-07-01'), description: 'Costo de la Construcción - Mano de Obra - Julio 2024' },
+    { indicator: 'cacManoObra', value: 1544.5, date: new Date('2024-06-01'), description: 'Costo de la Construcción - Mano de Obra - Junio 2024' },
+    { indicator: 'cacManoObra', value: 1510.9, date: new Date('2024-05-01'), description: 'Costo de la Construcción - Mano de Obra - Mayo 2024' },
+    { indicator: 'cacManoObra', value: 1477.3, date: new Date('2024-04-01'), description: 'Costo de la Construcción - Mano de Obra - Abril 2024' },
+    { indicator: 'cacManoObra', value: 1443.7, date: new Date('2024-03-01'), description: 'Costo de la Construcción - Mano de Obra - Marzo 2024' },
+    { indicator: 'cacManoObra', value: 1410.1, date: new Date('2024-02-01'), description: 'Costo de la Construcción - Mano de Obra - Febrero 2024' },
+    { indicator: 'cacManoObra', value: 1376.5, date: new Date('2024-01-01'), description: 'Costo de la Construcción - Mano de Obra - Enero 2024' },
+    { indicator: 'cacManoObra', value: 1342.9, date: new Date('2023-12-01'), description: 'Costo de la Construcción - Mano de Obra - Diciembre 2023' },
+    { indicator: 'cacManoObra', value: 1309.3, date: new Date('2023-11-01'), description: 'Costo de la Construcción - Mano de Obra - Noviembre 2023' },
+
+    // ICC
+    { indicator: 'icc', value: 1345.6, date: new Date('2024-10-01'), description: 'Índice del costo de la construcción - Octubre 2024' },
+    { indicator: 'icc', value: 1318.7, date: new Date('2024-09-01'), description: 'Índice del costo de la construcción - Septiembre 2024' },
+    { indicator: 'icc', value: 1291.8, date: new Date('2024-08-01'), description: 'Índice del costo de la construcción - Agosto 2024' },
+    { indicator: 'icc', value: 1264.9, date: new Date('2024-07-01'), description: 'Índice del costo de la construcción - Julio 2024' },
+    { indicator: 'icc', value: 1238.0, date: new Date('2024-06-01'), description: 'Índice del costo de la construcción - Junio 2024' },
+    { indicator: 'icc', value: 1211.1, date: new Date('2024-05-01'), description: 'Índice del costo de la construcción - Mayo 2024' },
+    { indicator: 'icc', value: 1184.2, date: new Date('2024-04-01'), description: 'Índice del costo de la construcción - Abril 2024' },
+    { indicator: 'icc', value: 1157.3, date: new Date('2024-03-01'), description: 'Índice del costo de la construcción - Marzo 2024' },
+    { indicator: 'icc', value: 1130.4, date: new Date('2024-02-01'), description: 'Índice del costo de la construcción - Febrero 2024' },
+    { indicator: 'icc', value: 1103.5, date: new Date('2024-01-01'), description: 'Índice del costo de la construcción - Enero 2024' },
+    { indicator: 'icc', value: 1076.6, date: new Date('2023-12-01'), description: 'Índice del costo de la construcción - Diciembre 2023' },
+    { indicator: 'icc', value: 1049.7, date: new Date('2023-11-01'), description: 'Índice del costo de la construcción - Noviembre 2023' },
+
+    // IS
+    { indicator: 'is', value: 1890.3, date: new Date('2024-10-01'), description: 'Índice de evolución de los salarios - Octubre 2024' },
+    { indicator: 'is', value: 1856.5, date: new Date('2024-09-01'), description: 'Índice de evolución de los salarios - Septiembre 2024' },
+    { indicator: 'is', value: 1822.7, date: new Date('2024-08-01'), description: 'Índice de evolución de los salarios - Agosto 2024' },
+    { indicator: 'is', value: 1788.9, date: new Date('2024-07-01'), description: 'Índice de evolución de los salarios - Julio 2024' },
+    { indicator: 'is', value: 1755.1, date: new Date('2024-06-01'), description: 'Índice de evolución de los salarios - Junio 2024' },
+    { indicator: 'is', value: 1721.3, date: new Date('2024-05-01'), description: 'Índice de evolución de los salarios - Mayo 2024' },
+    { indicator: 'is', value: 1687.5, date: new Date('2024-04-01'), description: 'Índice de evolución de los salarios - Abril 2024' },
+    { indicator: 'is', value: 1653.7, date: new Date('2024-03-01'), description: 'Índice de evolución de los salarios - Marzo 2024' },
+    { indicator: 'is', value: 1619.9, date: new Date('2024-02-01'), description: 'Índice de evolución de los salarios - Febrero 2024' },
+    { indicator: 'is', value: 1586.1, date: new Date('2024-01-01'), description: 'Índice de evolución de los salarios - Enero 2024' },
+    { indicator: 'is', value: 1552.3, date: new Date('2023-12-01'), description: 'Índice de evolución de los salarios - Diciembre 2023' },
+    { indicator: 'is', value: 1518.5, date: new Date('2023-11-01'), description: 'Índice de evolución de los salarios - Noviembre 2023' }
+  ];
+
+  for (const index of economicIndices) {
+    await prisma.economicIndex.create({ data: index });
+  }
+
+  console.log('✅ Economic indices created');
+
   // Crear placas de propiedades de ejemplo
   const propertyPlaques = [
     {

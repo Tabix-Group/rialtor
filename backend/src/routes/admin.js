@@ -122,5 +122,110 @@ router.get('/rates', authenticateToken, checkPermission('view_admin'), getBankRa
 router.post('/rates', authenticateToken, checkPermission('manage_system'), upsertBankRate);
 router.delete('/rates/:id', authenticateToken, checkPermission('manage_system'), deleteBankRate);
 
+// Índices económicos
+router.get('/economic-indices', authenticateToken, checkPermission('view_admin'), async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    const indices = await prisma.economicIndex.findMany({
+      orderBy: [
+        { indicator: 'asc' },
+        { date: 'desc' }
+      ]
+    });
+    
+    await prisma.$disconnect();
+    res.json({ success: true, data: indices });
+  } catch (error) {
+    console.error('Error getting economic indices:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/economic-indices', authenticateToken, checkPermission('manage_system'), async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    const { indicator, value, date, description } = req.body;
+    
+    if (!indicator || !value || !date) {
+      return res.status(400).json({ success: false, error: 'Indicador, valor y fecha son requeridos' });
+    }
+    
+    // Verificar que no exista ya un registro para este indicador en esta fecha
+    const existing = await prisma.economicIndex.findUnique({
+      where: {
+        indicator_date: {
+          indicator,
+          date: new Date(date)
+        }
+      }
+    });
+    
+    if (existing) {
+      await prisma.$disconnect();
+      return res.status(400).json({ success: false, error: 'Ya existe un valor para este indicador en esta fecha' });
+    }
+    
+    const newIndex = await prisma.economicIndex.create({
+      data: {
+        indicator,
+        value: parseFloat(value),
+        date: new Date(date),
+        description: description || null
+      }
+    });
+    
+    await prisma.$disconnect();
+    res.json({ success: true, data: newIndex });
+  } catch (error) {
+    console.error('Error creating economic index:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.put('/economic-indices/:id', authenticateToken, checkPermission('manage_system'), async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    const { id } = req.params;
+    const { value, description } = req.body;
+    
+    const updatedIndex = await prisma.economicIndex.update({
+      where: { id },
+      data: {
+        value: value ? parseFloat(value) : undefined,
+        description: description !== undefined ? description : undefined
+      }
+    });
+    
+    await prisma.$disconnect();
+    res.json({ success: true, data: updatedIndex });
+  } catch (error) {
+    console.error('Error updating economic index:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.delete('/economic-indices/:id', authenticateToken, checkPermission('manage_system'), async (req, res) => {
+  try {
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    
+    await prisma.economicIndex.delete({
+      where: { id: req.params.id }
+    });
+    
+    await prisma.$disconnect();
+    res.json({ success: true, message: 'Índice económico eliminado' });
+  } catch (error) {
+    console.error('Error deleting economic index:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Export router
 module.exports = router;
