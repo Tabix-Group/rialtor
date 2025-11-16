@@ -865,26 +865,15 @@ export default function IndicadoresPage() {
                 <strong>Fuentes:</strong> Los datos se actualizan automáticamente desde fuentes oficiales y confiables del mercado argentino.
               </p>
               <p>
-                Las cotizaciones del dólar provienen de APIs públicas actualizadas en tiempo real. 
+                Las cotizaciones del dólar provienen de APIs públicas actualizadas en tiempo real.
                 Los datos inmobiliarios son estimaciones basadas en Zonaprop, Properati y el Colegio de Escribanos.
               </p>
               <p>
-                Los índices económicos (IPC, CAC, IS) se gestionan desde el panel de administración 
-                y representan indicadores clave de la economía argentina.
-                {economicIndexes?.dataSource && (
-                  <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                    economicIndexes.dataSource === 'DATABASE' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                  }`}>
-                    {economicIndexes.dataSource === 'DATABASE' ? 'Datos administrados' : 'Datos estimados'}
-                  </span>
-                )}
+                Los índices económicos (IPC, CAC, IS) representan indicadores clave de la economía argentina.
               </p>
               <p className="text-xs">
                 Última actualización: {new Date(data.timestamp).toLocaleString("es-AR")}
                 {economicIndexes && ` | Índices económicos: ${new Date(economicIndexes.lastUpdated).toLocaleString("es-AR")}`}
-                {economicIndexes?.dataSource && ` (${economicIndexes.dataSource === 'DATABASE' ? 'Base de datos' : 'Datos locales'})`}
               </p>
             </div>
           </div>
