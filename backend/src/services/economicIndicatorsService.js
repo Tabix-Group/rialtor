@@ -863,6 +863,167 @@ class EconomicIndicatorsService {
   }
 
   /**
+   * Obtiene datos de gráfico para índices económicos
+   */
+  async getEconomicIndexChart(indicator, period = '30d') {
+    try {
+      console.log(`[ECONOMIC INDEX CHART] Obteniendo datos históricos para ${indicator} desde la base de datos...`);
+
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
+
+      try {
+        // Calcular fecha límite basada en el período
+        const now = new Date();
+        let startDate;
+
+        switch (period) {
+          case '7d':
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case '30d':
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case '90d':
+            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            break;
+          case '1y':
+            startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            break;
+          default:
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        }
+
+        // Obtener datos históricos del indicador
+        const historicalData = await prisma.economicIndex.findMany({
+          where: {
+            indicator: indicator,
+            date: {
+              gte: startDate
+            }
+          },
+          orderBy: {
+            date: 'asc'
+          },
+          select: {
+            date: true,
+            value: true
+          }
+        });
+
+        console.log(`[ECONOMIC INDEX CHART] ✅ Encontrados ${historicalData.length} registros para ${indicator}`);
+
+        if (historicalData.length > 0) {
+          // Formatear datos para el gráfico
+          const chartData = historicalData.map(item => ({
+            fecha: item.date.toISOString().split('T')[0],
+            valor: parseFloat(item.value) || 0
+          }));
+
+          return {
+            data: chartData,
+            indicador: this.getIndicatorName(indicator),
+            periodo: this.getPeriodDescription(period),
+            dataSource: 'DATABASE'
+          };
+        }
+
+      } catch (dbError) {
+        console.error(`[ECONOMIC INDEX CHART] Error al consultar la base de datos para ${indicator}:`, dbError.message);
+      } finally {
+        await prisma.$disconnect();
+      }
+
+      // Si no hay datos en BD, devolver datos mock
+      console.log(`[ECONOMIC INDEX CHART] 📊 Generando datos mock para ${indicator}`);
+
+      const mockData = this.generateMockEconomicIndexData(indicator, period);
+
+      return {
+        data: mockData,
+        indicador: this.getIndicatorName(indicator),
+        periodo: this.getPeriodDescription(period),
+        dataSource: 'MOCK'
+      };
+
+    } catch (error) {
+      console.error(`Error generating chart data for ${indicator}:`, error.message);
+
+      return {
+        data: [],
+        indicador: this.getIndicatorName(indicator),
+        periodo: 'Datos no disponibles',
+        dataSource: 'ERROR',
+        error: `No se pudieron obtener los datos históricos para ${indicator}`
+      };
+    }
+  }
+
+  /**
+   * Obtiene el nombre descriptivo del indicador
+   */
+  getIndicatorName(indicator) {
+    const names = {
+      'ipc': 'IPC (Índice de Precios al Consumidor)',
+      'cacGeneral': 'CAC General',
+      'cacMateriales': 'CAC Materiales',
+      'cacManoObra': 'CAC Mano de Obra',
+      'icc': 'ICC (Índice de Costos de Construcción)',
+      'is': 'IS (Índice de Salarios)',
+      'dolarOficialCompra': 'Dólar Oficial Compra',
+      'dolarOficialVenta': 'Dólar Oficial Venta',
+      'dolarBlueCompra': 'Dólar Blue Compra',
+      'dolarBlueVenta': 'Dólar Blue Venta',
+      'dolarTarjetaCompra': 'Dólar Tarjeta Compra',
+      'dolarTarjetaVenta': 'Dólar Tarjeta Venta'
+    };
+    return names[indicator] || indicator;
+  }
+
+  /**
+   * Genera datos mock para índices económicos
+   */
+  generateMockEconomicIndexData(indicator, period) {
+    const now = new Date();
+    const data = [];
+    let days;
+
+    switch (period) {
+      case '7d': days = 7; break;
+      case '30d': days = 30; break;
+      case '90d': days = 90; break;
+      case '1y': days = 365; break;
+      default: days = 30;
+    }
+
+    // Valores base para diferentes indicadores
+    const baseValues = {
+      'ipc': 1500,
+      'cacGeneral': 1200,
+      'cacMateriales': 1100,
+      'cacManoObra': 1300,
+      'icc': 1400,
+      'is': 1600
+    };
+
+    const baseValue = baseValues[indicator] || 1000;
+
+    for (let i = days; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      // Generar variación aleatoria pequeña
+      const variation = (Math.random() - 0.5) * 0.02; // ±1%
+      const value = baseValue * (1 + variation);
+
+      data.push({
+        fecha: date.toISOString().split('T')[0],
+        valor: Math.round(value * 100) / 100
+      });
+    }
+
+    return data;
+  }
+
+  /**
    * Obtiene descripción del período
    */
   getPeriodDescription(period) {

@@ -198,6 +198,44 @@ exports.getEconomicIndexes = async (req, res, next) => {
 };
 
 /**
+ * Obtiene datos de gráfico para índices económicos
+ */
+exports.getEconomicIndexChart = async (req, res, next) => {
+  try {
+    const { indicator } = req.params;
+    const { period = '30d' } = req.query;
+
+    // Validar indicador
+    const validIndicators = ['ipc', 'cacGeneral', 'cacMateriales', 'cacManoObra', 'icc', 'is'];
+    if (!validIndicators.includes(indicator)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Indicador inválido. Use: ipc, cacGeneral, cacMateriales, cacManoObra, icc, o is'
+      });
+    }
+
+    const data = await economicIndicatorsService.getEconomicIndexChart(indicator, period);
+
+    res.json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    console.error('Error in getEconomicIndexChart controller:', error.message);
+    res.status(200).json({
+      success: false,
+      error: 'No se pudieron obtener los datos del gráfico',
+      data: {
+        data: [],
+        indicador: req.params.indicator,
+        periodo: 'Error al cargar datos',
+        dataSource: 'ERROR'
+      }
+    });
+  }
+};
+
+/**
  * Obtiene datos de gráfico para cotizaciones del dólar
  */
 exports.getDollarChart = async (req, res, next) => {
