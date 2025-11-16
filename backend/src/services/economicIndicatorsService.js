@@ -17,7 +17,7 @@ class EconomicIndicatorsService {
   }
 
   /**
-   * Obtiene datos de cotizaciones del dólar desde API pública argentina
+   * Obtiene datos de cotizaciones del dólar desde la base de datos (más sustentable)
    */
   async getDolarRates() {
     try {
@@ -28,7 +28,117 @@ class EconomicIndicatorsService {
         return this.cache.dolarData;
       }
 
-      // API pública de dólar argentina (dolarapi.com)
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
+
+      try {
+        console.log('[DOLAR] Obteniendo cotizaciones desde base de datos...');
+
+        // Obtener los últimos valores para cada tipo de dólar
+        const dollarTypes = ['oficial', 'blue', 'tarjeta'];
+        const latestRates = {};
+
+        for (const type of dollarTypes) {
+          const compraIndicator = `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Compra`;
+          const ventaIndicator = `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Venta`;
+
+          const latestCompra = await prisma.economicIndex.findFirst({
+            where: { indicator: compraIndicator },
+            orderBy: { date: 'desc' }
+          });
+
+          const latestVenta = await prisma.economicIndex.findFirst({
+            where: { indicator: ventaIndicator },
+            orderBy: { date: 'desc' }
+          });
+
+          latestRates[type] = {
+            compra: latestCompra?.value || 0,
+            venta: latestVenta?.value || 0,
+            fechaActualizacion: latestCompra?.date?.toISOString() || new Date().toISOString()
+          };
+
+          // Calcular variación comparando con el día anterior
+          if (latestCompra && latestVenta) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const previousCompra = await prisma.economicIndex.findFirst({
+              where: { 
+                indicator: compraIndicator,
+                date: { lt: latestCompra.date, gte: yesterday }
+              },
+              orderBy: { date: 'desc' }
+            });
+
+            const previousVenta = await prisma.economicIndex.findFirst({
+              where: { 
+                indicator: ventaIndicator,
+                date: { lt: latestVenta.date, gte: yesterday }
+              },
+              orderBy: { date: 'desc' }
+            });
+
+            let variacion = 0;
+            if (previousVenta && previousVenta.value !== 0) {
+              variacion = parseFloat((((latestVenta.value - previousVenta.value) / previousVenta.value) * 100).toFixed(2));
+            }
+
+            latestRates[type].variacion = variacion;
+          } else {
+            latestRates[type].variacion = 0;
+          }
+        }
+
+        const result = {
+          oficial: latestRates.oficial,
+          blue: latestRates.blue,
+          tarjeta: latestRates.tarjeta,
+          lastUpdated: new Date().toISOString(),
+          dataSource: 'DATABASE'
+        };
+
+        console.log('[DOLAR] ✅ Datos obtenidos desde base de datos');
+
+        // Actualizar cache
+        this.cache.dolarData = result;
+        this.cache.lastUpdate.dolar = Date.now();
+
+        await prisma.$disconnect();
+        return result;
+
+      } catch (dbError) {
+        console.error('[DOLAR] Error consultando base de datos:', dbError.message);
+        await prisma.$disconnect();
+      }
+
+      // Fallback: llamar a la API directamente si falla la DB
+      console.log('[DOLAR] 📡 Usando API como fallback');
+      return this.getDolarRatesFromAPI();
+
+    } catch (error) {
+      console.error('Error fetching dolar rates:', error.message);
+      
+      if (this.cache.dolarData) {
+        return { ...this.cache.dolarData, fromCache: true };
+      }
+
+      return {
+        oficial: { compra: 0, venta: 0, variacion: 0, fechaActualizacion: new Date().toISOString() },
+        blue: { compra: 0, venta: 0, variacion: 0, fechaActualizacion: new Date().toISOString() },
+        tarjeta: { compra: 0, venta: 0, variacion: 0, fechaActualizacion: new Date().toISOString() },
+        lastUpdated: new Date().toISOString(),
+        error: 'No se pudieron obtener las cotizaciones',
+        dataSource: 'ERROR'
+      };
+    }
+  }
+
+  /**
+   * Método auxiliar para obtener datos directamente de la API (fallback)
+   */
+  async getDolarRatesFromAPI() {
+    try {
       const response = await axios.get('https://dolarapi.com/v1/dolares', {
         timeout: 3000,
         headers: {
@@ -38,12 +148,11 @@ class EconomicIndicatorsService {
 
       const data = response.data;
       
-      // Extraer las cotizaciones que necesitamos
       const oficial = data.find(d => d.casa === 'oficial');
       const blue = data.find(d => d.casa === 'blue');
       const tarjeta = data.find(d => d.casa === 'tarjeta');
 
-      const result = {
+      return {
         oficial: {
           compra: oficial?.compra || 0,
           venta: oficial?.venta || 0,
@@ -62,30 +171,11 @@ class EconomicIndicatorsService {
           variacion: this.calculateVariation(tarjeta),
           fechaActualizacion: tarjeta?.fechaActualizacion || new Date().toISOString()
         },
-        lastUpdated: new Date().toISOString()
-      };
-
-      // Actualizar cache
-      this.cache.dolarData = result;
-      this.cache.lastUpdate.dolar = Date.now();
-
-      return result;
-    } catch (error) {
-      console.error('Error fetching dolar rates:', error.message);
-      
-      // Si hay data en cache, devolverla aunque esté expirada
-      if (this.cache.dolarData) {
-        return { ...this.cache.dolarData, fromCache: true };
-      }
-
-      // Devolver datos por defecto
-      return {
-        oficial: { compra: 0, venta: 0, variacion: 0, fechaActualizacion: new Date().toISOString() },
-        blue: { compra: 0, venta: 0, variacion: 0, fechaActualizacion: new Date().toISOString() },
-        tarjeta: { compra: 0, venta: 0, variacion: 0, fechaActualizacion: new Date().toISOString() },
         lastUpdated: new Date().toISOString(),
-        error: 'No se pudieron obtener las cotizaciones'
+        dataSource: 'API'
       };
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -506,113 +596,283 @@ class EconomicIndicatorsService {
   }
 
     /**
-   * Limpia el cache manualmente
+   * Actualiza cotizaciones del dólar desde DolarAPI y guarda en base de datos
+   * Se ejecuta periódicamente para mantener datos históricos
    */
-  clearCache() {
-    this.cache = {
-      dolarData: null,
-      realEstateData: null,
-      economicIndexesData: null,
-      lastUpdate: {
-        dolar: null,
-        realEstate: null,
-        economicIndexes: null
+  async updateDollarRatesFromAPI() {
+    try {
+      console.log('[DOLAR] Actualizando cotizaciones desde DolarAPI...');
+
+      const response = await axios.get('https://dolarapi.com/v1/dolares', {
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'RIALTOR/1.0'
+        }
+      });
+
+      const data = response.data;
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
+
+      try {
+        const now = new Date();
+        const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        // Procesar cada tipo de dólar
+        const dollarTypes = ['oficial', 'blue', 'tarjeta'];
+        let updatedCount = 0;
+
+        for (const type of dollarTypes) {
+          const dollarData = data.find(d => d.casa === type);
+          if (dollarData && dollarData.compra && dollarData.venta) {
+            // Verificar si ya existe un registro para hoy
+            const existingCompra = await prisma.economicIndex.findFirst({
+              where: {
+                indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Compra`,
+                date: {
+                  gte: new Date(today),
+                  lt: new Date(today + 'T23:59:59')
+                }
+              }
+            });
+
+            const existingVenta = await prisma.economicIndex.findFirst({
+              where: {
+                indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Venta`,
+                date: {
+                  gte: new Date(today),
+                  lt: new Date(today + 'T23:59:59')
+                }
+              }
+            });
+
+            // Solo guardar si no existe registro para hoy
+            if (!existingCompra) {
+              await prisma.economicIndex.create({
+                data: {
+                  indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Compra`,
+                  value: parseFloat(dollarData.compra),
+                  date: now,
+                  description: `Dólar ${type} - Compra (${dollarData.fechaActualizacion})`
+                }
+              });
+              updatedCount++;
+            }
+
+            if (!existingVenta) {
+              await prisma.economicIndex.create({
+                data: {
+                  indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Venta`,
+                  value: parseFloat(dollarData.venta),
+                  date: now,
+                  description: `Dólar ${type} - Venta (${dollarData.fechaActualizacion})`
+                }
+              });
+              updatedCount++;
+            }
+          }
+        }
+
+        console.log(`[DOLAR] ✅ Actualización completada. ${updatedCount} registros nuevos guardados.`);
+        await prisma.$disconnect();
+
+      } catch (dbError) {
+        console.error('[DOLAR] Error guardando en base de datos:', dbError.message);
+        await prisma.$disconnect();
       }
-    };
+
+    } catch (error) {
+      console.error('[DOLAR] Error obteniendo datos de DolarAPI:', error.message);
+    }
   }
 
   /**
-   * Obtiene datos históricos para gráficos de índices económicos
+   * Obtiene datos históricos para gráficos de cotizaciones del dólar
    */
-  async getEconomicIndexChart(indicator) {
+  async getDollarChart(dollarType, period = '30d') {
     try {
       const { PrismaClient } = require('@prisma/client');
       const prisma = new PrismaClient();
 
       try {
-        console.log(`[ECONOMIC CHART] Obteniendo datos históricos para ${indicator} desde la base de datos...`);
-        
-        // Obtener los últimos 24 meses de datos
+        console.log(`[DOLAR CHART] Obteniendo datos históricos para ${dollarType} desde la base de datos...`);
+
+        // Calcular fechas según el período
         const endDate = new Date();
         const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 24);
 
-        const historicalData = await prisma.economicIndex.findMany({
-          where: {
-            indicator,
-            date: {
-              gte: startDate,
-              lte: endDate
+        switch (period) {
+          case '7d':
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+          case '30d':
+            startDate.setDate(startDate.getDate() - 30);
+            break;
+          case '90d':
+            startDate.setDate(startDate.getDate() - 90);
+            break;
+          case '1y':
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+          default:
+            startDate.setDate(startDate.getDate() - 30);
+        }
+
+        // Obtener datos de compra y venta
+        const compraIndicator = `dolar${dollarType.charAt(0).toUpperCase() + dollarType.slice(1)}Compra`;
+        const ventaIndicator = `dolar${dollarType.charAt(0).toUpperCase() + dollarType.slice(1)}Venta`;
+
+        const [compraData, ventaData] = await Promise.all([
+          prisma.economicIndex.findMany({
+            where: {
+              indicator: compraIndicator,
+              date: {
+                gte: startDate,
+                lte: endDate
+              }
+            },
+            orderBy: { date: 'asc' }
+          }),
+          prisma.economicIndex.findMany({
+            where: {
+              indicator: ventaIndicator,
+              date: {
+                gte: startDate,
+                lte: endDate
+              }
+            },
+            orderBy: { date: 'asc' }
+          })
+        ]);
+
+        if (compraData.length > 0 || ventaData.length > 0) {
+          console.log(`[DOLAR CHART] ✅ Encontrados ${compraData.length} registros de compra y ${ventaData.length} de venta para ${dollarType}`);
+
+          // Crear un mapa de fechas para combinar compra y venta
+          const dataMap = new Map();
+
+          // Agregar datos de compra
+          compraData.forEach(record => {
+            const dateKey = record.date.toISOString().split('T')[0];
+            if (!dataMap.has(dateKey)) {
+              dataMap.set(dateKey, { fecha: dateKey, compra: null, venta: null });
             }
-          },
-          orderBy: { date: 'asc' }
-        });
+            dataMap.get(dateKey).compra = record.value;
+          });
 
-        if (historicalData.length > 0) {
-          console.log(`[ECONOMIC CHART] ✅ Encontrados ${historicalData.length} registros históricos para ${indicator}`);
-          
-          // Convertir al formato esperado
-          const chartData = historicalData.map(record => ({
-            fecha: record.date.toISOString().split('T')[0],
-            valor: record.value
-          }));
+          // Agregar datos de venta
+          ventaData.forEach(record => {
+            const dateKey = record.date.toISOString().split('T')[0];
+            if (!dataMap.has(dateKey)) {
+              dataMap.set(dateKey, { fecha: dateKey, compra: null, venta: null });
+            }
+            dataMap.get(dateKey).venta = record.value;
+          });
+
+          // Convertir el mapa a array ordenado por fecha
+          const chartData = Array.from(dataMap.values()).sort((a, b) => a.fecha.localeCompare(b.fecha));
 
           await prisma.$disconnect();
           return {
             data: chartData,
-            indicador: indicator,
-            periodo: `Últimos ${chartData.length} meses`,
+            indicador: `Dólar ${dollarType}`,
+            periodo: this.getPeriodDescription(period),
             dataSource: 'DATABASE'
           };
         }
 
         await prisma.$disconnect();
       } catch (dbError) {
-        console.error(`[ECONOMIC CHART] Error al consultar la base de datos para ${indicator}:`, dbError.message);
+        console.error(`[DOLAR CHART] Error al consultar la base de datos para ${dollarType}:`, dbError.message);
         await prisma.$disconnect();
       }
 
-      // Fallback a datos mock si no hay datos en DB
-      console.log(`[ECONOMIC CHART] 📊 Generando datos históricos mock para ${indicator}`);
-      
+      // Fallback: intentar obtener datos de la API si no hay en DB
+      console.log(`[DOLAR CHART] 📡 Intentando obtener datos de API para ${dollarType}`);
+      try {
+        const response = await axios.get(`https://dolarapi.com/v1/dolares/${dollarType}`, {
+          timeout: 3000,
+          headers: {
+            'User-Agent': 'RIALTOR/1.0'
+          }
+        });
+
+        if (response.data) {
+          // DolarAPI no proporciona históricos directos, así que devolver solo el valor actual
+          const chartData = [{
+            fecha: new Date().toISOString().split('T')[0],
+            compra: response.data.compra || 0,
+            venta: response.data.venta || 0
+          }];
+
+          return {
+            data: chartData,
+            indicador: `Dólar ${dollarType}`,
+            periodo: 'Valor actual (API)',
+            dataSource: 'API'
+          };
+        }
+      } catch (apiError) {
+        console.error(`[DOLAR CHART] Error obteniendo datos de API para ${dollarType}:`, apiError.message);
+      }
+
+      // Último fallback: datos mock
+      console.log(`[DOLAR CHART] 📊 Generando datos mock para ${dollarType}`);
       const mockData = [];
-      const baseValue = 1000 + Math.random() * 500; // Valor base aleatorio
-      let currentValue = baseValue;
-      
-      // Generar 24 meses de datos históricos
-      for (let i = 23; i >= 0; i--) {
+      const baseCompra = dollarType === 'oficial' ? 340 : dollarType === 'blue' ? 680 : 430;
+      const baseVenta = dollarType === 'oficial' ? 350 : dollarType === 'blue' ? 700 : 450;
+      let currentCompra = baseCompra;
+      let currentVenta = baseVenta;
+
+      const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 365;
+
+      for (let i = days - 1; i >= 0; i--) {
         const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        
-        // Simular variación mensual entre -2% y +4%
-        const variation = (Math.random() - 0.3) * 0.06; // -3% to +3%
-        currentValue = currentValue * (1 + variation);
-        
+        date.setDate(date.getDate() - i);
+
+        // Simular variación diaria pequeña
+        const variation = (Math.random() - 0.5) * 0.02; // -1% to +1%
+        currentCompra = currentCompra * (1 + variation);
+        currentVenta = currentVenta * (1 + variation);
+
         mockData.push({
           fecha: date.toISOString().split('T')[0],
-          valor: parseFloat(currentValue.toFixed(2))
+          compra: parseFloat(currentCompra.toFixed(2)),
+          venta: parseFloat(currentVenta.toFixed(2))
         });
       }
 
       return {
         data: mockData,
-        indicador: indicator,
-        periodo: 'Últimos 24 meses (datos simulados)',
+        indicador: `Dólar ${dollarType}`,
+        periodo: `${this.getPeriodDescription(period)} (datos simulados)`,
         dataSource: 'MOCK_DATA'
       };
 
     } catch (error) {
-      console.error(`Error generating chart data for ${indicator}:`, error.message);
-      
-      // Devolver datos mínimos
+      console.error(`Error generating chart data for ${dollarType}:`, error.message);
+
       return {
         data: [],
-        indicador: indicator,
+        indicador: `Dólar ${dollarType}`,
         periodo: 'Datos no disponibles',
         dataSource: 'ERROR',
-        error: `No se pudieron obtener los datos históricos para ${indicator}`
+        error: `No se pudieron obtener los datos históricos para ${dollarType}`
       };
     }
+  }
+
+  /**
+   * Obtiene descripción del período
+   */
+  getPeriodDescription(period) {
+    const descriptions = {
+      '7d': 'Últimos 7 días',
+      '30d': 'Últimos 30 días',
+      '90d': 'Últimos 90 días',
+      '1y': 'Último año'
+    };
+    return descriptions[period] || 'Período personalizado';
   }
 }
 

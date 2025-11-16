@@ -100,6 +100,9 @@ export default function IndicadoresPage() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [economicIndexes, setEconomicIndexes] = useState<EconomicIndexesData | null>(null)
   const [economicCharts, setEconomicCharts] = useState<Record<string, EconomicIndexChartData>>({})
+  const [dollarCharts, setDollarCharts] = useState<Record<string, EconomicIndexChartData>>({})
+  const [selectedDollarChart, setSelectedDollarChart] = useState<string | null>(null)
+  const [selectedDollarPeriod, setSelectedDollarPeriod] = useState<string>('30d')
 
   const fetchIndicators = async () => {
     try {
@@ -162,6 +165,35 @@ export default function IndicadoresPage() {
       }
     } catch (err) {
       console.error(`Error fetching chart for ${indicator}:`, err)
+    }
+  }
+
+  const fetchDollarChart = async (dollarType: string, period: string = '30d') => {
+    try {
+      const response = await fetch(`/api/indicators/dollar/${dollarType}/chart?period=${period}`)
+      
+      if (!response.ok) {
+        throw new Error(`Error al obtener el gráfico del dólar ${dollarType}`)
+      }
+
+      const result = await response.json()
+      
+      if (result.success && result.data) {
+        setDollarCharts(prev => ({
+          ...prev,
+          [dollarType]: result.data
+        }))
+        setSelectedDollarChart(dollarType)
+        setSelectedDollarPeriod(period)
+      }
+    } catch (err) {
+      console.error(`Error fetching chart for ${dollarType}:`, err)
+    }
+  }
+
+  const changeDollarPeriod = async (period: string) => {
+    if (selectedDollarChart) {
+      await fetchDollarChart(selectedDollarChart, period)
     }
   }
 
@@ -285,7 +317,10 @@ export default function IndicadoresPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Dólar Oficial */}
-            <div className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg">
+            <div 
+              className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+              onClick={() => fetchDollarChart('oficial')}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Dólar Oficial</h3>
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.oficial.variacion)}`}>
@@ -308,7 +343,10 @@ export default function IndicadoresPage() {
             </div>
 
             {/* Dólar Blue */}
-            <div className="bg-card border-2 border-primary/50 rounded-2xl p-6 hover:border-primary transition-all hover:shadow-lg">
+            <div 
+              className="bg-card border-2 border-primary/50 rounded-2xl p-6 hover:border-primary transition-all hover:shadow-lg cursor-pointer"
+              onClick={() => fetchDollarChart('blue')}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Dólar Blue</h3>
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.blue.variacion)}`}>
@@ -331,7 +369,10 @@ export default function IndicadoresPage() {
             </div>
 
             {/* Dólar Tarjeta */}
-            <div className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg">
+            <div 
+              className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+              onClick={() => fetchDollarChart('tarjeta')}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Dólar Tarjeta</h3>
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.tarjeta.variacion)}`}>
@@ -354,6 +395,114 @@ export default function IndicadoresPage() {
             </div>
           </div>
         </section>
+
+        {/* Gráficos del Dólar */}
+        {selectedDollarChart && dollarCharts[selectedDollarChart] && (
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                </div>
+                <h2 className="text-2xl font-bold">
+                  Histórico del Dólar {selectedDollarChart === 'oficial' ? 'Oficial' : selectedDollarChart === 'blue' ? 'Blue' : 'Tarjeta'}
+                </h2>
+              </div>
+              
+              {/* Selector de período */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Período:</span>
+                <div className="flex gap-1">
+                  {[
+                    { key: '7d', label: '7 días' },
+                    { key: '30d', label: '30 días' },
+                    { key: '90d', label: '90 días' },
+                    { key: '1y', label: '1 año' }
+                  ].map((period) => (
+                    <button
+                      key={period.key}
+                      onClick={() => changeDollarPeriod(period.key)}
+                      className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+                        selectedDollarPeriod === period.key
+                          ? 'bg-primary text-primary-foreground font-medium'
+                          : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                      }`}
+                    >
+                      {period.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={dollarCharts[selectedDollarChart].data}>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                    <XAxis 
+                      dataKey="fecha" 
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        ...(selectedDollarPeriod === '1y' && { year: '2-digit' })
+                      })}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      domain={['dataMin - 1', 'dataMax + 1']}
+                      tickFormatter={(value) => `$${formatCurrency(value)}`}
+                    />
+                    <Tooltip 
+                      labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                      formatter={(value: number, name: string) => [
+                        `$${formatCurrency(value)}`, 
+                        name === 'compra' ? 'Compra' : 'Venta'
+                      ]}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="compra" 
+                      stroke="#10b981" 
+                      strokeWidth={2}
+                      name="compra"
+                      dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5, stroke: '#10b981', strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="venta" 
+                      stroke="#ef4444" 
+                      strokeWidth={2}
+                      name="venta"
+                      dot={{ fill: '#ef4444', strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5, stroke: '#ef4444', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex items-center justify-center gap-6 mt-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="text-sm text-muted-foreground">Compra</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="text-sm text-muted-foreground">Venta</span>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground mt-2 text-center">
+                Período: {dollarCharts[selectedDollarChart].periodo}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Precio por m2 */}
         <section>
@@ -624,29 +773,6 @@ export default function IndicadoresPage() {
                 </div>
               </div>
 
-              {/* ICC */}
-              <div 
-                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
-                onClick={() => fetchEconomicIndexChart('icc')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">ICC (Construcción)</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.icc?.variacion || 0)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.icc?.variacion || 0)}`}>
-                      {getVariationIcon(economicIndexes.icc?.variacion || 0)}
-                      {formatCurrency(Math.abs(economicIndexes.icc?.variacion || 0), 2)}%
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.icc?.valor || 0, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.icc?.descripcion || 'Cargando...'}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Actualizado: {economicIndexes.icc?.fecha ? new Date(economicIndexes.icc.fecha).toLocaleDateString("es-AR") : 'N/A'}
-                  </div>
-                </div>
-              </div>
-
               {/* IS */}
               <div 
                 className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
@@ -691,7 +817,6 @@ export default function IndicadoresPage() {
                      indicator === 'cacGeneral' ? 'CAC General' :
                      indicator === 'cacMateriales' ? 'CAC Materiales' :
                      indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
-                     indicator === 'icc' ? 'ICC (Construcción)' :
                      'IS (Salarios)'}
                   </h3>
                   <div className="h-64">
@@ -744,7 +869,7 @@ export default function IndicadoresPage() {
                 Los datos inmobiliarios son estimaciones basadas en Zonaprop, Properati y el Colegio de Escribanos.
               </p>
               <p>
-                Los índices económicos (IPC, CAC, ICC, IS) se gestionan desde el panel de administración 
+                Los índices económicos (IPC, CAC, IS) se gestionan desde el panel de administración 
                 y representan indicadores clave de la economía argentina.
                 {economicIndexes?.dataSource && (
                   <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${

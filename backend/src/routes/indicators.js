@@ -41,6 +41,13 @@ router.get('/economic-indexes', indicatorsController.getEconomicIndexes);
 router.get('/economic-indexes/:indicator/chart', indicatorsController.getEconomicIndexChart);
 
 /**
+ * @route   GET /api/indicators/dollar/:dollarType/chart
+ * @desc    Obtiene datos históricos de cotizaciones del dólar para gráficos
+ * @access  Public
+ */
+router.get('/dollar/:dollarType/chart', indicatorsController.getDollarChart);
+
+/**
  * @route   POST /api/indicators/clear-cache
  * @desc    Limpia el cache de indicadores
  * @access  Public (temporalmente sin autenticación)

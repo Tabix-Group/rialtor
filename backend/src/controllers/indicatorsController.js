@@ -198,25 +198,36 @@ exports.getEconomicIndexes = async (req, res, next) => {
 };
 
 /**
- * Obtiene datos de gráfico para un índice económico específico
+ * Obtiene datos de gráfico para cotizaciones del dólar
  */
-exports.getEconomicIndexChart = async (req, res, next) => {
+exports.getDollarChart = async (req, res, next) => {
   try {
-    const { indicator } = req.params;
-    const data = await economicIndicatorsService.getEconomicIndexChart(indicator);
+    const { dollarType } = req.params;
+    const { period = '30d' } = req.query;
+
+    // Validar tipo de dólar
+    const validTypes = ['oficial', 'blue', 'tarjeta'];
+    if (!validTypes.includes(dollarType)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Tipo de dólar inválido. Use: oficial, blue, o tarjeta'
+      });
+    }
+
+    const data = await economicIndicatorsService.getDollarChart(dollarType, period);
 
     res.json({
       success: true,
       data
     });
   } catch (error) {
-    console.error('Error in getEconomicIndexChart controller:', error.message);
+    console.error('Error in getDollarChart controller:', error.message);
     res.status(200).json({
       success: false,
       error: 'No se pudieron obtener los datos del gráfico',
       data: {
         data: [],
-        indicador: req.params.indicator,
+        indicador: `Dólar ${req.params.dollarType}`,
         periodo: 'Error al cargar datos',
         dataSource: 'ERROR'
       }

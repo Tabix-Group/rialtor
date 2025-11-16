@@ -1,11 +1,25 @@
 const cron = require('node-cron');
 const { syncAllRSSSources, cleanOldNews } = require('./rssService');
+const economicIndicatorsService = require('./economicIndicatorsService');
 
 /**
  * Configura y arranca todas las tareas programadas
  */
 const startCronJobs = () => {
     console.log('[Cron] Iniciando tareas programadas...');
+
+    // Actualizar cotizaciones del dólar cada hora
+    cron.schedule('0 * * * *', async () => {
+        console.log('[Cron] Ejecutando actualización de cotizaciones del dólar...');
+        try {
+            await economicIndicatorsService.updateDollarRatesFromAPI();
+            console.log('[Cron] Actualización de cotizaciones completada exitosamente');
+        } catch (error) {
+            console.error('[Cron] Error en actualización automática de cotizaciones:', error);
+        }
+    }, {
+        timezone: "America/Argentina/Buenos_Aires"
+    });
 
     // Sincronizar noticias de todas las fuentes una vez al día a las 8:00 AM (hora Argentina UTC-3)
     // Nota: Node-cron usa la zona horaria del servidor. Si el servidor está en UTC, esto será 11:00 UTC = 8:00 AM Argentina
@@ -47,7 +61,19 @@ const startCronJobs = () => {
         }
     }, 10000); // Esperar 10 segundos después del inicio
 
+    // Ejecutar actualización inicial de cotizaciones del dólar
+    setTimeout(async () => {
+        console.log('[Cron] Ejecutando actualización inicial de cotizaciones del dólar...');
+        try {
+            await economicIndicatorsService.updateDollarRatesFromAPI();
+            console.log('[Cron] Actualización inicial de cotizaciones completada');
+        } catch (error) {
+            console.error('[Cron] Error en actualización inicial de cotizaciones:', error);
+        }
+    }, 5000); // Esperar 5 segundos después del inicio
+
     console.log('[Cron] Tareas programadas configuradas exitosamente');
+    console.log('[Cron] - Actualización de cotizaciones del dólar: Cada hora');
     console.log('[Cron] - Sincronización RSS (todas las fuentes): Diariamente a las 8:00 AM (Argentina)');
     console.log('[Cron] - Limpieza de noticias: Diariamente a las 03:00 AM (Argentina)');
 };
