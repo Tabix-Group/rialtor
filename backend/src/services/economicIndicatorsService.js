@@ -936,6 +936,39 @@ class EconomicIndicatorsService {
           };
         }
 
+        // Si no hay datos en el período solicitado, buscar los datos más recientes disponibles
+        console.log(`[ECONOMIC INDEX CHART] No hay datos en el período ${period}, buscando datos históricos disponibles...`);
+        const allHistoricalData = await prisma.economicIndex.findMany({
+          where: {
+            indicator: indicator
+          },
+          orderBy: {
+            date: 'desc'
+          },
+          take: 90, // Últimos 90 registros más recientes
+          select: {
+            date: true,
+            value: true
+          }
+        });
+
+        if (allHistoricalData.length > 0) {
+          console.log(`[ECONOMIC INDEX CHART] ✅ Encontrados ${allHistoricalData.length} registros históricos para ${indicator}`);
+
+          // Formatear datos para el gráfico (ordenar por fecha ascendente)
+          const chartData = allHistoricalData.reverse().map(item => ({
+            fecha: item.date.toISOString().split('T')[0],
+            valor: parseFloat(item.value) || 0
+          }));
+
+          return {
+            data: chartData,
+            indicador: this.getIndicatorName(indicator),
+            periodo: `Datos históricos disponibles (${allHistoricalData.length} registros)`,
+            dataSource: 'DATABASE_HISTORICAL'
+          };
+        }
+
       } catch (dbError) {
         console.error(`[ECONOMIC INDEX CHART] Error al consultar la base de datos para ${indicator}:`, dbError.message);
       } finally {
