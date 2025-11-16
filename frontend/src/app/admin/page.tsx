@@ -57,6 +57,7 @@ export default function AdminPage() {
   const [newIndexDescription, setNewIndexDescription] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [filterIndicator, setFilterIndicator] = useState('');
 
   // Verificar permisos solo en el cliente
   useEffect(() => {
@@ -171,7 +172,7 @@ export default function AdminPage() {
         const res = await authenticatedFetch('/api/admin/economic-indices');
         const data = await res.json();
         if (data && data.success) {
-          setEconomicIndices(data.data);
+          setEconomicIndices(data.data.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         }
       } catch (error) {
         console.error('Error fetching economic indices:', error);
@@ -296,7 +297,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setEconomicIndices(prev => [...prev, data.data]);
+        setEconomicIndices(prev => [...prev, data.data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         setNewIndicator('');
         setNewIndexValue('');
         setNewIndexDate('');
@@ -624,17 +625,32 @@ export default function AdminPage() {
   )
 
   const renderIndices = () => {
+    const filteredIndices = filterIndicator ? economicIndices.filter(idx => idx.indicator === filterIndicator) : economicIndices;
     // Pagination logic
-    const totalItems = economicIndices.length;
+    const totalItems = filteredIndices.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentItems = economicIndices.slice(startIndex, endIndex);
+    const currentItems = filteredIndices.slice(startIndex, endIndex);
 
     const goToPage = (page: number) => {
       if (page >= 1 && page <= totalPages) {
         setCurrentPage(page);
       }
+    };
+
+    // Get page numbers to display
+    const getPageNumbers = () => {
+      const pages = [];
+      const maxVisible = 5;
+      let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let end = Math.min(totalPages, start + maxVisible - 1);
+      start = Math.max(1, end - maxVisible + 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      return pages;
     };
 
     return (
@@ -651,7 +667,11 @@ export default function AdminPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Indicador *</label>
                 <select
                   value={newIndicator}
-                  onChange={(e) => setNewIndicator(e.target.value)}
+                  onChange={(e) => {
+                    setNewIndicator(e.target.value);
+                    setFilterIndicator(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccionar...</option>
@@ -707,8 +727,28 @@ export default function AdminPage() {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h4 className="text-md font-semibold text-gray-900">Índices Registrados</h4>
-              <div className="text-sm text-gray-500">
-                Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} registros
+              <div className="flex items-center gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar por Indicador</label>
+                  <select
+                    value={filterIndicator}
+                    onChange={(e) => {
+                      setFilterIndicator(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Todos</option>
+                    <option value="ipc">IPC (Inflación)</option>
+                    <option value="cacGeneral">CAC General</option>
+                    <option value="cacMateriales">CAC Materiales</option>
+                    <option value="cacManoObra">CAC Mano de Obra</option>
+                    <option value="is">IS (Salarios)</option>
+                  </select>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} registros
+                </div>
               </div>
             </div>
             {indicesLoading ? (
@@ -786,7 +826,7 @@ export default function AdminPage() {
                       </button>
                       
                       <div className="flex gap-1">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        {getPageNumbers().map((page) => (
                           <button
                             key={page}
                             onClick={() => goToPage(page)}
