@@ -29,7 +29,7 @@ RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 # Exponer puerto
-EXPOSE 3001
+EXPOSE 3003
 
 # Comando por defecto
 CMD ["npm", "start"]
