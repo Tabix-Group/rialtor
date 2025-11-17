@@ -120,27 +120,33 @@ export default function NewsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Newspaper Header */}
-            <div className="bg-white border-b-2 sm:border-b-4 border-black">
-                <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
-                    <div className="text-center">
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-2 sm:mb-4">
-                            <Newspaper className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-black" />
-                            <div>
-                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-black uppercase tracking-wide lg:tracking-wider">Rialtor News</h1>
-                                <p className="text-sm sm:text-base lg:text-lg text-gray-600 font-medium">
-                                    Mercado Inmobiliario • {new Date().toLocaleDateString('es-ES', {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    })}
-                                </p>
-                            </div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
+            {/* Header */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
+
+                <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+                    <div className="flex-1 w-full">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
+                            <Newspaper className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
+                            <span className="text-xs sm:text-sm font-semibold text-white">Centro de Noticias</span>
                         </div>
-                        <p className="text-base sm:text-lg lg:text-xl text-gray-700 max-w-4xl mx-auto font-serif italic leading-relaxed px-2">
-                            "Las últimas tendencias, análisis y noticias del sector inmobiliario"
+
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
+                            Mis <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Noticias</span>
+                        </h1>
+
+                        <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-2 sm:mb-3 max-w-2xl leading-relaxed">
+                            Las últimas tendencias, análisis y noticias del sector inmobiliario argentino.
+                        </p>
+
+                        <p className="text-xs sm:text-sm text-slate-400">
+                            {new Date().toLocaleDateString('es-ES', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}
                         </p>
                     </div>
                 </div>
