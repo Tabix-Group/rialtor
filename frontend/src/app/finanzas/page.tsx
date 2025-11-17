@@ -73,7 +73,8 @@ export default function FinanzasPage() {
     startDate: '',
     endDate: '',
     currency: '',
-    type: ''
+    type: '',
+    concept: ''
   })
 
   useEffect(() => {
@@ -198,6 +199,7 @@ export default function FinanzasPage() {
 
   const filteredTransactions = transactions.filter(t => {
     if (filters.type && t.type !== filters.type) return false
+    if (filters.concept && t.concept !== filters.concept) return false
     return true
   })
 
@@ -327,10 +329,38 @@ export default function FinanzasPage() {
                   <option value="ingreso">Ingresos</option>
                   <option value="egreso">Egresos</option>
                 </select>
+
+                <select
+                  value={filters.concept}
+                  onChange={(e) => setFilters(prev => ({ ...prev, concept: e.target.value }))}
+                  className="px-3 sm:px-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                >
+                  <option value="">Todos los conceptos</option>
+                  {filters.type === 'ingreso' && ingresosConcepts.map((concept) => (
+                    <option key={concept} value={concept}>{concept}</option>
+                  ))}
+                  {filters.type === 'egreso' && egresosConcepts.map((concept) => (
+                    <option key={concept} value={concept}>{concept}</option>
+                  ))}
+                  {!filters.type && (
+                    <>
+                      <optgroup label="Ingresos">
+                        {ingresosConcepts.map((concept) => (
+                          <option key={`ing-${concept}`} value={concept}>{concept}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Egresos">
+                        {egresosConcepts.map((concept) => (
+                          <option key={`egr-${concept}`} value={concept}>{concept}</option>
+                        ))}
+                      </optgroup>
+                    </>
+                  )}
+                </select>
               </div>
 
               <button
-                onClick={() => setFilters({ startDate: '', endDate: '', currency: '', type: '' })}
+                onClick={() => setFilters({ startDate: '', endDate: '', currency: '', type: '', concept: '' })}
                 className="px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-900 transition-colors text-sm font-medium whitespace-nowrap"
               >
                 Limpiar filtros
