@@ -34,6 +34,30 @@ export default function FinanzasPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<FinanceTransaction | null>(null)
 
+  // Conceptos predeterminados
+  const ingresosConcepts = [
+    'Comisiones Inmobiliarias x Venta',
+    'Comisiones Inmobiliarias x Alquiler',
+    'Comisiones por Seguro de Caucion',
+    'Comisiones Escribanos',
+    'Ingresos por Tasaciones',
+    'Otros'
+  ]
+
+  const egresosConcepts = [
+    'Gastos de Publicacion',
+    'Gastos de Redes Sociales',
+    'Gastos Membresia Oficina',
+    'Gastos Fee Oficina',
+    'Gastos Capacitaciones',
+    'Gastos App inmobiliarias',
+    'Gastos Tarjetas y Carteleria',
+    'Gastos por Regalos Clientes',
+    'Gastos de Traslado',
+    'Gastos MKT y Eventos',
+    'Otros'
+  ]
+
   // Form state
   const [formData, setFormData] = useState({
     type: 'ingreso' as 'ingreso' | 'egreso',
@@ -149,6 +173,14 @@ export default function FinanzasPage() {
       currency: 'ARS',
       date: new Date().toISOString().split('T')[0]
     })
+  }
+
+  const handleTypeChange = (newType: 'ingreso' | 'egreso') => {
+    setFormData(prev => ({
+      ...prev,
+      type: newType,
+      concept: '' // Limpiar el concepto cuando cambia el tipo
+    }))
   }
 
   const startEdit = (transaction: FinanceTransaction) => {
@@ -338,7 +370,7 @@ export default function FinanzasPage() {
                           name="type"
                           value="ingreso"
                           checked={formData.type === 'ingreso'}
-                          onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'ingreso' | 'egreso' }))}
+                          onChange={(e) => handleTypeChange(e.target.value as 'ingreso' | 'egreso')}
                           className="text-green-600 focus:ring-green-500"
                         />
                         <span className="text-green-600 font-medium text-sm sm:text-base">Ingreso</span>
@@ -349,7 +381,7 @@ export default function FinanzasPage() {
                           name="type"
                           value="egreso"
                           checked={formData.type === 'egreso'}
-                          onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'ingreso' | 'egreso' }))}
+                          onChange={(e) => handleTypeChange(e.target.value as 'ingreso' | 'egreso')}
                           className="text-red-600 focus:ring-red-500"
                         />
                         <span className="text-red-600 font-medium text-sm sm:text-base">Egreso</span>
@@ -359,13 +391,17 @@ export default function FinanzasPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Concepto</label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.concept}
                       onChange={(e) => setFormData(prev => ({ ...prev, concept: e.target.value }))}
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                       required
-                    />
+                    >
+                      <option value="">Seleccionar concepto</option>
+                      {(formData.type === 'ingreso' ? ingresosConcepts : egresosConcepts).map((concept) => (
+                        <option key={concept} value={concept}>{concept}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
