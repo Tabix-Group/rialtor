@@ -174,48 +174,56 @@ export default function DownloadsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-6 py-8">
-                    <div className="flex items-center gap-4">
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItaDJWMzZoLTJ6bTAtNHYyaDJWMzBoLTJ6bTAtNHYyaDJWMjZoLTJ6bTAtNHYyaDJWMjJoLTJ6bTAtNHYyaDJWMThoLTJ6bTAtNHYyaDJWMTRoLTJ6bTAtNHYyaDJWMTBoLTJ6bTAtNHYyaDJWNmgtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
+
+                <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+                    <div className="flex items-start gap-6">
                         {currentFolder && (
                             <button
                                 onClick={goBack}
-                                className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                className="p-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl hover:bg-white/20 transition-all flex-shrink-0 mt-2"
                             >
-                                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                                <ArrowLeft className="w-5 h-5 text-white" />
                             </button>
                         )}
-                        <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <Download className="w-8 h-8 text-blue-600" />
-                                <h1 className="text-3xl font-bold text-gray-900">Descargas</h1>
+                        <div className="flex-1">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
+                                <Folder className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400" />
+                                <span className="text-xs sm:text-sm font-semibold text-white">Centro de Archivos</span>
                             </div>
-                            <p className="text-gray-600 text-lg mt-2">
+
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
+                                Mis <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Descargas</span>
+                            </h1>
+
+                            <p className="text-base sm:text-lg lg:text-xl text-slate-300 leading-relaxed">
                                 {currentFolder
                                     ? `Archivos en ${breadcrumb.join(' / ')}`
-                                    : 'Explora y descarga archivos de contenido'
-                                }
+                                    : 'Explora y descarga archivos de contenido. Todo tu material organizado en un solo lugar.'}
                             </p>
+
+                            {/* Breadcrumb */}
+                            {breadcrumb.length > 0 && (
+                                <div className="mt-6 flex items-center gap-2 text-slate-300">
+                                    <Folder className="w-4 h-4" />
+                                    {breadcrumb.map((item, index) => (
+                                        <span key={index} className="flex items-center gap-2">
+                                            {index > 0 && <span className="text-slate-500">/</span>}
+                                            <span className="font-medium">{item}</span>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
-
-                    {/* Breadcrumb */}
-                    {breadcrumb.length > 0 && (
-                        <div className="mt-4 flex items-center gap-2 text-gray-500">
-                            <span>📁</span>
-                            {breadcrumb.map((item, index) => (
-                                <span key={index} className="flex items-center gap-2">
-                                    {index > 0 && <span>/</span>}
-                                    <span className="font-medium">{item}</span>
-                                </span>
-                            ))}
-                        </div>
-                    )}
                 </div>
             </div>
 
+            
             <div className="max-w-7xl mx-auto px-4 py-12">
                 {/* Barra de búsqueda */}
                 {currentFolder && (

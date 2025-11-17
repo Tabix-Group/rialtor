@@ -278,33 +278,51 @@ export default function IndicadoresPage() {
   if (!data) return null
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Indicadores de Mercado</h1>
-            <p className="text-muted-foreground">
-              Datos en tiempo real del mercado inmobiliario argentino
-            </p>
-            {lastUpdate && (
-              <p className="text-sm text-muted-foreground mt-2">
-                Última actualización: {lastUpdate.toLocaleString("es-AR")}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItaDJWMzZoLTJ6bTAtNHYyaDJWMzBoLTJ6bTAtNHYyaDJWMjZoLTJ6bTAtNHYyaDJWMjJoLTJ6bTAtNHYyaDJWMThoLTJ6bTAtNHYyaDJWMTRoLTJ6bTAtNHYyaDJWMTBoLTJ6bTAtNHYyaDJWNmgtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
+
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8">
+            <div className="flex-1 w-full lg:w-auto">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
+                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
+                <span className="text-xs sm:text-sm font-semibold text-white">Centro de Análisis</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
+                Mis <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Indicadores</span>
+              </h1>
+
+              <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
+                Datos en tiempo real del mercado inmobiliario argentino. Cotizaciones, índices económicos y tendencias actualizadas.
               </p>
-            )}
+
+              {lastUpdate && (
+                <p className="text-xs sm:text-sm text-slate-400 mb-4">
+                  Última actualización: {lastUpdate.toLocaleString("es-AR")}
+                </p>
+              )}
+
+              <button
+                onClick={() => {
+                  fetchIndicators()
+                  fetchEconomicIndexes()
+                }}
+                disabled={loading}
+                className="group inline-flex items-center gap-2 sm:gap-3 bg-white text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:-translate-y-1 font-semibold text-sm sm:text-base disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 ${loading ? "animate-spin" : "group-hover:rotate-90"} transition-transform duration-300`} />
+                Actualizar Datos
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => {
-              fetchIndicators()
-              fetchEconomicIndexes()
-            }}
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-foreground text-background font-medium rounded-full hover:bg-foreground/90 transition-all disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            Actualizar
-          </button>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* Cotizaciones del Dólar */}
         <section>
@@ -879,6 +897,7 @@ export default function IndicadoresPage() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
