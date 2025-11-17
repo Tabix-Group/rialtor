@@ -252,28 +252,28 @@ export default function FinanzasPage() {
 
             {/* Balance Cards */}
             <div className="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
-                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border border-white/20 shadow-2xl">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-slate-300">Saldo ARS</p>
-                    <p className="text-lg sm:text-2xl font-bold text-white">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-slate-300 mb-1">Saldo ARS</p>
+                    <p className="text-base sm:text-xl lg:text-2xl font-bold text-white truncate">
                       ${balance.ARS.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl">
-                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border border-white/20 shadow-2xl">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-slate-300">Saldo USD</p>
-                    <p className="text-lg sm:text-2xl font-bold text-white">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-slate-300 mb-1">Saldo USD</p>
+                    <p className="text-base sm:text-xl lg:text-2xl font-bold text-white truncate">
                       ${balance.USD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -284,36 +284,36 @@ export default function FinanzasPage() {
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-6 lg:px-8 py-12">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Filters */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200/60 p-4 sm:p-6 mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        <div className="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-xl border border-slate-200/60 p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6 lg:mb-8">
+          <div className="flex flex-col gap-3 sm:gap-4">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
               <span className="font-semibold text-slate-900 text-sm sm:text-base">Filtros</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 flex-1 w-full sm:w-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3 flex-1">
+            <div className="flex flex-col gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
                 <input
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
-                  className="px-3 sm:px-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
                   placeholder="Fecha inicio"
                 />
                 <input
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
-                  className="px-3 sm:px-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
                   placeholder="Fecha fin"
                 />
 
                 <select
                   value={filters.currency}
                   onChange={(e) => setFilters(prev => ({ ...prev, currency: e.target.value }))}
-                  className="px-3 sm:px-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
                 >
                   <option value="">Todas las monedas</option>
                   <option value="ARS">ARS</option>
@@ -323,7 +323,7 @@ export default function FinanzasPage() {
                 <select
                   value={filters.type}
                   onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                  className="px-3 sm:px-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
                 >
                   <option value="">Todos los tipos</option>
                   <option value="ingreso">Ingresos</option>
@@ -333,7 +333,7 @@ export default function FinanzasPage() {
                 <select
                   value={filters.concept}
                   onChange={(e) => setFilters(prev => ({ ...prev, concept: e.target.value }))}
-                  className="px-3 sm:px-4 py-2.5 sm:py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all sm:col-span-2 lg:col-span-1"
                 >
                   <option value="">Todos los conceptos</option>
                   {filters.type === 'ingreso' && ingresosConcepts.map((concept) => (
@@ -361,7 +361,7 @@ export default function FinanzasPage() {
 
               <button
                 onClick={() => setFilters({ startDate: '', endDate: '', currency: '', type: '', concept: '' })}
-                className="px-4 py-2.5 sm:py-2 text-slate-600 hover:text-slate-900 transition-colors text-sm font-medium whitespace-nowrap"
+                className="w-full sm:w-auto px-4 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all text-sm font-medium border border-slate-200"
               >
                 Limpiar filtros
               </button>
@@ -507,32 +507,32 @@ export default function FinanzasPage() {
         )}
 
         {/* Transactions List */}
-        <div className="bg-white rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
-          <div className="p-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">Transacciones</h2>
+        <div className="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6">Transacciones</h2>
 
             {loadingData ? (
-              <div className="flex flex-col items-center justify-center py-20">
+              <div className="flex flex-col items-center justify-center py-12 sm:py-16 lg:py-20">
                 <div className="relative">
-                  <div className="w-16 h-16 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
-                  <div className="absolute inset-0 w-16 h-16 border-4 border-slate-100 border-t-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+                  <div className="absolute inset-0 w-12 h-12 sm:w-16 sm:h-16 border-4 border-slate-100 border-t-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
                 </div>
-                <p className="mt-6 text-slate-600 font-semibold">Cargando transacciones...</p>
+                <p className="mt-4 sm:mt-6 text-sm sm:text-base text-slate-600 font-semibold">Cargando transacciones...</p>
               </div>
             ) : filteredTransactions.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="w-32 h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl flex items-center justify-center mx-auto shadow-xl mb-8">
-                  <DollarSign className="w-16 h-16 text-slate-400" />
+              <div className="text-center py-12 sm:py-16 lg:py-20 px-4">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto shadow-xl mb-6 sm:mb-8">
+                  <DollarSign className="w-12 h-12 sm:w-16 sm:h-16 text-slate-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-3">No hay transacciones</h3>
-                <p className="text-slate-600 mb-8 max-w-lg mx-auto leading-relaxed">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 sm:mb-3">No hay transacciones</h3>
+                <p className="text-sm sm:text-base text-slate-600 mb-6 sm:mb-8 max-w-lg mx-auto leading-relaxed">
                   Comienza registrando tus primeros ingresos y egresos para mantener un control financiero personal.
                 </p>
                 <button
                   onClick={() => setShowForm(true)}
-                  className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold"
+                  className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:-translate-y-1 font-semibold text-sm sm:text-base"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                   Agregar Primera Transacción
                 </button>
               </div>
