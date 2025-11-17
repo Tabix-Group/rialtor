@@ -897,6 +897,5 @@ export default function IndicadoresPage() {
         </div>
       </div>
     </div>
-    </div>
   )
 }

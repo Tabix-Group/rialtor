@@ -1055,7 +1055,6 @@ export default function PlacasPage() {
         )}
       </div>
     </div>
-    </div>
   );
 }
 

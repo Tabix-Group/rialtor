@@ -102,6 +102,5 @@ export default function CalculadorasPage() {
         </div>
       </div>
     </div>
-    </div>
   )
 }
