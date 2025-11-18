@@ -373,7 +373,7 @@ export default function Home() {
                     }}
                     src="/images/l1.png"
                     alt="RIALTOR Logo"
-                    className="h-20 sm:h-28 lg:h-36 w-auto drop-shadow-2xl filter brightness-110 contrast-105"
+                    className="h-24 sm:h-32 lg:h-40 xl:h-48 w-auto"
                   />
                   {/* Glow effect */}
                   <motion.div

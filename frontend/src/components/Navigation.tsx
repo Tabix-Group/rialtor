@@ -184,7 +184,7 @@ function Navigation() {
             <img
               src="/images/l1.png"
               alt="RIALTOR Logo"
-              className="w-10 h-10 rounded-lg"
+              className="h-10 w-auto object-contain"
             />
             <span className="font-bold text-lg text-gray-900 lg:text-foreground">RIALTOR</span>
           </Link>
