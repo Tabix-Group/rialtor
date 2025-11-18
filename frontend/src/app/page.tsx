@@ -371,7 +371,7 @@ export default function Home() {
                       rotate: 0,
                       transition: { duration: 0.3 }
                     }}
-                    src="/images/log.png"
+                    src="/images/l.png"
                     alt="RIALTOR Logo"
                     className="h-20 sm:h-28 lg:h-36 w-auto drop-shadow-2xl filter brightness-110 contrast-105"
                   />
