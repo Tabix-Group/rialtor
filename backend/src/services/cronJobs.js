@@ -62,17 +62,9 @@ const startCronJobs = () => {
         timezone: "America/Argentina/Buenos_Aires"
     });
 
-    // Ejecutar sincronización inicial al iniciar el servidor (todas las fuentes)
-    setTimeout(async () => {
-        console.log('[Cron] Ejecutando sincronización inicial de todas las fuentes...');
-        try {
-            const result = await syncAllRSSSources(20);
-            console.log('[Cron] Sincronización inicial completada:', result.message);
-            console.log('[Cron] Fuentes sincronizadas:', `${result.stats.successfulSources}/${result.stats.totalSources}`);
-        } catch (error) {
-            console.error('[Cron] Error en sincronización inicial:', error);
-        }
-    }, 10000); // Esperar 10 segundos después del inicio
+    // Nota: Se elimina la sincronización inicial al arrancar para evitar ejecuciones
+    // inmediatas. Las noticias se sincronizan únicamente mediante el cron diario
+    // configurado más arriba (08:00 AM Argentina).
 
     // Ejecutar actualización inicial de cotizaciones del dólar
     setTimeout(async () => {
