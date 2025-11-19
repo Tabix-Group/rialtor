@@ -19,7 +19,7 @@ export const metadata: Metadata = {
       { url: '/images/favicon2.png', sizes: 'any' },
       { url: '/images/favicon-96x96.png', sizes: '96x96' }
     ],
-    shortcut: '/images/favicon.ico',
+    shortcut: '/images/favicon-96x96.png',
   },
   themeColor: '#059669',
   appleWebApp: {
