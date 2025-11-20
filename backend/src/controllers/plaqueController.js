@@ -792,12 +792,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     let priceBoxFill, priceTextColor, corredoresBoxFill, corredoresTextColor;
     
     if (isPremium) {
-      // Cambiar esquema a luxury por defecto para premium
+      // Esquema elegante y sofisticado para premium - azul marino con dorado/bronce
       selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.95)';
-      priceBoxFill = 'rgba(26, 26, 26, 0.92)'; // Fondo oscuro sólido
-      priceTextColor = '#FFD700'; // Texto dorado
-      corredoresBoxFill = 'rgba(0, 0, 0, 0.85)';
-      corredoresTextColor = '#FFD700';
+      priceBoxFill = 'rgba(15, 23, 42, 0.95)'; // Azul marino oscuro (slate-900)
+      priceTextColor = '#D4AF37'; // Dorado metálico elegante
+      corredoresBoxFill = 'rgba(30, 41, 59, 0.92)'; // Azul marino medio (slate-800)
+      corredoresTextColor = '#F5E6D3'; // Beige dorado claro
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;
       priceTextColor = selectedScheme.priceTextColor;
