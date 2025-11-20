@@ -160,51 +160,6 @@ export default function ChatPage() {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Quick Suggestions */}
-                    <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-200">
-                        <div className="flex flex-wrap gap-3">
-                            {[
-                                {
-                                    icon: <Calculator className="w-4 h-4" />,
-                                    text: 'Calcular honorarios',
-                                    action: 'Necesito calcular los honorarios para una venta de $100.000 USD con comisión del 4% en CABA',
-                                    color: 'from-blue-500 to-blue-600'
-                                },
-                                {
-                                    icon: <FileText className="w-4 h-4" />,
-                                    text: 'Gastos escrituración',
-                                    action: 'Quiero saber los gastos de escrituración para una propiedad de $150.000 USD en Buenos Aires',
-                                    color: 'from-purple-500 to-purple-600'
-                                },
-                                {
-                                    icon: <Home className="w-4 h-4" />,
-                                    text: 'Gastos inmobiliarios',
-                                    action: 'Necesito calcular todos los gastos de una operación inmobiliaria de $200.000 USD en CABA',
-                                    color: 'from-green-500 to-green-600'
-                                },
-                                {
-                                    icon: <Building className="w-4 h-4" />,
-                                    text: 'Créditos hipotecarios',
-                                    action: 'Quiero calcular las cuotas de un crédito hipotecario UVA por $150.000 USD a 20 años',
-                                    color: 'from-orange-500 to-orange-600'
-                                }
-                            ].map((suggestion, index) => (
-                                <motion.button
-                                    key={index}
-                                    whileHover={{ scale: 1.02, y: -1 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleQuickSuggestion(suggestion.action)}
-                                    className="flex items-center space-x-2 px-4 py-2 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-900 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
-                                >
-                                    <div className={`w-6 h-6 bg-gradient-to-r ${suggestion.color} rounded-lg flex items-center justify-center text-white`}>
-                                        {suggestion.icon}
-                                    </div>
-                                    <span className="text-sm font-medium">{suggestion.text}</span>
-                                </motion.button>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Input Area */}
                     <div className="p-6 bg-white border-t border-gray-200">
 

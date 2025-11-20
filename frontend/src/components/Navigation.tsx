@@ -27,6 +27,7 @@ import {
   DollarSign,
   Calendar,
   TrendingUp,
+  MessageCircle,
 } from "lucide-react"
 
 function Navigation() {
@@ -67,6 +68,12 @@ function Navigation() {
       name: "Mi Panel",
       href: user ? "/dashboard" : "/",
       icon: Home,
+    },
+    {
+      name: "Asistente IA",
+      href: "/chat",
+      icon: MessageCircle,
+      description: "Consultor inmobiliario con inteligencia artificial",
     },
     {
       name: "Indicadores",
