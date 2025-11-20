@@ -267,29 +267,6 @@ export default function FloatingAssistant() {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Quick suggestions */}
-                    <div className="px-4 py-2 bg-gray-50/50 border-t border-gray-100">
-                        <div className="flex flex-wrap gap-2">
-                            {[
-                                { icon: '🧮', text: 'Calcular honorarios', action: 'Necesito calcular los honorarios para una venta de $100.000 USD con comisión del 4% en CABA' },
-                                { icon: '📋', text: 'Gastos escrituración', action: 'Quiero saber los gastos de escrituración para una propiedad de $150.000 USD en Buenos Aires' },
-                                { icon: '🏠', text: 'Gastos inmobiliarios', action: 'Necesito calcular todos los gastos de una operación inmobiliaria de $200.000 USD en CABA' },
-                                { icon: '🏦', text: 'Créditos hipotecarios', action: 'Quiero calcular las cuotas de un crédito hipotecario UVA por $150.000 USD a 20 años' }
-                            ].map((suggestion, index) => (
-                                <motion.button
-                                    key={index}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => handleQuickSuggestion(suggestion.action)}
-                                    className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-200 text-gray-600 hover:text-blue-600 rounded-full transition-all duration-200"
-                                >
-                                    <span>{suggestion.icon}</span>
-                                    <span>{suggestion.text}</span>
-                                </motion.button>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Input area premium */}
                     <div className="p-4 border-t border-gray-100 bg-white">
 

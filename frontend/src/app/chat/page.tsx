@@ -60,33 +60,50 @@ export default function ChatPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
             {/* Header */}
-            <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10">
-                <div className="max-w-4xl mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                                <MessageCircle className="w-6 h-6 text-white" />
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
+
+                <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
+                                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
+                                <span className="text-xs sm:text-sm font-semibold text-white">Asistente IA</span>
                             </div>
-                            <div>
-                                <h1 className="text-2xl font-bold text-gray-900">RIALTOR Assistant</h1>
-                                <p className="text-gray-600 text-sm">Especialista inmobiliario con IA avanzada</p>
-                            </div>
+
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
+                                RIALTOR <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Assistant</span>
+                            </h1>
+
+                            <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-2 sm:mb-3 max-w-2xl leading-relaxed">
+                                Tu especialista inmobiliario con inteligencia artificial avanzada.
+                            </p>
+
+                            <p className="text-xs sm:text-sm text-slate-400">
+                                {new Date().toLocaleDateString('es-ES', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </p>
                         </div>
+
                         <button
                             onClick={clearChat}
-                            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-lg transition-colors border border-white/20"
                         >
                             <RefreshCw className="w-4 h-4" />
-                            <span className="text-sm">Nuevo chat</span>
+                            <span className="text-sm hidden sm:inline">Nuevo chat</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             {/* Main Chat Area */}
-            <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                     {/* Messages Container */}
                     <div className="h-[600px] overflow-y-auto p-6 space-y-6 bg-gradient-to-b from-gray-50/50 to-white">
