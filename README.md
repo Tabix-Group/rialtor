@@ -1,6 +1,8 @@
 
 # RIALTOR - Plataforma Inmobiliaria IA
 
+.....................
+
 Plataforma integral para RE/MAX Argentina: gestión de conocimiento, bot IA, calculadoras, sistema de documentos en la nube (Cloudinary) y panel administrativo avanzado.
 
 ## 🚀 Funcionalidades Actuales
