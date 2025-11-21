@@ -97,10 +97,12 @@ export default function PlacasPage() {
     agency: '',
     agentContact: ''
   });
-  const [modelType, setModelType] = useState<'standard' | 'premium'>('standard');
+  const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip'>('standard');
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
   const [agentImageFile, setAgentImageFile] = useState<File | null>(null);
+  const [interiorImageFile, setInteriorImageFile] = useState<File | null>(null);
+  const [exteriorImageFile, setExteriorImageFile] = useState<File | null>(null);
 
   // Proteger ruta
   useEffect(() => {
@@ -181,12 +183,42 @@ export default function PlacasPage() {
     setAgentImageFile(null);
   };
 
+  const handleInteriorImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setInteriorImageFile(file);
+    }
+  };
+
+  const handleExteriorImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setExteriorImageFile(file);
+    }
+  };
+
+  const removeInteriorImage = () => {
+    setInteriorImageFile(null);
+  };
+
+  const removeExteriorImage = () => {
+    setExteriorImageFile(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (selectedImages.length === 0) {
-      alert('Selecciona al menos una imagen');
-      return;
+    // Validaciones específicas según el modelo
+    if (modelType === 'vip') {
+      if (!interiorImageFile || !exteriorImageFile) {
+        alert('Para el modelo VIP debes seleccionar imagen interior y exterior');
+        return;
+      }
+    } else {
+      if (selectedImages.length === 0) {
+        alert('Selecciona al menos una imagen');
+        return;
+      }
     }
 
     if (!propertyData.precio || !propertyData.corredores) {
@@ -204,18 +236,32 @@ export default function PlacasPage() {
 
     try {
       const formData = new FormData();
-      formData.append('title', `Placa - ${propertyData.direccion}`);
+      formData.append('title', `Placa - ${propertyData.direccion || 'Nueva placa'}`);
       formData.append('description', propertyData.descripcion || '');
       formData.append('propertyData', JSON.stringify(propertyData));
       formData.append('modelType', modelType);
 
-      selectedImages.forEach(image => {
-        formData.append('images', image);
-      });
+      // Para modelo VIP, agregar imágenes específicas
+      if (modelType === 'vip') {
+        if (interiorImageFile) {
+          formData.append('interiorImage', interiorImageFile);
+        }
+        if (exteriorImageFile) {
+          formData.append('exteriorImage', exteriorImageFile);
+        }
+        if (agentImageFile) {
+          formData.append('agentImage', agentImageFile);
+        }
+      } else {
+        // Para modelos standard y premium, agregar imágenes normales
+        selectedImages.forEach(image => {
+          formData.append('images', image);
+        });
 
-      // Agregar imagen del agente si existe
-      if (agentImageFile) {
-        formData.append('agentImage', agentImageFile);
+        // Agregar imagen del agente si existe (para premium)
+        if (agentImageFile) {
+          formData.append('agentImage', agentImageFile);
+        }
       }
 
       const res = await authenticatedFetch('/api/placas', {
@@ -251,6 +297,8 @@ export default function PlacasPage() {
         });
         setModelType('standard');
         setAgentImageFile(null);
+        setInteriorImageFile(null);
+        setExteriorImageFile(null);
         fetchPlaques(currentPage);
         alert('Placa creada exitosamente. El procesamiento iniciarÃ¡ en breve.');
       } else {
@@ -529,7 +577,8 @@ export default function PlacasPage() {
                 <h2 className="text-2xl font-bold mb-6">Nueva Placa de Propiedad</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Subida de imágenes */}
+                  {/* Subida de imágenes (solo para standard y premium) */}
+                  {modelType !== 'vip' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Imágenes de la propiedad *
@@ -579,6 +628,7 @@ export default function PlacasPage() {
                       </div>
                     )}
                   </div>
+                  )}
 
                   {/* Selector de modelo */}
                   <div>
@@ -587,13 +637,146 @@ export default function PlacasPage() {
                     </label>
                     <select
                       value={modelType}
-                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium')}
+                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium' | 'vip')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="standard">Estándar</option>
                       <option value="premium">Premium (con zócalo del agente)</option>
+                      <option value="vip">VIP (con template personalizado)</option>
                     </select>
                   </div>
+
+                  {/* Sección de imágenes para modelo VIP */}
+                  {modelType === 'vip' && (
+                    <div className="space-y-4 border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
+                      <h3 className="text-lg font-semibold text-purple-900 flex items-center gap-2">
+                        <ImageIcon className="w-5 h-5" />
+                        Imágenes para Placa VIP
+                      </h3>
+                      <p className="text-sm text-purple-700">
+                        El modelo VIP requiere 3 imágenes específicas que se compondrán sobre el template personalizado
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Imagen Interior */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imagen Interior *
+                          </label>
+                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-3 text-center">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleInteriorImageSelect}
+                              className="hidden"
+                              id="interior-image-upload"
+                            />
+                            <label
+                              htmlFor="interior-image-upload"
+                              className="cursor-pointer flex flex-col items-center"
+                            >
+                              <Home className="w-8 h-8 text-purple-400 mb-2" />
+                              <span className="text-xs text-gray-600">Interior</span>
+                            </label>
+                          </div>
+                          {interiorImageFile && (
+                            <div className="mt-2 relative inline-block">
+                              <img
+                                src={URL.createObjectURL(interiorImageFile)}
+                                alt="Preview interior"
+                                className="w-full h-24 object-cover rounded-lg border-2 border-purple-300"
+                              />
+                              <button
+                                type="button"
+                                onClick={removeInteriorImage}
+                                className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1 hover:bg-purple-600"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Imagen Exterior */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imagen Exterior *
+                          </label>
+                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-3 text-center">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleExteriorImageSelect}
+                              className="hidden"
+                              id="exterior-image-upload"
+                            />
+                            <label
+                              htmlFor="exterior-image-upload"
+                              className="cursor-pointer flex flex-col items-center"
+                            >
+                              <ImageIcon className="w-8 h-8 text-purple-400 mb-2" />
+                              <span className="text-xs text-gray-600">Exterior</span>
+                            </label>
+                          </div>
+                          {exteriorImageFile && (
+                            <div className="mt-2 relative inline-block">
+                              <img
+                                src={URL.createObjectURL(exteriorImageFile)}
+                                alt="Preview exterior"
+                                className="w-full h-24 object-cover rounded-lg border-2 border-purple-300"
+                              />
+                              <button
+                                type="button"
+                                onClick={removeExteriorImage}
+                                className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1 hover:bg-purple-600"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Imagen Agente */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Imagen Agente
+                          </label>
+                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-3 text-center">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleAgentImageSelect}
+                              className="hidden"
+                              id="vip-agent-image-upload"
+                            />
+                            <label
+                              htmlFor="vip-agent-image-upload"
+                              className="cursor-pointer flex flex-col items-center"
+                            >
+                              <Upload className="w-8 h-8 text-purple-400 mb-2" />
+                              <span className="text-xs text-gray-600">Agente</span>
+                            </label>
+                          </div>
+                          {agentImageFile && (
+                            <div className="mt-2 relative inline-block">
+                              <img
+                                src={URL.createObjectURL(agentImageFile)}
+                                alt="Preview agente"
+                                className="w-full h-24 object-cover rounded-lg border-2 border-purple-300"
+                              />
+                              <button
+                                type="button"
+                                onClick={removeAgentImage}
+                                className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1 hover:bg-purple-600"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Datos de la propiedad */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

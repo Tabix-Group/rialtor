@@ -32,8 +32,10 @@ const upload = multer({
 
 // Configurar multer para múltiples campos de archivos
 const uploadFields = upload.fields([
-  { name: 'images', maxCount: 2 }, // Imágenes de la propiedad
-  { name: 'agentImage', maxCount: 1 } // Imagen del agente
+  { name: 'images', maxCount: 10 }, // Imágenes de la propiedad (standard/premium)
+  { name: 'agentImage', maxCount: 1 }, // Imagen del agente (premium/vip)
+  { name: 'interiorImage', maxCount: 1 }, // Imagen interior (vip)
+  { name: 'exteriorImage', maxCount: 1 } // Imagen exterior (vip)
 ]);
 
 /**
@@ -51,30 +53,43 @@ const createPropertyPlaque = async (req, res, next) => {
       title,
       description,
       propertyData,
-      modelType = 'standard' // Nuevo: tipo de modelo (standard o premium)
+      modelType = 'standard' // Tipos: standard, premium, vip
     } = req.body;
 
     console.log('[PLACAS] Usuario ID:', userId);
     console.log('[PLACAS] Title:', title);
     console.log('[PLACAS] Description:', description);
     console.log('[PLACAS] PropertyData raw:', propertyData);
+    console.log('[PLACAS] Model Type:', modelType);
 
-    // Validar que se hayan subido imágenes de propiedad
-    if (!req.files || !req.files.images || req.files.images.length === 0) {
-      console.error('[PLACAS] No se recibieron imágenes de propiedad');
-      return res.status(400).json({
-        error: 'Se requiere al menos una imagen',
-        message: 'Debe subir al menos una imagen de la propiedad'
-      });
-    }
+    // Validaciones específicas según el tipo de modelo
+    if (modelType === 'vip') {
+      // Para VIP: requerir imagen interior y exterior
+      if (!req.files || !req.files.interiorImage || !req.files.exteriorImage) {
+        console.error('[PLACAS VIP] Faltan imágenes requeridas');
+        return res.status(400).json({
+          error: 'Imágenes incompletas',
+          message: 'El modelo VIP requiere imagen interior y exterior'
+        });
+      }
+    } else {
+      // Para standard/premium: requerir imágenes de propiedad
+      if (!req.files || !req.files.images || req.files.images.length === 0) {
+        console.error('[PLACAS] No se recibieron imágenes de propiedad');
+        return res.status(400).json({
+          error: 'Se requiere al menos una imagen',
+          message: 'Debe subir al menos una imagen de la propiedad'
+        });
+      }
 
-    // Limitar número máximo de imágenes de propiedad a 2
-    if (req.files.images.length > 2) {
-      console.error('[PLACAS] Demasiadas imágenes de propiedad:', req.files.images.length);
-      return res.status(400).json({
-        error: 'Límite de imágenes excedido',
-        message: 'Solo se permiten hasta 2 imágenes por placa'
-      });
+      // Limitar número máximo de imágenes de propiedad a 10
+      if (req.files.images.length > 10) {
+        console.error('[PLACAS] Demasiadas imágenes de propiedad:', req.files.images.length);
+        return res.status(400).json({
+          error: 'Límite de imágenes excedido',
+          message: 'Solo se permiten hasta 10 imágenes por placa'
+        });
+      }
     }
 
     // Validar datos de la propiedad
@@ -143,7 +158,7 @@ const createPropertyPlaque = async (req, res, next) => {
     console.log('[PLACAS] Iniciando procesamiento asíncrono...');
 
     // Procesar imágenes de forma asíncrona
-    processImagesAndGeneratePlaques(plaque.id, req.files.images, propertyInfo, modelType)
+    processImagesAndGeneratePlaques(plaque.id, req.files, propertyInfo, modelType)
       .catch(error => {
         console.error('[PLACAS] Error en procesamiento asíncrono:', error);
         // Actualizar estado a error
@@ -179,11 +194,20 @@ const createPropertyPlaque = async (req, res, next) => {
 async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo, modelType = 'standard') {
   try {
     console.log('[PLACAS] Iniciando procesamiento de imágenes para placa:', plaqueId);
+    console.log('[PLACAS] Modelo:', modelType);
     console.log('[PLACAS] Datos de propiedad:', JSON.stringify(propertyInfo, null, 2));
 
+    // Procesamiento específico para modelo VIP
+    if (modelType === 'vip') {
+      return await processVIPPlaque(plaqueId, files, propertyInfo);
+    }
+
+    // Procesamiento para modelos standard y premium
     // 1. Subir imágenes originales a Cloudinary
     const originalImageUrls = [];
-    for (const file of files) {
+    const imageFiles = files.images || [];
+    
+    for (const file of imageFiles) {
       console.log('[PLACAS] Subiendo imagen a Cloudinary...');
       const result = await uploadImageToCloudinary(file.buffer, `placas/originales/${plaqueId}`);
       originalImageUrls.push(result.secure_url);
@@ -257,6 +281,90 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo, mo
       stack: error.stack,
       imageUrl: imageUrl
     });
+    throw error;
+  }
+}
+
+/**
+ * Procesar placa VIP con template personalizado
+ */
+async function processVIPPlaque(plaqueId, files, propertyInfo) {
+  try {
+    console.log('[PLACAS VIP] Iniciando procesamiento de placa VIP:', plaqueId);
+    
+    // Obtener los buffers de las imágenes
+    const interiorImage = files.interiorImage?.[0];
+    const exteriorImage = files.exteriorImage?.[0];
+    const agentImage = files.agentImage?.[0];
+    
+    if (!interiorImage || !exteriorImage) {
+      throw new Error('Faltan imágenes requeridas para modelo VIP');
+    }
+    
+    // 1. Subir imágenes originales a Cloudinary
+    console.log('[PLACAS VIP] Subiendo imágenes originales...');
+    const originalImageUrls = [];
+    
+    const interiorResult = await uploadImageToCloudinary(interiorImage.buffer, `placas/originales/${plaqueId}`);
+    originalImageUrls.push(interiorResult.secure_url);
+    
+    const exteriorResult = await uploadImageToCloudinary(exteriorImage.buffer, `placas/originales/${plaqueId}`);
+    originalImageUrls.push(exteriorResult.secure_url);
+    
+    if (agentImage) {
+      const agentResult = await uploadImageToCloudinary(agentImage.buffer, `placas/originales/${plaqueId}`);
+      originalImageUrls.push(agentResult.secure_url);
+    }
+    
+    console.log('[PLACAS VIP] Imágenes originales subidas:', originalImageUrls.length);
+    
+    // 2. Actualizar registro con URLs originales
+    await prisma.propertyPlaque.update({
+      where: { id: plaqueId },
+      data: {
+        originalImages: JSON.stringify(originalImageUrls),
+        status: 'GENERATING'
+      }
+    });
+    
+    console.log('[PLACAS VIP] Estado actualizado a GENERATING');
+    
+    // 3. Generar placa VIP usando el template
+    const templatePath = require('path').join(__dirname, '../../..', 'frontend', 'public', 'images', 'templateplaca.jpeg');
+    console.log('[PLACAS VIP] Template path:', templatePath);
+    
+    const vipPlaqueBuffer = await createVIPPlaqueOverlay(
+      templatePath,
+      propertyInfo,
+      interiorImage.buffer,
+      exteriorImage.buffer,
+      agentImage ? agentImage.buffer : null
+    );
+    
+    console.log('[PLACAS VIP] Placa VIP generada, tamaño:', vipPlaqueBuffer.length);
+    
+    // 4. Subir placa final a Cloudinary
+    console.log('[PLACAS VIP] Subiendo placa final a Cloudinary...');
+    const folder = 'placas/generadas';
+    const filename = `${Date.now()}_vip_placa`;
+    const result = await uploadBufferToCloudinary(vipPlaqueBuffer, folder, filename);
+    
+    console.log('[PLACAS VIP] Placa final subida a:', result.secure_url);
+    
+    // 5. Actualizar registro con placa generada
+    await prisma.propertyPlaque.update({
+      where: { id: plaqueId },
+      data: {
+        generatedImages: JSON.stringify([result.secure_url]),
+        status: 'COMPLETED'
+      }
+    });
+    
+    console.log('[PLACAS VIP] Procesamiento completado exitosamente');
+    return [result.secure_url];
+    
+  } catch (error) {
+    console.error('[PLACAS VIP] Error en procesamiento:', error);
     throw error;
   }
 }
@@ -1315,6 +1423,266 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     console.error('[PLACAS] createPlaqueSvgString error:', e);
     throw e;
   }
+}
+
+/**
+ * Crear placa VIP usando el template como base
+ * @param {string} templatePath - Ruta al template de fondo
+ * @param {object} propertyInfo - Datos de la propiedad
+ * @param {Buffer} interiorImageBuffer - Buffer de la imagen del interior
+ * @param {Buffer} exteriorImageBuffer - Buffer de la imagen del exterior  
+ * @param {Buffer} agentImageBuffer - Buffer de la imagen del agente (opcional)
+ * @returns {Promise<Buffer>} Buffer de la imagen final
+ */
+async function createVIPPlaqueOverlay(templatePath, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer) {
+  try {
+    console.log('[PLACAS VIP] Iniciando creación de placa VIP');
+    
+    // Cargar el template base
+    const templateBuffer = require('fs').readFileSync(templatePath);
+    let template = sharp(templateBuffer);
+    const templateMetadata = await template.metadata();
+    const { width, height } = templateMetadata;
+    
+    console.log('[PLACAS VIP] Template dimensions:', width, 'x', height);
+    
+    // Definir las áreas donde se colocarán las imágenes en el template (ajustar según diseño)
+    // Estas coordenadas son aproximadas y deben ajustarse según el diseño real del template
+    const interiorArea = {
+      x: Math.floor(width * 0.05),
+      y: Math.floor(height * 0.05),
+      width: Math.floor(width * 0.43),
+      height: Math.floor(height * 0.50)
+    };
+    
+    const exteriorArea = {
+      x: Math.floor(width * 0.52),
+      y: Math.floor(height * 0.05),
+      width: Math.floor(width * 0.43),
+      height: Math.floor(height * 0.50)
+    };
+    
+    const agentArea = {
+      x: Math.floor(width * 0.05),
+      y: Math.floor(height * 0.60),
+      width: Math.floor(width * 0.20),
+      height: Math.floor(height * 0.35)
+    };
+    
+    // Procesar imagen interior
+    const interiorProcessed = await sharp(interiorImageBuffer)
+      .resize(interiorArea.width, interiorArea.height, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .png()
+      .toBuffer();
+    
+    // Procesar imagen exterior
+    const exteriorProcessed = await sharp(exteriorImageBuffer)
+      .resize(exteriorArea.width, exteriorArea.height, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .png()
+      .toBuffer();
+    
+    // Crear array de composiciones
+    const composites = [
+      {
+        input: interiorProcessed,
+        top: interiorArea.y,
+        left: interiorArea.x
+      },
+      {
+        input: exteriorProcessed,
+        top: exteriorArea.y,
+        left: exteriorArea.x
+      }
+    ];
+    
+    // Procesar imagen del agente si existe (circular)
+    if (agentImageBuffer) {
+      const agentSize = Math.min(agentArea.width, agentArea.height);
+      const agentProcessed = await sharp(agentImageBuffer)
+        .resize(agentSize, agentSize, {
+          fit: 'cover',
+          position: 'center'
+        })
+        .composite([{
+          // Crear máscara circular
+          input: Buffer.from(
+            `<svg width="${agentSize}" height="${agentSize}">
+              <circle cx="${agentSize/2}" cy="${agentSize/2}" r="${agentSize/2}" fill="white"/>
+            </svg>`
+          ),
+          blend: 'dest-in'
+        }])
+        .png()
+        .toBuffer();
+      
+      composites.push({
+        input: agentProcessed,
+        top: agentArea.y + Math.floor((agentArea.height - agentSize) / 2),
+        left: agentArea.x + Math.floor((agentArea.width - agentSize) / 2)
+      });
+    }
+    
+    // Crear SVG con los textos de la propiedad
+    const textOverlay = createVIPTextOverlay(width, height, propertyInfo);
+    const textBuffer = Buffer.from(textOverlay, 'utf8');
+    composites.push({
+      input: textBuffer,
+      top: 0,
+      left: 0
+    });
+    
+    // Componer todas las capas sobre el template
+    const finalImage = await sharp(templateBuffer)
+      .composite(composites)
+      .png({ quality: 90, compressionLevel: 6 })
+      .toBuffer();
+    
+    console.log('[PLACAS VIP] Placa VIP creada exitosamente');
+    return finalImage;
+    
+  } catch (error) {
+    console.error('[PLACAS VIP] Error creando placa VIP:', error);
+    throw error;
+  }
+}
+
+/**
+ * Crear overlay de texto para la placa VIP
+ */
+function createVIPTextOverlay(width, height, propertyInfo) {
+  // Helper para escapar texto en SVG
+  const esc = (s) => String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  
+  // Extraer datos de la propiedad
+  const precio = esc(propertyInfo.precio || 'Consultar');
+  const moneda = esc(propertyInfo.moneda || 'USD');
+  const tipo = esc(propertyInfo.tipo || 'Propiedad');
+  const direccion = esc(propertyInfo.direccion || '');
+  const ambientes = propertyInfo.ambientes ? esc(propertyInfo.ambientes) : null;
+  const dormitorios = propertyInfo.dormitorios ? esc(propertyInfo.dormitorios) : null;
+  const banos = propertyInfo.banos ? esc(propertyInfo.banos) : null;
+  const cocheras = propertyInfo.cocheras ? esc(propertyInfo.cocheras) : null;
+  const m2_totales = propertyInfo.m2_totales ? esc(propertyInfo.m2_totales) : null;
+  const m2_cubiertos = propertyInfo.m2_cubiertos ? esc(propertyInfo.m2_cubiertos) : null;
+  const contacto = esc(propertyInfo.contacto || '');
+  const email = propertyInfo.email ? esc(propertyInfo.email) : null;
+  const corredores = esc(propertyInfo.corredores || '');
+  const agentName = esc(propertyInfo.agentName || 'Agente');
+  const agency = esc(propertyInfo.agency || '');
+  
+  // Tamaños de fuente adaptativos
+  const titleSize = Math.max(32, Math.floor(width / 25));
+  const priceSize = Math.max(48, Math.floor(width / 15));
+  const infoSize = Math.max(20, Math.floor(width / 40));
+  const contactSize = Math.max(18, Math.floor(width / 45));
+  
+  // Área de texto inferior (debajo de las imágenes del agente)
+  const textAreaY = Math.floor(height * 0.58);
+  const textAreaX = Math.floor(width * 0.28);
+  const textAreaWidth = Math.floor(width * 0.67);
+  
+  let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .vip-title { font-family: 'Arial', sans-serif; font-size: ${titleSize}px; font-weight: 700; fill: #1a202c; }
+      .vip-price { font-family: 'Arial Black', sans-serif; font-size: ${priceSize}px; font-weight: 900; fill: #2c5282; }
+      .vip-info { font-family: 'Arial', sans-serif; font-size: ${infoSize}px; font-weight: 600; fill: #2d3748; }
+      .vip-contact { font-family: 'Arial', sans-serif; font-size: ${contactSize}px; font-weight: 500; fill: #4a5568; }
+      .vip-agent { font-family: 'Arial', sans-serif; font-size: ${infoSize}px; font-weight: 700; fill: #1a202c; }
+    </style>
+  </defs>
+  
+  <!-- Precio destacado -->
+  <text x="${textAreaX}" y="${textAreaY}" class="vip-price">${moneda} ${precio}</text>
+  
+  <!-- Tipo de propiedad -->
+  <text x="${textAreaX}" y="${textAreaY + priceSize + 15}" class="vip-title">${tipo}</text>
+`;
+  
+  let currentY = textAreaY + priceSize + titleSize + 25;
+  const lineHeight = infoSize + 8;
+  
+  // Características de la propiedad
+  if (direccion) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">📍 ${direccion}</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  if (ambientes) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">🏠 ${ambientes} ambientes</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  if (dormitorios) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">🛏️ ${dormitorios} dormitorios</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  if (banos) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">🚿 ${banos} baños</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  if (cocheras) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">🚗 ${cocheras} cocheras</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  if (m2_totales) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">📐 ${m2_totales} m² totales</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  if (m2_cubiertos) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">📐 ${m2_cubiertos} m² cubiertos</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  // Contacto
+  currentY += 15;
+  if (contacto) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-contact">📞 ${contacto}</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  if (email) {
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-contact">✉️ ${email}</text>\n`;
+    currentY += lineHeight;
+  }
+  
+  // Corredores al final
+  if (corredores) {
+    currentY += 10;
+    svg += `  <text x="${textAreaX}" y="${currentY}" class="vip-info">${corredores}</text>\n`;
+  }
+  
+  // Información del agente (al lado de su foto)
+  const agentTextX = Math.floor(width * 0.05);
+  const agentTextY = Math.floor(height * 0.88);
+  
+  if (agentName) {
+    svg += `  <text x="${agentTextX}" y="${agentTextY}" class="vip-agent">${agentName}</text>\n`;
+  }
+  
+  if (agency) {
+    svg += `  <text x="${agentTextX}" y="${agentTextY + infoSize + 5}" class="vip-contact">${agency}</text>\n`;
+  }
+  
+  svg += `</svg>`;
+  
+  return svg;
 }
 
 /**

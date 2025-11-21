@@ -249,7 +249,7 @@ model PropertyPlaque {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   userId          String
-  modelType       String   @default("standard")
+  modelType       String   @default("standard") // "standard", "premium", "vip"
   user            User     @relation(fields: [userId], references: [id])
 
   @@map("property_plaques")
