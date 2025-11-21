@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Newspaper, ExternalLink, Calendar, User } from 'lucide-react'
+import { 
+    Newspaper, 
+    ExternalLink, 
+    Calendar, 
+    Globe, 
+    TrendingUp, 
+    Building2, 
+    Lightbulb, 
+    Landmark, 
+    MapPin, 
+    Calculator 
+} from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 
 interface NewsItem {
@@ -38,6 +49,22 @@ interface NewsResponse {
         total: number
         pages: number
     }
+}
+
+// Función para obtener el icono según el nombre de la categoría
+const getCategoryIcon = (categoryName: string) => {
+    const name = categoryName.toLowerCase()
+    
+    if (name.includes('internacional')) return Globe
+    if (name.includes('mercado') || name.includes('nacional')) return TrendingUp
+    if (name.includes('tendencia')) return Lightbulb
+    if (name.includes('construcción') || name.includes('construc')) return Building2
+    if (name.includes('tecnología') || name.includes('tecnolog')) return Landmark
+    if (name.includes('caba') || name.includes('buenos aires')) return MapPin
+    if (name.includes('córdoba') || name.includes('cordoba')) return MapPin
+    if (name.includes('índice') || name.includes('indice') || name.includes('costo')) return Calculator
+    
+    return Newspaper // icono por defecto
 }
 
 export default function NewsPage() {
@@ -173,27 +200,31 @@ export default function NewsPage() {
                             >
                                 Todas las noticias
                             </button>
-                            {categories.map((category) => (
-                                <button
-                                    key={category.id}
-                                    onClick={() => {
-                                        setSelectedCategory(category.id)
-                                        setCurrentPage(1)
-                                    }}
-                                    className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wide transition-all border-2 flex items-center gap-1 sm:gap-2 lg:gap-3 ${
-                                        selectedCategory === category.id
-                                            ? 'bg-black text-white border-black'
-                                            : 'bg-white text-black border-gray-300 hover:border-black hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <div
-                                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-400 flex-shrink-0"
-                                        style={{ backgroundColor: category.color }}
-                                    ></div>
-                                    <span className="truncate">{category.name}</span>
-                                    <span className="text-xs opacity-75 font-normal hidden sm:inline">({category.articleCount})</span>
-                                </button>
-                            ))}
+                            {categories.map((category) => {
+                                const Icon = getCategoryIcon(category.name)
+                                return (
+                                    <button
+                                        key={category.id}
+                                        onClick={() => {
+                                            setSelectedCategory(category.id)
+                                            setCurrentPage(1)
+                                        }}
+                                        className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wide transition-all border-2 flex items-center gap-1 sm:gap-2 lg:gap-3 ${
+                                            selectedCategory === category.id
+                                                ? 'bg-black text-white border-black'
+                                                : 'bg-white text-black border-gray-300 hover:border-black hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <Icon 
+                                            className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" 
+                                            style={{ color: selectedCategory === category.id ? 'white' : category.color }}
+                                            strokeWidth={2.5}
+                                        />
+                                        <span className="truncate">{category.name}</span>
+                                        <span className="text-xs opacity-75 font-normal hidden sm:inline">({category.articleCount})</span>
+                                    </button>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>
@@ -219,25 +250,29 @@ export default function NewsPage() {
                                                 <div>
                                                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 font-medium">
                                                         <div className="flex items-center gap-1 sm:gap-2">
-                                                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 sm:w-5 sm:h-5" />
+                                                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                                                             <span className="uppercase tracking-wide">{formatDate(news[0].publishedAt)}</span>
                                                         </div>
                                                         <span className="text-black hidden sm:inline">•</span>
                                                         <span className="font-bold text-black uppercase text-xs sm:text-sm">{news[0].source}</span>
-                                                        {news[0].category && (
-                                                            <>
-                                                                <span className="text-black hidden sm:inline">•</span>
-                                                                <div className="flex items-center gap-1 sm:gap-2">
-                                                                    <div
-                                                                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-400"
-                                                                        style={{ backgroundColor: news[0].category.color }}
-                                                                    ></div>
-                                                                    <span className="font-bold uppercase text-xs sm:text-sm" style={{ color: news[0].category.color }}>
-                                                                        {news[0].category.name}
-                                                                    </span>
-                                                                </div>
-                                                            </>
-                                                        )}
+                                                        {news[0].category && (() => {
+                                                            const Icon = getCategoryIcon(news[0].category.name)
+                                                            return (
+                                                                <>
+                                                                    <span className="text-black hidden sm:inline">•</span>
+                                                                    <div className="flex items-center gap-1 sm:gap-2">
+                                                                        <Icon
+                                                                            className="w-3 h-3 sm:w-4 sm:h-4"
+                                                                            style={{ color: news[0].category.color }}
+                                                                            strokeWidth={2.5}
+                                                                        />
+                                                                        <span className="font-bold uppercase text-xs sm:text-sm" style={{ color: news[0].category.color }}>
+                                                                            {news[0].category.name}
+                                                                        </span>
+                                                                    </div>
+                                                                </>
+                                                            )
+                                                        })()}
                                                     </div>
 
                                                     <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-black mb-4 sm:mb-6 leading-tight uppercase tracking-wide">
@@ -258,7 +293,7 @@ export default function NewsPage() {
                                                             className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-black text-white font-bold uppercase tracking-wide hover:bg-gray-800 transition-colors text-xs sm:text-sm"
                                                         >
                                                             <span>Leer artículo completo</span>
-                                                            <ExternalLink className="w-3 h-3 sm:w-4 sm:w-5 sm:h-5" />
+                                                            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                                                         </Link>
                                                     </div>
                                                 </div>
@@ -313,20 +348,24 @@ export default function NewsPage() {
                                                 </div>
                                                 <span className="text-black hidden sm:inline">•</span>
                                                 <span className="font-bold text-black text-xs sm:text-sm">{item.source}</span>
-                                                {item.category && (
-                                                    <>
-                                                        <span className="text-black hidden sm:inline">•</span>
-                                                        <div className="flex items-center gap-1 sm:gap-2">
-                                                            <div
-                                                                className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
-                                                                style={{ backgroundColor: item.category.color }}
-                                                            ></div>
-                                                            <span className="font-bold text-xs sm:text-sm" style={{ color: item.category.color }}>
-                                                                {item.category.name}
-                                                            </span>
-                                                        </div>
-                                                    </>
-                                                )}
+                                                {item.category && (() => {
+                                                    const Icon = getCategoryIcon(item.category.name)
+                                                    return (
+                                                        <>
+                                                            <span className="text-black hidden sm:inline">•</span>
+                                                            <div className="flex items-center gap-1 sm:gap-2">
+                                                                <Icon
+                                                                    className="w-3 h-3 sm:w-4 sm:h-4"
+                                                                    style={{ color: item.category.color }}
+                                                                    strokeWidth={2.5}
+                                                                />
+                                                                <span className="font-bold text-xs sm:text-sm" style={{ color: item.category.color }}>
+                                                                    {item.category.name}
+                                                                </span>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                })()}
                                             </div>
 
                                             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-black mb-3 sm:mb-4 leading-tight hover:text-gray-700 transition-colors">
@@ -395,26 +434,30 @@ export default function NewsPage() {
                                         Secciones
                                     </h3>
                                     <div className="space-y-2 sm:space-y-3">
-                                        {categories.map((category) => (
-                                            <div key={category.id} className="flex items-center justify-between">
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedCategory(category.id)
-                                                        setCurrentPage(1)
-                                                    }}
-                                                    className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-black hover:text-gray-600 uppercase tracking-wide"
-                                                >
-                                                    <div
-                                                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-400 flex-shrink-0"
-                                                        style={{ backgroundColor: category.color }}
-                                                    ></div>
-                                                    <span className="truncate">{category.name}</span>
-                                                </button>
-                                                <span className="text-xs text-gray-500 font-medium">
-                                                    {category.articleCount}
-                                                </span>
-                                            </div>
-                                        ))}
+                                        {categories.map((category) => {
+                                            const Icon = getCategoryIcon(category.name)
+                                            return (
+                                                <div key={category.id} className="flex items-center justify-between">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedCategory(category.id)
+                                                            setCurrentPage(1)
+                                                        }}
+                                                        className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-black hover:text-gray-600 uppercase tracking-wide"
+                                                    >
+                                                        <Icon
+                                                            className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
+                                                            style={{ color: category.color }}
+                                                            strokeWidth={2.5}
+                                                        />
+                                                        <span className="truncate">{category.name}</span>
+                                                    </button>
+                                                    <span className="text-xs text-gray-500 font-medium">
+                                                        {category.articleCount}
+                                                    </span>
+                                                </div>
+                                            )
+                                        })}
                                     </div>
                                 </div>
                             </div>

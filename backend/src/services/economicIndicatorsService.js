@@ -617,7 +617,6 @@ class EconomicIndicatorsService {
       try {
         const now = new Date();
         const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
-        const currentHour = now.getHours(); // Hora actual
 
         // Procesar cada tipo de dólar
         const dollarTypes = ['oficial', 'blue', 'tarjeta'];
@@ -626,17 +625,14 @@ class EconomicIndicatorsService {
         for (const type of dollarTypes) {
           const dollarData = data.find(d => d.casa === type);
           if (dollarData && dollarData.compra && dollarData.venta) {
-            // Verificar si ya existe un registro para esta hora del día actual
-            // Esto permite un registro por hora para mantener historial diario
+            // Verificar si ya existe un registro para el día actual (sin importar la hora)
+            // Solo permitir UN registro por día
             const existingCompra = await prisma.economicIndex.findFirst({
               where: {
                 indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Compra`,
                 date: {
-                  gte: new Date(today),
+                  gte: new Date(today + 'T00:00:00'),
                   lt: new Date(today + 'T23:59:59')
-                },
-                description: {
-                  contains: `(${today} ${currentHour}:`
                 }
               }
             });
@@ -645,23 +641,20 @@ class EconomicIndicatorsService {
               where: {
                 indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Venta`,
                 date: {
-                  gte: new Date(today),
+                  gte: new Date(today + 'T00:00:00'),
                   lt: new Date(today + 'T23:59:59')
-                },
-                description: {
-                  contains: `(${today} ${currentHour}:`
                 }
               }
             });
 
-            // Solo guardar si no existe registro para esta hora
+            // Solo guardar si no existe registro para el día de hoy
             if (!existingCompra) {
               await prisma.economicIndex.create({
                 data: {
                   indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Compra`,
                   value: parseFloat(dollarData.compra),
                   date: now,
-                  description: `Dólar ${type} - Compra (${today} ${currentHour}:00)`
+                  description: `Dólar ${type} - Compra (${today})`
                 }
               });
               updatedCount++;
@@ -673,7 +666,7 @@ class EconomicIndicatorsService {
                   indicator: `dolar${type.charAt(0).toUpperCase() + type.slice(1)}Venta`,
                   value: parseFloat(dollarData.venta),
                   date: now,
-                  description: `Dólar ${type} - Venta (${today} ${currentHour}:00)`
+                  description: `Dólar ${type} - Venta (${today})`
                 }
               });
               updatedCount++;

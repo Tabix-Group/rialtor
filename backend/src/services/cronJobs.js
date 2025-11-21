@@ -8,22 +8,9 @@ const economicIndicatorsService = require('./economicIndicatorsService');
 const startCronJobs = () => {
     console.log('[Cron] Iniciando tareas programadas...');
 
-    // Actualizar cotizaciones del dólar a las 10:30 AM Argentina
-    cron.schedule('30 10 * * *', async () => {
-        console.log('[Cron] Ejecutando actualización de cotizaciones del dólar (10:30 AM)...');
-        try {
-            await economicIndicatorsService.updateDollarRatesFromAPI();
-            console.log('[Cron] Actualización de cotizaciones completada exitosamente');
-        } catch (error) {
-            console.error('[Cron] Error en actualización automática de cotizaciones:', error);
-        }
-    }, {
-        timezone: "America/Argentina/Buenos_Aires"
-    });
-
-    // Actualizar cotizaciones del dólar a las 18:00 (6:00 PM) Argentina
-    cron.schedule('0 18 * * *', async () => {
-        console.log('[Cron] Ejecutando actualización de cotizaciones del dólar (6:00 PM)...');
+    // Actualizar cotizaciones del dólar una vez al día a las 12:00 PM (mediodía) Argentina
+    cron.schedule('0 12 * * *', async () => {
+        console.log('[Cron] Ejecutando actualización diaria de cotizaciones del dólar (12:00 PM)...');
         try {
             await economicIndicatorsService.updateDollarRatesFromAPI();
             console.log('[Cron] Actualización de cotizaciones completada exitosamente');
@@ -78,7 +65,7 @@ const startCronJobs = () => {
     }, 5000); // Esperar 5 segundos después del inicio
 
     console.log('[Cron] Tareas programadas configuradas exitosamente');
-    console.log('[Cron] - Actualización de cotizaciones del dólar: 10:30 AM y 6:00 PM (Argentina)');
+    console.log('[Cron] - Actualización de cotizaciones del dólar: 12:00 PM (mediodía) Argentina - 1 registro diario');
     console.log('[Cron] - Sincronización RSS (todas las fuentes): Diariamente a las 8:00 AM (Argentina)');
     console.log('[Cron] - Limpieza de noticias: Diariamente a las 03:00 AM (Argentina)');
 };
