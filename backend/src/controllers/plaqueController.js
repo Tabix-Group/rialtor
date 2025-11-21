@@ -1539,71 +1539,62 @@ async function createVIPPlaqueOverlay(templatePath, propertyInfo, interiorImageB
 // Función auxiliar que contiene la lógica real de composición
 async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer) {
   try {
-    // USAR EL TEMPLATE COMO BASE Y COLOCAR IMÁGENES EN LOS CONTENEDORES
-    // Basado en el template de 1080x1080
+    // DISEÑO BASADO EN IMAGEN DE REFERENCIA (imagen 2):
+    // - Imagen EXTERIOR grande ocupa área superior (casi toda la mitad superior)
+    // - Imagen INTERIOR circular en esquina superior derecha como miniatura
+    // - Foto AGENTE en área inferior izquierda
+    // - BARRA AZUL inferior con información de propiedad
+    // - Textos blancos sobre la barra azul
     
     const width = 1080;
     const height = 1080;
     
-    console.log('[PLACAS VIP] Creando placa VIP usando template como base');
+    console.log('[PLACAS VIP] Creando placa VIP con diseño de referencia');
     
-    // ÁREAS DEL TEMPLATE (analizando la imagen de referencia):
-    // - Área superior izquierda: Imagen interior (aprox 520x520)
-    // - Área superior derecha: Imagen exterior (aprox 520x520)
-    // - Área inferior izquierda: Foto agente (aprox 280x350)
-    // - Área inferior derecha: Información de la propiedad
-    // - Footer: Barra azul con contacto
+    // 1. Imagen EXTERIOR grande (área superior, aproximadamente 70% de altura)
+    const exteriorHeight = Math.floor(height * 0.62); // Aproximadamente 670px
+    const exteriorProcessed = await sharp(exteriorImageBuffer)
+      .resize(width, exteriorHeight, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .png()
+      .toBuffer();
     
-    // 1. Imagen interior (contenedor izquierdo superior)
-    const interiorArea = {
-      x: 30,
-      y: 30,
-      width: 505,
-      height: 505
-    };
+    // 2. Imagen INTERIOR circular (miniatura en esquina superior derecha)
+    const interiorCircleSize = 180; // Diámetro del círculo
+    const interiorX = width - interiorCircleSize - 30;
+    const interiorY = 30;
+    
+    // Crear círculo con máscara
+    const circleMask = Buffer.from(
+      `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${interiorCircleSize/2}" fill="white"/>
+      </svg>`
+    );
     
     const interiorProcessed = await sharp(interiorImageBuffer)
-      .resize(interiorArea.width, interiorArea.height, {
+      .resize(interiorCircleSize, interiorCircleSize, {
         fit: 'cover',
         position: 'center'
       })
+      .composite([{
+        input: circleMask,
+        blend: 'dest-in'
+      }])
       .png()
       .toBuffer();
     
-    // 2. Imagen exterior (contenedor derecho superior)
-    const exteriorArea = {
-      x: 545,
-      y: 30,
-      width: 505,
-      height: 505
-    };
-    
-    const exteriorProcessed = await sharp(exteriorImageBuffer)
-      .resize(exteriorArea.width, exteriorArea.height, {
-        fit: 'cover',
-        position: 'center'
-      })
-      .png()
-      .toBuffer();
-    
-    // 3. Foto del agente (contenedor inferior izquierdo)
-    const agentArea = {
-      x: 30,
-      y: 545,
-      width: 280,
-      height: 350
-    };
-    
-    const agentBoxWidth = agentArea.width;
-    const agentBoxHeight = agentArea.height;
-    const agentBoxX = agentArea.x;
-    const agentBoxY = agentArea.y;
-    
+    // 3. Foto del AGENTE (área inferior izquierda)
+    const agentWidth = 200;
+    const agentHeight = 250;
+    const agentX = 40;
+    const agentY = exteriorHeight + 20;
     
     let agentProcessed = null;
     if (agentImageBuffer) {
       agentProcessed = await sharp(agentImageBuffer)
-        .resize(agentBoxWidth, agentBoxHeight, {
+        .resize(agentWidth, agentHeight, {
           fit: 'cover',
           position: 'center'
         })
@@ -1611,48 +1602,66 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
         .toBuffer();
     }
     
-    // Crear array de composiciones sobre el template
+    // 4. BARRA AZUL INFERIOR con información
+    const barHeight = 120;
+    const barY = height - barHeight;
+    
+    // Crear overlay de diseño completo
+    const designOverlay = createVIPReferenceDesignOverlay(width, height, propertyInfo, exteriorHeight, barY, barHeight, agentProcessed !== null);
+    const designBuffer = Buffer.from(designOverlay, 'utf8');
+    
+    // Crear array de composiciones
     const composites = [];
     
-    // Agregar imagen interior
-    composites.push({
-      input: interiorProcessed,
-      top: interiorArea.y,
-      left: interiorArea.x
-    });
-    
-    // Agregar imagen exterior
+    // Agregar imagen exterior en la parte superior
     composites.push({
       input: exteriorProcessed,
-      top: exteriorArea.y,
-      left: exteriorArea.x
+      top: 0,
+      left: 0
+    });
+    
+    // Agregar overlay de diseño (barra azul, área blanca, etc.)
+    composites.push({
+      input: designBuffer,
+      top: 0,
+      left: 0
     });
     
     // Agregar foto del agente si existe
     if (agentProcessed) {
       composites.push({
         input: agentProcessed,
-        top: agentBoxY,
-        left: agentBoxX
+        top: agentY,
+        left: agentX
       });
     }
     
-    // Crear SVG con los textos para el área de información
-    const textOverlay = createVIPTextOverlayForTemplate(width, height, propertyInfo);
-    const textBuffer = Buffer.from(textOverlay, 'utf8');
+    // Agregar imagen interior circular
     composites.push({
-      input: textBuffer,
-      top: 0,
-      left: 0
+      input: interiorProcessed,
+      top: interiorY,
+      left: interiorX
     });
     
-    // Componer todas las capas sobre el template
-    const finalImage = await sharp(templateBuffer)
+    // Crear canvas blanco como base
+    const baseCanvas = await sharp({
+      create: {
+        width: width,
+        height: height,
+        channels: 4,
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
+      }
+    })
+    .png()
+    .toBuffer();
+    
+    // Componer todas las capas
+    const finalImage = await sharp(baseCanvas)
       .composite(composites)
       .png({ quality: 90, compressionLevel: 6 })
       .toBuffer();
     
-    console.log('[PLACAS VIP] Placa VIP creada exitosamente');
+    console.log('[PLACAS VIP] Placa VIP creada exitosamente con diseño de referencia');
     return finalImage;
     
   } catch (error) {
@@ -1662,7 +1671,102 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
 }
 
 /**
- * Crear overlay de texto para usar CON EL TEMPLATE
+ * Crear overlay de diseño completo para placa VIP según imagen de referencia
+ * @param {number} width - Ancho total
+ * @param {number} height - Alto total
+ * @param {object} propertyInfo - Información de la propiedad
+ * @param {number} exteriorHeight - Alto de la imagen exterior
+ * @param {number} barY - Posición Y de la barra azul
+ * @param {number} barHeight - Alto de la barra azul
+ * @param {boolean} hasAgentPhoto - Si tiene foto de agente
+ * @returns {string} SVG string
+ */
+function createVIPReferenceDesignOverlay(width, height, propertyInfo, exteriorHeight, barY, barHeight, hasAgentPhoto) {
+  const esc = (s) => String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  
+  // Extraer datos
+  const tipo = esc(propertyInfo.tipo || 'Propiedad');
+  const ambientes = propertyInfo.ambientes ? esc(propertyInfo.ambientes) : null;
+  const m2 = propertyInfo.m2_totales ? esc(propertyInfo.m2_totales) : null;
+  const precio = esc(propertyInfo.precio || 'Consultar');
+  const moneda = esc(propertyInfo.moneda || 'USD');
+  const direccion = esc(propertyInfo.direccion || '');
+  const corredores = esc(propertyInfo.corredores || '');
+  const contacto = esc(propertyInfo.contacto || '');
+  
+  // Área blanca inferior (entre exterior y barra azul)
+  const whiteAreaY = exteriorHeight;
+  const whiteAreaHeight = barY - exteriorHeight;
+  
+  // Posición de textos en área blanca (lado derecho, después del agente)
+  const textStartX = hasAgentPhoto ? 280 : 60;
+  const textStartY = whiteAreaY + 40;
+  
+  let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .ref-tipo { font-family: 'Arial', sans-serif; font-size: 24px; font-weight: 700; fill: #333333; }
+      .ref-ambientes { font-family: 'Arial', sans-serif; font-size: 32px; font-weight: 700; fill: #1a1a1a; }
+      .ref-precio { font-family: 'Arial', sans-serif; font-size: 28px; font-weight: 700; fill: #1a1a1a; }
+      .ref-bar-text { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 600; fill: #ffffff; }
+      .ref-bar-bold { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 700; fill: #ffffff; }
+    </style>
+  </defs>
+  
+  <!-- Área blanca inferior -->
+  <rect x="0" y="${whiteAreaY}" width="${width}" height="${whiteAreaHeight}" fill="#ffffff" />
+  
+  <!-- Textos en área blanca -->
+  <text x="${textStartX}" y="${textStartY}" class="ref-ambientes">${ambientes || ''} ambientes</text>
+  <text x="${textStartX}" y="${textStartY + 40}" class="ref-tipo">${m2 ? m2 + ' m2' : ''}</text>
+  <text x="${textStartX}" y="${textStartY + 75}" class="ref-precio">${moneda} ${precio}</text>
+  
+  <!-- Barra azul inferior -->
+  <rect x="0" y="${barY}" width="${width}" height="${barHeight}" fill="#4169B0" />
+  
+  <!-- URL/Website en barra azul (centrado superior) -->
+  <text x="${width/2}" y="${barY + 30}" text-anchor="middle" class="ref-bar-bold">www.magaliolivieri.remax.com.ar</text>
+`;
+  
+  // Información de contacto en la barra (línea inferior)
+  let bottomTextY = barY + 70;
+  let leftInfo = [];
+  let rightInfo = [];
+  
+  if (corredores) {
+    leftInfo.push(corredores);
+  }
+  if (direccion) {
+    leftInfo.push(direccion);
+  }
+  if (contacto) {
+    rightInfo.push(contacto);
+  }
+  
+  const leftText = leftInfo.join(' | ');
+  const rightText = rightInfo.join(' | ');
+  
+  if (leftText) {
+    svg += `  <text x="50" y="${bottomTextY}" class="ref-bar-text">${leftText}</text>\n`;
+  }
+  
+  if (rightText) {
+    svg += `  <text x="${width - 50}" y="${bottomTextY}" text-anchor="end" class="ref-bar-text">${rightText}</text>\n`;
+  }
+  
+  svg += `</svg>`;
+  
+  return svg;
+}
+
+/**
+ * Crear overlay de texto para usar CON EL TEMPLATE - DEPRECATED
  * El template tiene 4 áreas: interior (30,30), exterior (545,30), agente (30,545), info (330,545)
  */
 function createVIPTextOverlayForTemplate(width, height, propertyInfo) {
