@@ -1539,105 +1539,95 @@ async function createVIPPlaqueOverlay(templatePath, propertyInfo, interiorImageB
 // Función auxiliar que contiene la lógica real de composición
 async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer) {
   try {
-    let template = sharp(templateBuffer);
-    const templateMetadata = await template.metadata();
-    const { width, height } = templateMetadata;
+    // NUEVO DISEÑO BASADO EN LA REFERENCIA:
+    // - Imagen exterior ocupa el fondo completo
+    // - Imagen interior pequeña circular en esquina superior derecha
+    // - Foto agente en recuadro inferior izquierdo
+    // - Información en barra inferior
     
-    console.log('[PLACAS VIP] Template dimensions:', width, 'x', height);
+    const width = 1080;
+    const height = 1080;
     
-    // Definir las áreas donde se colocarán las imágenes en el template (ajustar según diseño)
-    // Estas coordenadas son aproximadas y deben ajustarse según el diseño real del template
-    const interiorArea = {
-      x: Math.floor(width * 0.05),
-      y: Math.floor(height * 0.05),
-      width: Math.floor(width * 0.43),
-      height: Math.floor(height * 0.50)
-    };
+    console.log('[PLACAS VIP] Creando placa VIP con dimensiones:', width, 'x', height);
     
-    const exteriorArea = {
-      x: Math.floor(width * 0.52),
-      y: Math.floor(height * 0.05),
-      width: Math.floor(width * 0.43),
-      height: Math.floor(height * 0.50)
-    };
-    
-    const agentArea = {
-      x: Math.floor(width * 0.05),
-      y: Math.floor(height * 0.60),
-      width: Math.floor(width * 0.20),
-      height: Math.floor(height * 0.35)
-    };
-    
-    // Procesar imagen interior
-    const interiorProcessed = await sharp(interiorImageBuffer)
-      .resize(interiorArea.width, interiorArea.height, {
-        fit: 'cover',
-        position: 'center'
-      })
-      .png()
-      .toBuffer();
-    
-    // Procesar imagen exterior
+    // 1. Procesar imagen exterior como fondo (ocupa toda la placa)
     const exteriorProcessed = await sharp(exteriorImageBuffer)
-      .resize(exteriorArea.width, exteriorArea.height, {
+      .resize(width, height, {
         fit: 'cover',
         position: 'center'
       })
       .png()
       .toBuffer();
     
-    // Crear array de composiciones
-    const composites = [
-      {
-        input: interiorProcessed,
-        top: interiorArea.y,
-        left: interiorArea.x
-      },
-      {
-        input: exteriorProcessed,
-        top: exteriorArea.y,
-        left: exteriorArea.x
-      }
-    ];
+    // 2. Procesar imagen interior circular pequeña (esquina superior derecha)
+    const interiorCircleSize = 180; // Tamaño del círculo
+    const interiorCircleX = width - interiorCircleSize - 30; // 30px del borde derecho
+    const interiorCircleY = 30; // 30px del borde superior
     
-    // Procesar imagen del agente si existe (circular)
+    const interiorProcessed = await sharp(interiorImageBuffer)
+      .resize(interiorCircleSize, interiorCircleSize, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .composite([{
+        input: Buffer.from(
+          `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
+            <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${interiorCircleSize/2}" fill="white"/>
+          </svg>`
+        ),
+        blend: 'dest-in'
+      }])
+      .png()
+      .toBuffer();
+    
+    // 3. Procesar foto del agente (recuadro inferior izquierdo)
+    const agentBoxWidth = 280;
+    const agentBoxHeight = 350;
+    const agentBoxX = 30;
+    const agentBoxY = height - agentBoxHeight - 200; // Sobre la barra inferior
+    
+    
+    let agentProcessed = null;
     if (agentImageBuffer) {
-      const agentSize = Math.min(agentArea.width, agentArea.height);
-      const agentProcessed = await sharp(agentImageBuffer)
-        .resize(agentSize, agentSize, {
+      agentProcessed = await sharp(agentImageBuffer)
+        .resize(agentBoxWidth, agentBoxHeight, {
           fit: 'cover',
           position: 'center'
         })
-        .composite([{
-          // Crear máscara circular
-          input: Buffer.from(
-            `<svg width="${agentSize}" height="${agentSize}">
-              <circle cx="${agentSize/2}" cy="${agentSize/2}" r="${agentSize/2}" fill="white"/>
-            </svg>`
-          ),
-          blend: 'dest-in'
-        }])
         .png()
         .toBuffer();
-      
+    }
+    
+    // Crear array de composiciones
+    const composites = [];
+    
+    // Agregar imagen circular del interior
+    composites.push({
+      input: interiorProcessed,
+      top: interiorCircleY,
+      left: interiorCircleX
+    });
+    
+    // Agregar foto del agente si existe
+    if (agentProcessed) {
       composites.push({
         input: agentProcessed,
-        top: agentArea.y + Math.floor((agentArea.height - agentSize) / 2),
-        left: agentArea.x + Math.floor((agentArea.width - agentSize) / 2)
+        top: agentBoxY,
+        left: agentBoxX
       });
     }
     
-    // Crear SVG con los textos de la propiedad
-    const textOverlay = createVIPTextOverlay(width, height, propertyInfo);
-    const textBuffer = Buffer.from(textOverlay, 'utf8');
+    // Crear SVG con diseño similar al de referencia
+    const overlayDesign = createVIPDesignOverlay(width, height, propertyInfo, agentProcessed !== null);
+    const overlayBuffer = Buffer.from(overlayDesign, 'utf8');
     composites.push({
-      input: textBuffer,
+      input: overlayBuffer,
       top: 0,
       left: 0
     });
     
-    // Componer todas las capas sobre el template
-    const finalImage = await sharp(templateBuffer)
+    // Componer todas las capas sobre la imagen exterior (que actúa como fondo)
+    const finalImage = await sharp(exteriorProcessed)
       .composite(composites)
       .png({ quality: 90, compressionLevel: 6 })
       .toBuffer();
@@ -1652,7 +1642,89 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
 }
 
 /**
- * Crear overlay de texto para la placa VIP
+ * Crear overlay de diseño completo para la placa VIP (estilo referencia)
+ */
+function createVIPDesignOverlay(width, height, propertyInfo, hasAgentPhoto) {
+  const esc = (s) => String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  
+  // Extraer datos
+  const precio = esc(propertyInfo.precio || 'Consultar');
+  const moneda = esc(propertyInfo.moneda || 'USD');
+  const ambientes = propertyInfo.ambientes ? esc(propertyInfo.ambientes) : null;
+  const m2_totales = propertyInfo.m2_totales ? esc(propertyInfo.m2_totales) : null;
+  const direccion = esc(propertyInfo.direccion || '');
+  const corredores = esc(propertyInfo.corredores || '');
+  const contacto = esc(propertyInfo.contacto || '');
+  
+  // Barra inferior azul con información
+  const barraHeight = 200;
+  const barraY = height - barraHeight;
+  
+  let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .vip-title { font-family: 'Arial', sans-serif; font-size: 24px; font-weight: 700; fill: #ffffff; }
+      .vip-price { font-family: 'Arial Black', sans-serif; font-size: 42px; font-weight: 900; fill: #ffffff; }
+      .vip-info { font-family: 'Arial', sans-serif; font-size: 20px; font-weight: 600; fill: #ffffff; }
+      .vip-footer { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 500; fill: #ffffff; }
+      .vip-agent-label { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 700; fill: #333333; }
+    </style>
+  </defs>
+  
+  <!-- Barra inferior azul semitransparente -->
+  <rect x="0" y="${barraY}" width="${width}" height="${barraHeight}" fill="rgba(70, 130, 180, 0.92)" />
+  
+  <!-- Área del agente con fondo blanco si hay foto -->
+  ${hasAgentPhoto ? `<rect x="20" y="${barraY - 360}" width="300" height="370" fill="rgba(255,255,255,0.95)" rx="10" />` : ''}
+  ${hasAgentPhoto ? `<text x="170" y="${barraY - 320}" text-anchor="middle" class="vip-agent-label">Agente</text>` : ''}
+  
+  <!-- Precio destacado en la barra -->
+  <text x="400" y="${barraY + 70}" class="vip-price">${moneda} ${precio}</text>
+  
+  <!-- Información de la propiedad -->`;
+  
+  let infoY = barraY + 115;
+  
+  if (ambientes) {
+    svg += `\n  <text x="400" y="${infoY}" class="vip-info">🏠 ${ambientes} ambientes</text>`;
+    infoY += 30;
+  }
+  
+  if (m2_totales) {
+    svg += `\n  <text x="400" y="${infoY}" class="vip-info">📐 ${m2_totales} m²</text>`;
+    infoY += 30;
+  }
+  
+  if (direccion) {
+    svg += `\n  <text x="400" y="${infoY}" class="vip-info">📍 ${direccion}</text>`;
+  }
+  
+  // Footer con información de contacto y corredores
+  svg += `\n  <!-- Footer -->
+  <rect x="0" y="${height - 50}" width="${width}" height="50" fill="rgba(60, 100, 140, 0.95)" />`;
+  
+  if (contacto) {
+    svg += `\n  <text x="40" y="${height - 22}" class="vip-footer">📞 ${contacto}</text>`;
+  }
+  
+  if (corredores) {
+    const corrX = contacto ? 500 : 40;
+    svg += `\n  <text x="${corrX}" y="${height - 22}" class="vip-footer">${corredores}</text>`;
+  }
+  
+  svg += `\n</svg>`;
+  
+  return svg;
+}
+
+/**
+ * Crear overlay de texto para la placa VIP (DEPRECATED - usar createVIPDesignOverlay)
  */
 function createVIPTextOverlay(width, height, propertyInfo) {
   // Helper para escapar texto en SVG
