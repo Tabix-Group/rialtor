@@ -278,8 +278,7 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo, mo
   } catch (error) {
     console.error('[PLACAS] Error detallado en generación de placa:', {
       message: error.message,
-      stack: error.stack,
-      imageUrl: imageUrl
+      stack: error.stack
     });
     throw error;
   }
@@ -330,8 +329,75 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
     console.log('[PLACAS VIP] Estado actualizado a GENERATING');
     
     // 3. Generar placa VIP usando el template
-    const templatePath = require('path').join(__dirname, '../../..', 'frontend', 'public', 'images', 'templateplaca.jpeg');
-    console.log('[PLACAS VIP] Template path:', templatePath);
+    const path = require('path');
+    const fs = require('fs');
+    
+    // Intentar múltiples rutas posibles
+    const possiblePaths = [
+      path.resolve(__dirname, '../../../frontend/public/images/templateplaca.jpeg'),
+      path.resolve(process.cwd(), '../frontend/public/images/templateplaca.jpeg'),
+      path.resolve('/app', 'frontend/public/images/templateplaca.jpeg'),
+      path.resolve(process.cwd(), 'frontend/public/images/templateplaca.jpeg')
+    ];
+    
+    let templatePath = null;
+    for (const possiblePath of possiblePaths) {
+      console.log('[PLACAS VIP] Probando ruta:', possiblePath);
+      if (fs.existsSync(possiblePath)) {
+        templatePath = possiblePath;
+        console.log('[PLACAS VIP] Template encontrado en:', templatePath);
+        break;
+      }
+    }
+    
+    if (!templatePath) {
+      // Si no se encuentra el template local, intentar descargarlo de una URL
+      console.log('[PLACAS VIP] Template local no encontrado, descargando desde URL...');
+      const templateUrl = 'https://www.rialtor.app/images/templateplaca.jpeg';
+      
+      try {
+        const response = await fetch(templateUrl);
+        if (!response.ok) {
+          throw new Error(`No se pudo descargar el template desde ${templateUrl}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const templateBuffer = Buffer.from(arrayBuffer);
+        
+        // Usar el buffer directamente
+        const vipPlaqueBuffer = await createVIPPlaqueOverlayFromBuffer(
+          templateBuffer,
+          propertyInfo,
+          interiorImage.buffer,
+          exteriorImage.buffer,
+          agentImage ? agentImage.buffer : null
+        );
+        
+        console.log('[PLACAS VIP] Placa VIP generada desde template descargado');
+        
+        // Subir placa final a Cloudinary
+        console.log('[PLACAS VIP] Subiendo placa final a Cloudinary...');
+        const folder = 'placas/generadas';
+        const filename = `${Date.now()}_vip_placa`;
+        const result = await uploadBufferToCloudinary(vipPlaqueBuffer, folder, filename);
+        
+        console.log('[PLACAS VIP] Placa final subida a:', result.secure_url);
+        
+        // Actualizar registro con placa generada
+        await prisma.propertyPlaque.update({
+          where: { id: plaqueId },
+          data: {
+            generatedImages: JSON.stringify([result.secure_url]),
+            status: 'COMPLETED'
+          }
+        });
+        
+        console.log('[PLACAS VIP] Procesamiento completado exitosamente');
+        return [result.secure_url];
+        
+      } catch (downloadError) {
+        throw new Error(`Template no encontrado. Rutas probadas: ${possiblePaths.join(', ')}. Error descarga: ${downloadError.message}`);
+      }
+    }
     
     const vipPlaqueBuffer = await createVIPPlaqueOverlay(
       templatePath,
@@ -1426,7 +1492,28 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 }
 
 /**
- * Crear placa VIP usando el template como base
+ * Crear placa VIP usando el template como base (desde buffer)
+ * @param {Buffer} templateBuffer - Buffer del template de fondo
+ * @param {object} propertyInfo - Datos de la propiedad
+ * @param {Buffer} interiorImageBuffer - Buffer de la imagen del interior
+ * @param {Buffer} exteriorImageBuffer - Buffer de la imagen del exterior  
+ * @param {Buffer} agentImageBuffer - Buffer de la imagen del agente (opcional)
+ * @returns {Promise<Buffer>} Buffer de la imagen final
+ */
+async function createVIPPlaqueOverlayFromBuffer(templateBuffer, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer) {
+  try {
+    console.log('[PLACAS VIP] Iniciando creación de placa VIP desde buffer');
+    
+    return await createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer);
+    
+  } catch (error) {
+    console.error('[PLACAS VIP] Error creando placa VIP desde buffer:', error);
+    throw error;
+  }
+}
+
+/**
+ * Crear placa VIP usando el template como base (desde archivo)
  * @param {string} templatePath - Ruta al template de fondo
  * @param {object} propertyInfo - Datos de la propiedad
  * @param {Buffer} interiorImageBuffer - Buffer de la imagen del interior
@@ -1436,10 +1523,22 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
  */
 async function createVIPPlaqueOverlay(templatePath, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer) {
   try {
-    console.log('[PLACAS VIP] Iniciando creación de placa VIP');
+    console.log('[PLACAS VIP] Iniciando creación de placa VIP desde archivo');
     
     // Cargar el template base
     const templateBuffer = require('fs').readFileSync(templatePath);
+    
+    // Usar la función desde buffer
+    return await createVIPPlaqueOverlayFromBuffer(templateBuffer, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer);
+  } catch (error) {
+    console.error('[PLACAS VIP] Error creando placa VIP:', error);
+    throw error;
+  }
+}
+
+// Función auxiliar que contiene la lógica real de composición
+async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer) {
+  try {
     let template = sharp(templateBuffer);
     const templateMetadata = await template.metadata();
     const { width, height } = templateMetadata;
