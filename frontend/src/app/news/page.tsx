@@ -12,7 +12,12 @@ import {
     Lightbulb, 
     Landmark, 
     MapPin, 
-    Calculator 
+    Calculator,
+    ChevronsLeft,
+    ChevronsRight,
+    ChevronLeft,
+    ChevronRight,
+    MoreHorizontal
 } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 
@@ -65,6 +70,52 @@ const getCategoryIcon = (categoryName: string) => {
     if (name.includes('índice') || name.includes('indice') || name.includes('costo')) return Calculator
     
     return Newspaper // icono por defecto
+}
+
+// Función para generar los números de página con elipsis inteligente
+const getPageNumbers = (currentPage: number, totalPages: number) => {
+    const pages: (number | string)[] = []
+    const maxVisible = 7 // Máximo de páginas visibles a la vez
+    
+    if (totalPages <= maxVisible) {
+        // Mostrar todas las páginas si son pocas
+        return Array.from({ length: totalPages }, (_, i) => i + 1)
+    }
+    
+    // Siempre mostrar primera página
+    pages.push(1)
+    
+    let startPage = Math.max(2, currentPage - 1)
+    let endPage = Math.min(totalPages - 1, currentPage + 1)
+    
+    // Ajustar rango si estamos cerca del inicio o del final
+    if (currentPage <= 3) {
+        endPage = 5
+    } else if (currentPage >= totalPages - 2) {
+        startPage = totalPages - 4
+    }
+    
+    // Agregar elipsis al inicio si es necesario
+    if (startPage > 2) {
+        pages.push('...')
+    }
+    
+    // Agregar páginas del rango
+    for (let i = startPage; i <= endPage; i++) {
+        pages.push(i)
+    }
+    
+    // Agregar elipsis al final si es necesario
+    if (endPage < totalPages - 1) {
+        pages.push('...')
+    }
+    
+    // Siempre mostrar última página
+    if (totalPages > 1) {
+        pages.push(totalPages)
+    }
+    
+    return pages
 }
 
 export default function NewsPage() {
@@ -164,7 +215,7 @@ export default function NewsPage() {
                         </h1>
 
                         <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-2 sm:mb-3 max-w-2xl leading-relaxed">
-                            Las últimas tendencias, análisis y noticias del sector inmobiliario argentino.
+                            Las últimas tendencias, análisis y noticias del sector inmobiliario.
                         </p>
 
                         <p className="text-xs sm:text-sm text-slate-400">
@@ -463,42 +514,114 @@ export default function NewsPage() {
                             </div>
                         </div>
 
-                        {/* Pagination */}
+                        {/* Pagination - Professional & Scalable */}
                         {pagination && pagination.pages > 1 && (
                             <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 shadow-sm">
-                                <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
+                                {/* Información de resultados */}
+                                <div className="text-center mb-4 text-sm text-gray-600">
+                                    Mostrando <span className="font-bold text-black">{((currentPage - 1) * pagination.limit) + 1}</span> - <span className="font-bold text-black">{Math.min(currentPage * pagination.limit, pagination.total)}</span> de <span className="font-bold text-black">{pagination.total}</span> noticias
+                                    {selectedCategory && (
+                                        <span className="ml-2 text-gray-500">en la categoría seleccionada</span>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+                                    {/* Primera página */}
+                                    <button
+                                        onClick={() => setCurrentPage(1)}
+                                        disabled={currentPage === 1}
+                                        className="hidden lg:flex items-center gap-1 px-3 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs"
+                                        title="Primera página"
+                                    >
+                                        <ChevronsLeft className="w-4 h-4" />
+                                    </button>
+
+                                    {/* Página anterior */}
                                     <button
                                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                         disabled={currentPage === 1}
-                                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                        className="flex items-center gap-2 px-4 sm:px-5 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs sm:text-sm"
                                     >
-                                        ← Anterior
+                                        <ChevronLeft className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Anterior</span>
                                     </button>
 
-                                    <div className="flex gap-1 sm:gap-2 overflow-x-auto">
-                                        {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-                                            <button
-                                                key={page}
-                                                onClick={() => setCurrentPage(page)}
-                                                className={`px-3 sm:px-4 py-2 border-2 font-bold uppercase tracking-wide transition-all flex-shrink-0 text-sm ${
-                                                    currentPage === page
-                                                        ? 'bg-black text-white border-black'
-                                                        : 'bg-white text-black border-gray-300 hover:bg-gray-50 hover:border-black'
-                                                }`}
-                                            >
-                                                {page}
-                                            </button>
-                                        ))}
+                                    {/* Números de página con elipsis inteligente */}
+                                    <div className="flex gap-1 sm:gap-2">
+                                        {getPageNumbers(currentPage, pagination.pages).map((page, index) => {
+                                            if (page === '...') {
+                                                return (
+                                                    <div
+                                                        key={`ellipsis-${index}`}
+                                                        className="flex items-center justify-center px-2 sm:px-3 py-2 text-gray-400"
+                                                    >
+                                                        <MoreHorizontal className="w-4 h-4" />
+                                                    </div>
+                                                )
+                                            }
+                                            
+                                            return (
+                                                <button
+                                                    key={page}
+                                                    onClick={() => setCurrentPage(page as number)}
+                                                    className={`min-w-[40px] sm:min-w-[44px] px-3 sm:px-4 py-2 border-2 font-bold transition-all text-xs sm:text-sm ${
+                                                        currentPage === page
+                                                            ? 'bg-black text-white border-black scale-110 shadow-lg'
+                                                            : 'bg-white text-black border-gray-300 hover:bg-gray-50 hover:border-black hover:scale-105'
+                                                    }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            )
+                                        })}
                                     </div>
 
+                                    {/* Página siguiente */}
                                     <button
                                         onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))}
                                         disabled={currentPage === pagination.pages}
-                                        className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                        className="flex items-center gap-2 px-4 sm:px-5 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs sm:text-sm"
                                     >
-                                        Siguiente →
+                                        <span className="hidden sm:inline">Siguiente</span>
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+
+                                    {/* Última página */}
+                                    <button
+                                        onClick={() => setCurrentPage(pagination.pages)}
+                                        disabled={currentPage === pagination.pages}
+                                        className="hidden lg:flex items-center gap-1 px-3 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs"
+                                        title="Última página"
+                                    >
+                                        <ChevronsRight className="w-4 h-4" />
                                     </button>
                                 </div>
+
+                                {/* Input de ir a página (solo visible en desktop para muchas páginas) */}
+                                {pagination.pages > 10 && (
+                                    <div className="hidden md:flex items-center justify-center gap-3 mt-4 pt-4 border-t border-gray-200">
+                                        <label htmlFor="goto-page" className="text-sm font-medium text-gray-700">
+                                            Ir a página:
+                                        </label>
+                                        <input
+                                            id="goto-page"
+                                            type="number"
+                                            min="1"
+                                            max={pagination.pages}
+                                            defaultValue={currentPage}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    const value = parseInt((e.target as HTMLInputElement).value)
+                                                    if (value >= 1 && value <= pagination.pages) {
+                                                        setCurrentPage(value)
+                                                    }
+                                                }
+                                            }}
+                                            className="w-20 px-3 py-1.5 border-2 border-gray-300 rounded text-center font-bold text-sm focus:border-black focus:outline-none"
+                                        />
+                                        <span className="text-sm text-gray-500">de {pagination.pages}</span>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </>
