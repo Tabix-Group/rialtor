@@ -1566,39 +1566,44 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const interiorX = width - interiorCircleSize - 40;
     const interiorY = 40;
     
-    // Crear círculo con máscara y borde decorativo
-    const circleMaskWithBorder = Buffer.from(
-      `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
-        <defs>
-          <filter id="shadowCircle">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
-            <feOffset dx="0" dy="3" result="offsetblur"/>
-            <feComponentTransfer>
-              <feFuncA type="linear" slope="0.5"/>
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 8}" fill="white" filter="url(#shadowCircle)"/>
-      </svg>`
-    );
+    // Crear canvas para la imagen interior circular
+    const interiorCanvas = await sharp({
+      create: {
+        width: interiorCircleSize,
+        height: interiorCircleSize,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 }
+      }
+    })
+    .png()
+    .toBuffer();
     
-    const interiorProcessed = await sharp(interiorImageBuffer)
-      .resize(interiorCircleSize - 16, interiorCircleSize - 16, {
+    // Procesar imagen interior y hacerla circular
+    const interiorResized = await sharp(interiorImageBuffer)
+      .resize(interiorCircleSize, interiorCircleSize, {
         fit: 'cover',
         position: 'center'
       })
+      .png()
+      .toBuffer();
+    
+    // Crear máscara circular
+    const circleMask = Buffer.from(
+      `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 10}" fill="white"/>
+      </svg>`
+    );
+    
+    // Aplicar máscara circular
+    const interiorCircular = await sharp(interiorResized)
       .composite([{
-        input: circleMaskWithBorder,
+        input: circleMask,
         blend: 'dest-in'
       }])
       .png()
       .toBuffer();
     
-    // Crear borde dorado para la imagen interior
+    // Crear borde dorado SVG
     const goldenBorder = Buffer.from(
       `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
         <defs>
@@ -1608,19 +1613,27 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
             <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
           </linearGradient>
         </defs>
-        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 4}" 
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 6}" 
                 fill="none" stroke="url(#goldGradient)" stroke-width="8"/>
-        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 1}" 
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 2}" 
                 fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
       </svg>`
     );
     
-    const interiorWithBorder = await sharp(interiorProcessed)
-      .composite([{
-        input: goldenBorder,
-        top: 0,
-        left: 0
-      }])
+    // Componer imagen circular + borde dorado
+    const interiorWithBorder = await sharp(interiorCanvas)
+      .composite([
+        {
+          input: interiorCircular,
+          top: 0,
+          left: 0
+        },
+        {
+          input: goldenBorder,
+          top: 0,
+          left: 0
+        }
+      ])
       .png()
       .toBuffer();
     
@@ -1632,7 +1645,19 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     
     let agentProcessed = null;
     if (agentImageBuffer) {
-      // Procesar imagen del agente
+      // Crear canvas base para el agente
+      const agentCanvas = await sharp({
+        create: {
+          width: agentWidth,
+          height: agentHeight,
+          channels: 4,
+          background: { r: 255, g: 255, b: 255, alpha: 0 }
+        }
+      })
+      .png()
+      .toBuffer();
+      
+      // Procesar imagen del agente (8px de padding para el marco)
       const agentImg = await sharp(agentImageBuffer)
         .resize(agentWidth - 8, agentHeight - 8, {
           fit: 'cover',
@@ -1641,7 +1666,7 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
         .png()
         .toBuffer();
       
-      // Crear marco decorativo para el agente
+      // Crear marco decorativo SVG
       const agentFrame = Buffer.from(
         `<svg width="${agentWidth}" height="${agentHeight}">
           <defs>
@@ -1649,48 +1674,30 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
               <stop offset="0%" style="stop-color:#2c5282;stop-opacity:1" />
               <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />
             </linearGradient>
-            <filter id="shadowAgent">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
-              <feOffset dx="0" dy="3" result="offsetblur"/>
-              <feComponentTransfer>
-                <feFuncA type="linear" slope="0.4"/>
-              </feComponentTransfer>
-              <feMerge>
-                <feMergeNode/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
           </defs>
-          <!-- Marco con sombra -->
+          <!-- Marco azul exterior -->
           <rect x="0" y="0" width="${agentWidth}" height="${agentHeight}" 
-                fill="url(#frameGradient)" filter="url(#shadowAgent)" rx="8"/>
+                fill="url(#frameGradient)" rx="8"/>
+          <!-- Área blanca interior -->
           <rect x="4" y="4" width="${agentWidth - 8}" height="${agentHeight - 8}" 
                 fill="white" rx="4"/>
         </svg>`
       );
       
-      // Crear canvas blanco para el marco
-      const frameCanvas = await sharp({
-        create: {
-          width: agentWidth,
-          height: agentHeight,
-          channels: 4,
-          background: { r: 255, g: 255, b: 255, alpha: 0 }
-        }
-      })
-      .composite([
-        { input: agentFrame, top: 0, left: 0 }
-      ])
-      .png()
-      .toBuffer();
-      
-      // Componer imagen dentro del marco
-      agentProcessed = await sharp(frameCanvas)
-        .composite([{
-          input: agentImg,
-          top: 4,
-          left: 4
-        }])
+      // Componer: canvas base + marco + imagen
+      agentProcessed = await sharp(agentCanvas)
+        .composite([
+          {
+            input: agentFrame,
+            top: 0,
+            left: 0
+          },
+          {
+            input: agentImg,
+            top: 4,
+            left: 4
+          }
+        ])
         .png()
         .toBuffer();
     }
