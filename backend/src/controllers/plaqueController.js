@@ -1731,7 +1731,7 @@ function createVIPReferenceDesignOverlay(width, height, propertyInfo, exteriorHe
   <rect x="0" y="${barY}" width="${width}" height="${barHeight}" fill="#4169B0" />
   
   <!-- URL/Website en barra azul (centrado superior) -->
-  <text x="${width/2}" y="${barY + 30}" text-anchor="middle" class="ref-bar-bold">www.magaliolivieri.remax.com.ar</text>
+  <text x="${width/2}" y="${barY + 30}" text-anchor="middle" class="ref-bar-bold">www.rialtor.app</text>
 `;
   
   // Información de contacto en la barra (línea inferior)
