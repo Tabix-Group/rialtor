@@ -1561,31 +1561,70 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .png()
       .toBuffer();
     
-    // 2. Imagen INTERIOR circular (miniatura en esquina superior derecha)
-    const interiorCircleSize = 180; // Diámetro del círculo
-    const interiorX = width - interiorCircleSize - 30;
-    const interiorY = 30;
+    // 2. Imagen INTERIOR circular con borde dorado (miniatura en esquina superior derecha)
+    const interiorCircleSize = 200; // Diámetro del círculo (aumentado)
+    const interiorX = width - interiorCircleSize - 40;
+    const interiorY = 40;
     
-    // Crear círculo con máscara
-    const circleMask = Buffer.from(
+    // Crear círculo con máscara y borde decorativo
+    const circleMaskWithBorder = Buffer.from(
       `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
-        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${interiorCircleSize/2}" fill="white"/>
+        <defs>
+          <filter id="shadowCircle">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+            <feOffset dx="0" dy="3" result="offsetblur"/>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.5"/>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 8}" fill="white" filter="url(#shadowCircle)"/>
       </svg>`
     );
     
     const interiorProcessed = await sharp(interiorImageBuffer)
-      .resize(interiorCircleSize, interiorCircleSize, {
+      .resize(interiorCircleSize - 16, interiorCircleSize - 16, {
         fit: 'cover',
         position: 'center'
       })
       .composite([{
-        input: circleMask,
+        input: circleMaskWithBorder,
         blend: 'dest-in'
       }])
       .png()
       .toBuffer();
     
-    // 3. Foto del AGENTE (área inferior izquierda)
+    // Crear borde dorado para la imagen interior
+    const goldenBorder = Buffer.from(
+      `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
+        <defs>
+          <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#f4e5a0;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 4}" 
+                fill="none" stroke="url(#goldGradient)" stroke-width="8"/>
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 1}" 
+                fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+      </svg>`
+    );
+    
+    const interiorWithBorder = await sharp(interiorProcessed)
+      .composite([{
+        input: goldenBorder,
+        top: 0,
+        left: 0
+      }])
+      .png()
+      .toBuffer();
+    
+    // 3. Foto del AGENTE con marco elegante (área inferior izquierda)
     const agentWidth = 200;
     const agentHeight = 250;
     const agentX = 40;
@@ -1593,11 +1632,65 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     
     let agentProcessed = null;
     if (agentImageBuffer) {
-      agentProcessed = await sharp(agentImageBuffer)
-        .resize(agentWidth, agentHeight, {
+      // Procesar imagen del agente
+      const agentImg = await sharp(agentImageBuffer)
+        .resize(agentWidth - 8, agentHeight - 8, {
           fit: 'cover',
           position: 'center'
         })
+        .png()
+        .toBuffer();
+      
+      // Crear marco decorativo para el agente
+      const agentFrame = Buffer.from(
+        `<svg width="${agentWidth}" height="${agentHeight}">
+          <defs>
+            <linearGradient id="frameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#2c5282;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />
+            </linearGradient>
+            <filter id="shadowAgent">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+              <feOffset dx="0" dy="3" result="offsetblur"/>
+              <feComponentTransfer>
+                <feFuncA type="linear" slope="0.4"/>
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <!-- Marco con sombra -->
+          <rect x="0" y="0" width="${agentWidth}" height="${agentHeight}" 
+                fill="url(#frameGradient)" filter="url(#shadowAgent)" rx="8"/>
+          <rect x="4" y="4" width="${agentWidth - 8}" height="${agentHeight - 8}" 
+                fill="white" rx="4"/>
+        </svg>`
+      );
+      
+      // Crear canvas blanco para el marco
+      const frameCanvas = await sharp({
+        create: {
+          width: agentWidth,
+          height: agentHeight,
+          channels: 4,
+          background: { r: 255, g: 255, b: 255, alpha: 0 }
+        }
+      })
+      .composite([
+        { input: agentFrame, top: 0, left: 0 }
+      ])
+      .png()
+      .toBuffer();
+      
+      // Componer imagen dentro del marco
+      agentProcessed = await sharp(frameCanvas)
+        .composite([{
+          input: agentImg,
+          top: 4,
+          left: 4
+        }])
         .png()
         .toBuffer();
     }
@@ -1662,9 +1755,9 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       });
     }
     
-    // Capa 4: Imagen interior circular (sobre el exterior)
+    // Capa 4: Imagen interior circular con borde dorado (sobre el exterior)
     composites.push({
-      input: interiorProcessed,
+      input: interiorWithBorder,
       top: interiorY,
       left: interiorX
     });
@@ -1726,63 +1819,147 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
-      
-      .vip-premium-tipo { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 20px; font-weight: 600; fill: #666666; letter-spacing: 1px; text-transform: uppercase; }
-      .vip-premium-ambientes { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 42px; font-weight: 800; fill: #1a1a1a; letter-spacing: -1px; }
-      .vip-premium-feature { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 18px; font-weight: 600; fill: #444444; }
-      .vip-premium-precio { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 38px; font-weight: 800; fill: #2c5282; letter-spacing: -0.5px; }
-      .vip-premium-moneda { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 24px; font-weight: 700; fill: #2c5282; }
-      .vip-footer-url { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 22px; font-weight: 700; fill: #ffffff; letter-spacing: 0.5px; }
-      .vip-footer-info { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #ffffff; }
+      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 700; fill: #888888; letter-spacing: 2px; text-transform: uppercase; }
+      .vip-premium-ambientes { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 44px; font-weight: 900; fill: #1a1a1a; }
+      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 600; fill: #555555; }
+      .vip-premium-feature-icon { font-family: 'Arial', sans-serif; font-size: 20px; fill: #2c5282; }
+      .vip-premium-precio { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 42px; font-weight: 900; fill: #1a365d; }
+      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 26px; font-weight: 700; fill: #2c5282; }
+      .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 24px; font-weight: 700; fill: #ffffff; letter-spacing: 1px; }
+      .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #e8f0ff; }
+      .vip-badge { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: 700; fill: #ffffff; letter-spacing: 1px; }
     </style>
+    
+    <!-- Degradado para el footer -->
+    <linearGradient id="footerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2c5282;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Degradado para badge VIP -->
+    <linearGradient id="vipBadgeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f4e5a0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Sombra para elementos -->
+    <filter id="shadowLight">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="shadowMedium">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="0" dy="3" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
   
-  <!-- Área blanca para información (con sombra sutil) -->
+  <!-- Área blanca para información con degradado sutil -->
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="#ffffff" />
-  <rect x="0" y="${infoY}" width="${width}" height="2" fill="rgba(0,0,0,0.05)" />
   
-  <!-- Tipo de propiedad (pequeño, arriba) -->
+  <!-- Línea decorativa superior con degradado -->
+  <rect x="0" y="${infoY}" width="${width}" height="4" fill="url(#footerGradient)" />
+  
+  <!-- Badge VIP en esquina superior derecha del área de info -->
+  <g filter="url(#shadowMedium)">
+    <rect x="${width - 150}" y="${infoY + 15}" width="120" height="35" fill="url(#vipBadgeGradient)" rx="17.5" />
+    <text x="${width - 90}" y="${infoY + 38}" text-anchor="middle" class="vip-badge">★ VIP ★</text>
+  </g>
+  
+  <!-- Tipo de propiedad con línea decorativa -->
   <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>
+  <rect x="${textStartX}" y="${textStartY + 8}" width="80" height="2" fill="#2c5282" />
   
-  <!-- Ambientes (muy destacado) -->
-  <text x="${textStartX}" y="${textStartY + 55}" class="vip-premium-ambientes">${ambientes ? ambientes + ' AMBIENTES' : 'PROPIEDAD EXCLUSIVA'}</text>
+  <!-- Ambientes destacado con sombra -->
+  <g filter="url(#shadowLight)">
+    <text x="${textStartX}" y="${textStartY + 60}" class="vip-premium-ambientes">${ambientes ? ambientes + ' AMBIENTES' : 'PROPIEDAD EXCLUSIVA'}</text>
+  </g>
   
-  <!-- Features en línea horizontal con separadores -->\n`;
+  <!-- Contenedor de características con iconos -->\n`;
   
-  let currentX = textStartX;
-  const featuresY = textStartY + 95;
-  const features = [];
+  const featuresY = textStartY + 105;
+  let featureY = featuresY;
+  const featureLineHeight = 32;
   
-  if (m2_totales) features.push(`${m2_totales} m²`);
-  if (dormitorios) features.push(`${dormitorios} dorm.`);
-  if (banos) features.push(`${banos} baños`);
-  if (cocheras) features.push(`${cocheras} coch.`);
+  // Características con iconos
+  if (m2_totales) {
+    svg += `  <g>\n`;
+    svg += `    <rect x="${textStartX - 5}" y="${featureY - 20}" width="4" height="26" fill="#2c5282" rx="2" />\n`;
+    svg += `    <text x="${textStartX + 10}" y="${featureY}" class="vip-premium-feature">${m2_totales} m² totales</text>\n`;
+    svg += `  </g>\n`;
+    featureY += featureLineHeight;
+  }
   
-  features.forEach((feature, index) => {
-    if (index > 0) {
-      svg += `  <text x="${currentX}" y="${featuresY}" class="vip-premium-feature"> • </text>\n`;
-      currentX += 20;
-    }
-    svg += `  <text x="${currentX}" y="${featuresY}" class="vip-premium-feature">${feature}</text>\n`;
-    currentX += feature.length * 11 + 15;
-  });
+  if (m2_cubiertos) {
+    svg += `  <g>\n`;
+    svg += `    <rect x="${textStartX - 5}" y="${featureY - 20}" width="4" height="26" fill="#2c5282" rx="2" />\n`;
+    svg += `    <text x="${textStartX + 10}" y="${featureY}" class="vip-premium-feature">${m2_cubiertos} m² cubiertos</text>\n`;
+    svg += `  </g>\n`;
+    featureY += featureLineHeight;
+  }
   
-  svg += `\n  <!-- Precio destacado con fondo suave -->\n`;
-  svg += `  <rect x="${textStartX - 15}" y="${textStartY + 115}" width="350" height="70" fill="rgba(44, 82, 130, 0.05)" rx="8" />\n`;
-  svg += `  <text x="${textStartX}" y="${textStartY + 145}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${textStartX + (moneda.length * 14)}" y="${textStartY + 150}" class="vip-premium-precio"> ${precio}</text>\n`;
+  // Segunda columna de características
+  const col2X = textStartX + 250;
+  featureY = featuresY;
   
-  svg += `\n  <!-- Footer azul premium con degradado -->\n`;
-  svg += `  <defs>\n`;
-  svg += `    <linearGradient id="footerGradient" x1="0%" y1="0%" x2="100%" y2="0%">\n`;
-  svg += `      <stop offset="0%" style="stop-color:#2c5282;stop-opacity:1" />\n`;
-  svg += `      <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />\n`;
-  svg += `    </linearGradient>\n`;
-  svg += `  </defs>\n`;
+  if (dormitorios) {
+    svg += `  <g>\n`;
+    svg += `    <rect x="${col2X - 5}" y="${featureY - 20}" width="4" height="26" fill="#2c5282" rx="2" />\n`;
+    svg += `    <text x="${col2X + 10}" y="${featureY}" class="vip-premium-feature">${dormitorios} dormitorios</text>\n`;
+    svg += `  </g>\n`;
+    featureY += featureLineHeight;
+  }
+  
+  if (banos) {
+    svg += `  <g>\n`;
+    svg += `    <rect x="${col2X - 5}" y="${featureY - 20}" width="4" height="26" fill="#2c5282" rx="2" />\n`;
+    svg += `    <text x="${col2X + 10}" y="${featureY}" class="vip-premium-feature">${banos} baños</text>\n`;
+    svg += `  </g>\n`;
+    featureY += featureLineHeight;
+  }
+  
+  if (cocheras) {
+    svg += `  <g>\n`;
+    svg += `    <rect x="${col2X - 5}" y="${featureY - 20}" width="4" height="26" fill="#2c5282" rx="2" />\n`;
+    svg += `    <text x="${col2X + 10}" y="${featureY}" class="vip-premium-feature">${cocheras} cocheras</text>\n`;
+    svg += `  </g>\n`;
+  }
+  
+  svg += `\n  <!-- Contenedor de precio premium con sombra -->\n`;
+  svg += `  <g filter="url(#shadowMedium)">\n`;
+  svg += `    <rect x="${textStartX - 20}" y="${textStartY + 195}" width="420" height="80" fill="#f8fafc" stroke="#2c5282" stroke-width="2" rx="12" />\n`;
+  svg += `    <rect x="${textStartX - 20}" y="${textStartY + 195}" width="420" height="8" fill="#2c5282" rx="12" />\n`;
+  svg += `  </g>\n`;
+  svg += `  <text x="${textStartX}" y="${textStartY + 233}" class="vip-premium-moneda">${moneda}</text>\n`;
+  svg += `  <text x="${textStartX + (moneda.length * 16)}" y="${textStartY + 238}" class="vip-premium-precio"> ${precio}</text>\n`;
+  
+  svg += `\n  <!-- Footer premium con degradado y efecto 3D -->\n`;
   svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="url(#footerGradient)" />\n`;
+  svg += `  <rect x="0" y="${footerY}" width="${width}" height="3" fill="rgba(255,255,255,0.2)" />\n`;
+  svg += `  <rect x="0" y="${footerY + footerHeight - 3}" width="${width}" height="3" fill="rgba(0,0,0,0.3)" />\n`;
   
-  svg += `\n  <!-- URL destacada centrada -->\n`;
+  svg += `\n  <!-- Decoración en footer: líneas laterales -->\n`;
+  svg += `  <line x1="100" y1="${footerY + 40}" x2="${width/2 - 220}" y2="${footerY + 40}" stroke="rgba(255,255,255,0.3)" stroke-width="2" />\n`;
+  svg += `  <line x1="${width/2 + 220}" y1="${footerY + 40}" x2="${width - 100}" y2="${footerY + 40}" stroke="rgba(255,255,255,0.3)" stroke-width="2" />\n`;
+  
+  svg += `\n  <!-- URL destacada con sombra de texto -->\n`;
+  svg += `  <text x="${width/2 + 2}" y="${footerY + 42}" text-anchor="middle" class="vip-footer-url" fill="rgba(0,0,0,0.3)">www.rialtor.app</text>\n`;
   svg += `  <text x="${width/2}" y="${footerY + 40}" text-anchor="middle" class="vip-footer-url">www.rialtor.app</text>\n`;
   
   // Información de contacto en footer (línea inferior)
