@@ -1831,7 +1831,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
       .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 19px; font-weight: 600; fill: #2d3748; }
       .vip-premium-precio { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 52px; font-weight: 900; fill: #1a202c; letter-spacing: -2px; }
       .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 32px; font-weight: 700; fill: #2c5282; }
-      .vip-footer-url { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 32px; font-weight: 900; fill: #ffffff; letter-spacing: 0.5px; text-transform: lowercase; }
+      .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 28px; font-weight: 600; fill: #ffffff; letter-spacing: 1px; text-transform: lowercase; }
       .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #e8f0ff; }
       .vip-badge { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 15px; font-weight: 900; fill: #1a1a1a; letter-spacing: 2px; }
     </style>
@@ -1851,7 +1851,11 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
       <path d="M20 13V4.83C20 3.27 18.73 2 17.17 2c-.75 0-1.47.3-2 .83l-1.25 1.25c-.16-.05-.33-.08-.51-.08-.4 0-.77.12-1.08.32l2.76 2.76c.2-.31.32-.68.32-1.08 0-.18-.03-.34-.08-.51l1.25-1.25c.16-.15.37-.24.59-.24.46 0 .83.37.83.83V13h-6.85c-.3-.21-.57-.45-.82-.72l-1.4-1.55c-.19-.21-.43-.38-.69-.5-.29-.14-.62-.23-.96-.23h-.03C6.01 10 5 11.01 5 12.25V13H2v6c0 1.1.9 2 2 2 0 .55.45 1 1 1h14c.55 0 1-.45 1-1 1.1 0 2-.9 2-2v-6h-2z" fill="#2c5282" stroke="#1a365d" stroke-width="1.5"/>
     </symbol>
     <symbol id="icon-garage" viewBox="0 0 24 24">
-      <path d="M12 2L2 7v3h20V7l-10-5zm-8 8v11h4v-3c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v3h4V10H4zm12 11v-3h-4v3h4z" fill="#2c5282" stroke="#1a365d" stroke-width="1.5"/>
+      <path d="M19 20H5V9l7-5 7 5v11z" fill="none" stroke="#2c5282" stroke-width="2"/>
+      <rect x="8" y="12" width="8" height="8" fill="#2c5282" opacity="0.3"/>
+      <rect x="8" y="16" width="3.5" height="4" fill="#2c5282"/>
+      <rect x="12.5" y="16" width="3.5" height="4" fill="#2c5282"/>
+      <rect x="8" y="15" width="8" height="1" fill="#1a365d"/>
     </symbol>
     
     <!-- Degradado para el footer -->
@@ -1899,20 +1903,22 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   
   <!-- Pattern decorativo de fondo mejorado -->
   <defs>
-    <pattern id="subtlePattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-      <circle cx="20" cy="20" r="1.5" fill="#e2e8f0" opacity="0.4"/>
-      <circle cx="0" cy="0" r="1.5" fill="#e2e8f0" opacity="0.3"/>
-      <circle cx="40" cy="0" r="1.5" fill="#e2e8f0" opacity="0.3"/>
-      <circle cx="0" cy="40" r="1.5" fill="#e2e8f0" opacity="0.3"/>
-      <circle cx="40" cy="40" r="1.5" fill="#e2e8f0" opacity="0.3"/>
+    <pattern id="subtlePattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <circle cx="30" cy="30" r="2.5" fill="#cbd5e0" opacity="0.5"/>
+      <circle cx="0" cy="0" r="1.8" fill="#cbd5e0" opacity="0.4"/>
+      <circle cx="60" cy="0" r="1.8" fill="#cbd5e0" opacity="0.4"/>
+      <circle cx="0" cy="60" r="1.8" fill="#cbd5e0" opacity="0.4"/>
+      <circle cx="60" cy="60" r="1.8" fill="#cbd5e0" opacity="0.4"/>
+      <circle cx="15" cy="45" r="1.2" fill="#cbd5e0" opacity="0.3"/>
+      <circle cx="45" cy="15" r="1.2" fill="#cbd5e0" opacity="0.3"/>
     </pattern>
     <linearGradient id="whiteAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#f7fafc;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#f1f5f9;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
     </linearGradient>
   </defs>
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="url(#subtlePattern)" />
-  <rect x="0" y="${infoY}" width="${width}" height="30" fill="url(#whiteAreaGradient)" />
+  <rect x="0" y="${infoY}" width="${width}" height="40" fill="url(#whiteAreaGradient)" />
   
   <!-- Línea decorativa superior con degradado -->
   <rect x="0" y="${infoY}" width="${width}" height="5" fill="url(#footerGradient)" />
@@ -1982,7 +1988,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   });
   
   svg += `\n  <!-- Contenedor de precio premium elevado sobre footer -->\n`;
-  const priceBoxY = textStartY + 195;
+  const priceBoxY = textStartY + 170;
   const priceBoxWidth = 820;
   const priceBoxHeight = 100;
   
