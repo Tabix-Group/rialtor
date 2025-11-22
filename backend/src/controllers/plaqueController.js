@@ -1922,11 +1922,11 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   let col3Y = featuresY;
   
   const features = [];
-  if (m2_totales) features.push({ icon: '□', text: `${m2_totales} m² totales`, col: 0 });
-  if (m2_cubiertos) features.push({ icon: '■', text: `${m2_cubiertos} m² cubiertos`, col: 0 });
-  if (dormitorios) features.push({ icon: '◉', text: `${dormitorios} dormitorios`, col: 1 });
-  if (banos) features.push({ icon: '◉', text: `${banos} baños`, col: 1 });
-  if (cocheras) features.push({ icon: '◉', text: `${cocheras} cocheras`, col: 2 });
+  if (m2_totales) features.push({ icon: '📐', text: `${m2_totales} m² totales`, col: 0 });
+  if (m2_cubiertos) features.push({ icon: '📏', text: `${m2_cubiertos} m² cubiertos`, col: 0 });
+  if (dormitorios) features.push({ icon: '🛏️', text: `${dormitorios} dormitorios`, col: 1 });
+  if (banos) features.push({ icon: '🚿', text: `${banos} baños`, col: 1 });
+  if (cocheras) features.push({ icon: '🚗', text: `${cocheras} cocheras`, col: 2 });
   
   features.forEach((feature) => {
     let colX, colY;
@@ -1946,29 +1946,30 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     
     svg += `  <g>\n`;
     svg += `    <rect x="${colX - 5}" y="${colY - 22}" width="4" height="28" fill="#2c5282" rx="2" />\n`;
-    svg += `    <text x="${colX + 10}" y="${colY}" class="vip-premium-feature">${feature.text}</text>\n`;
+    svg += `    <text x="${colX + 10}" y="${colY}" style="font-family: Arial; font-size: 20px;">${feature.icon}</text>\n`;
+    svg += `    <text x="${colX + 38}" y="${colY}" class="vip-premium-feature">${feature.text}</text>\n`;
     svg += `  </g>\n`;
   });
   
   svg += `\n  <!-- Contenedor de precio premium mejorado y más amplio -->\n`;
-  const priceBoxY = textStartY + 180;
-  const priceBoxWidth = 780; // Más ancho para llenar el espacio
-  const priceBoxHeight = 95;
+  const priceBoxY = textStartY + 185;
+  const priceBoxWidth = 780;
+  const priceBoxHeight = 90;
   
   svg += `  <g filter="url(#shadowMedium)">\n`;
   svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="${priceBoxWidth}" height="${priceBoxHeight}" fill="#ffffff" stroke="#2c5282" stroke-width="3" rx="16" />\n`;
   svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="${priceBoxWidth}" height="10" fill="#2c5282" rx="16" />\n`;
   // Decoración lateral izquierda
-  svg += `    <rect x="${textStartX - 16}" y="${priceBoxY + 20}" width="6" height="${priceBoxHeight - 30}" fill="url(#vipBadgeGradient)" rx="3" />\n`;
+  svg += `    <rect x="${textStartX - 16}" y="${priceBoxY + 18}" width="6" height="${priceBoxHeight - 28}" fill="url(#vipBadgeGradient)" rx="3" />\n`;
   svg += `  </g>\n`;
   
-  // Texto del precio centrado verticalmente en el contenedor
-  const priceTextY = priceBoxY + 60;
-  svg += `  <text x="${textStartX + 10}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${textStartX + 10 + (moneda.length * 16)}" y="${priceTextY + 5}" class="vip-premium-precio"> ${precio}</text>\n`;
-  
   // Label "Precio" pequeño arriba
-  svg += `  <text x="${textStartX + 10}" y="${priceBoxY + 32}" style="font-family: Arial; font-size: 13px; font-weight: 600; fill: #888888; letter-spacing: 1px; text-transform: uppercase;">Precio</text>\n`;
+  svg += `  <text x="${textStartX + 10}" y="${priceBoxY + 30}" style="font-family: Arial; font-size: 12px; font-weight: 600; fill: #888888; letter-spacing: 1px; text-transform: uppercase;">Precio</text>\n`;
+  
+  // Moneda y precio en la misma línea pero con mejor espaciado
+  const priceTextY = priceBoxY + 65;
+  svg += `  <text x="${textStartX + 10}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
+  svg += `  <text x="${textStartX + 75}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
   
   svg += `\n  <!-- Footer premium con degradado y efectos 3D mejorados -->\n`;
   svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="url(#footerGradient)" />\n`;
@@ -1994,24 +1995,22 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   svg += `  <text x="${width/2 + 3}" y="${footerY + 48}" text-anchor="middle" class="vip-footer-url" fill="rgba(0,0,0,0.4)">www.rialtor.app</text>\n`;
   svg += `  <text x="${width/2}" y="${footerY + 45}" text-anchor="middle" class="vip-footer-url">www.rialtor.app</text>\n`;
   
-  // Información de contacto en footer (línea inferior)
-  const footerInfoY = footerY + 75;
-  let leftInfo = [];
-  let rightInfo = [];
+  // Información de contacto en footer (línea inferior) - mejor espaciado
+  const footerInfoY = footerY + 85;
   
-  if (corredores) leftInfo.push(corredores);
-  if (direccion) leftInfo.push(direccion);
-  if (contacto) rightInfo.push(contacto);
-  
-  const leftText = leftInfo.join(' | ');
-  const rightText = rightInfo.join(' | ');
-  
-  if (leftText) {
-    svg += `  <text x="40" y="${footerInfoY}" class="vip-footer-info">${leftText}</text>\n`;
+  // Información izquierda: corredor y dirección
+  let leftX = 80;
+  if (corredores) {
+    svg += `  <text x="${leftX}" y="${footerInfoY}" class="vip-footer-info">${corredores}</text>\n`;
+  }
+  if (direccion) {
+    const dirY = corredores ? footerInfoY + 18 : footerInfoY;
+    svg += `  <text x="${leftX}" y="${dirY}" class="vip-footer-info">${direccion}</text>\n`;
   }
   
-  if (rightText) {
-    svg += `  <text x="${width - 40}" y="${footerInfoY}" text-anchor="end" class="vip-footer-info">${rightText}</text>\n`;
+  // Información derecha: contacto
+  if (contacto) {
+    svg += `  <text x="${width - 80}" y="${footerInfoY}" text-anchor="end" class="vip-footer-info">${contacto}</text>\n`;
   }
   
   svg += `</svg>`;
