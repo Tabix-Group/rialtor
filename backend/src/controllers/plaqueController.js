@@ -1606,42 +1606,23 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const barHeight = 120;
     const barY = height - barHeight;
     
-    // Crear overlay de diseño completo
-    const designOverlay = createVIPReferenceDesignOverlay(width, height, propertyInfo, exteriorHeight, barY, barHeight, agentProcessed !== null);
+    // Crear overlay de diseño premium
+    const infoY = exteriorHeight;
+    const infoHeight = height - exteriorHeight - 120; // Espacio entre exterior y footer
+    const footerY = height - 120;
+    const footerHeight = 120;
+    
+    const designOverlay = createVIPPremiumDesignOverlay(
+      width, 
+      height, 
+      propertyInfo, 
+      infoY, 
+      infoHeight,
+      footerY,
+      footerHeight,
+      agentProcessed !== null
+    );
     const designBuffer = Buffer.from(designOverlay, 'utf8');
-    
-    // Crear array de composiciones
-    const composites = [];
-    
-    // Agregar imagen exterior en la parte superior
-    composites.push({
-      input: exteriorProcessed,
-      top: 0,
-      left: 0
-    });
-    
-    // Agregar overlay de diseño (barra azul, área blanca, etc.)
-    composites.push({
-      input: designBuffer,
-      top: 0,
-      left: 0
-    });
-    
-    // Agregar foto del agente si existe
-    if (agentProcessed) {
-      composites.push({
-        input: agentProcessed,
-        top: agentY,
-        left: agentX
-      });
-    }
-    
-    // Agregar imagen interior circular
-    composites.push({
-      input: interiorProcessed,
-      top: interiorY,
-      left: interiorX
-    });
     
     // Crear canvas blanco como base
     const baseCanvas = await sharp({
@@ -1655,13 +1636,46 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     .png()
     .toBuffer();
     
+    // Crear array de composiciones en orden de capas
+    const composites = [];
+    
+    // Capa 1: Imagen exterior (parte superior)
+    composites.push({
+      input: exteriorProcessed,
+      top: 0,
+      left: 0
+    });
+    
+    // Capa 2: Overlay de diseño (área blanca con info + footer azul)
+    composites.push({
+      input: designBuffer,
+      top: 0,
+      left: 0
+    });
+    
+    // Capa 3: Foto del agente (sobre el área blanca)
+    if (agentProcessed) {
+      composites.push({
+        input: agentProcessed,
+        top: agentY,
+        left: agentX
+      });
+    }
+    
+    // Capa 4: Imagen interior circular (sobre el exterior)
+    composites.push({
+      input: interiorProcessed,
+      top: interiorY,
+      left: interiorX
+    });
+    
     // Componer todas las capas
     const finalImage = await sharp(baseCanvas)
       .composite(composites)
-      .png({ quality: 90, compressionLevel: 6 })
+      .png({ quality: 95, compressionLevel: 6 })
       .toBuffer();
     
-    console.log('[PLACAS VIP] Placa VIP creada exitosamente con diseño de referencia');
+    console.log('[PLACAS VIP] Placa VIP premium creada exitosamente');
     return finalImage;
     
   } catch (error) {
@@ -1671,7 +1685,133 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
 }
 
 /**
- * Crear overlay de diseño completo para placa VIP según imagen de referencia
+ * Crear overlay de diseño PREMIUM de alto nivel para placa VIP
+ * @param {number} width - Ancho total
+ * @param {number} height - Alto total
+ * @param {object} propertyInfo - Información de la propiedad
+ * @param {number} infoY - Posición Y del área de información
+ * @param {number} infoHeight - Alto del área de información
+ * @param {number} footerY - Posición Y del footer
+ * @param {number} footerHeight - Alto del footer
+ * @param {boolean} hasAgentPhoto - Si tiene foto de agente
+ * @returns {string} SVG string
+ */
+function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoHeight, footerY, footerHeight, hasAgentPhoto) {
+  const esc = (s) => String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  
+  // Extraer datos
+  const tipo = esc(propertyInfo.tipo || 'Propiedad');
+  const ambientes = propertyInfo.ambientes ? esc(propertyInfo.ambientes) : null;
+  const dormitorios = propertyInfo.dormitorios ? esc(propertyInfo.dormitorios) : null;
+  const banos = propertyInfo.banos ? esc(propertyInfo.banos) : null;
+  const cocheras = propertyInfo.cocheras ? esc(propertyInfo.cocheras) : null;
+  const m2_totales = propertyInfo.m2_totales ? esc(propertyInfo.m2_totales) : null;
+  const m2_cubiertos = propertyInfo.m2_cubiertos ? esc(propertyInfo.m2_cubiertos) : null;
+  const precio = esc(propertyInfo.precio || 'Consultar');
+  const moneda = esc(propertyInfo.moneda || 'USD');
+  const direccion = esc(propertyInfo.direccion || '');
+  const corredores = esc(propertyInfo.corredores || '');
+  const contacto = esc(propertyInfo.contacto || '');
+  
+  // Posición del texto en el área de información (lado derecho del agente)
+  const textStartX = hasAgentPhoto ? 280 : 60;
+  const textStartY = infoY + 50;
+  
+  let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+      
+      .vip-premium-tipo { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 20px; font-weight: 600; fill: #666666; letter-spacing: 1px; text-transform: uppercase; }
+      .vip-premium-ambientes { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 42px; font-weight: 800; fill: #1a1a1a; letter-spacing: -1px; }
+      .vip-premium-feature { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 18px; font-weight: 600; fill: #444444; }
+      .vip-premium-precio { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 38px; font-weight: 800; fill: #2c5282; letter-spacing: -0.5px; }
+      .vip-premium-moneda { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 24px; font-weight: 700; fill: #2c5282; }
+      .vip-footer-url { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 22px; font-weight: 700; fill: #ffffff; letter-spacing: 0.5px; }
+      .vip-footer-info { font-family: 'Montserrat', 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #ffffff; }
+    </style>
+  </defs>
+  
+  <!-- Área blanca para información (con sombra sutil) -->
+  <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="#ffffff" />
+  <rect x="0" y="${infoY}" width="${width}" height="2" fill="rgba(0,0,0,0.05)" />
+  
+  <!-- Tipo de propiedad (pequeño, arriba) -->
+  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>
+  
+  <!-- Ambientes (muy destacado) -->
+  <text x="${textStartX}" y="${textStartY + 55}" class="vip-premium-ambientes">${ambientes ? ambientes + ' AMBIENTES' : 'PROPIEDAD EXCLUSIVA'}</text>
+  
+  <!-- Features en línea horizontal con separadores -->\n`;
+  
+  let currentX = textStartX;
+  const featuresY = textStartY + 95;
+  const features = [];
+  
+  if (m2_totales) features.push(`${m2_totales} m²`);
+  if (dormitorios) features.push(`${dormitorios} dorm.`);
+  if (banos) features.push(`${banos} baños`);
+  if (cocheras) features.push(`${cocheras} coch.`);
+  
+  features.forEach((feature, index) => {
+    if (index > 0) {
+      svg += `  <text x="${currentX}" y="${featuresY}" class="vip-premium-feature"> • </text>\n`;
+      currentX += 20;
+    }
+    svg += `  <text x="${currentX}" y="${featuresY}" class="vip-premium-feature">${feature}</text>\n`;
+    currentX += feature.length * 11 + 15;
+  });
+  
+  svg += `\n  <!-- Precio destacado con fondo suave -->\n`;
+  svg += `  <rect x="${textStartX - 15}" y="${textStartY + 115}" width="350" height="70" fill="rgba(44, 82, 130, 0.05)" rx="8" />\n`;
+  svg += `  <text x="${textStartX}" y="${textStartY + 145}" class="vip-premium-moneda">${moneda}</text>\n`;
+  svg += `  <text x="${textStartX + (moneda.length * 14)}" y="${textStartY + 150}" class="vip-premium-precio"> ${precio}</text>\n`;
+  
+  svg += `\n  <!-- Footer azul premium con degradado -->\n`;
+  svg += `  <defs>\n`;
+  svg += `    <linearGradient id="footerGradient" x1="0%" y1="0%" x2="100%" y2="0%">\n`;
+  svg += `      <stop offset="0%" style="stop-color:#2c5282;stop-opacity:1" />\n`;
+  svg += `      <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />\n`;
+  svg += `    </linearGradient>\n`;
+  svg += `  </defs>\n`;
+  svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="url(#footerGradient)" />\n`;
+  
+  svg += `\n  <!-- URL destacada centrada -->\n`;
+  svg += `  <text x="${width/2}" y="${footerY + 40}" text-anchor="middle" class="vip-footer-url">www.rialtor.app</text>\n`;
+  
+  // Información de contacto en footer (línea inferior)
+  const footerInfoY = footerY + 75;
+  let leftInfo = [];
+  let rightInfo = [];
+  
+  if (corredores) leftInfo.push(corredores);
+  if (direccion) leftInfo.push(direccion);
+  if (contacto) rightInfo.push(contacto);
+  
+  const leftText = leftInfo.join(' | ');
+  const rightText = rightInfo.join(' | ');
+  
+  if (leftText) {
+    svg += `  <text x="40" y="${footerInfoY}" class="vip-footer-info">${leftText}</text>\n`;
+  }
+  
+  if (rightText) {
+    svg += `  <text x="${width - 40}" y="${footerInfoY}" text-anchor="end" class="vip-footer-info">${rightText}</text>\n`;
+  }
+  
+  svg += `</svg>`;
+  
+  return svg;
+}
+
+/**
+ * Crear overlay de diseño completo para placa VIP según imagen de referencia - DEPRECATED
  * @param {number} width - Ancho total
  * @param {number} height - Alto total
  * @param {object} propertyInfo - Información de la propiedad
