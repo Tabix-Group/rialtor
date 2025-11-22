@@ -1826,15 +1826,33 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 700; fill: #999999; letter-spacing: 2.5px; text-transform: uppercase; }
-      .vip-premium-ambientes { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 48px; font-weight: 900; fill: #1a1a1a; letter-spacing: -1px; }
-      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 17px; font-weight: 600; fill: #444444; }
-      .vip-premium-precio { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 46px; font-weight: 900; fill: #1a365d; letter-spacing: -1px; }
-      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 28px; font-weight: 700; fill: #2c5282; }
-      .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 26px; font-weight: 700; fill: #ffffff; letter-spacing: 1.5px; }
-      .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: 600; fill: #e8f0ff; }
-      .vip-badge { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: 700; fill: #1a1a1a; letter-spacing: 1.5px; }
+      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 700; fill: #666666; letter-spacing: 3px; text-transform: uppercase; }
+      .vip-premium-ambientes { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 54px; font-weight: 900; fill: #000000; letter-spacing: -1.5px; }
+      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 19px; font-weight: 600; fill: #2d3748; }
+      .vip-premium-precio { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 52px; font-weight: 900; fill: #1a202c; letter-spacing: -2px; }
+      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 32px; font-weight: 700; fill: #2c5282; }
+      .vip-footer-url { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 32px; font-weight: 900; fill: #ffffff; letter-spacing: 0.5px; text-transform: lowercase; }
+      .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #e8f0ff; }
+      .vip-badge { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 15px; font-weight: 900; fill: #1a1a1a; letter-spacing: 2px; }
     </style>
+    
+    <!-- Iconos SVG para características -->
+    <symbol id="icon-area" viewBox="0 0 24 24">
+      <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z" fill="#2c5282" stroke="#1a365d" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="icon-covered" viewBox="0 0 24 24">
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="#2c5282" stroke="#1a365d" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="icon-bed" viewBox="0 0 24 24">
+      <path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V7H1v13h2v-2h18v2h2v-9c0-1.1-.9-2-2-2z" fill="#2c5282" stroke="#1a365d" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="icon-bath" viewBox="0 0 24 24">
+      <circle cx="7" cy="7" r="2" fill="#2c5282"/>
+      <path d="M20 13V4.83C20 3.27 18.73 2 17.17 2c-.75 0-1.47.3-2 .83l-1.25 1.25c-.16-.05-.33-.08-.51-.08-.4 0-.77.12-1.08.32l2.76 2.76c.2-.31.32-.68.32-1.08 0-.18-.03-.34-.08-.51l1.25-1.25c.16-.15.37-.24.59-.24.46 0 .83.37.83.83V13h-6.85c-.3-.21-.57-.45-.82-.72l-1.4-1.55c-.19-.21-.43-.38-.69-.5-.29-.14-.62-.23-.96-.23h-.03C6.01 10 5 11.01 5 12.25V13H2v6c0 1.1.9 2 2 2 0 .55.45 1 1 1h14c.55 0 1-.45 1-1 1.1 0 2-.9 2-2v-6h-2z" fill="#2c5282" stroke="#1a365d" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="icon-garage" viewBox="0 0 24 24">
+      <path d="M12 2L2 7v3h20V7l-10-5zm-8 8v11h4v-3c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v3h4V10H4zm12 11v-3h-4v3h4z" fill="#2c5282" stroke="#1a365d" stroke-width="1.5"/>
+    </symbol>
     
     <!-- Degradado para el footer -->
     <linearGradient id="footerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -1876,16 +1894,25 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     </filter>
   </defs>
   
-  <!-- Área blanca para información con textura sutil -->
+  <!-- Área blanca para información con patrón decorativo sutil -->
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="#ffffff" />
   
-  <!-- Pattern decorativo de fondo muy sutil -->
+  <!-- Pattern decorativo de fondo mejorado -->
   <defs>
     <pattern id="subtlePattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-      <circle cx="20" cy="20" r="1" fill="rgba(44, 82, 130, 0.02)" />
+      <circle cx="20" cy="20" r="1.5" fill="#e2e8f0" opacity="0.4"/>
+      <circle cx="0" cy="0" r="1.5" fill="#e2e8f0" opacity="0.3"/>
+      <circle cx="40" cy="0" r="1.5" fill="#e2e8f0" opacity="0.3"/>
+      <circle cx="0" cy="40" r="1.5" fill="#e2e8f0" opacity="0.3"/>
+      <circle cx="40" cy="40" r="1.5" fill="#e2e8f0" opacity="0.3"/>
     </pattern>
+    <linearGradient id="whiteAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f7fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
   </defs>
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="url(#subtlePattern)" />
+  <rect x="0" y="${infoY}" width="${width}" height="30" fill="url(#whiteAreaGradient)" />
   
   <!-- Línea decorativa superior con degradado -->
   <rect x="0" y="${infoY}" width="${width}" height="5" fill="url(#footerGradient)" />
@@ -1922,11 +1949,11 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   let col3Y = featuresY;
   
   const features = [];
-  if (m2_totales) features.push({ icon: '📐', text: `${m2_totales} m² totales`, col: 0 });
-  if (m2_cubiertos) features.push({ icon: '📏', text: `${m2_cubiertos} m² cubiertos`, col: 0 });
-  if (dormitorios) features.push({ icon: '🛏️', text: `${dormitorios} dormitorios`, col: 1 });
-  if (banos) features.push({ icon: '🚿', text: `${banos} baños`, col: 1 });
-  if (cocheras) features.push({ icon: '🚗', text: `${cocheras} cocheras`, col: 2 });
+  if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m² totales`, col: 0 });
+  if (m2_cubiertos) features.push({ icon: 'icon-covered', text: `${m2_cubiertos} m² cubiertos`, col: 0 });
+  if (dormitorios) features.push({ icon: 'icon-bed', text: `${dormitorios} dormitorios`, col: 1 });
+  if (banos) features.push({ icon: 'icon-bath', text: `${banos} baños`, col: 1 });
+  if (cocheras) features.push({ icon: 'icon-garage', text: `${cocheras} cocheras`, col: 2 });
   
   features.forEach((feature) => {
     let colX, colY;
@@ -1946,30 +1973,43 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     
     svg += `  <g>\n`;
     svg += `    <rect x="${colX - 5}" y="${colY - 22}" width="4" height="28" fill="#2c5282" rx="2" />\n`;
-    svg += `    <text x="${colX + 10}" y="${colY}" style="font-family: Arial; font-size: 20px;">${feature.icon}</text>\n`;
-    svg += `    <text x="${colX + 38}" y="${colY}" class="vip-premium-feature">${feature.text}</text>\n`;
+    // Icono SVG profesional
+    svg += `    <svg x="${colX + 8}" y="${colY - 20}" width="24" height="24">\n`;
+    svg += `      <use href="#${feature.icon}" />\n`;
+    svg += `    </svg>\n`;
+    svg += `    <text x="${colX + 42}" y="${colY}" class="vip-premium-feature">${feature.text}</text>\n`;
     svg += `  </g>\n`;
   });
   
-  svg += `\n  <!-- Contenedor de precio premium mejorado y más amplio -->\n`;
-  const priceBoxY = textStartY + 185;
-  const priceBoxWidth = 780;
-  const priceBoxHeight = 90;
+  svg += `\n  <!-- Contenedor de precio premium elevado sobre footer -->\n`;
+  const priceBoxY = textStartY + 195;
+  const priceBoxWidth = 820;
+  const priceBoxHeight = 100;
   
-  svg += `  <g filter="url(#shadowMedium)">\n`;
-  svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="${priceBoxWidth}" height="${priceBoxHeight}" fill="#ffffff" stroke="#2c5282" stroke-width="3" rx="16" />\n`;
-  svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="${priceBoxWidth}" height="10" fill="#2c5282" rx="16" />\n`;
-  // Decoración lateral izquierda
-  svg += `    <rect x="${textStartX - 16}" y="${priceBoxY + 18}" width="6" height="${priceBoxHeight - 28}" fill="url(#vipBadgeGradient)" rx="3" />\n`;
+  // Sombra más pronunciada para elevación
+  svg += `  <filter id="shadowStrong">\n`;
+  svg += `    <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>\n`;
+  svg += `    <feOffset dx="0" dy="6" result="offsetblur"/>\n`;
+  svg += `    <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>\n`;
+  svg += `    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>\n`;
+  svg += `  </filter>\n`;
+  
+  svg += `  <g filter="url(#shadowStrong)">\n`;
+  svg += `    <!-- Fondo blanco con borde premium -->\n`;
+  svg += `    <rect x="${textStartX - 30}" y="${priceBoxY}" width="${priceBoxWidth}" height="${priceBoxHeight}" fill="#ffffff" stroke="#1a365d" stroke-width="4" rx="18" />\n`;
+  svg += `    <!-- Borde superior con gradiente dorado -->\n`;
+  svg += `    <rect x="${textStartX - 30}" y="${priceBoxY}" width="${priceBoxWidth}" height="12" fill="url(#vipBadgeGradient)" rx="18" />\n`;
+  svg += `    <!-- Barra lateral decorativa -->\n`;
+  svg += `    <rect x="${textStartX - 24}" y="${priceBoxY + 22}" width="8" height="${priceBoxHeight - 32}" fill="url(#vipBadgeGradient)" rx="4" />\n`;
   svg += `  </g>\n`;
   
-  // Label "Precio" pequeño arriba
-  svg += `  <text x="${textStartX + 10}" y="${priceBoxY + 30}" style="font-family: Arial; font-size: 12px; font-weight: 600; fill: #888888; letter-spacing: 1px; text-transform: uppercase;">Precio</text>\n`;
+  // Label "Precio" mejorado
+  svg += `  <text x="${textStartX + 10}" y="${priceBoxY + 35}" style="font-family: Arial; font-size: 14px; font-weight: 700; fill: #718096; letter-spacing: 2px; text-transform: uppercase;">Precio</text>\n`;
   
-  // Moneda y precio en la misma línea pero con mejor espaciado
-  const priceTextY = priceBoxY + 65;
+  // Moneda y precio con mejor espaciado y alineación
+  const priceTextY = priceBoxY + 75;
   svg += `  <text x="${textStartX + 10}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${textStartX + 75}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
+  svg += `  <text x="${textStartX + 90}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
   
   svg += `\n  <!-- Footer premium con degradado y efectos 3D mejorados -->\n`;
   svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="url(#footerGradient)" />\n`;
@@ -1991,8 +2031,10 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   svg += `  <circle cx="${width/2 - 260}" cy="${footerY + 43}" r="4" fill="rgba(255,255,255,0.5)" />\n`;
   svg += `  <circle cx="${width/2 + 260}" cy="${footerY + 43}" r="4" fill="rgba(255,255,255,0.5)" />\n`;
   
-  svg += `\n  <!-- URL destacada con efecto de sombra mejorado -->\n`;
-  svg += `  <text x="${width/2 + 3}" y="${footerY + 48}" text-anchor="middle" class="vip-footer-url" fill="rgba(0,0,0,0.4)">www.rialtor.app</text>\n`;
+  svg += `\n  <!-- URL destacada con tipografía premium -->\n`;
+  // Sombra de texto
+  svg += `  <text x="${width/2}" y="${footerY + 48}" text-anchor="middle" class="vip-footer-url" fill="rgba(0,0,0,0.3)" style="filter: blur(2px);">www.rialtor.app</text>\n`;
+  // Texto principal con resplandor
   svg += `  <text x="${width/2}" y="${footerY + 45}" text-anchor="middle" class="vip-footer-url">www.rialtor.app</text>\n`;
   
   // Información de contacto en footer (línea inferior) - mejor espaciado
