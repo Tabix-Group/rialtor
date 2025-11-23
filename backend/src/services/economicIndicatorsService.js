@@ -300,6 +300,67 @@ class EconomicIndicatorsService {
   }
 
   /**
+   * Obtiene el índice de Inflación histórica desde la API de argentinadatos.com
+   * Filtra datos desde 2010 en adelante
+   */
+  async getInflacionIndex() {
+    try {
+      console.log('[INFLACION] Obteniendo índice de Inflación desde API...');
+      
+      const response = await axios.get('https://api.argentinadatos.com/v1/finanzas/indices/inflacion/', {
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'RIALTOR/1.0'
+        }
+      });
+
+      const data = response.data;
+      
+      if (!data || data.length === 0) {
+        throw new Error('No hay datos de inflación disponibles');
+      }
+
+      // Filtrar datos desde 2010 en adelante
+      const dataFrom2010 = data.filter(item => item.fecha >= '2010-01-01');
+      
+      if (dataFrom2010.length === 0) {
+        throw new Error('No hay datos de inflación desde 2010');
+      }
+
+      // Obtener el último valor y el anterior para calcular variación
+      const latestData = dataFrom2010[dataFrom2010.length - 1];
+      const previousData = dataFrom2010.length > 1 ? dataFrom2010[dataFrom2010.length - 2] : null;
+      
+      // La variación es simplemente la diferencia entre el mes actual y el anterior
+      let variacion = null;
+      if (previousData) {
+        variacion = parseFloat((latestData.valor - previousData.valor).toFixed(2));
+      }
+
+      console.log(`[INFLACION] ✅ Datos obtenidos. Valor actual: ${latestData.valor}% (${latestData.fecha})`);
+
+      return {
+        nombre: 'Inflación Mensual',
+        valor: parseFloat(latestData.valor) || 0,
+        variacion: variacion,
+        fecha: latestData.fecha,
+        descripcion: 'Inflación mensual histórica de Argentina desde 2010. Mide la variación porcentual de precios mes a mes.'
+      };
+    } catch (error) {
+      console.error('[INFLACION] Error obteniendo datos:', error.message);
+      
+      // Devolver valores por defecto en caso de error
+      return {
+        nombre: 'Inflación Mensual',
+        valor: 0,
+        variacion: null,
+        fecha: new Date().toISOString().split('T')[0],
+        descripcion: 'Datos no disponibles temporalmente'
+      };
+    }
+  }
+
+  /**
    * Obtiene el índice UVA desde la API de argentinadatos.com
    */
   async getUVAIndex() {
@@ -434,9 +495,13 @@ class EconomicIndicatorsService {
           }
         }
 
-        // Obtener UVA desde la API (ya que no está en la BD)
-        const uvaData = await this.getUVAIndex();
+        // Obtener UVA e Inflación desde la API (ya que no están en la BD)
+        const [uvaData, inflacionData] = await Promise.all([
+          this.getUVAIndex(),
+          this.getInflacionIndex()
+        ]);
         result.uva = uvaData;
+        result.inflacion = inflacionData;
 
         result.lastUpdated = new Date().toISOString();
         result.dataSource = 'DATABASE';
@@ -458,8 +523,11 @@ class EconomicIndicatorsService {
       // Fallback a datos mock si hay error en DB
       console.log('[ECONOMIC] 📊 Usando datos mock como fallback');
       
-      // Obtener UVA desde la API (es independiente de la BD)
-      const uvaData = await this.getUVAIndex();
+      // Obtener UVA e Inflación desde la API (son independientes de la BD)
+      const [uvaData, inflacionData] = await Promise.all([
+        this.getUVAIndex(),
+        this.getInflacionIndex()
+      ]);
 
       const result = {
         ipc: {
@@ -505,6 +573,7 @@ class EconomicIndicatorsService {
           descripcion: 'Índice de evolución de los salarios'
         },
         uva: uvaData,
+        inflacion: inflacionData,
         lastUpdated: new Date().toISOString(),
         dataSource: 'MOCK_DATA'
       };
@@ -567,6 +636,13 @@ class EconomicIndicatorsService {
         },
         uva: {
           nombre: 'UVA (Unidad de Valor Adquisitivo)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        inflacion: {
+          nombre: 'Inflación Mensual',
           valor: 0,
           variacion: 0,
           fecha: new Date().toISOString().split('T')[0],
@@ -936,9 +1012,12 @@ class EconomicIndicatorsService {
    */
   async getEconomicIndexChart(indicator, period = '30d') {
     try {
-      // Caso especial: UVA viene de API externa, no de BD
+      // Casos especiales: UVA e Inflación vienen de API externa, no de BD
       if (indicator === 'uva') {
         return await this.getUVAChartData(period);
+      }
+      if (indicator === 'inflacion') {
+        return await this.getInflacionChartData(period);
       }
 
       console.log(`[ECONOMIC INDEX CHART] Obteniendo datos históricos para ${indicator} desde la base de datos...`);
@@ -1067,6 +1146,119 @@ class EconomicIndicatorsService {
   }
 
   /**
+   * Obtiene datos de gráfico para el índice de Inflación
+   */
+  async getInflacionChartData(period = '30d') {
+    try {
+      console.log(`[INFLACION CHART] Obteniendo datos históricos de Inflación...`);
+      
+      const response = await axios.get('https://api.argentinadatos.com/v1/finanzas/indices/inflacion/', {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'RIALTOR/1.0'
+        }
+      });
+
+      const allData = response.data;
+      
+      if (!allData || allData.length === 0) {
+        throw new Error('No hay datos de inflación disponibles');
+      }
+
+      // Filtrar datos desde 2010 en adelante
+      const dataFrom2010 = allData.filter(item => item.fecha >= '2010-01-01');
+
+      // Filtrar datos según el período solicitado
+      const now = new Date();
+      let startDate;
+
+      switch (period) {
+        case '7d':
+          // Para inflación (datos mensuales), 7 días no tiene sentido, usar 3 meses
+          startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+          break;
+        case '30d':
+          // Mostrar últimos 12 meses
+          startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1);
+          break;
+        case '90d':
+          // Mostrar últimos 24 meses
+          startDate = new Date(now.getFullYear(), now.getMonth() - 24, 1);
+          break;
+        case '1y':
+          // Mostrar últimos 5 años
+          startDate = new Date(now.getFullYear() - 5, now.getMonth(), 1);
+          break;
+        default:
+          startDate = new Date(now.getFullYear(), now.getMonth() - 12, 1);
+      }
+
+      // Filtrar y formatear datos
+      const filteredData = dataFrom2010
+        .filter(item => new Date(item.fecha) >= startDate)
+        .map(item => ({
+          fecha: item.fecha,
+          valor: parseFloat(item.valor) || 0
+        }));
+
+      console.log(`[INFLACION CHART] ✅ Encontrados ${filteredData.length} registros para el período ${period}`);
+
+      return {
+        data: filteredData,
+        indicador: 'Inflación Mensual',
+        periodo: this.getPeriodDescription(period),
+        dataSource: 'API_ARGENTINADATOS'
+      };
+    } catch (error) {
+      console.error('[INFLACION CHART] Error obteniendo datos:', error.message);
+      
+      // Fallback a datos mock si falla la API
+      console.log('[INFLACION CHART] 📊 Generando datos mock');
+      const mockData = this.generateMockInflacionData(period);
+      
+      return {
+        data: mockData,
+        indicador: 'Inflación Mensual',
+        periodo: `${this.getPeriodDescription(period)} (datos simulados)`,
+        dataSource: 'MOCK'
+      };
+    }
+  }
+
+  /**
+   * Genera datos mock para Inflación
+   */
+  generateMockInflacionData(period) {
+    const now = new Date();
+    const data = [];
+    let months;
+
+    switch (period) {
+      case '7d': months = 3; break;
+      case '30d': months = 12; break;
+      case '90d': months = 24; break;
+      case '1y': months = 60; break; // 5 años
+      default: months = 12;
+    }
+
+    // Generar datos mensuales hacia atrás
+    for (let i = months; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      // Simular inflación mensual entre 1% y 8%
+      const baseInflation = 3.5;
+      const variation = (Math.random() - 0.5) * 4; // ±2%
+      const value = baseInflation + variation;
+
+      data.push({
+        fecha: date.toISOString().split('T')[0],
+        valor: Math.round(value * 10) / 10
+      });
+    }
+
+    return data;
+  }
+
+  /**
    * Obtiene datos de gráfico para el índice UVA
    */
   async getUVAChartData(period = '30d') {
@@ -1179,6 +1371,7 @@ class EconomicIndicatorsService {
   getIndicatorName(indicator) {
     const names = {
       'ipc': 'IPC (Índice de Precios al Consumidor)',
+      'inflacion': 'Inflación Mensual',
       'cacGeneral': 'CAC General',
       'cacMateriales': 'CAC Materiales',
       'cacManoObra': 'CAC Mano de Obra',
@@ -1214,6 +1407,7 @@ class EconomicIndicatorsService {
     // Valores base para diferentes indicadores
     const baseValues = {
       'ipc': 1500,
+      'inflacion': 3.5,
       'cacGeneral': 1200,
       'cacMateriales': 1100,
       'cacManoObra': 1300,

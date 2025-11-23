@@ -73,6 +73,7 @@ interface EconomicIndex {
 
 interface EconomicIndexesData {
   ipc: EconomicIndex
+  inflacion: EconomicIndex
   cacGeneral: EconomicIndex
   cacMateriales: EconomicIndex
   cacManoObra: EconomicIndex
@@ -744,14 +745,18 @@ export default function IndicadoresPage() {
               <h2 className="text-2xl font-bold">Índices Económicos</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Grid especial para IPC e Inflación - destacados en 2 columnas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* IPC */}
               <div 
-                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 hover:border-blue-300 transition-all hover:shadow-lg cursor-pointer"
                 onClick={() => fetchEconomicIndexChart('ipc')}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">IPC (Inflación)</h3>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">IPC (Inflación)</h3>
+                    <p className="text-xs text-gray-600 mt-0.5">Índice acumulado</p>
+                  </div>
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.ipc?.variacion || 0)}`}>
                     <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.ipc?.variacion || 0)}`}>
                       {getVariationIcon(economicIndexes.ipc?.variacion || 0)}
@@ -760,13 +765,47 @@ export default function IndicadoresPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.ipc?.valor || 0, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.ipc?.descripcion || 'Cargando...'}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-3xl font-bold text-gray-900">{formatCurrency(economicIndexes.ipc?.valor || 0, 2)}</div>
+                  <div className="text-sm text-gray-600">{economicIndexes.ipc?.descripcion || 'Cargando...'}</div>
+                  <div className="text-xs text-gray-500">
                     Actualizado: {economicIndexes.ipc?.fecha ? new Date(economicIndexes.ipc.fecha).toLocaleDateString("es-AR") : 'N/A'}
                   </div>
                 </div>
               </div>
+
+              {/* Inflación Mensual */}
+              {economicIndexes.inflacion && (
+                <div 
+                  className="bg-gradient-to-br from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl p-6 hover:border-red-300 transition-all hover:shadow-lg cursor-pointer"
+                  onClick={() => fetchEconomicIndexChart('inflacion')}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Inflación Mensual</h3>
+                      <p className="text-xs text-gray-600 mt-0.5">Histórica desde 2010</p>
+                    </div>
+                    {economicIndexes.inflacion.variacion !== null && (
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.inflacion.variacion)}`}>
+                        <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.inflacion.variacion)}`}>
+                          {getVariationIcon(economicIndexes.inflacion.variacion)}
+                          {formatCurrency(Math.abs(economicIndexes.inflacion.variacion), 2)}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-3xl font-bold text-gray-900">{formatCurrency(economicIndexes.inflacion.valor, 2)}%</div>
+                    <div className="text-sm text-gray-600">{economicIndexes.inflacion.descripcion}</div>
+                    <div className="text-xs text-gray-500">
+                      Actualizado: {economicIndexes.inflacion.fecha ? new Date(economicIndexes.inflacion.fecha).toLocaleDateString("es-AR", { month: 'long', year: 'numeric' }) : 'N/A'}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Resto de índices en grid normal */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
               {/* CAC General */}
               <div 
@@ -878,6 +917,7 @@ export default function IndicadoresPage() {
                 <div key={indicator} className="bg-card border border-border rounded-2xl p-6">
                   <h3 className="text-lg font-semibold mb-4 capitalize">
                     {indicator === 'ipc' ? 'IPC (Inflación)' :
+                     indicator === 'inflacion' ? 'Inflación Mensual' :
                      indicator === 'cacGeneral' ? 'CAC General' :
                      indicator === 'cacMateriales' ? 'CAC Materiales' :
                      indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
