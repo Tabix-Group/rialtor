@@ -1827,11 +1827,12 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 700; fill: #666666; letter-spacing: 3px; text-transform: uppercase; }
-      .vip-premium-ambientes { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 54px; font-weight: 900; fill: #000000; letter-spacing: -1.5px; }
-      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 19px; font-weight: 600; fill: #2d3748; }
-      .vip-premium-precio { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 52px; font-weight: 900; fill: #1a202c; letter-spacing: -2px; }
-      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 32px; font-weight: 700; fill: #2c5282; }
+      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 700; fill: #666666; letter-spacing: 2.5px; text-transform: uppercase; }
+      .vip-premium-direccion { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: 600; fill: #888888; letter-spacing: 1px; }
+      .vip-premium-ambientes { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 52px; font-weight: 900; fill: #000000; letter-spacing: -1.5px; }
+      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 600; fill: #2d3748; }
+      .vip-premium-precio { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 56px; font-weight: 900; fill: #1a202c; letter-spacing: -2px; }
+      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 36px; font-weight: 700; fill: #2c5282; }
       .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 28px; font-weight: 600; fill: #ffffff; letter-spacing: 1px; text-transform: lowercase; }
       .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #e8f0ff; }
       .vip-badge { font-family: 'Arial Black', 'Arial', sans-serif; font-size: 15px; font-weight: 900; fill: #1a1a1a; letter-spacing: 2px; }
@@ -1938,14 +1939,17 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   
   // Si hay dirección, ponerla en segunda línea debajo del tipo
   if (direccion) {
-    svg += `  <text x="${textStartX}" y="${textStartY + 26}" style="font-family: Arial; font-size: 15px; font-weight: 600; fill: #999999; letter-spacing: 1.5px;">${direccion}</text>\n`;
+    svg += `  <text x="${textStartX}" y="${textStartY + 30}" class="vip-premium-direccion">${direccion}</text>\n`;
   }
+  
+  // Ajustar posición de ambientes según si hay dirección
+  const ambientesY = direccion ? textStartY + 68 : textStartY + 60;
   
   svg += `
   
   <!-- Ambientes destacado con sombra -->
   <g filter="url(#shadowLight)">
-    <text x="${textStartX}" y="${textStartY + 60}" class="vip-premium-ambientes">${ambientes ? ambientes + ' AMBIENTES' : 'PROPIEDAD EXCLUSIVA'}</text>
+    <text x="${textStartX}" y="${ambientesY}" class="vip-premium-ambientes">${ambientes ? ambientes + ' AMBIENTES' : 'PROPIEDAD EXCLUSIVA'}</text>
   </g>
   
   <!-- Grid de características en 3 columnas para mejor balance -->\n`;
@@ -1996,14 +2000,15 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   });
   
   svg += `\n  <!-- Contenedor de precio premium adaptable al contenido -->\n`;
-  const priceBoxY = textStartY + 155;
+  // Ajustar posición según si hay dirección
+  const priceBoxY = direccion ? textStartY + 168 : textStartY + 155;
   
   // Calcular ancho dinámico basado en el contenido del precio
-  const monedaWidth = moneda.length * 20; // Aproximación del ancho de la moneda
-  const precioWidth = precio.length * 38; // Aproximación del ancho del precio (fuente más grande)
-  const paddingX = 50;
-  const priceBoxWidth = Math.max(350, monedaWidth + precioWidth + paddingX + 80); // Mínimo 350px
-  const priceBoxHeight = 100;
+  const monedaWidth = moneda.length * 22; // Aproximación del ancho de la moneda
+  const precioWidth = precio.length * 40; // Aproximación del ancho del precio (fuente más grande)
+  const paddingX = 80;
+  const priceBoxWidth = Math.max(400, monedaWidth + precioWidth + paddingX); // Mínimo 400px
+  const priceBoxHeight = 105;
   
   // Sombra más pronunciada para elevación
   svg += `  <filter id="shadowStrong">\n`;
@@ -2024,13 +2029,16 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   
   // Label "Precio" mejorado - centrado
   const priceBoxCenterX = textStartX - 30 + (priceBoxWidth / 2);
-  svg += `  <text x="${priceBoxCenterX}" y="${priceBoxY + 32}" text-anchor="middle" style="font-family: Arial; font-size: 14px; font-weight: 700; fill: #718096; letter-spacing: 2px; text-transform: uppercase;">Precio</text>\n`;
+  svg += `  <text x="${priceBoxCenterX}" y="${priceBoxY + 33}" text-anchor="middle" style="font-family: Arial; font-size: 13px; font-weight: 700; fill: #718096; letter-spacing: 2px; text-transform: uppercase;">Precio</text>\n`;
   
-  // Moneda y precio centrados con mejor alineación
-  const priceTextY = priceBoxY + 72;
-  const priceStartX = priceBoxCenterX - ((moneda.length * 20 + precio.length * 38) / 2);
+  // Moneda y precio perfectamente centrados
+  const priceTextY = priceBoxY + 78;
+  // Calcular centro real del texto
+  const totalTextWidth = moneda.length * 22 + precio.length * 40 + 10; // +10 para espacio entre moneda y precio
+  const priceStartX = priceBoxCenterX - (totalTextWidth / 2);
+  
   svg += `  <text x="${priceStartX}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${priceStartX + moneda.length * 20 + 15}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
+  svg += `  <text x="${priceStartX + moneda.length * 22 + 10}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
   
   svg += `\n  <!-- Footer premium con degradado y efectos 3D mejorados -->\n`;
   svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="url(#footerGradient)" />\n`;
