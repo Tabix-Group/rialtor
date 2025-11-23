@@ -908,19 +908,21 @@ export default function PlacasPage() {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        <Clock className="w-4 h-4 inline mr-1" />
-                        Antigüedad
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.antiguedad}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 5 años"
-                      />
-                    </div>
+                    {modelType !== 'vip' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <Clock className="w-4 h-4 inline mr-1" />
+                          Antigüedad
+                        </label>
+                        <input
+                          type="text"
+                          value={propertyData.antiguedad}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          placeholder="Ej: 5 años"
+                        />
+                      </div>
+                    )}
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -936,19 +938,21 @@ export default function PlacasPage() {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        <Mail className="w-4 h-4 inline mr-1" />
-                        Email de contacto
-                      </label>
-                      <input
-                        type="email"
-                        value={propertyData.email}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="agente@remax.com.ar"
-                      />
-                    </div>
+                    {modelType !== 'vip' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <Mail className="w-4 h-4 inline mr-1" />
+                          Email de contacto
+                        </label>
+                        <input
+                          type="email"
+                          value={propertyData.email}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          placeholder="agente@remax.com.ar"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -965,18 +969,20 @@ export default function PlacasPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Descripción adicional
-                    </label>
-                    <textarea
-                      value={propertyData.descripcion}
-                      onChange={(e) => setPropertyData(prev => ({ ...prev, descripcion: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      rows={3}
-                      placeholder="Información adicional sobre la propiedad..."
-                    />
-                  </div>
+                  {modelType !== 'vip' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Descripción adicional
+                      </label>
+                      <textarea
+                        value={propertyData.descripcion}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, descripcion: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        rows={3}
+                        placeholder="Información adicional sobre la propiedad..."
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -990,7 +996,7 @@ export default function PlacasPage() {
                       placeholder="www.rialtor.app"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Esta URL aparecerá en el footer de la placa
+                      {modelType === 'vip' ? 'Esta URL se mostrará en el código QR de la placa VIP' : 'Esta URL aparecerá en el footer de la placa'}
                     </p>
                   </div>
 

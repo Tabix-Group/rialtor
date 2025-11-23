@@ -2084,14 +2084,17 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     featuresInRow++;
   });
   
-  // Precio en la columna izquierda, más abajo
-  const priceY = featuresY + (Math.ceil(features.length / maxFeaturesPerRow) * 50) + 50;
+  // Precio integrado en la segunda fila, después de cocheras
+  const priceRow = Math.floor(features.length / maxFeaturesPerRow); // Segunda fila si hay más de 3 features
+  const priceColumn = features.length % maxFeaturesPerRow; // Posición después del último feature de la fila
+  const priceX = leftColumnX + (priceColumn * featureSpacing);
+  const priceY = featuresY + (priceRow * 50);
   
-  svg += `\n  <!-- Precio destacado con mejor balance -->\n`;
-  svg += `  <text x="${leftColumnX}" y="${priceY}" class="vip-ref-label">Precio</text>\n`;
+  svg += `\n  <!-- Precio integrado en el grid -->\n`;
   svg += `  <g>\n`;
-  svg += `    <text x="${leftColumnX}" y="${priceY + 50}" class="vip-moneda">${moneda}</text>\n`;
-  svg += `    <text x="${leftColumnX + (moneda.length * 15)}" y="${priceY + 50}" class="vip-precio">${precio}</text>\n`;
+  svg += `    <text x="${priceX}" y="${priceY - 5}" class="vip-ref-label">Precio</text>\n`;
+  svg += `    <text x="${priceX}" y="${priceY + 20}" class="vip-moneda" style="font-size: 20px;">${moneda}</text>\n`;
+  svg += `    <text x="${priceX + (moneda.length * 13)}" y="${priceY + 20}" class="vip-precio" style="font-size: 42px; letter-spacing: -1.5px;">${precio}</text>\n`;
   svg += `  </g>\n`;
   
   svg += `\n  <!-- Footer balanceado -->\n`;
