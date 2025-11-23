@@ -1932,9 +1932,16 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     <text x="${width - 95}" y="${infoY + 41}" text-anchor="middle" class="vip-badge">★ VIP ★</text>
   </g>
   
-  <!-- Tipo de propiedad con línea decorativa -->
-  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>
-  <rect x="${textStartX}" y="${textStartY + 8}" width="80" height="2" fill="#2c5282" />
+  <!-- Tipo de propiedad con dirección y línea decorativa -->
+  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>\n`;
+  
+  // Si hay dirección, agregarla a la derecha del tipo con separador
+  if (direccion) {
+    svg += `  <text x="${textStartX + 150}" y="${textStartY}" style="font-family: Arial; font-size: 18px; font-weight: 600; fill: #999999; letter-spacing: 1px;">|</text>\n`;
+    svg += `  <text x="${textStartX + 170}" y="${textStartY}" class="vip-premium-tipo">${direccion}</text>\n`;
+  }
+  
+  svg += `  <rect x="${textStartX}" y="${textStartY + 8}" width="80" height="2" fill="#2c5282" />
   
   <!-- Ambientes destacado con sombra -->
   <g filter="url(#shadowLight)">
@@ -1988,9 +1995,14 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     svg += `  </g>\n`;
   });
   
-  svg += `\n  <!-- Contenedor de precio premium elevado sobre footer -->\n`;
-  const priceBoxY = textStartY + 170;
-  const priceBoxWidth = 820;
+  svg += `\n  <!-- Contenedor de precio premium adaptable al contenido -->\n`;
+  const priceBoxY = textStartY + 155;
+  
+  // Calcular ancho dinámico basado en el contenido del precio
+  const monedaWidth = moneda.length * 20; // Aproximación del ancho de la moneda
+  const precioWidth = precio.length * 38; // Aproximación del ancho del precio (fuente más grande)
+  const paddingX = 50;
+  const priceBoxWidth = Math.max(350, monedaWidth + precioWidth + paddingX + 80); // Mínimo 350px
   const priceBoxHeight = 100;
   
   // Sombra más pronunciada para elevación
@@ -2047,14 +2059,10 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   // Información de contacto en footer (línea inferior) - mejor espaciado
   const footerInfoY = footerY + 85;
   
-  // Información izquierda: corredor y dirección
+  // Información izquierda: solo corredor (dirección ya está arriba con el tipo)
   let leftX = 80;
   if (corredores) {
     svg += `  <text x="${leftX}" y="${footerInfoY}" class="vip-footer-info">${corredores}</text>\n`;
-  }
-  if (direccion) {
-    const dirY = corredores ? footerInfoY + 18 : footerInfoY;
-    svg += `  <text x="${leftX}" y="${dirY}" class="vip-footer-info">${direccion}</text>\n`;
   }
   
   // Información derecha: contacto
