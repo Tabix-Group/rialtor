@@ -1770,11 +1770,11 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       left: interiorX
     });
     
-    // Capa 5: Código QR en el espacio blanco superior derecho
+    // Capa 5: Código QR a la derecha de la información de la propiedad
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
-    const qrSize = 140; // Tamaño del QR
-    const qrX = width - qrSize - 40; // Alineado con la imagen circular
-    const qrY = interiorY + interiorCircleSize + 30; // Debajo de la imagen circular con espaciado
+    const qrSize = 160; // Tamaño del QR (aumentado para mejor legibilidad)
+    const qrX = width - qrSize - 50; // Margen derecho
+    const qrY = exteriorHeight + Math.floor((height - exteriorHeight - barHeight) / 2) - (qrSize / 2); // Centrado verticalmente en el área blanca
     
     try {
       // Generar código QR como buffer
