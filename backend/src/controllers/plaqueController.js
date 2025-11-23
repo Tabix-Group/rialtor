@@ -1827,12 +1827,12 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 17px; font-weight: 400; fill: #666666; }
-      .vip-premium-direccion { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 400; fill: #888888; }
-      .vip-premium-ambientes { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 72px; font-weight: 700; fill: #2d2d2d; letter-spacing: -2px; }
-      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 400; fill: #4a4a4a; }
-      .vip-premium-precio { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 85px; font-weight: 700; fill: #2d2d2d; letter-spacing: -4px; }
-      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 32px; font-weight: 400; fill: #666666; }
+      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 17px; font-weight: 500; fill: #555555; letter-spacing: 0.3px; }
+      .vip-premium-direccion { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 400; fill: #888888; letter-spacing: 0.2px; }
+      .vip-premium-ambientes { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 74px; font-weight: 700; fill: #2d2d2d; letter-spacing: -2.5px; }
+      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 400; fill: #4a4a4a; letter-spacing: 0.2px; }
+      .vip-premium-precio { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 88px; font-weight: 700; fill: #2d2d2d; letter-spacing: -4.5px; }
+      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 32px; font-weight: 500; fill: #666666; letter-spacing: 0.5px; }
       .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 600; fill: #5a5a5a; }
       .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 13px; font-weight: 400; fill: #7a7a7a; }
     </style>
@@ -1892,23 +1892,43 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   <!-- Área blanca con decoración de calidad -->
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="#ffffff" />
   
-  <!-- Patrón decorativo sutil de fondo -->
+  <!-- Patrón decorativo sutil de fondo de alta calidad -->
   <defs>
-    <pattern id="luxuryPattern" x="0" y="${infoY}" width="100" height="100" patternUnits="userSpaceOnUse">
-      <line x1="0" y1="50" x2="100" y2="50" stroke="#f0f0f0" stroke-width="0.5" opacity="0.3"/>
-      <line x1="50" y1="0" x2="50" y2="100" stroke="#f0f0f0" stroke-width="0.5" opacity="0.3"/>
-      <circle cx="50" cy="50" r="1" fill="#e8e8e8" opacity="0.4"/>
+    <pattern id="luxuryPattern" x="0" y="${infoY}" width="120" height="120" patternUnits="userSpaceOnUse">
+      <!-- Líneas finas cruzadas que dan textura premium -->
+      <line x1="0" y1="60" x2="120" y2="60" stroke="#f5f5f5" stroke-width="0.3" opacity="0.4"/>
+      <line x1="60" y1="0" x2="60" y2="120" stroke="#f5f5f5" stroke-width="0.3" opacity="0.4"/>
+      <!-- Pequeños detalles geométricos -->
+      <circle cx="60" cy="60" r="1.5" fill="#e8e8e8" opacity="0.3"/>
+      <circle cx="60" cy="60" r="0.5" fill="#d4af37" opacity="0.2"/>
     </pattern>
     <linearGradient id="subtleShine" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
-      <stop offset="100%" style="stop-color:#fafafa;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fafafa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8f8f8;stop-opacity:1" />
+    </linearGradient>
+    <!-- Gradiente dorado sutil para detalles -->
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:0.3" />
+      <stop offset="50%" style="stop-color:#f4e5a0;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0.3" />
     </linearGradient>
   </defs>
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="url(#subtleShine)" />
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="url(#luxuryPattern)" />
   
-  <!-- Línea decorativa superior elegante -->
-  <line x1="${textStartX}" y1="${infoY + 20}" x2="${textStartX + 150}" y2="${infoY + 20}" stroke="#d4af37" stroke-width="2" opacity="0.6"/>
+  <!-- Detalle decorativo superior de lujo -->
+  <g opacity="0.7">
+    <line x1="${textStartX}" y1="${infoY + 18}" x2="${textStartX + 180}" y2="${infoY + 18}" stroke="url(#goldAccent)" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="${textStartX}" cy="${infoY + 18}" r="2" fill="#d4af37" opacity="0.6"/>
+    <circle cx="${textStartX + 180}" cy="${infoY + 18}" r="2" fill="#d4af37" opacity="0.6"/>
+  </g>
+  
+  <!-- Esquinas decorativas sutiles que dan sofisticación -->
+  <g opacity="0.15">
+    <line x1="${width - 100}" y1="${infoY + 10}" x2="${width - 50}" y2="${infoY + 10}" stroke="#d4af37" stroke-width="1"/>
+    <line x1="${width - 50}" y1="${infoY + 10}" x2="${width - 50}" y2="${infoY + 60}" stroke="#d4af37" stroke-width="1"/>
+  </g>
   
   <!-- Tipo de propiedad y dirección en la misma línea -->\n`;
   
@@ -1970,29 +1990,56 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   
   featureY = maxFeatureY + featureLineHeight;
   
-  svg += `\n  <!-- Precio destacado con fondo elegante -->\n`;
+  svg += `\n  <!-- Precio destacado con fondo elegante adaptable -->\n`;
   // Posición del precio después de las características con más espacio
-  const priceY = featureY + 45;
-  const priceBoxHeight = 100;
-  const priceBoxY = priceY - 70;
+  const priceY = featureY + 50;
+  const priceBoxHeight = 110;
+  const priceBoxY = priceY - 75;
   
-  // Caja decorativa para el precio
-  svg += `  <g>\n`;
-  svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="400" height="${priceBoxHeight}" fill="#fafafa" stroke="#e0e0e0" stroke-width="1" rx="12" />\n`;
-  svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="6" height="${priceBoxHeight}" fill="#d4af37" rx="12" />\n`;
+  // Calcular ancho dinámico del contenedor basado en el contenido del precio
+  const monedaEstimatedWidth = moneda.length * 21;
+  const precioEstimatedWidth = precio.length * 58; // Font más grande, más ancho por caracter
+  const priceBoxWidth = Math.max(420, monedaEstimatedWidth + precioEstimatedWidth + 80); // Padding generoso
+  
+  // Caja decorativa para el precio con sombra sutil
+  svg += `  <defs>\n`;
+  svg += `    <filter id="priceShadow">\n`;
+  svg += `      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>\n`;
+  svg += `      <feOffset dx="0" dy="2" result="offsetblur"/>\n`;
+  svg += `      <feComponentTransfer><feFuncA type="linear" slope="0.15"/></feComponentTransfer>\n`;
+  svg += `      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>\n`;
+  svg += `    </filter>\n`;
+  svg += `  </defs>\n`;
+  
+  svg += `  <g filter="url(#priceShadow)">\n`;
+  svg += `    <rect x="${textStartX - 25}" y="${priceBoxY}" width="${priceBoxWidth}" height="${priceBoxHeight}" fill="#fafafa" stroke="#e8e8e8" stroke-width="1.5" rx="14" />\n`;
+  svg += `    <!-- Borde izquierdo dorado premium -->\n`;
+  svg += `    <rect x="${textStartX - 25}" y="${priceBoxY}" width="5" height="${priceBoxHeight}" fill="#d4af37" rx="14" />\n`;
+  svg += `    <!-- Línea superior sutil para profundidad -->\n`;
+  svg += `    <line x1="${textStartX - 20}" y1="${priceBoxY + 35}" x2="${textStartX + priceBoxWidth - 35}" y2="${priceBoxY + 35}" stroke="#e0e0e0" stroke-width="0.5" opacity="0.5" />\n`;
   svg += `  </g>\n`;
   
-  // Moneda y precio en línea dentro de la caja
-  svg += `  <text x="${textStartX + 10}" y="${priceY}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${textStartX + 10 + moneda.length * 21 + 8}" y="${priceY}" class="vip-premium-precio">${precio}</text>\n`;
+  // Label "Precio" discreto
+  svg += `  <text x="${textStartX + 5}" y="${priceBoxY + 25}" style="font-family: Arial; font-size: 11px; font-weight: 600; fill: #999999; letter-spacing: 1.5px; text-transform: uppercase;">Precio</text>\n`;
   
-  svg += `\n  <!-- Footer minimalista con altura reducida -->\n`;
+  // Moneda y precio en línea dentro de la caja, centrados verticalmente
+  const priceTextY = priceBoxY + 75;
+  svg += `  <text x="${textStartX + 5}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
+  svg += `  <text x="${textStartX + 5 + monedaEstimatedWidth + 10}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
+  
+  svg += `\n  <!-- Footer minimalista premium con altura reducida -->\n`;
   const reducedFooterHeight = Math.floor(footerHeight / 2);
   const adjustedFooterY = height - reducedFooterHeight;
   svg += `  <rect x="0" y="${adjustedFooterY}" width="${width}" height="${reducedFooterHeight}" fill="url(#footerGradient)" />\n`;
-  // Línea superior sutil con pequeño detalle dorado
-  svg += `  <line x1="0" y1="${adjustedFooterY}" x2="${width}" y2="${adjustedFooterY}" stroke="#d0d0d0" stroke-width="1" />\n`;
-  svg += `  <line x1="${width/2 - 80}" y1="${adjustedFooterY}" x2="${width/2 + 80}" y2="${adjustedFooterY}" stroke="#d4af37" stroke-width="2" />\n`;
+  
+  // Línea superior elegante con detalles dorados centrales
+  svg += `  <line x1="0" y1="${adjustedFooterY}" x2="${width}" y2="${adjustedFooterY}" stroke="#d8d8d8" stroke-width="1" />\n`;
+  svg += `  <g opacity="0.8">\n`;
+  svg += `    <line x1="${width/2 - 100}" y1="${adjustedFooterY}" x2="${width/2 + 100}" y2="${adjustedFooterY}" stroke="url(#goldAccent)" stroke-width="2.5" stroke-linecap="round"/>\n`;
+  svg += `    <circle cx="${width/2 - 100}" cy="${adjustedFooterY}" r="2.5" fill="#d4af37" opacity="0.6"/>\n`;
+  svg += `    <circle cx="${width/2}" cy="${adjustedFooterY}" r="1.5" fill="#d4af37" opacity="0.8"/>\n`;
+  svg += `    <circle cx="${width/2 + 100}" cy="${adjustedFooterY}" r="2.5" fill="#d4af37" opacity="0.6"/>\n`;
+  svg += `  </g>\n`;
   
   svg += `\n  <!-- URL y contacto en footer reducido -->\n`;
   const compactFooterCenter = adjustedFooterY + (reducedFooterHeight / 2) + 5;
