@@ -1932,16 +1932,16 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     <text x="${width - 95}" y="${infoY + 41}" text-anchor="middle" class="vip-badge">★ VIP ★</text>
   </g>
   
-  <!-- Tipo de propiedad con dirección y línea decorativa -->
-  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>\n`;
+  <!-- Tipo de propiedad con línea decorativa -->
+  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>
+  <rect x="${textStartX}" y="${textStartY + 8}" width="80" height="2" fill="#2c5282" />\n`;
   
-  // Si hay dirección, agregarla a la derecha del tipo con separador
+  // Si hay dirección, ponerla en segunda línea debajo del tipo
   if (direccion) {
-    svg += `  <text x="${textStartX + 150}" y="${textStartY}" style="font-family: Arial; font-size: 18px; font-weight: 600; fill: #999999; letter-spacing: 1px;">|</text>\n`;
-    svg += `  <text x="${textStartX + 170}" y="${textStartY}" class="vip-premium-tipo">${direccion}</text>\n`;
+    svg += `  <text x="${textStartX}" y="${textStartY + 26}" style="font-family: Arial; font-size: 15px; font-weight: 600; fill: #999999; letter-spacing: 1.5px;">${direccion}</text>\n`;
   }
   
-  svg += `  <rect x="${textStartX}" y="${textStartY + 8}" width="80" height="2" fill="#2c5282" />
+  svg += `
   
   <!-- Ambientes destacado con sombra -->
   <g filter="url(#shadowLight)">
@@ -2022,13 +2022,15 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   svg += `    <rect x="${textStartX - 24}" y="${priceBoxY + 22}" width="8" height="${priceBoxHeight - 32}" fill="url(#vipBadgeGradient)" rx="4" />\n`;
   svg += `  </g>\n`;
   
-  // Label "Precio" mejorado
-  svg += `  <text x="${textStartX + 10}" y="${priceBoxY + 35}" style="font-family: Arial; font-size: 14px; font-weight: 700; fill: #718096; letter-spacing: 2px; text-transform: uppercase;">Precio</text>\n`;
+  // Label "Precio" mejorado - centrado
+  const priceBoxCenterX = textStartX - 30 + (priceBoxWidth / 2);
+  svg += `  <text x="${priceBoxCenterX}" y="${priceBoxY + 32}" text-anchor="middle" style="font-family: Arial; font-size: 14px; font-weight: 700; fill: #718096; letter-spacing: 2px; text-transform: uppercase;">Precio</text>\n`;
   
-  // Moneda y precio con mejor espaciado y alineación
-  const priceTextY = priceBoxY + 75;
-  svg += `  <text x="${textStartX + 10}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${textStartX + 90}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
+  // Moneda y precio centrados con mejor alineación
+  const priceTextY = priceBoxY + 72;
+  const priceStartX = priceBoxCenterX - ((moneda.length * 20 + precio.length * 38) / 2);
+  svg += `  <text x="${priceStartX}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
+  svg += `  <text x="${priceStartX + moneda.length * 20 + 15}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
   
   svg += `\n  <!-- Footer premium con degradado y efectos 3D mejorados -->\n`;
   svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="url(#footerGradient)" />\n`;
@@ -2056,18 +2058,22 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   // Texto principal con resplandor
   svg += `  <text x="${width/2}" y="${footerY + 45}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
   
-  // Información de contacto en footer (línea inferior) - mejor espaciado
+  // Información de contacto en footer centrada debajo de URL
   const footerInfoY = footerY + 85;
   
-  // Información izquierda: solo corredor (dirección ya está arriba con el tipo)
-  let leftX = 80;
-  if (corredores) {
-    svg += `  <text x="${leftX}" y="${footerInfoY}" class="vip-footer-info">${corredores}</text>\n`;
-  }
-  
-  // Información derecha: contacto
-  if (contacto) {
-    svg += `  <text x="${width - 80}" y="${footerInfoY}" text-anchor="end" class="vip-footer-info">${contacto}</text>\n`;
+  // Centrar toda la información del agente
+  if (corredores || contacto) {
+    // Crear texto combinado
+    let footerText = '';
+    if (corredores && contacto) {
+      footerText = `${corredores} | ${contacto}`;
+    } else if (corredores) {
+      footerText = corredores;
+    } else if (contacto) {
+      footerText = contacto;
+    }
+    
+    svg += `  <text x="${width/2}" y="${footerInfoY}" text-anchor="middle" class="vip-footer-info">${footerText}</text>\n`;
   }
   
   svg += `</svg>`;
