@@ -1811,9 +1811,6 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
           <!-- Borde sutil gris -->
           <rect x="10" y="10" width="${qrSize + 4}" height="${qrSize + 4}" 
                 fill="none" stroke="#e0e0e0" stroke-width="1.5" rx="8"/>
-          <!-- Label "Escanear" debajo -->
-          <text x="${qrFrameSize/2}" y="${qrSize + 20}" text-anchor="middle" 
-                style="font-family: Arial; font-size: 11px; font-weight: 600; fill: #888888; letter-spacing: 1px; text-transform: uppercase;">Escanear</text>
         </svg>`
       );
       
@@ -1917,9 +1914,10 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
       .vip-direccion { font-family: 'Arial', sans-serif; font-size: 13px; font-weight: 400; fill: #666666; letter-spacing: 0.2px; }
       .vip-ambientes-number { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 56px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1.5px; }
       .vip-ambientes-text { font-family: 'Arial', sans-serif; font-size: 20px; font-weight: 400; fill: #555555; letter-spacing: 0.3px; }
-      .vip-feature-icon { font-size: 15px; font-weight: 500; fill: #555555; }
-      .vip-precio { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 52px; font-weight: 700; fill: #2d2d2d; letter-spacing: -2px; }
-      .vip-moneda { font-family: 'Arial', sans-serif; font-size: 22px; font-weight: 600; fill: #555555; letter-spacing: 0.3px; }
+      .vip-feature-value { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 600; fill: #333333; }
+      .vip-feature-label { font-family: 'Arial', sans-serif; font-size: 13px; font-weight: 400; fill: #666666; }
+      .vip-precio { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 68px; font-weight: 700; fill: #2d2d2d; letter-spacing: -2.5px; }
+      .vip-moneda { font-family: 'Arial', sans-serif; font-size: 28px; font-weight: 600; fill: #555555; letter-spacing: 0.3px; }
       .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #444444; }
       .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 12px; font-weight: 400; fill: #666666; }
     </style>
@@ -2043,11 +2041,12 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   svg += `    <text x="${leftColumnX + (ambientes ? ambientes.toString().length * 35 : 35) + 8}" y="${ambientesY}" class="vip-ambientes-text">ambientes</text>\n`;
   svg += `  </g>\n`;
   
-  // Características en layout horizontal compacto
+  // Características con iconos en layout horizontal
   const featuresY = ambientesY + 50;
-  const featureSpacing = 140;
+  const featureSpacing = 145;
+  const iconSize = 20;
   
-  svg += `\n  <!-- Características balanceadas -->\n`;
+  svg += `\n  <!-- Características con iconos -->\n`;
   
   let featureX = leftColumnX;
   let currentRow = 0;
@@ -2055,11 +2054,11 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   const maxFeaturesPerRow = 3;
   
   const features = [];
-  if (m2_totales) features.push({ text: `${m2_totales} m²`, label: 'totales' });
-  if (m2_cubiertos) features.push({ text: `${m2_cubiertos} m²`, label: 'cubiertos' });
-  if (dormitorios) features.push({ text: dormitorios, label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
-  if (banos) features.push({ text: banos, label: banos === '1' ? 'baño' : 'baños' });
-  if (cocheras) features.push({ text: cocheras, label: cocheras === '1' ? 'cochera' : 'cocheras' });
+  if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m²`, label: 'totales' });
+  if (m2_cubiertos) features.push({ icon: 'icon-covered', text: `${m2_cubiertos} m²`, label: 'cubiertos' });
+  if (dormitorios) features.push({ icon: 'icon-bed', text: dormitorios, label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
+  if (banos) features.push({ icon: 'icon-bath', text: banos, label: banos === '1' ? 'baño' : 'baños' });
+  if (cocheras) features.push({ icon: 'icon-garage', text: cocheras, label: cocheras === '1' ? 'cochera' : 'cocheras' });
   
   features.forEach((feature, index) => {
     if (featuresInRow >= maxFeaturesPerRow) {
@@ -2068,11 +2067,17 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
       featureX = leftColumnX;
     }
     
-    const currentY = featuresY + (currentRow * 45);
+    const currentY = featuresY + (currentRow * 50);
     
     svg += `  <g>\n`;
-    svg += `    <text x="${featureX}" y="${currentY}" class="vip-feature-icon" style="font-family: Arial; font-size: 18px; font-weight: 600; fill: #333333;">${feature.text}</text>\n`;
-    svg += `    <text x="${featureX}" y="${currentY + 16}" class="vip-ref-label" style="font-size: 10px; fill: #888888;">${feature.label}</text>\n`;
+    // Icono
+    svg += `    <svg x="${featureX}" y="${currentY - iconSize + 3}" width="${iconSize}" height="${iconSize}">\n`;
+    svg += `      <use href="#${feature.icon}" />\n`;
+    svg += `    </svg>\n`;
+    // Valor
+    svg += `    <text x="${featureX + iconSize + 8}" y="${currentY}" class="vip-feature-value">${feature.text}</text>\n`;
+    // Label
+    svg += `    <text x="${featureX + iconSize + 8}" y="${currentY + 16}" class="vip-feature-label">${feature.label}</text>\n`;
     svg += `  </g>\n`;
     
     featureX += featureSpacing;
@@ -2080,7 +2085,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   });
   
   // Precio en la columna izquierda, más abajo
-  const priceY = featuresY + (Math.ceil(features.length / maxFeaturesPerRow) * 45) + 50;
+  const priceY = featuresY + (Math.ceil(features.length / maxFeaturesPerRow) * 50) + 50;
   
   svg += `\n  <!-- Precio destacado con mejor balance -->\n`;
   svg += `  <text x="${leftColumnX}" y="${priceY}" class="vip-ref-label">Precio</text>\n`;
