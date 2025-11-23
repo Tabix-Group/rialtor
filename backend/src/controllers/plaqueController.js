@@ -2017,33 +2017,33 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   
   <!-- SECCIÓN DE INFORMACIÓN BALANCEADA -->\n`;
   
-  // Layout más limpio y organizado
-  const contentStartY = infoY + 35;
+  // Layout más limpio y organizado - usando todo el espacio disponible
+  const contentStartY = infoY + 50; // Más espacio desde arriba
   const leftColumnX = hasAgentPhoto ? 270 : 50;
   const rightColumnX = 650;
   
   // Label superior (tipo de propiedad)
   svg += `  <text x="${leftColumnX}" y="${contentStartY}" class="vip-ref-label">Propiedad</text>\n`;
-  svg += `  <text x="${leftColumnX}" y="${contentStartY + 20}" class="vip-tipo">${tipo}</text>\n`;
+  svg += `  <text x="${leftColumnX}" y="${contentStartY + 28}" class="vip-tipo">${tipo}</text>\n`;
   
-  // Dirección debajo del tipo
+  // Dirección debajo del tipo con más espacio
   if (direccion) {
-    svg += `  <text x="${leftColumnX}" y="${contentStartY + 40}" class="vip-direccion">${direccion}</text>\n`;
+    svg += `  <text x="${leftColumnX}" y="${contentStartY + 58}" class="vip-direccion">${direccion}</text>\n`;
   }
   
   // Separador visual sutil
-  svg += `  <line x1="${leftColumnX}" y1="${contentStartY + 55}" x2="${leftColumnX + 180}" y2="${contentStartY + 55}" stroke="#e0e0e0" stroke-width="1" opacity="0.6"/>\n`;
+  svg += `  <line x1="${leftColumnX}" y1="${contentStartY + 80}" x2="${leftColumnX + 180}" y2="${contentStartY + 80}" stroke="#e0e0e0" stroke-width="1" opacity="0.6"/>\n`;
   
-  // Ambientes destacado con mejor proporción
-  const ambientesY = contentStartY + 65;
+  // Ambientes destacado con mejor proporción y espaciado
+  const ambientesY = contentStartY + 115;
   svg += `  <g>\n`;
   svg += `    <text x="${leftColumnX}" y="${ambientesY}" class="vip-ambientes-number">${ambientes || '5'}</text>\n`;
   svg += `    <text x="${leftColumnX + (ambientes ? ambientes.toString().length * 35 : 35) + 8}" y="${ambientesY}" class="vip-ambientes-text">ambientes</text>\n`;
   svg += `  </g>\n`;
   
   // Características con iconos en layout horizontal - espaciado optimizado
-  const featuresY = ambientesY + 40;
-  const featureSpacing = 150;
+  const featuresY = ambientesY + 55; // Más espacio desde ambientes
+  const featureSpacing = 155; // Más espacio horizontal
   const iconSize = 20;
   
   svg += `\n  <!-- Características con iconos -->\n`;
@@ -2067,7 +2067,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
       featureX = leftColumnX;
     }
     
-    const currentY = featuresY + (currentRow * 50);
+    const currentY = featuresY + (currentRow * 65); // Más espacio entre filas
     
     svg += `  <g>\n`;
     // Icono
@@ -2088,13 +2088,13 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   const priceRow = Math.floor(features.length / maxFeaturesPerRow);
   const priceColumn = features.length % maxFeaturesPerRow;
   const priceX = leftColumnX + (priceColumn * featureSpacing);
-  const priceY = featuresY + (priceRow * 50);
+  const priceY = featuresY + (priceRow * 65); // Usar mismo espaciado que features
   
   svg += `\n  <!-- Precio con jerarquía visual clara -->\n`;
   svg += `  <g>\n`;
-  svg += `    <text x="${priceX}" y="${priceY - 8}" class="vip-ref-label">Precio</text>\n`;
-  svg += `    <text x="${priceX}" y="${priceY + 14}" class="vip-moneda" style="font-size: 16px; font-weight: 600;">${moneda}</text>\n`;
-  svg += `    <text x="${priceX + (moneda.length * 10.5)}" y="${priceY + 20}" class="vip-precio" style="font-size: 44px; letter-spacing: -2px; font-weight: 700;">${precio}</text>\n`;
+  svg += `    <text x="${priceX}" y="${priceY - 10}" class="vip-ref-label">Precio</text>\n`;
+  svg += `    <text x="${priceX}" y="${priceY + 20}" class="vip-moneda" style="font-size: 20px; font-weight: 600;">${moneda}</text>\n`;
+  svg += `    <text x="${priceX + (moneda.length * 13)}" y="${priceY + 28}" class="vip-precio" style="font-size: 50px; letter-spacing: -2px; font-weight: 700;">${precio}</text>\n`;
   svg += `  </g>\n`;
   
   svg += `\n  <!-- Footer balanceado -->\n`;
