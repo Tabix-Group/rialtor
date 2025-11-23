@@ -191,6 +191,13 @@ exports.getEconomicIndexes = async (req, res, next) => {
           fecha: new Date().toISOString().split('T')[0],
           descripcion: 'Datos no disponibles'
         },
+        uva: {
+          nombre: 'UVA (Unidad de Valor Adquisitivo)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
         lastUpdated: new Date().toISOString()
       }
     });
@@ -206,11 +213,11 @@ exports.getEconomicIndexChart = async (req, res, next) => {
     const { period = '30d' } = req.query;
 
     // Validar indicador
-    const validIndicators = ['ipc', 'cacGeneral', 'cacMateriales', 'cacManoObra', 'icc', 'is'];
+    const validIndicators = ['ipc', 'cacGeneral', 'cacMateriales', 'cacManoObra', 'icc', 'is', 'uva'];
     if (!validIndicators.includes(indicator)) {
       return res.status(400).json({
         success: false,
-        error: 'Indicador inválido. Use: ipc, cacGeneral, cacMateriales, cacManoObra, icc, o is'
+        error: 'Indicador inválido. Use: ipc, cacGeneral, cacMateriales, cacManoObra, icc, is, o uva'
       });
     }
 

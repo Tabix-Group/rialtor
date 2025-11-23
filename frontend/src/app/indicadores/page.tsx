@@ -78,6 +78,7 @@ interface EconomicIndexesData {
   cacManoObra: EconomicIndex
   icc: EconomicIndex
   is: EconomicIndex
+  uva: EconomicIndex
   lastUpdated: string
   dataSource?: string
 }
@@ -521,6 +522,52 @@ export default function IndicadoresPage() {
           </section>
         )}
 
+        {/* Índice UVA */}
+        {economicIndexes && economicIndexes.uva && (
+          <section>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-amber-600" />
+              </div>
+              <h2 className="text-2xl font-bold">Índice UVA</h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <div 
+                className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-6 hover:border-amber-300 transition-all hover:shadow-lg cursor-pointer"
+                onClick={() => fetchEconomicIndexChart('uva')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900">UVA (Unidad de Valor Adquisitivo)</h3>
+                    <p className="text-sm text-gray-600 mt-1">{economicIndexes.uva.descripcion}</p>
+                  </div>
+                  {economicIndexes.uva.variacion !== null && (
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.uva.variacion)}`}>
+                      <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.uva.variacion)}`}>
+                        {getVariationIcon(economicIndexes.uva.variacion)}
+                        {formatCurrency(Math.abs(economicIndexes.uva.variacion), 4)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-baseline gap-3">
+                  <div className="text-4xl font-bold text-gray-900">${formatCurrency(economicIndexes.uva.valor, 2)}</div>
+                  <div className="text-sm text-gray-500">
+                    al {economicIndexes.uva.fecha ? new Date(economicIndexes.uva.fecha).toLocaleDateString("es-AR", { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-amber-200">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Info className="w-4 h-4" />
+                    <span>Utilizado principalmente en créditos hipotecarios UVA. Se actualiza diariamente según la inflación.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Precio por m2 */}
         <section>
           <div className="flex items-center gap-3 mb-6">
@@ -834,6 +881,7 @@ export default function IndicadoresPage() {
                      indicator === 'cacGeneral' ? 'CAC General' :
                      indicator === 'cacMateriales' ? 'CAC Materiales' :
                      indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
+                     indicator === 'uva' ? 'UVA (Unidad de Valor Adquisitivo)' :
                      'IS (Salarios)'}
                   </h3>
                   <div className="h-64">

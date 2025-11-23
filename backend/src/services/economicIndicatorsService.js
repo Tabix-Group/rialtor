@@ -300,6 +300,58 @@ class EconomicIndicatorsService {
   }
 
   /**
+   * Obtiene el índice UVA desde la API de argentinadatos.com
+   */
+  async getUVAIndex() {
+    try {
+      console.log('[UVA] Obteniendo índice UVA desde API...');
+      
+      const response = await axios.get('https://api.argentinadatos.com/v1/finanzas/indices/uva/', {
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'RIALTOR/1.0'
+        }
+      });
+
+      const data = response.data;
+      
+      if (!data || data.length === 0) {
+        throw new Error('No hay datos de UVA disponibles');
+      }
+
+      // Obtener el último valor y el anterior para calcular variación
+      const latestData = data[data.length - 1];
+      const previousData = data.length > 1 ? data[data.length - 2] : null;
+      
+      let variacion = null;
+      if (previousData && previousData.valor !== 0) {
+        variacion = parseFloat((((latestData.valor - previousData.valor) / previousData.valor) * 100).toFixed(4));
+      }
+
+      console.log(`[UVA] ✅ Datos obtenidos. Valor actual: ${latestData.valor}`);
+
+      return {
+        nombre: 'UVA (Unidad de Valor Adquisitivo)',
+        valor: parseFloat(latestData.valor) || 0,
+        variacion: variacion,
+        fecha: latestData.fecha,
+        descripcion: 'Unidad de medida que refleja la inflación. Se utiliza principalmente en créditos hipotecarios.'
+      };
+    } catch (error) {
+      console.error('[UVA] Error obteniendo datos:', error.message);
+      
+      // Devolver valores por defecto en caso de error
+      return {
+        nombre: 'UVA (Unidad de Valor Adquisitivo)',
+        valor: 0,
+        variacion: null,
+        fecha: new Date().toISOString().split('T')[0],
+        descripcion: 'Datos no disponibles temporalmente'
+      };
+    }
+  }
+
+  /**
    * Obtiene índices económicos de Argentina desde la base de datos
    */
   async getEconomicIndexes() {
@@ -382,6 +434,10 @@ class EconomicIndicatorsService {
           }
         }
 
+        // Obtener UVA desde la API (ya que no está en la BD)
+        const uvaData = await this.getUVAIndex();
+        result.uva = uvaData;
+
         result.lastUpdated = new Date().toISOString();
         result.dataSource = 'DATABASE';
 
@@ -401,6 +457,10 @@ class EconomicIndicatorsService {
 
       // Fallback a datos mock si hay error en DB
       console.log('[ECONOMIC] 📊 Usando datos mock como fallback');
+      
+      // Obtener UVA desde la API (es independiente de la BD)
+      const uvaData = await this.getUVAIndex();
+
       const result = {
         ipc: {
           nombre: 'IPC (Índice de Precios al Consumidor)',
@@ -444,6 +504,7 @@ class EconomicIndicatorsService {
           fecha: new Date().toISOString().split('T')[0],
           descripcion: 'Índice de evolución de los salarios'
         },
+        uva: uvaData,
         lastUpdated: new Date().toISOString(),
         dataSource: 'MOCK_DATA'
       };
@@ -499,6 +560,13 @@ class EconomicIndicatorsService {
         },
         is: {
           nombre: 'IS (Índice de Salarios)',
+          valor: 0,
+          variacion: 0,
+          fecha: new Date().toISOString().split('T')[0],
+          descripcion: 'Datos no disponibles'
+        },
+        uva: {
+          nombre: 'UVA (Unidad de Valor Adquisitivo)',
           valor: 0,
           variacion: 0,
           fecha: new Date().toISOString().split('T')[0],
@@ -868,6 +936,11 @@ class EconomicIndicatorsService {
    */
   async getEconomicIndexChart(indicator, period = '30d') {
     try {
+      // Caso especial: UVA viene de API externa, no de BD
+      if (indicator === 'uva') {
+        return await this.getUVAChartData(period);
+      }
+
       console.log(`[ECONOMIC INDEX CHART] Obteniendo datos históricos para ${indicator} desde la base de datos...`);
 
       const { PrismaClient } = require('@prisma/client');
@@ -994,6 +1067,113 @@ class EconomicIndicatorsService {
   }
 
   /**
+   * Obtiene datos de gráfico para el índice UVA
+   */
+  async getUVAChartData(period = '30d') {
+    try {
+      console.log(`[UVA CHART] Obteniendo datos históricos de UVA...`);
+      
+      const response = await axios.get('https://api.argentinadatos.com/v1/finanzas/indices/uva/', {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'RIALTOR/1.0'
+        }
+      });
+
+      const allData = response.data;
+      
+      if (!allData || allData.length === 0) {
+        throw new Error('No hay datos de UVA disponibles');
+      }
+
+      // Filtrar datos según el período solicitado
+      const now = new Date();
+      let startDate;
+
+      switch (period) {
+        case '7d':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case '30d':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case '90d':
+          startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          break;
+        case '1y':
+          startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+          break;
+        default:
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+
+      // Filtrar y formatear datos
+      const filteredData = allData
+        .filter(item => new Date(item.fecha) >= startDate)
+        .map(item => ({
+          fecha: item.fecha,
+          valor: parseFloat(item.valor) || 0
+        }));
+
+      console.log(`[UVA CHART] ✅ Encontrados ${filteredData.length} registros para el período ${period}`);
+
+      return {
+        data: filteredData,
+        indicador: 'UVA (Unidad de Valor Adquisitivo)',
+        periodo: this.getPeriodDescription(period),
+        dataSource: 'API_ARGENTINADATOS'
+      };
+    } catch (error) {
+      console.error('[UVA CHART] Error obteniendo datos:', error.message);
+      
+      // Fallback a datos mock si falla la API
+      console.log('[UVA CHART] 📊 Generando datos mock');
+      const mockData = this.generateMockUVAData(period);
+      
+      return {
+        data: mockData,
+        indicador: 'UVA (Unidad de Valor Adquisitivo)',
+        periodo: `${this.getPeriodDescription(period)} (datos simulados)`,
+        dataSource: 'MOCK'
+      };
+    }
+  }
+
+  /**
+   * Genera datos mock para UVA
+   */
+  generateMockUVAData(period) {
+    const now = new Date();
+    const data = [];
+    let days;
+
+    switch (period) {
+      case '7d': days = 7; break;
+      case '30d': days = 30; break;
+      case '90d': days = 90; break;
+      case '1y': days = 365; break;
+      default: days = 30;
+    }
+
+    const baseValue = 1050.5; // Valor aproximado actual del UVA
+
+    for (let i = days; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      // Simular crecimiento gradual con pequeña variación
+      const dailyGrowth = 0.0015; // ~0.15% diario promedio
+      const variation = (Math.random() - 0.5) * 0.002; // ±0.1% aleatorio
+      const value = baseValue * Math.pow(1 + dailyGrowth + variation, days - i);
+
+      data.push({
+        fecha: date.toISOString().split('T')[0],
+        valor: Math.round(value * 100) / 100
+      });
+    }
+
+    return data;
+  }
+
+  /**
    * Obtiene el nombre descriptivo del indicador
    */
   getIndicatorName(indicator) {
@@ -1004,6 +1184,7 @@ class EconomicIndicatorsService {
       'cacManoObra': 'CAC Mano de Obra',
       'icc': 'ICC (Índice de Costos de Construcción)',
       'is': 'IS (Índice de Salarios)',
+      'uva': 'UVA (Unidad de Valor Adquisitivo)',
       'dolarOficialCompra': 'Dólar Oficial Compra',
       'dolarOficialVenta': 'Dólar Oficial Venta',
       'dolarBlueCompra': 'Dólar Blue Compra',
@@ -1037,7 +1218,8 @@ class EconomicIndicatorsService {
       'cacMateriales': 1100,
       'cacManoObra': 1300,
       'icc': 1400,
-      'is': 1600
+      'is': 1600,
+      'uva': 1050
     };
 
     const baseValue = baseValues[indicator] || 1000;
