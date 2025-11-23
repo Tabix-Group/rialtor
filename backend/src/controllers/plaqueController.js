@@ -1889,21 +1889,41 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     </filter>
   </defs>
   
-  <!-- Área blanca limpia para información -->
+  <!-- Área blanca con decoración de calidad -->
   <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="#ffffff" />
   
-  <!-- Tipo de propiedad -->
-  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>\n`;
+  <!-- Patrón decorativo sutil de fondo -->
+  <defs>
+    <pattern id="luxuryPattern" x="0" y="${infoY}" width="100" height="100" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="50" x2="100" y2="50" stroke="#f0f0f0" stroke-width="0.5" opacity="0.3"/>
+      <line x1="50" y1="0" x2="50" y2="100" stroke="#f0f0f0" stroke-width="0.5" opacity="0.3"/>
+      <circle cx="50" cy="50" r="1" fill="#e8e8e8" opacity="0.4"/>
+    </pattern>
+    <linearGradient id="subtleShine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#fafafa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="url(#subtleShine)" />
+  <rect x="0" y="${infoY}" width="${width}" height="${infoHeight}" fill="url(#luxuryPattern)" />
   
-  // Si hay dirección, ponerla en segunda línea debajo del tipo
-  let currentTextY = textStartY + 26;
+  <!-- Línea decorativa superior elegante -->
+  <line x1="${textStartX}" y1="${infoY + 20}" x2="${textStartX + 150}" y2="${infoY + 20}" stroke="#d4af37" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Tipo de propiedad y dirección en la misma línea -->\n`;
+  
+  svg += `  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>\n`;
+  
+  // Dirección a la derecha del tipo con separador
   if (direccion) {
-    svg += `  <text x="${textStartX}" y="${currentTextY}" class="vip-premium-direccion">${direccion}</text>\n`;
-    currentTextY += 30;
+    const separatorX = textStartX + tipo.length * 11 + 20;
+    const direccionX = separatorX + 25;
+    svg += `  <text x="${separatorX}" y="${textStartY}" style="font-family: Arial; font-size: 17px; fill: #cccccc;">|</text>\n`;
+    svg += `  <text x="${direccionX}" y="${textStartY}" class="vip-premium-direccion">${direccion}</text>\n`;
   }
   
   // Ajustar posición de ambientes
-  const ambientesY = currentTextY + 25;
+  const ambientesY = textStartY + 65;
   
   svg += `
   
@@ -1913,57 +1933,79 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   <!-- Características en lista vertical compacta -->\n`;
   
   const featuresY = ambientesY + 42;
-  const featureLineHeight = 30;
+  const featureLineHeight = 32;
   const iconSize = 18;
   const iconMargin = 28;
+  const columnWidth = 280;
   
-  // Características en lista vertical compacta
+  // Características en DOS COLUMNAS para mejor visualización
   const features = [];
-  if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m²` });
+  if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m² totales` });
+  if (m2_cubiertos) features.push({ icon: 'icon-covered', text: `${m2_cubiertos} m² cubiertos` });
   if (dormitorios) features.push({ icon: 'icon-bed', text: `${dormitorios} dormitorios` });
   if (banos) features.push({ icon: 'icon-bath', text: `${banos} baños` });
   if (cocheras) features.push({ icon: 'icon-garage', text: `${cocheras} cocheras` });
   
   let featureY = featuresY;
-  features.forEach((feature) => {
+  let maxFeatureY = featuresY; // Para tracking de la altura máxima
+  
+  features.forEach((feature, index) => {
+    // Calcular si va en columna 1 o 2
+    const isColumn2 = index % 2 === 1;
+    const columnX = isColumn2 ? textStartX + columnWidth : textStartX;
+    const currentY = isColumn2 ? featuresY + Math.floor(index / 2) * featureLineHeight : featuresY + Math.floor(index / 2) * featureLineHeight;
+    
     svg += `  <g>\n`;
     // Icono minimalista
-    svg += `    <svg x="${textStartX}" y="${featureY - iconSize + 2}" width="${iconSize}" height="${iconSize}">\n`;
+    svg += `    <svg x="${columnX}" y="${currentY - iconSize + 2}" width="${iconSize}" height="${iconSize}">\n`;
     svg += `      <use href="#${feature.icon}" />\n`;
     svg += `    </svg>\n`;
     // Texto al lado del icono
-    svg += `    <text x="${textStartX + iconMargin}" y="${featureY}" class="vip-premium-feature">${feature.text}</text>\n`;
+    svg += `    <text x="${columnX + iconMargin}" y="${currentY}" class="vip-premium-feature">${feature.text}</text>\n`;
     svg += `  </g>\n`;
-    featureY += featureLineHeight;
+    
+    // Track máxima Y
+    if (currentY > maxFeatureY) maxFeatureY = currentY;
   });
   
-  svg += `\n  <!-- Precio simple y directo -->\n`;
-  // Posición del precio después de las características
-  const priceY = featureY + 35;
+  featureY = maxFeatureY + featureLineHeight;
   
-  // Moneda y precio en línea
-  svg += `  <text x="${textStartX}" y="${priceY}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${textStartX + moneda.length * 21 + 5}" y="${priceY}" class="vip-premium-precio">${precio}</text>\n`;
+  svg += `\n  <!-- Precio destacado con fondo elegante -->\n`;
+  // Posición del precio después de las características con más espacio
+  const priceY = featureY + 45;
+  const priceBoxHeight = 100;
+  const priceBoxY = priceY - 70;
   
-  svg += `\n  <!-- Footer minimalista -->\n`;
-  svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="url(#footerGradient)" />\n`;
-  // Línea superior sutil
-  svg += `  <line x1="0" y1="${footerY}" x2="${width}" y2="${footerY}" stroke="#d0d0d0" stroke-width="1" />\n`;
+  // Caja decorativa para el precio
+  svg += `  <g>\n`;
+  svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="400" height="${priceBoxHeight}" fill="#fafafa" stroke="#e0e0e0" stroke-width="1" rx="12" />\n`;
+  svg += `    <rect x="${textStartX - 20}" y="${priceBoxY}" width="6" height="${priceBoxHeight}" fill="#d4af37" rx="12" />\n`;
+  svg += `  </g>\n`;
   
-  svg += `\n  <!-- URL centrada -->\n`;
-  svg += `  <text x="${width/2}" y="${footerY + 38}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+  // Moneda y precio en línea dentro de la caja
+  svg += `  <text x="${textStartX + 10}" y="${priceY}" class="vip-premium-moneda">${moneda}</text>\n`;
+  svg += `  <text x="${textStartX + 10 + moneda.length * 21 + 8}" y="${priceY}" class="vip-premium-precio">${precio}</text>\n`;
   
-  // Información de contacto en footer
-  const footerInfoY = footerY + 64;
+  svg += `\n  <!-- Footer minimalista con altura reducida -->\n`;
+  const reducedFooterHeight = Math.floor(footerHeight / 2);
+  const adjustedFooterY = height - reducedFooterHeight;
+  svg += `  <rect x="0" y="${adjustedFooterY}" width="${width}" height="${reducedFooterHeight}" fill="url(#footerGradient)" />\n`;
+  // Línea superior sutil con pequeño detalle dorado
+  svg += `  <line x1="0" y1="${adjustedFooterY}" x2="${width}" y2="${adjustedFooterY}" stroke="#d0d0d0" stroke-width="1" />\n`;
+  svg += `  <line x1="${width/2 - 80}" y1="${adjustedFooterY}" x2="${width/2 + 80}" y2="${adjustedFooterY}" stroke="#d4af37" stroke-width="2" />\n`;
   
-  // Centrar toda la información del agente
+  svg += `\n  <!-- URL y contacto en footer reducido -->\n`;
+  const compactFooterCenter = adjustedFooterY + (reducedFooterHeight / 2) + 5;
+  
+  // Si hay corredores y contacto, ponerlos juntos en una línea
   if (corredores && contacto) {
-    svg += `  <text x="${width/2}" y="${footerInfoY}" text-anchor="middle" class="vip-footer-info">${corredores}</text>\n`;
-    svg += `  <text x="${width/2}" y="${footerInfoY + 20}" text-anchor="middle" class="vip-footer-info">${contacto}</text>\n`;
-  } else if (corredores) {
-    svg += `  <text x="${width/2}" y="${footerInfoY + 10}" text-anchor="middle" class="vip-footer-info">${corredores}</text>\n`;
-  } else if (contacto) {
-    svg += `  <text x="${width/2}" y="${footerInfoY + 10}" text-anchor="middle" class="vip-footer-info">${contacto}</text>\n`;
+    svg += `  <text x="${width/2}" y="${compactFooterCenter - 10}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+    svg += `  <text x="${width/2}" y="${compactFooterCenter + 15}" text-anchor="middle" class="vip-footer-info">${corredores} | ${contacto}</text>\n`;
+  } else if (corredores || contacto) {
+    svg += `  <text x="${width/2}" y="${compactFooterCenter - 8}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+    svg += `  <text x="${width/2}" y="${compactFooterCenter + 12}" text-anchor="middle" class="vip-footer-info">${corredores || contacto}</text>\n`;
+  } else {
+    svg += `  <text x="${width/2}" y="${compactFooterCenter}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
   }
   
   svg += `</svg>`;
