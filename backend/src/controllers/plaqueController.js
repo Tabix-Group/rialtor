@@ -4,6 +4,7 @@ const OpenAI = require('openai');
 const cloudinary = require('../cloudinary');
 const multer = require('multer');
 const sharp = require('sharp');
+const QRCode = require('qrcode');
 // Node 18+ tiene fetch nativo, no necesitamos importar node-fetch
 
 const prisma = new PrismaClient();
@@ -1768,6 +1769,91 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       top: interiorY,
       left: interiorX
     });
+    
+    // Capa 5: Código QR en el espacio blanco superior derecho
+    const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
+    const qrSize = 140; // Tamaño del QR
+    const qrX = width - qrSize - 40; // Alineado con la imagen circular
+    const qrY = interiorY + interiorCircleSize + 30; // Debajo de la imagen circular con espaciado
+    
+    try {
+      // Generar código QR como buffer
+      const qrBuffer = await QRCode.toBuffer(qrUrl, {
+        width: qrSize,
+        margin: 1,
+        color: {
+          dark: '#2c5282',  // Azul que combina con el diseño
+          light: '#ffffff'  // Fondo blanco
+        },
+        errorCorrectionLevel: 'M'
+      });
+      
+      // Crear marco decorativo para el QR con sombra sutil
+      const qrFrameSize = qrSize + 16;
+      const qrFrame = Buffer.from(
+        `<svg width="${qrFrameSize}" height="${qrFrameSize}">
+          <defs>
+            <filter id="qrShadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+              <feOffset dx="0" dy="2" result="offsetblur"/>
+              <feComponentTransfer>
+                <feFuncA type="linear" slope="0.2"/>
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <linearGradient id="qrBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#e0e7ef;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#cbd5e0;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Fondo blanco con sombra -->
+          <rect x="8" y="8" width="${qrSize}" height="${qrSize}" 
+                fill="white" rx="8" filter="url(#qrShadow)"/>
+          <!-- Borde decorativo -->
+          <rect x="6" y="6" width="${qrSize + 4}" height="${qrSize + 4}" 
+                fill="none" stroke="url(#qrBorderGradient)" stroke-width="2" rx="10"/>
+        </svg>`
+      );
+      
+      // Componer QR con su marco
+      const qrWithFrame = await sharp({
+        create: {
+          width: qrFrameSize,
+          height: qrFrameSize,
+          channels: 4,
+          background: { r: 255, g: 255, b: 255, alpha: 0 }
+        }
+      })
+      .composite([
+        {
+          input: qrFrame,
+          top: 0,
+          left: 0
+        },
+        {
+          input: qrBuffer,
+          top: 8,
+          left: 8
+        }
+      ])
+      .png()
+      .toBuffer();
+      
+      // Agregar el QR con marco a las composiciones
+      composites.push({
+        input: qrWithFrame,
+        top: qrY - 8, // Ajustar por el borde del marco
+        left: qrX - 8
+      });
+      
+      console.log('[PLACAS VIP] Código QR generado para URL:', qrUrl);
+    } catch (qrError) {
+      console.error('[PLACAS VIP] Error generando código QR:', qrError);
+      // Continuar sin el QR si hay error
+    }
     
     // Componer todas las capas
     const finalImage = await sharp(baseCanvas)
