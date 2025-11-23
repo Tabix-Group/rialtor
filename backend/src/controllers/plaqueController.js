@@ -1770,51 +1770,50 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       left: interiorX
     });
     
-    // Capa 5: Código QR a la derecha de la información de la propiedad
+    // Capa 5: Código QR balanceado a la derecha
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
-    const qrSize = 160; // Tamaño del QR (aumentado para mejor legibilidad)
-    const qrX = width - qrSize - 50; // Margen derecho
-    const qrY = exteriorHeight + Math.floor((height - exteriorHeight - barHeight) / 2) - (qrSize / 2); // Centrado verticalmente en el área blanca
+    const qrSize = 150; // Tamaño balanceado del QR
+    const qrX = width - qrSize - 80; // Más separado del borde
+    const qrY = exteriorHeight + 70; // Posicionado en el tercio superior del área blanca
     
     try {
-      // Generar código QR como buffer
+      // Generar código QR como buffer con colores balanceados
       const qrBuffer = await QRCode.toBuffer(qrUrl, {
         width: qrSize,
-        margin: 1,
+        margin: 2,
         color: {
-          dark: '#2c5282',  // Azul que combina con el diseño
+          dark: '#333333',  // Negro suave para mejor legibilidad
           light: '#ffffff'  // Fondo blanco
         },
         errorCorrectionLevel: 'M'
       });
       
-      // Crear marco decorativo para el QR con sombra sutil
-      const qrFrameSize = qrSize + 16;
+      // Crear marco minimalista y elegante para el QR
+      const qrFrameSize = qrSize + 24;
       const qrFrame = Buffer.from(
         `<svg width="${qrFrameSize}" height="${qrFrameSize}">
           <defs>
             <filter id="qrShadow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-              <feOffset dx="0" dy="2" result="offsetblur"/>
+              <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+              <feOffset dx="0" dy="3" result="offsetblur"/>
               <feComponentTransfer>
-                <feFuncA type="linear" slope="0.2"/>
+                <feFuncA type="linear" slope="0.12"/>
               </feComponentTransfer>
               <feMerge>
                 <feMergeNode/>
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
-            <linearGradient id="qrBorderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#e0e7ef;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#cbd5e0;stop-opacity:1" />
-            </linearGradient>
           </defs>
-          <!-- Fondo blanco con sombra -->
-          <rect x="8" y="8" width="${qrSize}" height="${qrSize}" 
-                fill="white" rx="8" filter="url(#qrShadow)"/>
-          <!-- Borde decorativo -->
-          <rect x="6" y="6" width="${qrSize + 4}" height="${qrSize + 4}" 
-                fill="none" stroke="url(#qrBorderGradient)" stroke-width="2" rx="10"/>
+          <!-- Fondo blanco con sombra suave -->
+          <rect x="12" y="12" width="${qrSize}" height="${qrSize}" 
+                fill="white" rx="6" filter="url(#qrShadow)"/>
+          <!-- Borde sutil gris -->
+          <rect x="10" y="10" width="${qrSize + 4}" height="${qrSize + 4}" 
+                fill="none" stroke="#e0e0e0" stroke-width="1.5" rx="8"/>
+          <!-- Label "Escanear" debajo -->
+          <text x="${qrFrameSize/2}" y="${qrSize + 20}" text-anchor="middle" 
+                style="font-family: Arial; font-size: 11px; font-weight: 600; fill: #888888; letter-spacing: 1px; text-transform: uppercase;">Escanear</text>
         </svg>`
       );
       
@@ -1913,14 +1912,16 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      .vip-premium-tipo { font-family: 'Arial', sans-serif; font-size: 17px; font-weight: 500; fill: #555555; letter-spacing: 0.3px; }
-      .vip-premium-direccion { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 400; fill: #888888; letter-spacing: 0.2px; }
-      .vip-premium-ambientes { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 74px; font-weight: 700; fill: #2d2d2d; letter-spacing: -2.5px; }
-      .vip-premium-feature { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 400; fill: #4a4a4a; letter-spacing: 0.2px; }
-      .vip-premium-precio { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 88px; font-weight: 700; fill: #2d2d2d; letter-spacing: -4.5px; }
-      .vip-premium-moneda { font-family: 'Arial', sans-serif; font-size: 32px; font-weight: 500; fill: #666666; letter-spacing: 0.5px; }
-      .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 600; fill: #5a5a5a; }
-      .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 13px; font-weight: 400; fill: #7a7a7a; }
+      .vip-ref-label { font-family: 'Arial', sans-serif; font-size: 11px; font-weight: 600; fill: #999999; letter-spacing: 1.2px; text-transform: uppercase; }
+      .vip-tipo { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 600; fill: #333333; letter-spacing: 0.3px; }
+      .vip-direccion { font-family: 'Arial', sans-serif; font-size: 13px; font-weight: 400; fill: #666666; letter-spacing: 0.2px; }
+      .vip-ambientes-number { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 56px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1.5px; }
+      .vip-ambientes-text { font-family: 'Arial', sans-serif; font-size: 20px; font-weight: 400; fill: #555555; letter-spacing: 0.3px; }
+      .vip-feature-icon { font-size: 15px; font-weight: 500; fill: #555555; }
+      .vip-precio { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 52px; font-weight: 700; fill: #2d2d2d; letter-spacing: -2px; }
+      .vip-moneda { font-family: 'Arial', sans-serif; font-size: 22px; font-weight: 600; fill: #555555; letter-spacing: 0.3px; }
+      .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #444444; }
+      .vip-footer-info { font-family: 'Arial', sans-serif; font-size: 12px; font-weight: 400; fill: #666666; }
     </style>
     
     <!-- Iconos SVG para características - Estilo simple -->
@@ -2016,129 +2017,95 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     <line x1="${width - 50}" y1="${infoY + 10}" x2="${width - 50}" y2="${infoY + 60}" stroke="#d4af37" stroke-width="1"/>
   </g>
   
-  <!-- Tipo de propiedad y dirección en la misma línea -->\n`;
+  <!-- SECCIÓN DE INFORMACIÓN BALANCEADA -->\n`;
   
-  svg += `  <text x="${textStartX}" y="${textStartY}" class="vip-premium-tipo">${tipo}</text>\n`;
+  // Layout más limpio y organizado
+  const contentStartY = infoY + 35;
+  const leftColumnX = hasAgentPhoto ? 270 : 50;
+  const rightColumnX = 650;
   
-  // Dirección a la derecha del tipo con separador
+  // Label superior (tipo de propiedad)
+  svg += `  <text x="${leftColumnX}" y="${contentStartY}" class="vip-ref-label">Propiedad</text>\n`;
+  svg += `  <text x="${leftColumnX}" y="${contentStartY + 20}" class="vip-tipo">${tipo}</text>\n`;
+  
+  // Dirección debajo del tipo
   if (direccion) {
-    const separatorX = textStartX + tipo.length * 11 + 20;
-    const direccionX = separatorX + 25;
-    svg += `  <text x="${separatorX}" y="${textStartY}" style="font-family: Arial; font-size: 17px; fill: #cccccc;">|</text>\n`;
-    svg += `  <text x="${direccionX}" y="${textStartY}" class="vip-premium-direccion">${direccion}</text>\n`;
+    svg += `  <text x="${leftColumnX}" y="${contentStartY + 40}" class="vip-direccion">${direccion}</text>\n`;
   }
   
-  // Ajustar posición de ambientes
-  const ambientesY = textStartY + 65;
+  // Separador visual sutil
+  svg += `  <line x1="${leftColumnX}" y1="${contentStartY + 55}" x2="${leftColumnX + 180}" y2="${contentStartY + 55}" stroke="#e0e0e0" stroke-width="1" opacity="0.6"/>\n`;
   
-  svg += `
+  // Ambientes destacado con mejor proporción
+  const ambientesY = contentStartY + 90;
+  svg += `  <g>\n`;
+  svg += `    <text x="${leftColumnX}" y="${ambientesY}" class="vip-ambientes-number">${ambientes || '5'}</text>\n`;
+  svg += `    <text x="${leftColumnX + (ambientes ? ambientes.toString().length * 35 : 35) + 8}" y="${ambientesY}" class="vip-ambientes-text">ambientes</text>\n`;
+  svg += `  </g>\n`;
   
-  <!-- Ambientes destacado -->
-  <text x="${textStartX}" y="${ambientesY}" class="vip-premium-ambientes">${ambientes || '6'} ambientes</text>
+  // Características en layout horizontal compacto
+  const featuresY = ambientesY + 50;
+  const featureSpacing = 140;
   
-  <!-- Características en lista vertical compacta -->\n`;
+  svg += `\n  <!-- Características balanceadas -->\n`;
   
-  const featuresY = ambientesY + 42;
-  const featureLineHeight = 32;
-  const iconSize = 18;
-  const iconMargin = 28;
-  const columnWidth = 280;
+  let featureX = leftColumnX;
+  let currentRow = 0;
+  let featuresInRow = 0;
+  const maxFeaturesPerRow = 3;
   
-  // Características en DOS COLUMNAS para mejor visualización
   const features = [];
-  if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m² totales` });
-  if (m2_cubiertos) features.push({ icon: 'icon-covered', text: `${m2_cubiertos} m² cubiertos` });
-  if (dormitorios) features.push({ icon: 'icon-bed', text: `${dormitorios} dormitorios` });
-  if (banos) features.push({ icon: 'icon-bath', text: `${banos} baños` });
-  if (cocheras) features.push({ icon: 'icon-garage', text: `${cocheras} cocheras` });
-  
-  let featureY = featuresY;
-  let maxFeatureY = featuresY; // Para tracking de la altura máxima
+  if (m2_totales) features.push({ text: `${m2_totales} m²`, label: 'totales' });
+  if (m2_cubiertos) features.push({ text: `${m2_cubiertos} m²`, label: 'cubiertos' });
+  if (dormitorios) features.push({ text: dormitorios, label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
+  if (banos) features.push({ text: banos, label: banos === '1' ? 'baño' : 'baños' });
+  if (cocheras) features.push({ text: cocheras, label: cocheras === '1' ? 'cochera' : 'cocheras' });
   
   features.forEach((feature, index) => {
-    // Calcular si va en columna 1 o 2
-    const isColumn2 = index % 2 === 1;
-    const columnX = isColumn2 ? textStartX + columnWidth : textStartX;
-    const currentY = isColumn2 ? featuresY + Math.floor(index / 2) * featureLineHeight : featuresY + Math.floor(index / 2) * featureLineHeight;
+    if (featuresInRow >= maxFeaturesPerRow) {
+      currentRow++;
+      featuresInRow = 0;
+      featureX = leftColumnX;
+    }
+    
+    const currentY = featuresY + (currentRow * 45);
     
     svg += `  <g>\n`;
-    // Icono minimalista
-    svg += `    <svg x="${columnX}" y="${currentY - iconSize + 2}" width="${iconSize}" height="${iconSize}">\n`;
-    svg += `      <use href="#${feature.icon}" />\n`;
-    svg += `    </svg>\n`;
-    // Texto al lado del icono
-    svg += `    <text x="${columnX + iconMargin}" y="${currentY}" class="vip-premium-feature">${feature.text}</text>\n`;
+    svg += `    <text x="${featureX}" y="${currentY}" class="vip-feature-icon" style="font-family: Arial; font-size: 18px; font-weight: 600; fill: #333333;">${feature.text}</text>\n`;
+    svg += `    <text x="${featureX}" y="${currentY + 16}" class="vip-ref-label" style="font-size: 10px; fill: #888888;">${feature.label}</text>\n`;
     svg += `  </g>\n`;
     
-    // Track máxima Y
-    if (currentY > maxFeatureY) maxFeatureY = currentY;
+    featureX += featureSpacing;
+    featuresInRow++;
   });
   
-  featureY = maxFeatureY + featureLineHeight;
+  // Precio en la columna izquierda, más abajo
+  const priceY = featuresY + (Math.ceil(features.length / maxFeaturesPerRow) * 45) + 50;
   
-  svg += `\n  <!-- Precio destacado con fondo elegante adaptable -->\n`;
-  // Posición del precio después de las características con más espacio
-  const priceY = featureY + 50;
-  const priceBoxHeight = 110;
-  const priceBoxY = priceY - 75;
-  
-  // Calcular ancho dinámico del contenedor basado en el contenido del precio
-  const monedaEstimatedWidth = moneda.length * 21;
-  const precioEstimatedWidth = precio.length * 58; // Font más grande, más ancho por caracter
-  const priceBoxWidth = Math.max(420, monedaEstimatedWidth + precioEstimatedWidth + 80); // Padding generoso
-  
-  // Caja decorativa para el precio con sombra sutil
-  svg += `  <defs>\n`;
-  svg += `    <filter id="priceShadow">\n`;
-  svg += `      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>\n`;
-  svg += `      <feOffset dx="0" dy="2" result="offsetblur"/>\n`;
-  svg += `      <feComponentTransfer><feFuncA type="linear" slope="0.15"/></feComponentTransfer>\n`;
-  svg += `      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>\n`;
-  svg += `    </filter>\n`;
-  svg += `  </defs>\n`;
-  
-  svg += `  <g filter="url(#priceShadow)">\n`;
-  svg += `    <rect x="${textStartX - 25}" y="${priceBoxY}" width="${priceBoxWidth}" height="${priceBoxHeight}" fill="#fafafa" stroke="#e8e8e8" stroke-width="1.5" rx="14" />\n`;
-  svg += `    <!-- Borde izquierdo dorado premium -->\n`;
-  svg += `    <rect x="${textStartX - 25}" y="${priceBoxY}" width="5" height="${priceBoxHeight}" fill="#d4af37" rx="14" />\n`;
-  svg += `    <!-- Línea superior sutil para profundidad -->\n`;
-  svg += `    <line x1="${textStartX - 20}" y1="${priceBoxY + 35}" x2="${textStartX + priceBoxWidth - 35}" y2="${priceBoxY + 35}" stroke="#e0e0e0" stroke-width="0.5" opacity="0.5" />\n`;
+  svg += `\n  <!-- Precio destacado con mejor balance -->\n`;
+  svg += `  <text x="${leftColumnX}" y="${priceY}" class="vip-ref-label">Precio</text>\n`;
+  svg += `  <g>\n`;
+  svg += `    <text x="${leftColumnX}" y="${priceY + 50}" class="vip-moneda">${moneda}</text>\n`;
+  svg += `    <text x="${leftColumnX + (moneda.length * 15)}" y="${priceY + 50}" class="vip-precio">${precio}</text>\n`;
   svg += `  </g>\n`;
   
-  // Label "Precio" discreto
-  svg += `  <text x="${textStartX + 5}" y="${priceBoxY + 25}" style="font-family: Arial; font-size: 11px; font-weight: 600; fill: #999999; letter-spacing: 1.5px; text-transform: uppercase;">Precio</text>\n`;
+  svg += `\n  <!-- Footer balanceado -->\n`;
+  const adjustedFooterY = height - 60;
+  const footerCenterY = adjustedFooterY + 30;
   
-  // Moneda y precio en línea dentro de la caja, centrados verticalmente
-  const priceTextY = priceBoxY + 75;
-  svg += `  <text x="${textStartX + 5}" y="${priceTextY}" class="vip-premium-moneda">${moneda}</text>\n`;
-  svg += `  <text x="${textStartX + 5 + monedaEstimatedWidth + 10}" y="${priceTextY}" class="vip-premium-precio">${precio}</text>\n`;
+  svg += `  <rect x="0" y="${adjustedFooterY}" width="${width}" height="60" fill="#f8f8f8" />\n`;
+  svg += `  <line x1="0" y1="${adjustedFooterY}" x2="${width}" y2="${adjustedFooterY}" stroke="#dddddd" stroke-width="1" />\n`;
   
-  svg += `\n  <!-- Footer minimalista premium con altura reducida -->\n`;
-  const reducedFooterHeight = Math.floor(footerHeight / 2);
-  const adjustedFooterY = height - reducedFooterHeight;
-  svg += `  <rect x="0" y="${adjustedFooterY}" width="${width}" height="${reducedFooterHeight}" fill="url(#footerGradient)" />\n`;
+  svg += `\n  <!-- Información del footer -->\n`;
   
-  // Línea superior elegante con detalles dorados centrales
-  svg += `  <line x1="0" y1="${adjustedFooterY}" x2="${width}" y2="${adjustedFooterY}" stroke="#d8d8d8" stroke-width="1" />\n`;
-  svg += `  <g opacity="0.8">\n`;
-  svg += `    <line x1="${width/2 - 100}" y1="${adjustedFooterY}" x2="${width/2 + 100}" y2="${adjustedFooterY}" stroke="url(#goldAccent)" stroke-width="2.5" stroke-linecap="round"/>\n`;
-  svg += `    <circle cx="${width/2 - 100}" cy="${adjustedFooterY}" r="2.5" fill="#d4af37" opacity="0.6"/>\n`;
-  svg += `    <circle cx="${width/2}" cy="${adjustedFooterY}" r="1.5" fill="#d4af37" opacity="0.8"/>\n`;
-  svg += `    <circle cx="${width/2 + 100}" cy="${adjustedFooterY}" r="2.5" fill="#d4af37" opacity="0.6"/>\n`;
-  svg += `  </g>\n`;
+  // URL centrado arriba
+  svg += `  <text x="${width/2}" y="${footerCenterY - 5}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
   
-  svg += `\n  <!-- URL y contacto en footer reducido -->\n`;
-  const compactFooterCenter = adjustedFooterY + (reducedFooterHeight / 2) + 5;
-  
-  // Si hay corredores y contacto, ponerlos juntos en una línea
+  // Corredores y contacto abajo
   if (corredores && contacto) {
-    svg += `  <text x="${width/2}" y="${compactFooterCenter - 10}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
-    svg += `  <text x="${width/2}" y="${compactFooterCenter + 15}" text-anchor="middle" class="vip-footer-info">${corredores} | ${contacto}</text>\n`;
+    svg += `  <text x="${width/2}" y="${footerCenterY + 18}" text-anchor="middle" class="vip-footer-info">${corredores} | ${contacto}</text>\n`;
   } else if (corredores || contacto) {
-    svg += `  <text x="${width/2}" y="${compactFooterCenter - 8}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
-    svg += `  <text x="${width/2}" y="${compactFooterCenter + 12}" text-anchor="middle" class="vip-footer-info">${corredores || contacto}</text>\n`;
-  } else {
-    svg += `  <text x="${width/2}" y="${compactFooterCenter}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+    svg += `  <text x="${width/2}" y="${footerCenterY + 18}" text-anchor="middle" class="vip-footer-info">${corredores || contacto}</text>\n`;
   }
   
   svg += `</svg>`;
