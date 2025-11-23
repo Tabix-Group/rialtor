@@ -49,6 +49,7 @@ interface PropertyData {
   agentName?: string; // Nuevo: nombre del agente
   agency?: string; // Nuevo: agencia
   agentContact?: string; // Nuevo: contacto del agente
+  url?: string; // URL personalizada para la placa
 }
 
 interface PropertyPlaque {
@@ -95,7 +96,8 @@ export default function PlacasPage() {
     agentImage: '',
     agentName: '',
     agency: '',
-    agentContact: ''
+    agentContact: '',
+    url: 'www.rialtor.app'
   });
   const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip'>('standard');
   const [creating, setCreating] = useState(false);
@@ -974,6 +976,22 @@ export default function PlacasPage() {
                       rows={3}
                       placeholder="Información adicional sobre la propiedad..."
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      URL personalizada
+                    </label>
+                    <input
+                      type="text"
+                      value={propertyData.url}
+                      onChange={(e) => setPropertyData(prev => ({ ...prev, url: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      placeholder="www.rialtor.app"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Esta URL aparecerá en el footer de la placa
+                    </p>
                   </div>
 
                   {/* Campos del agente (solo para premium) */}

@@ -1817,6 +1817,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   const direccion = esc(propertyInfo.direccion || '');
   const corredores = esc(propertyInfo.corredores || '');
   const contacto = esc(propertyInfo.contacto || '');
+  const url = esc(propertyInfo.url || 'www.rialtor.app');
   
   // Posición del texto en el área de información (lado derecho del agente)
   const textStartX = hasAgentPhoto ? 280 : 60;
@@ -2039,9 +2040,9 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   
   svg += `\n  <!-- URL destacada con tipografía premium -->\n`;
   // Sombra de texto
-  svg += `  <text x="${width/2}" y="${footerY + 48}" text-anchor="middle" class="vip-footer-url" fill="rgba(0,0,0,0.3)" style="filter: blur(2px);">www.rialtor.app</text>\n`;
+  svg += `  <text x="${width/2}" y="${footerY + 48}" text-anchor="middle" class="vip-footer-url" fill="rgba(0,0,0,0.3)" style="filter: blur(2px);">${url}</text>\n`;
   // Texto principal con resplandor
-  svg += `  <text x="${width/2}" y="${footerY + 45}" text-anchor="middle" class="vip-footer-url">www.rialtor.app</text>\n`;
+  svg += `  <text x="${width/2}" y="${footerY + 45}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
   
   // Información de contacto en footer (línea inferior) - mejor espaciado
   const footerInfoY = footerY + 85;
