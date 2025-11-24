@@ -434,6 +434,16 @@ export default function Home() {
                   Registrarte Gratis
                 </Link>
               </motion.div>
+
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href="/auth/login"
+                  className="inline-flex items-center gap-3 px-8 py-4 border-2 border-foreground/20 text-foreground font-semibold rounded-full hover:bg-foreground/5 hover:border-foreground/30 transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  <User2 className="w-5 h-5" />
+                  Ya tengo cuenta
+                </Link>
+              </motion.div>
             </motion.div>
           </motion.div>
         </div>
