@@ -12,13 +12,16 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Auto-collapse sidebar after 3 seconds
+  // Auto-collapse sidebar after 3 seconds (only on desktop)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsCollapsed(true);
-    }, 3000);
+    const isMobile = window.innerWidth < 1024; // lg breakpoint
+    if (!isMobile) {
+      const timer = setTimeout(() => {
+        setIsCollapsed(true);
+      }, 3000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   return (

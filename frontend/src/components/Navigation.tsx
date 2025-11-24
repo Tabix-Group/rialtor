@@ -249,7 +249,7 @@ function Navigation() {
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
                       isItemActive
                         ? "bg-primary/10 text-primary border border-primary/20"
-                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
+                        : "text-gray-900 hover:text-gray-900 hover:bg-gray-100 lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
                     }`}
                   >
                     <Icon className={`w-5 h-5 flex-shrink-0 ${isItemActive ? "text-primary" : ""}`} />
@@ -279,7 +279,7 @@ function Navigation() {
                           className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
                             isActive(sub.href)
                               ? "bg-primary/10 text-primary"
-                              : "text-gray-700 hover:text-gray-900 hover:bg-gray-100 lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
+                              : "text-gray-900 hover:text-gray-900 hover:bg-gray-100 lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
                           }`}
                         >
                           <div className={`w-2 h-2 rounded-full ${isActive(sub.href) ? "bg-primary" : "bg-muted-foreground/50"}`}></div>
@@ -362,7 +362,7 @@ function Navigation() {
                 {/* Dashboard */}
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-900 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
                 >
                   <Settings className="w-4 h-4" />
                   <span>Dashboard</span>
@@ -371,7 +371,7 @@ function Navigation() {
                 {/* Ayuda */}
                 <Link
                   href="/ayuda"
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-gray-900 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
                 >
                   <HelpCircle className="w-4 h-4" />
                   <span>Ayuda</span>
@@ -380,7 +380,7 @@ function Navigation() {
                 {/* Logout */}
                 <button
                   onClick={logout}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-destructive lg:hover:bg-destructive/10"
+                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-900 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-destructive lg:hover:bg-destructive/10"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Cerrar Sesión</span>
@@ -393,7 +393,7 @@ function Navigation() {
             <div className="space-y-2">
               <Link
                 href="/auth/login"
-                className="block w-full px-4 py-2.5 text-center text-gray-700 font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm lg:text-foreground lg:hover:bg-muted lg:border-border"
+                className="block w-full px-4 py-2.5 text-center text-gray-900 font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm lg:text-foreground lg:hover:bg-muted lg:border-border"
               >
                 Iniciar Sesión
               </Link>
@@ -424,14 +424,14 @@ function Navigation() {
       {/* Mobile Sidebar Overlay */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={toggleMobileSidebar}
         />
       )}
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:hidden w-64 shadow-2xl ${
+        className={`fixed left-0 top-0 z-50 h-screen bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:hidden w-64 shadow-2xl ${
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -441,7 +441,7 @@ function Navigation() {
       {/* Mobile Menu Button */}
       <button
         onClick={toggleMobileSidebar}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-gray-700 hover:text-gray-900"
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 bg-white border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-gray-900 hover:text-gray-900"
       >
         <Menu className="w-5 h-5" />
       </button>
