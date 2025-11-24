@@ -1579,11 +1579,11 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const interiorX = width - interiorCircleSize - 40;
     const interiorY = 40;
     
-    // Posición del precio: debajo de la imagen circular interior
-    const priceCardX = width - 240; // Alineado con columna derecha
-    const priceCardY = interiorY + interiorCircleSize + 25; // 25px debajo de la foto circular
+    // Posición del precio: ángulo inferior derecho de la imagen exterior
     const priceCardWidth = 220;
-    const priceCardHeight = 130;
+    const priceCardHeight = 120;
+    const priceCardX = width - priceCardWidth - 30; // 30px del borde derecho
+    const priceCardY = exteriorHeight - priceCardHeight - 30; // 30px del borde inferior del exterior
     
     // Crear canvas para la imagen interior circular
     const interiorCanvas = await sharp({
@@ -1802,14 +1802,49 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       left: 0
     });
     
-    // Capa 2: Overlay de diseño (área blanca con info + footer azul)
+    // Capa 2: Tarjeta de precio sobre la imagen exterior
+    const priceCardSvg = `
+      <svg width="${priceCardWidth}" height="${priceCardHeight}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="priceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.98" />
+            <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:0.98" />
+          </linearGradient>
+          <filter id="priceShadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.3"/>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <g filter="url(#priceShadow)">
+          <rect x="0" y="0" width="${priceCardWidth}" height="${priceCardHeight}" rx="12" fill="url(#priceGrad)" stroke="#e0e0e0" stroke-width="2" />
+          <text x="18" y="28" style="font-family: 'Arial', sans-serif; font-size: 11px; font-weight: 600; fill: #999999; letter-spacing: 1px; text-transform: uppercase;">Precio</text>
+          <text x="18" y="54" style="font-family: 'Arial', sans-serif; font-size: 20px; font-weight: 600; fill: #555555;">${propertyInfo.moneda || 'USD'}</text>
+          <text x="18" y="92" style="font-family: 'Arial', sans-serif; font-size: ${(propertyInfo.precio || '').toString().length <= 4 ? 52 : (propertyInfo.precio || '').toString().length <= 6 ? 44 : (propertyInfo.precio || '').toString().length <= 8 ? 38 : 32}px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1.5px;">${propertyInfo.precio || 'Consultar'}</text>
+        </g>
+      </svg>
+    `;
+    const priceCardBuffer = Buffer.from(priceCardSvg, 'utf8');
+    composites.push({
+      input: priceCardBuffer,
+      top: priceCardY,
+      left: priceCardX
+    });
+    
+    // Capa 3: Overlay de diseño (área blanca con info + footer azul)
     composites.push({
       input: designBuffer,
       top: 0,
       left: 0
     });
     
-    // Capa 3: Foto del agente (sobre el área blanca)
+    // Capa 4: Foto del agente (sobre el área blanca)
     if (agentProcessed) {
       composites.push({
         input: agentProcessed,
@@ -1818,19 +1853,19 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       });
     }
     
-    // Capa 4: Imagen interior circular con borde dorado (sobre el exterior)
+    // Capa 5: Imagen interior circular con borde dorado (sobre el exterior)
     composites.push({
       input: interiorWithBorder,
       top: interiorY,
       left: interiorX
     });
     
-    // Capa 5: Código QR en área de contenido, más grande y mejor posicionado
+    // Capa 6: Código QR a la altura del agente
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
-    const qrSize = 155; // Tamaño aumentado para mejor escaneabilidad
-    const qrX = width - qrSize - 70; // Más cerca del borde
-    // Posicionar QR: arriba del footer con buen margen
-    const qrY = footerY - qrSize - 30; // 30px de margen desde el footer
+    const qrSize = 160; // Tamaño aumentado
+    const qrX = width - qrSize - 60; // 60px del borde derecho
+    // Posicionar QR: a la altura del agente (mismo Y)
+    const qrY = agentY + 20; // Alineado con el agente, 20px offset
     
     try {
       // Generar código QR como buffer con colores balanceados
@@ -1974,8 +2009,8 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       .vip-direccion { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: 400; fill: #666666; }
       .vip-ambientes-number { font-family: 'Arial', sans-serif; font-size: 50px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1px; }
       .vip-ambientes-text { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 400; fill: #555555; }
-      .vip-feature-value { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 600; fill: #333333; }
-      .vip-feature-label { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: 400; fill: #666666; }
+      .vip-feature-value { font-family: 'Arial', sans-serif; font-size: 20px; font-weight: 600; fill: #333333; }
+      .vip-feature-label { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 400; fill: #666666; }
       .vip-precio { font-family: 'Arial', sans-serif; font-size: 52px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1.5px; }
       .vip-moneda { font-family: 'Arial', sans-serif; font-size: 20px; font-weight: 600; fill: #555555; }
       .vip-footer-url { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: 600; fill: #444444; }
@@ -2051,20 +2086,8 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   <rect x="0" y="${contentY}" width="${width}" height="${contentHeight}" fill="url(#contentGradient)" />
   <rect x="0" y="${contentY}" width="${width}" height="${contentHeight}" fill="url(#premiumTexture)" opacity="0.6" />
   
-  <!-- PRECIO EN LA PARTE SUPERIOR (debajo de foto circular) -->
-  <defs>
-    <linearGradient id="priceCardGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <g filter="url(#shadowLight)">
-    <rect x="${width - 240}" y="${interiorY + interiorCircleSize + 25}" width="220" height="130" rx="12" fill="url(#priceCardGradient)" stroke="#e0e0e0" stroke-width="1.5" />
-    <text x="${width - 222}" y="${interiorY + interiorCircleSize + 51}" class="vip-ref-label">Precio</text>
-    <text x="${width - 222}" y="${interiorY + interiorCircleSize + 77}" class="vip-moneda">${moneda}</text>
-    <text x="${width - 222}" y="${interiorY + interiorCircleSize + 120}" class="vip-precio" style="font-size: ${precio.toString().length <= 4 ? 52 : precio.toString().length <= 6 ? 44 : precio.toString().length <= 8 ? 38 : 32}px;">${precio}</text>
-  </g>
+  <!-- PRECIO en el ángulo inferior derecho de la imagen exterior -->
+  <!-- Este se renderizará como composición sobre la imagen exterior, no en el SVG -->
   
   <!-- SECCIÓN DE INFORMACIÓN LIMPIA Y BALANCEADA -->\n`;
   
@@ -2098,10 +2121,10 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   // Características con iconos - layout de 2 columnas optimizado
   svg += `\n  <!-- Características en 2 columnas -->\n`;
   
-  const iconSize = 20;
-  const featureSpacing = 50; // Espaciado vertical aumentado
+  const iconSize = 22; // Iconos más grandes
+  const featureSpacing = 52; // Espaciado vertical aumentado
   const col1X = leftColumnX;
-  const col2X = leftColumnX + 260; // Segunda columna con más separación
+  const col2X = leftColumnX + 270; // Segunda columna con más separación
   
   const features = [];
   if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m²`, label: 'totales' });
