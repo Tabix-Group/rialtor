@@ -1616,20 +1616,40 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .png()
       .toBuffer();
     
-    // Crear borde dorado SVG
+    // Crear borde dorado premium con sombra
     const goldenBorder = Buffer.from(
       `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
         <defs>
           <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
-            <stop offset="50%" style="stop-color:#f4e5a0;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+            <stop offset="35%" style="stop-color:#f4e5a0;stop-opacity:1" />
+            <stop offset="65%" style="stop-color:#d4af37;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#c49a2c;stop-opacity:1" />
           </linearGradient>
+          <filter id="circleShadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.4"/>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
+        <!-- Sombra del borde -->
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 5}" 
+                fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="10" filter="url(#circleShadow)"/>
+        <!-- Borde dorado principal -->
         <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 6}" 
-                fill="none" stroke="url(#goldGradient)" stroke-width="8"/>
+                fill="none" stroke="url(#goldGradient)" stroke-width="7"/>
+        <!-- Borde blanco interno -->
         <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 2}" 
-                fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+                fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2"/>
+        <!-- Brillo sutil superior -->
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2 - 10}" r="${(interiorCircleSize/2) - 8}" 
+                fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="30,10"/>
       </svg>`
     );
     
@@ -1670,34 +1690,56 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .png()
       .toBuffer();
       
-      // Procesar imagen del agente (8px de padding para el marco)
+      // Procesar imagen del agente (10px de padding para el nuevo marco)
       const agentImg = await sharp(agentImageBuffer)
-        .resize(agentWidth - 8, agentHeight - 8, {
+        .resize(agentWidth - 10, agentHeight - 10, {
           fit: 'cover',
           position: 'center'
         })
         .png()
         .toBuffer();
       
-      // Crear marco decorativo SVG
+      // Crear marco decorativo premium con gradiente y sombra
       const agentFrame = Buffer.from(
         `<svg width="${agentWidth}" height="${agentHeight}">
           <defs>
             <linearGradient id="frameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style="stop-color:#2c5282;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#1e3a5f;stop-opacity:1" />
+              <stop offset="0%" style="stop-color:#3a5a82;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#2c4a72;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#1e3560;stop-opacity:1" />
             </linearGradient>
+            <linearGradient id="frameShine" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15" />
+              <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+            </linearGradient>
+            <filter id="frameShadow">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+              <feOffset dx="0" dy="2" result="offsetblur"/>
+              <feComponentTransfer>
+                <feFuncA type="linear" slope="0.3"/>
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
           </defs>
-          <!-- Marco azul exterior -->
+          <!-- Sombra del marco -->
           <rect x="0" y="0" width="${agentWidth}" height="${agentHeight}" 
-                fill="url(#frameGradient)" rx="8"/>
+                fill="rgba(0,0,0,0.1)" rx="10" filter="url(#frameShadow)"/>
+          <!-- Marco con gradiente -->
+          <rect x="0" y="0" width="${agentWidth}" height="${agentHeight}" 
+                fill="url(#frameGradient)" rx="10"/>
+          <!-- Brillo superior -->
+          <rect x="0" y="0" width="${agentWidth}" height="${agentHeight/2}" 
+                fill="url(#frameShine)" rx="10"/>
           <!-- Área blanca interior -->
-          <rect x="4" y="4" width="${agentWidth - 8}" height="${agentHeight - 8}" 
-                fill="white" rx="4"/>
+          <rect x="5" y="5" width="${agentWidth - 10}" height="${agentHeight - 10}" 
+                fill="white" rx="6"/>
         </svg>`
       );
       
-      // Componer: canvas base + marco + imagen
+      // Componer: canvas base + marco + imagen (ajustado para el nuevo borde)
       agentProcessed = await sharp(agentCanvas)
         .composite([
           {
@@ -1707,8 +1749,8 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
           },
           {
             input: agentImg,
-            top: 4,
-            left: 4
+            top: 5,
+            left: 5
           }
         ])
         .png()
@@ -1920,8 +1962,8 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       .vip-ref-label { font-family: 'Arial', sans-serif; font-size: 10px; font-weight: 600; fill: #999999; letter-spacing: 1px; text-transform: uppercase; }
       .vip-tipo { font-family: 'Arial', sans-serif; font-size: 15px; font-weight: 600; fill: #333333; }
       .vip-direccion { font-family: 'Arial', sans-serif; font-size: 12px; font-weight: 400; fill: #666666; }
-      .vip-ambientes-number { font-family: 'Arial', sans-serif; font-size: 48px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1px; }
-      .vip-ambientes-text { font-family: 'Arial', sans-serif; font-size: 18px; font-weight: 400; fill: #555555; }
+      .vip-ambientes-number { font-family: 'Arial', sans-serif; font-size: 42px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1px; }
+      .vip-ambientes-text { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 400; fill: #555555; }
       .vip-feature-value { font-family: 'Arial', sans-serif; font-size: 16px; font-weight: 600; fill: #333333; }
       .vip-feature-label { font-family: 'Arial', sans-serif; font-size: 12px; font-weight: 400; fill: #666666; }
       .vip-precio { font-family: 'Arial', sans-serif; font-size: 52px; font-weight: 700; fill: #2d2d2d; letter-spacing: -1.5px; }
@@ -1980,45 +2022,61 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    <!-- Patrón de textura premium sutil -->
+    <pattern id="premiumTexture" x="0" y="${contentY}" width="120" height="120" patternUnits="userSpaceOnUse">
+      <rect width="120" height="120" fill="#ffffff"/>
+      <circle cx="60" cy="60" r="1" fill="#f5f5f5" opacity="0.3"/>
+      <line x1="0" y1="60" x2="120" y2="60" stroke="#f8f8f8" stroke-width="0.5" opacity="0.3"/>
+      <line x1="60" y1="0" x2="60" y2="120" stroke="#f8f8f8" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+    
+    <!-- Gradiente sutil para el área de contenido -->
+    <linearGradient id="contentGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fafafa;stop-opacity:1" />
+    </linearGradient>
   </defs>
   
-  <!-- Área blanca de contenido -->
-  <rect x="0" y="${contentY}" width="${width}" height="${contentHeight}" fill="#ffffff" />
+  <!-- Área de contenido con textura premium -->
+  <rect x="0" y="${contentY}" width="${width}" height="${contentHeight}" fill="url(#contentGradient)" />
+  <rect x="0" y="${contentY}" width="${width}" height="${contentHeight}" fill="url(#premiumTexture)" opacity="0.6" />
   
   <!-- SECCIÓN DE INFORMACIÓN LIMPIA Y BALANCEADA -->\n`;
   
   // COLUMNA IZQUIERDA: Información de la propiedad
-  let currentY = contentY + 40;
+  let currentY = contentY + 32;
   
   // Label superior (tipo de propiedad)
   svg += `  <text x="${leftColumnX}" y="${currentY}" class="vip-ref-label">Propiedad</text>\n`;
-  svg += `  <text x="${leftColumnX}" y="${currentY + 24}" class="vip-tipo">${tipo}</text>\n`;
+  svg += `  <text x="${leftColumnX}" y="${currentY + 22}" class="vip-tipo">${tipo}</text>\n`;
   
-  currentY += 52;
+  currentY += 46;
   
   // Dirección
   if (direccion) {
     svg += `  <text x="${leftColumnX}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
-    currentY += 30;
+    currentY += 26;
   }
   
   // Separador
-  svg += `  <line x1="${leftColumnX}" y1="${currentY}" x2="${leftColumnX + 160}" y2="${currentY}" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>\n`;
-  currentY += 30;
+  svg += `  <line x1="${leftColumnX}" y1="${currentY}" x2="${leftColumnX + 140}" y2="${currentY}" stroke="#e0e0e0" stroke-width="1" opacity="0.5"/>\n`;
+  currentY += 26;
   
   // Ambientes destacado
   svg += `  <g>\n`;
   svg += `    <text x="${leftColumnX}" y="${currentY}" class="vip-ambientes-number">${ambientes || '4'}</text>\n`;
-  const ambTextX = leftColumnX + (ambientes ? ambientes.toString().length * 30 : 30) + 8;
+  const ambTextX = leftColumnX + (ambientes ? ambientes.toString().length * 26 : 26) + 6;
   svg += `    <text x="${ambTextX}" y="${currentY}" class="vip-ambientes-text">ambientes</text>\n`;
   svg += `  </g>\n`;
-  currentY += 55;
+  currentY += 42;
   
-  // Características con iconos - layout vertical compacto
-  svg += `\n  <!-- Características -->\n`;
+  // Características con iconos - layout de 2 columnas optimizado
+  svg += `\n  <!-- Características en 2 columnas -->\n`;
   
   const iconSize = 18;
-  const featureSpacing = 48;
+  const featureSpacing = 42; // Espaciado vertical reducido
+  const col1X = leftColumnX;
+  const col2X = leftColumnX + 240; // Segunda columna a 240px de la primera
   
   const features = [];
   if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m²`, label: 'totales' });
@@ -2027,18 +2085,24 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   if (banos) features.push({ icon: 'icon-bath', text: banos, label: banos === '1' ? 'baño' : 'baños' });
   if (cocheras) features.push({ icon: 'icon-garage', text: cocheras, label: cocheras === '1' ? 'cochera' : 'cocheras' });
   
+  // Dividir features en dos columnas
+  const itemsPerColumn = Math.ceil(features.length / 2);
+  
   features.forEach((feature, index) => {
-    const featureY = currentY + (index * featureSpacing);
+    const columnIndex = Math.floor(index / itemsPerColumn);
+    const rowIndex = index % itemsPerColumn;
+    const featureX = columnIndex === 0 ? col1X : col2X;
+    const featureY = currentY + (rowIndex * featureSpacing);
     
     // Verificar que no se salga del área de contenido
-    if (featureY + 20 > footerY - 20) return; // Saltar si está muy cerca del footer
+    if (featureY + 20 > footerY - 20) return;
     
     svg += `  <g>\n`;
-    svg += `    <svg x="${leftColumnX}" y="${featureY - iconSize + 2}" width="${iconSize}" height="${iconSize}">\n`;
+    svg += `    <svg x="${featureX}" y="${featureY - iconSize + 2}" width="${iconSize}" height="${iconSize}">\n`;
     svg += `      <use href="#${feature.icon}" />\n`;
     svg += `    </svg>\n`;
-    svg += `    <text x="${leftColumnX + iconSize + 8}" y="${featureY}" class="vip-feature-value">${feature.text}</text>\n`;
-    svg += `    <text x="${leftColumnX + iconSize + 8}" y="${featureY + 14}" class="vip-feature-label">${feature.label}</text>\n`;
+    svg += `    <text x="${featureX + iconSize + 8}" y="${featureY}" class="vip-feature-value">${feature.text}</text>\n`;
+    svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 14}" class="vip-feature-label">${feature.label}</text>\n`;
     svg += `  </g>\n`;
   });
   
@@ -2057,12 +2121,20 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   else if (precioLength <= 8) precioFontSize = 38;
   else precioFontSize = 32;
   
+  // Agregar gradiente sutil para la tarjeta de precio
+  svg += `\n  <defs>\n`;
+  svg += `    <linearGradient id="priceCardGradient" x1="0%" y1="0%" x2="0%" y2="100%">\n`;
+  svg += `      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />\n`;
+  svg += `      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />\n`;
+  svg += `    </linearGradient>\n`;
+  svg += `  </defs>\n`;
+  
   svg += `\n  <!-- Precio destacado alineado con agente -->\n`;
   svg += `  <g filter="url(#shadowLight)">\n`;
-  svg += `    <rect x="${priceCardX}" y="${priceCardY}" width="${priceCardWidth}" height="${priceCardHeight}" rx="12" fill="#ffffff" stroke="#e5e5e5" stroke-width="1.5" />\n`;
-  svg += `    <text x="${priceCardX + priceCardPadding}" y="${priceCardY + 28}" class="vip-ref-label">Precio</text>\n`;
-  svg += `    <text x="${priceCardX + priceCardPadding}" y="${priceCardY + 54}" class="vip-moneda">${moneda}</text>\n`;
-  svg += `    <text x="${priceCardX + priceCardPadding}" y="${priceCardY + 92}" class="vip-precio" style="font-size: ${precioFontSize}px;">${precio}</text>\n`;
+  svg += `    <rect x="${priceCardX}" y="${priceCardY}" width="${priceCardWidth}" height="${priceCardHeight}" rx="12" fill="url(#priceCardGradient)" stroke="#e0e0e0" stroke-width="1.5" />\n`;
+  svg += `    <text x="${priceCardX + priceCardPadding}" y="${priceCardY + 26}" class="vip-ref-label">Precio</text>\n`;
+  svg += `    <text x="${priceCardX + priceCardPadding}" y="${priceCardY + 52}" class="vip-moneda">${moneda}</text>\n`;
+  svg += `    <text x="${priceCardX + priceCardPadding}" y="${priceCardY + 90}" class="vip-precio" style="font-size: ${precioFontSize}px;">${precio}</text>\n`;
   svg += `  </g>\n`;
   
   svg += `\n  <!-- Footer limpio y bien separado -->\n`;
@@ -2073,17 +2145,30 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   svg += `  <rect x="0" y="${footerY}" width="${width}" height="${footerHeight}" fill="#fafafa" />\n`;
   
-  svg += `\n  <!-- Información del footer -->\n`;
+  svg += `\n  <!-- Información del footer con diseño profesional -->\n`;
+  
+  // Logo/badge de Rialtor a la izquierda
+  svg += `  <g>\n`;
+  svg += `    <rect x="30" y="${footerY + 15}" width="140" height="40" rx="20" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" filter="url(#shadowLight)" />\n`;
+  svg += `    <text x="100" y="${footerY + 42}" text-anchor="middle" style="font-family: 'Arial', sans-serif; font-size: 13px; font-weight: 700; fill: #333333; letter-spacing: 0.5px;">RIALTOR.APP</text>\n`;
+  svg += `  </g>\n`;
   
   // URL centrado
-  svg += `  <text x="${width/2}" y="${footerCenterY - 6}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+  svg += `  <text x="${width/2}" y="${footerCenterY - 4}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
   
   // Corredores y contacto
   if (corredores && contacto) {
-    svg += `  <text x="${width/2}" y="${footerCenterY + 14}" text-anchor="middle" class="vip-footer-info">${corredores} | ${contacto}</text>\n`;
+    svg += `  <text x="${width/2}" y="${footerCenterY + 16}" text-anchor="middle" class="vip-footer-info">${corredores} | ${contacto}</text>\n`;
   } else if (corredores || contacto) {
-    svg += `  <text x="${width/2}" y="${footerCenterY + 14}" text-anchor="middle" class="vip-footer-info">${corredores || contacto}</text>\n`;
+    svg += `  <text x="${width/2}" y="${footerCenterY + 16}" text-anchor="middle" class="vip-footer-info">${corredores || contacto}</text>\n`;
   }
+  
+  // Sello de calidad a la derecha
+  svg += `  <g>\n`;
+  svg += `    <circle cx="${width - 65}" cy="${footerY + 35}" r="22" fill="#ffffff" stroke="#4CAF50" stroke-width="2" filter="url(#shadowLight)" />\n`;
+  svg += `    <text x="${width - 65}" y="${footerY + 32}" text-anchor="middle" style="font-family: 'Arial', sans-serif; font-size: 11px; font-weight: 700; fill: #4CAF50;">VIP</text>\n`;
+  svg += `    <text x="${width - 65}" y="${footerY + 43}" text-anchor="middle" style="font-family: 'Arial', sans-serif; font-size: 8px; font-weight: 600; fill: #4CAF50;">PRO</text>\n`;
+  svg += `  </g>\n`;
   
   svg += `</svg>`;
   
