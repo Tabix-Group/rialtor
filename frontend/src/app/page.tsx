@@ -313,9 +313,35 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border/40">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
 
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808006_1px,transparent_1px),linear-gradient(to_bottom,#80808006_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+          }}
+          className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+          }}
+          className="absolute bottom-0 left-1/4 w-96 h-96 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"
+        />
+
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:64px_64px]"></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-32 lg:pb-36">
           <motion.div
@@ -327,10 +353,11 @@ export default function Home() {
             {/* Badge */}
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-card border border-border/60 backdrop-blur-sm hover:border-border transition-all duration-300"
+              whileHover={{ scale: 1.02 }}
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-border/60 backdrop-blur-sm hover:border-blue-500/30 transition-all duration-300 shadow-lg shadow-blue-500/5"
             >
-              <Sparkles className="w-3.5 h-3.5 text-foreground/70" />
-              <span className="text-sm font-medium text-foreground/80">
+              <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+              <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Potenciá tu negocio inmobiliario en Argentina
               </span>
             </motion.div>
@@ -346,33 +373,34 @@ export default function Home() {
                 >
                   <motion.img
                     animate={{
-                      y: [0, -4, 0],
+                      y: [0, -8, 0],
                     }}
                     transition={{
                       y: {
-                        duration: 5,
+                        duration: 4,
                         repeat: Number.POSITIVE_INFINITY,
                         ease: "easeInOut",
                       },
                     }}
                     whileHover={{
-                      scale: 1.02,
+                      scale: 1.05,
                       transition: { duration: 0.2 },
                     }}
                     src="/images/l2.png"
                     alt="RIALTOR"
-                    className="h-20 sm:h-28 lg:h-36 w-auto"
+                    className="h-20 sm:h-28 lg:h-36 w-auto relative z-10"
                   />
                   <motion.div
                     animate={{
-                      opacity: [0.15, 0.3, 0.15],
+                      opacity: [0.2, 0.4, 0.2],
+                      scale: [1, 1.1, 1],
                     }}
                     transition={{
-                      duration: 4,
+                      duration: 3,
                       repeat: Number.POSITIVE_INFINITY,
                       ease: "easeInOut",
                     }}
-                    className="absolute inset-0 bg-primary/10 rounded-full blur-3xl -z-10"
+                    className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-pink-500/30 rounded-full blur-3xl -z-10"
                   />
                 </motion.div>
               </div>
@@ -382,7 +410,10 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground text-balance leading-[1.1] tracking-tight"
               >
-                La plataforma definitiva para agentes inmobiliarios
+                La plataforma definitiva para{" "}
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  agentes inmobiliarios
+                </span>
               </motion.h1>
             </motion.div>
 
@@ -399,23 +430,24 @@ export default function Home() {
               variants={fadeInUp}
               className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center items-center pt-4"
             >
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/auth/register"
-                  className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-foreground text-background text-base font-semibold rounded-full hover:bg-foreground/90 transition-all duration-200 shadow-lg hover:shadow-xl min-w-[200px]"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-base font-semibold rounded-full hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 min-w-[200px] relative overflow-hidden group"
                 >
-                  Comenzar gratis
-                  <ArrowRight className="w-4 h-4" />
+                  <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <span className="relative z-10">Comenzar gratis</span>
+                  <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
               </motion.div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleScrollToDemo}
-                className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-card border border-border text-foreground text-base font-semibold rounded-full hover:bg-muted/50 transition-all duration-200 min-w-[200px]"
+                className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-card/50 backdrop-blur-sm border border-border/60 text-foreground text-base font-semibold rounded-full hover:bg-muted/50 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 min-w-[200px]"
               >
-                <Play className="w-4 h-4" />
+                <Play className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
                 Ver demo
               </motion.button>
 
@@ -432,9 +464,16 @@ export default function Home() {
             <motion.div variants={fadeInUp} className="flex flex-col items-center gap-3 pt-4">
               <div className="flex items-center gap-1.5">
                 {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-4 h-4 text-foreground fill-foreground" viewBox="0 0 20 20">
+                  <motion.svg
+                    key={i}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.8 + i * 0.1, type: "spring", stiffness: 200 }}
+                    className="w-4 h-4 fill-yellow-500 text-yellow-500"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
+                  </motion.svg>
                 ))}
               </div>
               <p className="text-sm text-muted-foreground">Más de 500 agentes confían en RIALTOR</p>
@@ -444,8 +483,10 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 sm:py-32 lg:py-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 sm:py-32 lg:py-40 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/[0.02] to-transparent"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Section Header */}
           <motion.div
             initial="hidden"
@@ -458,7 +499,10 @@ export default function Home() {
               variants={fadeInUp}
               className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance leading-tight tracking-tight"
             >
-              Herramientas profesionales para vender más
+              Herramientas profesionales para{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                vender más
+              </span>
             </motion.h2>
             <motion.p variants={fadeInUp} className="text-lg lg:text-xl text-muted-foreground text-pretty">
               Todo lo que necesitas para el mercado inmobiliario argentino en una sola plataforma
@@ -483,21 +527,34 @@ export default function Home() {
                 )
               }
 
-              // Renderizar features normales
               return !feature.requiresAuth || user ? (
                 <motion.div key={feature.name} variants={fadeInUp}>
                   <a href={feature.href} className="group relative block h-full">
-                    <div className="relative h-full p-6 lg:p-7 bg-card border border-border rounded-2xl hover:border-foreground/20 transition-all duration-300 hover:shadow-lg overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      className="relative h-full p-6 lg:p-7 bg-gradient-to-br from-card to-card/50 border border-border rounded-2xl hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 overflow-hidden backdrop-blur-sm"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.03] via-purple-500/[0.03] to-pink-500/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                      <motion.div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                        initial={{ x: "-100%" }}
+                        whileHover={{
+                          x: "100%",
+                          transition: { duration: 0.6, ease: "easeInOut" },
+                        }}
+                      >
+                        <div className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
+                      </motion.div>
 
                       {/* Icon */}
-                      <div className="relative w-11 h-11 rounded-xl bg-muted/50 flex items-center justify-center mb-5 group-hover:bg-muted transition-all duration-300">
-                        <feature.icon className="w-5 h-5 text-foreground/80" />
+                      <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg shadow-purple-500/5">
+                        <feature.icon className="w-5 h-5 text-purple-600" />
                       </div>
 
                       {/* Content */}
                       <div className="relative space-y-2.5">
-                        <h3 className="text-lg font-semibold text-foreground text-balance leading-snug">
+                        <h3 className="text-lg font-semibold text-foreground text-balance leading-snug group-hover:text-purple-600 transition-colors duration-300">
                           {feature.name}
                         </h3>
                         <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
@@ -506,16 +563,18 @@ export default function Home() {
                       </div>
 
                       {/* Arrow indicator */}
-                      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <ArrowRight className="w-4 h-4 text-foreground/60" />
+                      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                          <ArrowRight className="w-4 h-4 text-purple-600" />
+                        </div>
                       </div>
-                    </div>
+                    </motion.div>
                   </a>
                 </motion.div>
               ) : (
                 <motion.div key={feature.name} variants={fadeInUp}>
                   <div className="group relative h-full">
-                    <div className="relative h-full p-6 lg:p-7 bg-card border border-border rounded-2xl opacity-60">
+                    <div className="relative h-full p-6 lg:p-7 bg-card/30 border border-border/50 rounded-2xl opacity-60 backdrop-blur-sm">
                       {/* Icon */}
                       <div className="w-11 h-11 rounded-xl bg-muted/30 flex items-center justify-center mb-5">
                         <feature.icon className="w-5 h-5 text-foreground/60" />
@@ -543,8 +602,24 @@ export default function Home() {
       </section>
 
       {/* Demo Video Section */}
-      <section id="demo-video" className="py-24 sm:py-32 lg:py-40 bg-muted/30 border-y border-border/40">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section
+        id="demo-video"
+        className="py-24 sm:py-32 lg:py-40 bg-gradient-to-b from-muted/30 via-muted/50 to-muted/30 border-y border-border/40 relative overflow-hidden"
+      >
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+          }}
+          className="absolute top-1/4 right-0 w-96 h-96 bg-gradient-to-bl from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"
+        />
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -561,7 +636,8 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={fadeInUp} className="relative group">
-              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-2xl group-hover:border-foreground/20 transition-all duration-300 bg-muted">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-2xl group-hover:border-purple-500/30 transition-all duration-300 bg-muted">
                 <video
                   src="/docs/Videos/demo.mp4"
                   title="Demo RIALTOR"
@@ -578,8 +654,10 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 sm:py-32 lg:py-40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 sm:py-32 lg:py-40 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/[0.02] to-transparent"></div>
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -588,7 +666,10 @@ export default function Home() {
           >
             <motion.div variants={fadeInUp} className="text-center mb-16 lg:mb-20 space-y-4">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance leading-tight tracking-tight">
-                Planes simples y transparentes
+                Planes{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  simples y transparentes
+                </span>
               </h2>
               <p className="text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
                 Elegí el plan perfecto para potenciar tu negocio inmobiliario
@@ -598,7 +679,10 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
               {/* Monthly Plan */}
               <motion.div variants={fadeInUp} className="relative group">
-                <div className="relative bg-card rounded-2xl p-8 lg:p-10 border border-border hover:border-foreground/20 hover:shadow-xl transition-all duration-300 h-full">
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="relative bg-gradient-to-br from-card to-card/50 rounded-2xl p-8 lg:p-10 border border-border hover:border-purple-500/30 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 h-full backdrop-blur-sm"
+                >
                   <div className="space-y-8">
                     <div className="space-y-4">
                       <h3 className="text-2xl font-bold">Mensual</h3>
@@ -639,25 +723,30 @@ export default function Home() {
                       Comenzar ahora
                     </Link>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
 
               {/* Annual Plan */}
               <motion.div variants={fadeInUp} className="relative group">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-4 py-1.5 rounded-full text-sm font-semibold z-10">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold z-10 shadow-lg shadow-purple-500/20">
                   Más popular
                 </div>
-                <div className="absolute -inset-px bg-gradient-to-b from-foreground/10 to-transparent rounded-2xl"></div>
-                <div className="relative bg-card rounded-2xl p-8 lg:p-10 border-2 border-foreground/20 hover:border-foreground/30 hover:shadow-xl transition-all duration-300 h-full">
+                <div className="absolute -inset-px bg-gradient-to-b from-purple-500/20 via-blue-500/20 to-pink-500/20 rounded-2xl"></div>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="relative bg-gradient-to-br from-card to-card/50 rounded-2xl p-8 lg:p-10 border-2 border-purple-500/30 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 h-full backdrop-blur-sm"
+                >
                   <div className="space-y-8">
                     <div className="space-y-4">
                       <h3 className="text-2xl font-bold">Anual</h3>
                       <div className="flex items-baseline gap-3 flex-wrap">
                         <span className="text-xl text-muted-foreground line-through">$300</span>
-                        <span className="text-5xl font-bold tracking-tight">$240</span>
+                        <span className="text-5xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          $240
+                        </span>
                         <span className="text-muted-foreground">USD/año</span>
                       </div>
-                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-foreground/10 text-foreground text-sm font-semibold">
+                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-purple-500/20 text-purple-600 text-sm font-semibold shadow-sm">
                         Ahorrás 20% · $60 USD
                       </div>
                     </div>
@@ -700,12 +789,13 @@ export default function Home() {
 
                     <Link
                       href="/auth/register"
-                      className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-foreground text-background text-base font-semibold rounded-full hover:bg-foreground/90 transition-all duration-200 shadow-lg hover:shadow-xl"
+                      className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-base font-semibold rounded-full hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 relative overflow-hidden group"
                     >
-                      Elegir plan anual
+                      <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <span className="relative z-10">Elegir plan anual</span>
                     </Link>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
             </div>
 
@@ -717,8 +807,10 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+      <footer className="border-t border-border/40 bg-gradient-to-b from-card to-muted/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] via-purple-500/[0.02] to-transparent"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 relative">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 lg:gap-12 mb-12">
             {/* Brand */}
             <div className="md:col-span-1 space-y-4">
