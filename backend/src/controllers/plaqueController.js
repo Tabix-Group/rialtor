@@ -1707,11 +1707,11 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const barHeight = 120;
     const barY = height - barHeight;
     
-    // Crear overlay de diseño premium - áreas optimizadas
+    // Crear overlay de diseño premium - áreas optimizadas con más espacio para el footer
     const infoY = exteriorHeight;
-    const infoHeight = height - exteriorHeight - 55; // Espacio reducido para mejor balance
-    const footerY = height - 55;
-    const footerHeight = 55;
+    const footerHeight = 75; // Aumentado de 55 a 75
+    const infoHeight = height - exteriorHeight - footerHeight; // Espacio ajustado para el footer más grande
+    const footerY = height - footerHeight;
     
     const designOverlay = createVIPPremiumDesignOverlay(
       width, 
@@ -2059,7 +2059,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   if (dormitorios) features.push({ icon: 'icon-bed', text: dormitorios, label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
   if (banos) features.push({ icon: 'icon-bath', text: banos, label: banos === '1' ? 'baño' : 'baños' });
   if (cocheras) features.push({ icon: 'icon-garage', text: cocheras, label: cocheras === '1' ? 'cochera' : 'cocheras' });
-  const featureRowHeight = 70;
+  const featureRowHeight = 60; // Reducido para compactar verticalmente
   
   features.forEach((feature, index) => {
     if (featuresInRow >= maxFeaturesPerRow) {
@@ -2088,38 +2088,55 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   // Separador suave entre columnas
   svg += `  <line x1="${rightColumnX - 35}" y1="${infoY + 40}" x2="${rightColumnX - 35}" y2="${infoY + infoHeight - 30}" stroke="#e9e9e9" stroke-width="1" opacity="0.85"/>\n`;
 
-  // Tarjeta de precio premium
+  // Tarjeta de precio premium con tamaño ajustado al contenido
   const priceCardX = rightColumnX;
-  const priceCardWidth = 230;
+  const priceCardWidth = 240; // Más ancho para acomodar precios largos
   const priceCardY = infoY + 70;
-  const priceCardHeight = 125;
-  const priceCardTextX = priceCardX + 22;
+  const priceCardHeight = 135; // Más alto para mejor proporción
+  const priceCardPadding = 20; // Padding interno
+  const priceCardTextX = priceCardX + priceCardPadding;
+  
+  // Calcular tamaño de fuente del precio basado en la cantidad de dígitos
+  const precioLength = precio.toString().length;
+  let precioFontSize = 50; // Base más pequeña
+  if (precioLength <= 4) {
+    precioFontSize = 56;
+  } else if (precioLength <= 6) {
+    precioFontSize = 48;
+  } else if (precioLength <= 8) {
+    precioFontSize = 42;
+  } else {
+    precioFontSize = 36;
+  }
   
   svg += `\n  <!-- Precio destacado -->\n`;
   svg += `  <g>\n`;
   svg += `    <rect x="${priceCardX}" y="${priceCardY}" width="${priceCardWidth}" height="${priceCardHeight}" rx="18" fill="#ffffff" stroke="#efefef" stroke-width="1" filter="url(#shadowLight)" />\n`;
-  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 32}" class="vip-ref-label" style="letter-spacing: 1.6px;">Precio</text>\n`;
-  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 72}" class="vip-moneda" style="font-size: 22px; font-weight: 600;">${moneda}</text>\n`;
-  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 112}" class="vip-precio" style="font-size: 56px; letter-spacing: -2.5px; font-weight: 700;">${precio}</text>\n`;
+  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 30}" class="vip-ref-label" style="letter-spacing: 1.6px;">Precio</text>\n`;
+  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 62}" class="vip-moneda" style="font-size: 20px; font-weight: 600;">${moneda}</text>\n`;
+  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 100}" class="vip-precio" style="font-size: ${precioFontSize}px; letter-spacing: -1.5px; font-weight: 700;">${precio}</text>\n`;
   svg += `  </g>\n`;
   
-  svg += `\n  <!-- Footer balanceado -->\n`;
-  const adjustedFooterY = height - 55;
-  const footerCenterY = adjustedFooterY + 27;
+  svg += `\n  <!-- Footer balanceado con más espacio -->\n`;
+  const adjustedFooterY = height - 75; // Aumentado de 55 a 75 para más espacio
+  const footerCenterY = adjustedFooterY + 37;
   
-  svg += `  <rect x="0" y="${adjustedFooterY}" width="${width}" height="55" fill="#f8f8f8" />\n`;
+  // Línea separadora antes del footer para mejor visualización
+  svg += `  <line x1="0" y1="${adjustedFooterY - 1}" x2="${width}" y2="${adjustedFooterY - 1}" stroke="#cccccc" stroke-width="2" opacity="0.5" />\n`;
+  
+  svg += `  <rect x="0" y="${adjustedFooterY}" width="${width}" height="75" fill="#f8f8f8" />\n`;
   svg += `  <line x1="0" y1="${adjustedFooterY}" x2="${width}" y2="${adjustedFooterY}" stroke="#dddddd" stroke-width="1" />\n`;
   
   svg += `\n  <!-- Información del footer -->\n`;
   
-  // URL centrado arriba
-  svg += `  <text x="${width/2}" y="${footerCenterY - 3}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+  // URL centrado arriba con más tamaño
+  svg += `  <text x="${width/2}" y="${footerCenterY - 5}" text-anchor="middle" class="vip-footer-url" style="font-size: 16px;">${url}</text>\n`;
   
-  // Corredores y contacto abajo
+  // Corredores y contacto abajo con más espacio
   if (corredores && contacto) {
-    svg += `  <text x="${width/2}" y="${footerCenterY + 16}" text-anchor="middle" class="vip-footer-info">${corredores} | ${contacto}</text>\n`;
+    svg += `  <text x="${width/2}" y="${footerCenterY + 22}" text-anchor="middle" class="vip-footer-info" style="font-size: 13px;">${corredores} | ${contacto}</text>\n`;
   } else if (corredores || contacto) {
-    svg += `  <text x="${width/2}" y="${footerCenterY + 16}" text-anchor="middle" class="vip-footer-info">${corredores || contacto}</text>\n`;
+    svg += `  <text x="${width/2}" y="${footerCenterY + 22}" text-anchor="middle" class="vip-footer-info" style="font-size: 13px;">${corredores || contacto}</text>\n`;
   }
   
   svg += `</svg>`;
