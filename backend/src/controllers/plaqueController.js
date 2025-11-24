@@ -1774,7 +1774,7 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
     const qrSize = 150; // Tamaño balanceado del QR
     const qrX = width - qrSize - 80; // Más separado del borde
-    const qrY = exteriorHeight + 60; // Posicionado optimizado en área reducida
+    const qrY = exteriorHeight + 210; // Debajo del bloque de precio con margen
     
     try {
       // Generar código QR como buffer con colores balanceados
@@ -2020,7 +2020,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   // Layout más limpio y organizado - usando todo el espacio disponible
   const contentStartY = infoY + 50; // Más espacio desde arriba
   const leftColumnX = hasAgentPhoto ? 270 : 50;
-  const rightColumnX = 650;
+  const rightColumnX = width - 150 - 80; // Coincide con la columna visual del QR
   
   // Label superior (tipo de propiedad)
   svg += `  <text x="${leftColumnX}" y="${contentStartY}" class="vip-ref-label">Propiedad</text>\n`;
@@ -2042,8 +2042,8 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   svg += `  </g>\n`;
   
   // Características con iconos en layout horizontal - espaciado optimizado
-  const featuresY = ambientesY + 55; // Más espacio desde ambientes
-  const featureSpacing = 155; // Más espacio horizontal
+  const featuresY = ambientesY + 60; // Más espacio desde ambientes
+  const featureSpacing = 210; // Más espacio horizontal
   const iconSize = 20;
   
   svg += `\n  <!-- Características con iconos -->\n`;
@@ -2051,7 +2051,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   let featureX = leftColumnX;
   let currentRow = 0;
   let featuresInRow = 0;
-  const maxFeaturesPerRow = 3;
+  const maxFeaturesPerRow = 2;
   
   const features = [];
   if (m2_totales) features.push({ icon: 'icon-area', text: `${m2_totales} m²`, label: 'totales' });
@@ -2059,6 +2059,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
   if (dormitorios) features.push({ icon: 'icon-bed', text: dormitorios, label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
   if (banos) features.push({ icon: 'icon-bath', text: banos, label: banos === '1' ? 'baño' : 'baños' });
   if (cocheras) features.push({ icon: 'icon-garage', text: cocheras, label: cocheras === '1' ? 'cochera' : 'cocheras' });
+  const featureRowHeight = 70;
   
   features.forEach((feature, index) => {
     if (featuresInRow >= maxFeaturesPerRow) {
@@ -2067,7 +2068,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
       featureX = leftColumnX;
     }
     
-    const currentY = featuresY + (currentRow * 65); // Más espacio entre filas
+    const currentY = featuresY + (currentRow * featureRowHeight);
     
     svg += `  <g>\n`;
     // Icono
@@ -2084,17 +2085,22 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, infoY, infoH
     featuresInRow++;
   });
   
-  // Precio posicionado en la segunda fila, con mejor espaciado
-  const priceRow = Math.floor(features.length / maxFeaturesPerRow);
-  const priceColumn = features.length % maxFeaturesPerRow;
-  const priceX = leftColumnX + (priceColumn * featureSpacing);
-  const priceY = featuresY + (priceRow * 65); // Usar mismo espaciado que features
+  // Separador suave entre columnas
+  svg += `  <line x1="${rightColumnX - 35}" y1="${infoY + 40}" x2="${rightColumnX - 35}" y2="${infoY + infoHeight - 30}" stroke="#e9e9e9" stroke-width="1" opacity="0.85"/>\n`;
+
+  // Tarjeta de precio premium
+  const priceCardX = rightColumnX;
+  const priceCardWidth = 230;
+  const priceCardY = infoY + 70;
+  const priceCardHeight = 125;
+  const priceCardTextX = priceCardX + 22;
   
-  svg += `\n  <!-- Precio con jerarquía visual clara -->\n`;
+  svg += `\n  <!-- Precio destacado -->\n`;
   svg += `  <g>\n`;
-  svg += `    <text x="${priceX}" y="${priceY - 10}" class="vip-ref-label">Precio</text>\n`;
-  svg += `    <text x="${priceX}" y="${priceY + 20}" class="vip-moneda" style="font-size: 20px; font-weight: 600;">${moneda}</text>\n`;
-  svg += `    <text x="${priceX + (moneda.length * 13)}" y="${priceY + 28}" class="vip-precio" style="font-size: 50px; letter-spacing: -2px; font-weight: 700;">${precio}</text>\n`;
+  svg += `    <rect x="${priceCardX}" y="${priceCardY}" width="${priceCardWidth}" height="${priceCardHeight}" rx="18" fill="#ffffff" stroke="#efefef" stroke-width="1" filter="url(#shadowLight)" />\n`;
+  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 32}" class="vip-ref-label" style="letter-spacing: 1.6px;">Precio</text>\n`;
+  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 72}" class="vip-moneda" style="font-size: 22px; font-weight: 600;">${moneda}</text>\n`;
+  svg += `    <text x="${priceCardTextX}" y="${priceCardY + 112}" class="vip-precio" style="font-size: 56px; letter-spacing: -2.5px; font-weight: 700;">${precio}</text>\n`;
   svg += `  </g>\n`;
   
   svg += `\n  <!-- Footer balanceado -->\n`;

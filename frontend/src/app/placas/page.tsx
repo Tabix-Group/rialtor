@@ -64,6 +64,24 @@ interface PropertyPlaque {
   updatedAt: string;
 }
 
+const PLAQUE_MODEL_SUMMARY: { key: 'standard' | 'premium' | 'vip'; title: string; description: string }[] = [
+  {
+    key: 'standard',
+    title: 'Estándar',
+    description: 'Placa automática con diseño limpio y datos esenciales para publicar en minutos.'
+  },
+  {
+    key: 'premium',
+    title: 'Premium',
+    description: 'Incluye zócalo personalizado del agente, branding y mayor presencia de contacto.'
+  },
+  {
+    key: 'vip',
+    title: 'VIP',
+    description: 'Template exclusivo con composición de fotos, QR dinámico y estética editorial.'
+  }
+];
+
 export default function PlacasPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -646,6 +664,28 @@ export default function PlacasPage() {
                       <option value="premium">Premium (con zócalo del agente)</option>
                       <option value="vip">VIP (con template personalizado)</option>
                     </select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                      {PLAQUE_MODEL_SUMMARY.map((model) => (
+                        <div
+                          key={model.key}
+                          className={`rounded-lg border px-3 py-3 h-full ${
+                            modelType === model.key
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 bg-gray-50'
+                          }`}
+                        >
+                          <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+                            {model.title}
+                          </p>
+                          <p className="text-sm text-gray-700 leading-snug mt-1">
+                            {model.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Sección de imágenes para modelo VIP */}
