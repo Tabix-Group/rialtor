@@ -46,40 +46,63 @@ export default function PWAInstall() {
   }
 
   useEffect(() => {
-    // Si ya se mostró hoy, no mostrar de nuevo
-    if (hasShownInstallBanner()) {
+    // Registrar service worker primero
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('✅ Service Worker registered successfully:', registration.scope)
+          // Forzar actualización si hay una nueva versión
+          registration.update()
+        })
+        .catch((error) => {
+          console.error('❌ Service Worker registration failed:', error)
+        })
+    }
+
+    // Verificar si ya está instalada la PWA
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      console.log('✅ PWA already installed')
       return
     }
 
-    // Registrar service worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then((registration) => {
-            console.log('SW registered: ', registration)
-          })
-          .catch((registrationError) => {
-            console.log('SW registration failed: ', registrationError)
-          })
-      })
+    // Si ya se mostró hoy, no mostrar de nuevo
+    if (hasShownInstallBanner()) {
+      console.log('ℹ️ Install banner already shown today')
+      return
     }
 
     // Escuchar el evento beforeinstallprompt
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+      console.log('✅ beforeinstallprompt event fired')
       // Prevenir que Chrome muestre automáticamente el prompt
       e.preventDefault()
       // Guardar el evento para que se pueda activar más tarde
       setDeferredPrompt(e)
-      // Mostrar el botón de instalación solo en móviles y si no se mostró antes
-      if (isMobileDevice() && !hasShownInstallBanner()) {
+      // Mostrar el botón de instalación solo en móviles
+      if (isMobileDevice()) {
+        console.log('📱 Mobile device detected, showing install button')
         setShowInstallButton(true)
         markInstallBannerAsShown()
+      } else {
+        console.log('💻 Desktop device detected')
       }
     }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
-    // Limpiar event listener
+    // Detectar si se instaló la app
+    window.addEventListener('appinstalled', () => {
+      console.log('✅ PWA was installed')
+      setShowInstallButton(false)
+      setDeferredPrompt(null)
+    })
+
+    // Log inicial para debugging
+    console.log('🔍 PWA Install component mounted')
+    console.log('📱 Is mobile device:', isMobileDevice())
+    console.log('🔒 Has shown banner today:', hasShownInstallBanner())
+
+    // Limpiar event listeners
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
