@@ -296,7 +296,7 @@ export default function Home() {
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0 }
+    visible: { opacity: 1, y: 0 },
   }
 
   const staggerContainer = {
@@ -304,183 +304,174 @@ export default function Home() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   }
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Enhanced gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.08] via-primary/[0.03] to-background"></div>
+      <section className="relative overflow-hidden border-b border-border/40">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] via-transparent to-transparent"></div>
 
-        {/* Refined grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:48px_48px]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808006_1px,transparent_1px),linear-gradient(to_bottom,#80808006_1px,transparent_1px)] bg-[size:64px_64px]"></div>
 
-        {/* Subtle radial gradient overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent"></div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 sm:pt-28 sm:pb-32 lg:pt-36 lg:pb-44">
-          <motion.div 
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pt-32 lg:pb-36">
+          <motion.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
-            className="max-w-4xl mx-auto text-center space-y-10"
+            className="max-w-5xl mx-auto text-center space-y-12 lg:space-y-16"
           >
             {/* Badge */}
-            <motion.div 
+            <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300"
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-card border border-border/60 backdrop-blur-sm hover:border-border transition-all duration-300"
             >
-              <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-              <span className="text-sm font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <Sparkles className="w-3.5 h-3.5 text-foreground/70" />
+              <span className="text-sm font-medium text-foreground/80">
                 Potenciá tu negocio inmobiliario en Argentina
               </span>
             </motion.div>
 
             {/* Main heading */}
-            <motion.div variants={fadeInUp} className="space-y-8">
+            <motion.div variants={fadeInUp} className="space-y-10 lg:space-y-12">
               <div className="flex justify-center">
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                   className="relative"
                 >
                   <motion.img
                     animate={{
-                      y: [0, -8, 0],
-                      rotate: [0, 1, -1, 0]
+                      y: [0, -4, 0],
                     }}
                     transition={{
                       y: {
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "easeInOut"
+                        duration: 5,
+                        repeat: Number.POSITIVE_INFINITY,
+                        ease: "easeInOut",
                       },
-                      rotate: {
-                        duration: 6,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }
                     }}
                     whileHover={{
-                      scale: 1.05,
-                      rotate: 0,
-                      transition: { duration: 0.3 }
+                      scale: 1.02,
+                      transition: { duration: 0.2 },
                     }}
                     src="/images/l2.png"
-                    alt="RIALTOR Logo"
-                    className="h-24 sm:h-32 lg:h-40 xl:h-48 w-auto"
+                    alt="RIALTOR"
+                    className="h-20 sm:h-28 lg:h-36 w-auto"
                   />
-                  {/* Glow effect */}
                   <motion.div
                     animate={{
-                      opacity: [0.3, 0.6, 0.3],
-                      scale: [1, 1.05, 1]
+                      opacity: [0.15, 0.3, 0.15],
                     }}
                     transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
+                      duration: 4,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "easeInOut",
                     }}
-                    className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-full blur-2xl -z-10"
+                    className="absolute inset-0 bg-primary/10 rounded-full blur-3xl -z-10"
                   />
                 </motion.div>
               </div>
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-light text-foreground/90 text-balance leading-tight tracking-tight"
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground text-balance leading-[1.1] tracking-tight"
               >
-                La revolución inmobiliaria llegó
+                La plataforma definitiva para agentes inmobiliarios
               </motion.h1>
             </motion.div>
 
             {/* Description */}
-            <motion.p 
+            <motion.p
               variants={fadeInUp}
-              className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed text-pretty"
+              className="max-w-3xl mx-auto text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed text-balance"
             >
-              Cerrá más operaciones con IA, herramientas especializadas y datos precisos del mercado argentino.
-              <span className="block mt-2 text-foreground font-medium">Cientos de agentes ya confían en nosotros.</span>
+              Cerrá más operaciones con IA, herramientas especializadas y datos en tiempo real del mercado argentino.
             </motion.p>
 
             {/* CTA Buttons */}
-            <motion.div 
+            <motion.div
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4"
+              className="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center items-center pt-4"
             >
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleScrollToDemo}
-                className="group inline-flex items-center gap-3 px-8 py-4 bg-foreground text-background font-semibold rounded-full hover:bg-foreground/90 transition-all duration-300 shadow-xl hover:shadow-2xl"
-              >
-                <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                Ver Demo en 2 Minutos
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/auth/register"
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-primary-foreground font-semibold rounded-full hover:bg-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-foreground text-background text-base font-semibold rounded-full hover:bg-foreground/90 transition-all duration-200 shadow-lg hover:shadow-xl min-w-[200px]"
                 >
-                  <UserPlus className="w-5 h-5" />
-                  Registrarte Gratis
+                  Comenzar gratis
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleScrollToDemo}
+                className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-card border border-border text-foreground text-base font-semibold rounded-full hover:bg-muted/50 transition-all duration-200 min-w-[200px]"
+              >
+                <Play className="w-4 h-4" />
+                Ver demo
+              </motion.button>
+
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   href="/auth/login"
-                  className="inline-flex items-center gap-3 px-8 py-4 border-2 border-foreground/20 text-foreground font-semibold rounded-full hover:bg-foreground/5 hover:border-foreground/30 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-4 text-foreground text-base font-medium rounded-full hover:bg-muted/50 transition-all duration-200 min-w-[200px]"
                 >
-                  <User2 className="w-5 h-5" />
-                  Ya tengo cuenta
+                  Iniciar sesión
                 </Link>
               </motion.div>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="flex flex-col items-center gap-3 pt-4">
+              <div className="flex items-center gap-1.5">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-4 h-4 text-foreground fill-foreground" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">Más de 500 agentes confían en RIALTOR</p>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 sm:py-28 lg:py-36">
+      <section className="py-24 sm:py-32 lg:py-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="max-w-3xl mx-auto text-center mb-16 lg:mb-20 space-y-5"
+            className="max-w-3xl mx-auto text-center mb-20 lg:mb-24 space-y-4"
           >
-            <motion.h2 
+            <motion.h2
               variants={fadeInUp}
-              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-balance leading-tight tracking-tight"
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance leading-tight tracking-tight"
             >
-              Todo lo que necesitas para vender más
+              Herramientas profesionales para vender más
             </motion.h2>
-            <motion.p 
-              variants={fadeInUp}
-              className="text-base sm:text-lg text-muted-foreground text-pretty"
-            >
-              Herramientas diseñadas específicamente para el mercado inmobiliario argentino
+            <motion.p variants={fadeInUp} className="text-lg lg:text-xl text-muted-foreground text-pretty">
+              Todo lo que necesitas para el mercado inmobiliario argentino en una sola plataforma
             </motion.p>
           </motion.div>
 
           {/* Features Grid */}
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"
           >
             {features.map((feature, index) => {
               // Renderizar el componente especial de indicadores
@@ -496,18 +487,17 @@ export default function Home() {
               return !feature.requiresAuth || user ? (
                 <motion.div key={feature.name} variants={fadeInUp}>
                   <a href={feature.href} className="group relative block h-full">
-                    <div className="relative h-full p-7 lg:p-8 bg-card border border-border rounded-2xl lg:rounded-3xl hover:border-primary/30 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 overflow-hidden">
-                      {/* Hover gradient effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      
+                    <div className="relative h-full p-6 lg:p-7 bg-card border border-border rounded-2xl hover:border-foreground/20 transition-all duration-300 hover:shadow-lg overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
                       {/* Icon */}
-                      <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-foreground/[0.08] to-foreground/[0.04] flex items-center justify-center mb-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
-                        <feature.icon className="w-6 h-6 text-foreground" />
+                      <div className="relative w-11 h-11 rounded-xl bg-muted/50 flex items-center justify-center mb-5 group-hover:bg-muted transition-all duration-300">
+                        <feature.icon className="w-5 h-5 text-foreground/80" />
                       </div>
 
                       {/* Content */}
-                      <div className="relative space-y-3">
-                        <h3 className="text-lg lg:text-xl font-semibold text-balance leading-snug group-hover:text-primary transition-colors duration-300">
+                      <div className="relative space-y-2.5">
+                        <h3 className="text-lg font-semibold text-foreground text-balance leading-snug">
                           {feature.name}
                         </h3>
                         <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
@@ -516,27 +506,30 @@ export default function Home() {
                       </div>
 
                       {/* Arrow indicator */}
-                      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
-                        <ArrowRight className="w-5 h-5 text-primary" />
+                      <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <ArrowRight className="w-4 h-4 text-foreground/60" />
                       </div>
                     </div>
                   </a>
                 </motion.div>
               ) : (
                 <motion.div key={feature.name} variants={fadeInUp}>
-                  <div className="group relative h-full opacity-60 hover:opacity-70 transition-opacity duration-300">
-                    <div className="relative h-full p-7 lg:p-8 bg-card border border-border rounded-2xl lg:rounded-3xl">
+                  <div className="group relative h-full">
+                    <div className="relative h-full p-6 lg:p-7 bg-card border border-border rounded-2xl opacity-60">
                       {/* Icon */}
-                      <div className="w-12 h-12 rounded-xl bg-foreground/5 flex items-center justify-center mb-5">
-                        <feature.icon className="w-6 h-6 text-foreground" />
+                      <div className="w-11 h-11 rounded-xl bg-muted/30 flex items-center justify-center mb-5">
+                        <feature.icon className="w-5 h-5 text-foreground/60" />
                       </div>
 
                       {/* Content */}
-                      <div className="space-y-3">
-                        <h3 className="text-lg lg:text-xl font-semibold text-balance leading-snug">{feature.name}</h3>
-                        <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{feature.description}</p>
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted text-xs font-medium text-muted-foreground mt-3">
-                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50"></span>
+                      <div className="space-y-2.5">
+                        <h3 className="text-lg font-semibold text-foreground text-balance leading-snug">
+                          {feature.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed text-pretty">
+                          {feature.description}
+                        </p>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/50 text-xs font-medium text-muted-foreground mt-3">
                           Requiere registro
                         </div>
                       </div>
@@ -550,31 +543,30 @@ export default function Home() {
       </section>
 
       {/* Demo Video Section */}
-      <section id="demo-video" className="py-20 sm:py-28 lg:py-36 bg-muted/30">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="demo-video" className="py-24 sm:py-32 lg:py-40 bg-muted/30 border-y border-border/40">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
           >
-            <motion.div variants={fadeInUp} className="text-center mb-12 lg:mb-16 space-y-5">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-balance leading-tight tracking-tight">
-                Descubrí cómo cerrar más operaciones
+            <motion.div variants={fadeInUp} className="text-center mb-12 lg:mb-16 space-y-4">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance leading-tight tracking-tight">
+                Descubrí cómo funciona
               </h2>
-              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-                Vea en 2 minutos cómo RIALTOR transforma la forma de trabajar de los martilleros argentinos
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+                2 minutos para entender cómo RIALTOR transforma tu trabajo diario
               </p>
             </motion.div>
 
             <motion.div variants={fadeInUp} className="relative group">
-              <div className="absolute -inset-6 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-3xl blur-3xl opacity-0 group-hover:opacity-70 transition-opacity duration-700"></div>
-              <div className="relative aspect-video w-full rounded-2xl lg:rounded-3xl overflow-hidden border-2 border-border shadow-2xl group-hover:border-primary/30 transition-all duration-500">
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-border shadow-2xl group-hover:border-foreground/20 transition-all duration-300 bg-muted">
                 <video
                   src="/docs/Videos/demo.mp4"
                   title="Demo RIALTOR"
                   controls
-                  className="w-full h-full object-cover bg-muted"
+                  className="w-full h-full object-cover"
                   preload="metadata"
                 >
                   Tu navegador no soporta el elemento de video.
@@ -586,7 +578,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 sm:py-28 lg:py-36">
+      <section className="py-24 sm:py-32 lg:py-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -594,46 +586,46 @@ export default function Home() {
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
           >
-            <motion.div variants={fadeInUp} className="text-center mb-16 lg:mb-20 space-y-5">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-balance leading-tight tracking-tight">
-                Planes que se adaptan a tu negocio
+            <motion.div variants={fadeInUp} className="text-center mb-16 lg:mb-20 space-y-4">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-balance leading-tight tracking-tight">
+                Planes simples y transparentes
               </h2>
-              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-                Elegí el plan perfecto para potenciar tu carrera inmobiliaria
+              <p className="text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
+                Elegí el plan perfecto para potenciar tu negocio inmobiliario
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
               {/* Monthly Plan */}
               <motion.div variants={fadeInUp} className="relative group">
-                <div className="relative bg-card rounded-2xl lg:rounded-3xl p-8 lg:p-10 border-2 border-border hover:border-foreground/20 hover:shadow-2xl transition-all duration-500 h-full">
+                <div className="relative bg-card rounded-2xl p-8 lg:p-10 border border-border hover:border-foreground/20 hover:shadow-xl transition-all duration-300 h-full">
                   <div className="space-y-8">
-                    <div className="space-y-3">
-                      <h3 className="text-2xl lg:text-3xl font-bold">Plan Mensual</h3>
+                    <div className="space-y-4">
+                      <h3 className="text-2xl font-bold">Mensual</h3>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-5xl lg:text-6xl font-bold tracking-tight">$25</span>
-                        <span className="text-muted-foreground font-medium">USD/mes</span>
+                        <span className="text-5xl font-bold tracking-tight">$25</span>
+                        <span className="text-muted-foreground">USD/mes</span>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {[
                         "Consultor Inmobiliario IA 24/7",
-                        "Calculadoras Profesionales (Honorarios, ITI, Sellos, Ajustes de Alquiler)",
-                        "Generación de Documentos Inteligentes",
-                        "Créditos Hipotecarios y Tasas Actualizadas",
-                        "Generador de Placas Profesionales con IA",
-                        "Sistema de Gestión Financiera",
-                        "Calendario Profesional Integrado",
-                        "Resumidor Inteligente de Documentos",
-                        "Base de Conocimiento Inmobiliario",
-                        "Panel de Administración Completo",
-                        "Almacenamiento Seguro en la Nube",
-                        "Soporte Técnico Incluido",
+                        "Calculadoras Profesionales",
+                        "Generación de Documentos",
+                        "Créditos Hipotecarios",
+                        "Generador de Placas con IA",
+                        "Gestión Financiera",
+                        "Calendario Profesional",
+                        "Resumidor Inteligente",
+                        "Base de Conocimiento",
+                        "Panel de Administración",
+                        "Almacenamiento en la Nube",
+                        "Soporte Técnico",
                       ].map((item) => (
                         <div key={item} className="flex items-start gap-3">
-                          <div className="w-5 h-5 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-3.5 h-3.5 text-foreground" />
+                          <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-3 h-3 text-foreground" />
                           </div>
                           <span className="text-sm text-muted-foreground leading-relaxed">{item}</span>
                         </div>
@@ -642,7 +634,7 @@ export default function Home() {
 
                     <Link
                       href="/auth/register"
-                      className="w-full inline-flex items-center justify-center px-6 py-4 bg-foreground text-background font-semibold rounded-full hover:bg-foreground/90 transition-all duration-300 hover:scale-[1.02] shadow-lg"
+                      className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-card border-2 border-foreground/20 text-foreground text-base font-semibold rounded-full hover:bg-muted/50 hover:border-foreground/30 transition-all duration-200"
                     >
                       Comenzar ahora
                     </Link>
@@ -652,53 +644,52 @@ export default function Home() {
 
               {/* Annual Plan */}
               <motion.div variants={fadeInUp} className="relative group">
-                <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 z-10 shadow-xl">
-                  <Crown className="w-4 h-4" />
-                  Más Popular
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-foreground text-background px-4 py-1.5 rounded-full text-sm font-semibold z-10">
+                  Más popular
                 </div>
-                <div className="absolute -inset-1 bg-gradient-to-br from-primary/30 via-primary/10 to-primary/20 rounded-2xl lg:rounded-3xl blur-xl opacity-60"></div>
-                <div className="relative bg-card rounded-2xl lg:rounded-3xl p-8 lg:p-10 border-2 border-primary/50 hover:border-primary hover:shadow-2xl transition-all duration-500 h-full">
+                <div className="absolute -inset-px bg-gradient-to-b from-foreground/10 to-transparent rounded-2xl"></div>
+                <div className="relative bg-card rounded-2xl p-8 lg:p-10 border-2 border-foreground/20 hover:border-foreground/30 hover:shadow-xl transition-all duration-300 h-full">
                   <div className="space-y-8">
-                    <div className="space-y-3">
-                      <h3 className="text-2xl lg:text-3xl font-bold">Plan Anual</h3>
+                    <div className="space-y-4">
+                      <h3 className="text-2xl font-bold">Anual</h3>
                       <div className="flex items-baseline gap-3 flex-wrap">
                         <span className="text-xl text-muted-foreground line-through">$300</span>
-                        <span className="text-5xl lg:text-6xl font-bold tracking-tight">$240</span>
-                        <span className="text-muted-foreground font-medium">USD/año</span>
+                        <span className="text-5xl font-bold tracking-tight">$240</span>
+                        <span className="text-muted-foreground">USD/año</span>
                       </div>
-                      <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold">
-                        Ahorrás 20% ($60 USD)
+                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-foreground/10 text-foreground text-sm font-semibold">
+                        Ahorrás 20% · $60 USD
                       </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {[
                         "Consultor Inmobiliario IA 24/7",
-                        "Calculadoras Profesionales (Honorarios, ITI, Sellos, Ajustes de Alquiler)",
-                        "Generación de Documentos Inteligentes",
-                        "Créditos Hipotecarios y Tasas Actualizadas",
-                        "Generador de Placas Profesionales con IA",
-                        "Sistema de Gestión Financiera",
-                        "Calendario Profesional Integrado",
-                        "Resumidor Inteligente de Documentos",
-                        "Base de Conocimiento Inmobiliario",
-                        "Panel de Administración Completo",
-                        "Almacenamiento Seguro en la Nube",
-                        "Soporte Técnico Prioritario",
-                        "2 Meses Gratis Incluidos",
-                        "Actualizaciones Anticipadas",
+                        "Calculadoras Profesionales",
+                        "Generación de Documentos",
+                        "Créditos Hipotecarios",
+                        "Generador de Placas con IA",
+                        "Gestión Financiera",
+                        "Calendario Profesional",
+                        "Resumidor Inteligente",
+                        "Base de Conocimiento",
+                        "Panel de Administración",
+                        "Almacenamiento en la Nube",
+                        "Soporte Prioritario",
+                        "2 meses gratis incluidos",
+                        "Actualizaciones anticipadas",
                       ].map((item, idx) => (
                         <div key={item} className="flex items-start gap-3">
                           <div
                             className={`w-5 h-5 rounded-full ${
-                              idx >= 12 ? "bg-primary/20" : "bg-foreground/10"
+                              idx >= 12 ? "bg-foreground/10" : "bg-muted"
                             } flex items-center justify-center flex-shrink-0 mt-0.5`}
                           >
-                            <Check className={`w-3.5 h-3.5 ${idx >= 12 ? "text-primary" : "text-foreground"}`} />
+                            <Check className={`w-3 h-3 ${idx >= 12 ? "text-foreground" : "text-foreground"}`} />
                           </div>
                           <span
                             className={`text-sm leading-relaxed ${
-                              idx >= 12 ? "text-foreground font-semibold" : "text-muted-foreground"
+                              idx >= 12 ? "text-foreground font-medium" : "text-muted-foreground"
                             }`}
                           >
                             {item}
@@ -709,7 +700,7 @@ export default function Home() {
 
                     <Link
                       href="/auth/register"
-                      className="w-full inline-flex items-center justify-center px-6 py-4 bg-primary text-primary-foreground font-semibold rounded-full hover:bg-primary/90 transition-all duration-300 hover:scale-[1.02] shadow-xl"
+                      className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-foreground text-background text-base font-semibold rounded-full hover:bg-foreground/90 transition-all duration-200 shadow-lg hover:shadow-xl"
                     >
                       Elegir plan anual
                     </Link>
@@ -718,71 +709,67 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <motion.div variants={fadeInUp} className="text-center mt-10">
-              <p className="text-sm text-muted-foreground">
-                Todos los precios están en dólares estadounidenses. Sin permanencia, cancelá cuando quieras.
-              </p>
+            <motion.div variants={fadeInUp} className="text-center mt-8">
+              <p className="text-sm text-muted-foreground">Sin permanencia · Cancelá cuando quieras</p>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-muted/20">
+      <footer className="border-t border-border bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-10 lg:gap-12 mb-12 lg:mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-10 lg:gap-12 mb-12">
             {/* Brand */}
             <div className="md:col-span-1 space-y-4">
-              <span className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                RIALTOR
-              </span>
+              <span className="text-xl font-bold text-foreground">RIALTOR</span>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                La plataforma definitiva para martilleros y agentes inmobiliarios en Argentina.
+                La plataforma definitiva para agentes inmobiliarios en Argentina.
               </p>
             </div>
 
             {/* Herramientas */}
             <div className="md:col-span-2">
-              <h3 className="font-semibold text-foreground mb-5">Herramientas</h3>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <h3 className="font-semibold text-foreground mb-4 text-sm">Herramientas</h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm">
                 {[
                   { name: "Centro de Noticias", href: "/news", requiresAuth: false },
-                  { name: "Consultor Inmobiliario IA", href: "/chat", requiresAuth: true },
-                  { name: "Calculadoras Profesionales", href: "/calculadoras", requiresAuth: true },
-                  { name: "Documentos Inteligentes", href: "/documents", requiresAuth: true },
+                  { name: "Consultor IA", href: "/chat", requiresAuth: true },
+                  { name: "Calculadoras", href: "/calculadoras", requiresAuth: true },
+                  { name: "Documentos", href: "/documents", requiresAuth: true },
                   { name: "Créditos Hipotecarios", href: "/hipotecarios", requiresAuth: true },
                   { name: "Generador de Placas", href: "/placas", requiresAuth: true },
                   { name: "Seguro de Caución", href: "/creditos", requiresAuth: true },
                   { name: "Mis Finanzas", href: "/finanzas", requiresAuth: true },
-                  { name: "Calendario Profesional", href: "/calendario", requiresAuth: true },
-                  { name: "Resumidor Inteligente", href: "/documents/summary", requiresAuth: true },
+                  { name: "Calendario", href: "/calendario", requiresAuth: true },
+                  { name: "Resumidor", href: "/documents/summary", requiresAuth: true },
                 ].map((tool) =>
                   tool.requiresAuth && !user ? (
-                    <li key={tool.name} className="text-muted-foreground/60">
+                    <li key={tool.name} className="text-muted-foreground/50">
                       {tool.name}
                     </li>
                   ) : (
                     <li key={tool.name}>
                       <Link
                         href={tool.href}
-                        className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
+                        className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                       >
                         {tool.name}
                       </Link>
                     </li>
-                  )
+                  ),
                 )}
               </ul>
             </div>
 
             {/* Soporte */}
             <div>
-              <h3 className="font-semibold text-foreground mb-5">Soporte</h3>
-              <ul className="space-y-3 text-sm">
+              <h3 className="font-semibold text-foreground mb-4 text-sm">Soporte</h3>
+              <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link
                     href="/centro-ayuda"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     Centro de Ayuda
                   </Link>
@@ -790,7 +777,7 @@ export default function Home() {
                 <li>
                   <Link
                     href="/contacto"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     Contacto
                   </Link>
@@ -798,7 +785,7 @@ export default function Home() {
                 <li>
                   <a
                     href="mailto:rialtor@rialtor.app"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     rialtor@rialtor.app
                   </a>
@@ -808,12 +795,12 @@ export default function Home() {
 
             {/* Legal */}
             <div>
-              <h3 className="font-semibold text-foreground mb-5">Legal</h3>
-              <ul className="space-y-3 text-sm">
+              <h3 className="font-semibold text-foreground mb-4 text-sm">Legal</h3>
+              <ul className="space-y-2.5 text-sm">
                 <li>
                   <Link
                     href="/terminos"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     Términos y Condiciones
                   </Link>
@@ -821,7 +808,7 @@ export default function Home() {
                 <li>
                   <Link
                     href="/politica-privacidad"
-                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 inline-block hover:translate-x-0.5"
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                   >
                     Política de Privacidad
                   </Link>
@@ -831,9 +818,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-border pt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              © 2025 RIALTOR. Todos los derechos reservados.
-            </p>
+            <p className="text-sm text-muted-foreground">© 2025 RIALTOR · Todos los derechos reservados</p>
           </div>
         </div>
       </footer>
