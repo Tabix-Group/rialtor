@@ -1,4 +1,4 @@
-# Guía para Probar la PWA en Android
+# Guía para Probar la PWA en Android e iOS
 
 ## ✅ Cambios Realizados
 
@@ -24,10 +24,118 @@
 - ✅ Service-Worker-Allowed configurado
 - ✅ Cache-Control optimizado
 
-### 5. Componente PWAInstall con Debugging
+### 5. Componente PWAInstall con Debugging y Soporte iOS
 - ✅ Logs detallados para troubleshooting
 - ✅ Detección de instalación existente
 - ✅ Mejor manejo de eventos
+- ✅ **Nuevo**: Soporte para iOS con instrucciones de instalación manual
+
+## 🍎 Cómo Probar en iOS
+
+### Paso 1: Desplegar los Cambios
+```bash
+cd /home/hernan/proyectos/rialtor
+git add .
+git commit -m "feat: agregar soporte PWA para iOS"
+git push origin main
+```
+
+### Paso 2: Limpiar Caché en iOS
+1. Abre Safari en iOS
+2. Ve a `Ajustes > Safari > Avanzado > Datos de sitio web`
+3. Busca `rialtor.app` y desliza para eliminar
+4. También puedes ir a `Ajustes > General > Almacenamiento iPhone > Safari` y liberar espacio
+
+### Paso 3: Visitar el Sitio
+1. Abre Safari en iOS
+2. Ve a `https://www.rialtor.app`
+3. Espera a que aparezca el banner azul con instrucciones para instalar
+
+### Paso 4: Instalar la PWA
+1. Si aparece el banner personalizado, toca "Entendido"
+2. Si no aparece, toca el botón de compartir (cuadrado con flecha hacia arriba)
+3. Desliza hacia abajo y selecciona "Agregar a pantalla de inicio"
+4. Confirma el nombre y toca "Agregar"
+
+### Paso 5: Verificar Instalación
+1. Ve a la pantalla de inicio
+2. Busca el ícono de RIALTOR
+3. Abre la app instalada
+4. Verifica que se abre en modo standalone (sin barra de Safari)
+
+## 🐛 Debugging en iOS
+
+### Ver Logs del Service Worker
+1. Conecta el iPhone por USB
+2. Abre Safari en macOS
+3. Habilita "Desarrollador" en Safari: `Safari > Preferencias > Avanzado > Mostrar menú Desarrollo`
+4. Selecciona tu iPhone en `Desarrollo > [tu iPhone]`
+5. Inspecciona la página
+6. Ve a la pestaña "Console"
+7. Busca estos mensajes:
+   - `🍎 iOS device detected, showing iOS install banner`
+   - `✅ Service Worker registered successfully`
+
+### Verificar el Manifest
+En Safari DevTools:
+1. Ve a "Application" tab (si está disponible)
+2. O usa herramientas como PWA Compat para verificar
+
+### Verificar Meta Tags
+En la fuente de la página (View Source), verifica que estén presentes:
+- `<meta name="apple-mobile-web-app-capable" content="yes">`
+- `<meta name="apple-mobile-web-app-status-bar-style" content="default">`
+- `<link rel="apple-touch-icon" sizes="192x192" href="/images/icon-192.png">`
+
+## ⚠️ Limitaciones de iOS
+
+- **No hay prompt automático**: A diferencia de Android, iOS requiere instalación manual
+- **Solo Safari**: Las PWA solo se pueden instalar desde Safari
+- **Sin push notifications avanzadas**: Limitadas comparadas con Android
+- **Sin background sync**: No disponible en iOS
+
+## 📱 Instalación Manual (Plan B)
+
+Si el banner no aparece, los usuarios pueden instalar manualmente:
+
+1. Abre Safari en iOS
+2. Ve al sitio web
+3. Toca el botón de compartir
+4. Selecciona "Agregar a pantalla de inicio"
+5. Confirma la instalación
+
+## 🔄 Forzar Actualización del Service Worker
+
+Si hiciste cambios y no se reflejan:
+
+```javascript
+// En la consola del navegador:
+navigator.serviceWorker.getRegistrations().then(function(registrations) {
+  for(let registration of registrations) {
+    registration.unregister()
+  }
+})
+location.reload()
+```
+
+## 📊 Verificar Score PWA
+
+Usa Lighthouse en Safari o herramientas online:
+1. Ve a https://www.pwacompat.dev/
+2. Ingresa tu URL
+3. Verifica que pase las pruebas básicas
+
+## 🎯 Checklist Final
+
+- [ ] Deploy realizado
+- [ ] Caché limpiado en dispositivo iOS
+- [ ] HTTPS funcionando (www.rialtor.app)
+- [ ] Service Worker registrado (verificar en DevTools)
+- [ ] Manifest.json válido
+- [ ] Meta tags de iOS presentes
+- [ ] Ícono apple-touch-icon existente
+- [ ] Navegaste e interactuaste con el sitio
+- [ ] Instalación manual funciona correctamente
 
 ## 🔍 Cómo Probar en Android
 
@@ -156,6 +264,7 @@ Usa Lighthouse para verificar:
 
 ## 🎯 Checklist Final
 
+### Para Android:
 - [ ] Deploy realizado
 - [ ] Caché limpiado en dispositivo Android
 - [ ] HTTPS funcionando (www.rialtor.app)
@@ -165,6 +274,16 @@ Usa Lighthouse para verificar:
 - [ ] Navegaste e interactuaste con el sitio
 - [ ] Esperaste al menos 30 segundos
 - [ ] Verificaste chrome://flags
+
+### Para iOS:
+- [ ] Deploy realizado
+- [ ] Caché limpiado en dispositivo iOS
+- [ ] HTTPS funcionando (www.rialtor.app)
+- [ ] Service Worker registrado (verificar en DevTools)
+- [ ] Manifest.json válido
+- [ ] Meta tags de iOS presentes
+- [ ] Ícono apple-touch-icon existente
+- [ ] Instalación manual funciona correctamente
 
 ## 💡 Notas Importantes
 
