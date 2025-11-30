@@ -158,7 +158,12 @@ function Navigation() {
     },
   ]
 
-  const isActive = (href: string) => pathname?.startsWith(href)
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    if (href === '/news') return pathname === '/news' || pathname?.startsWith('/news/')
+    if (href === '/newsletter') return pathname === '/newsletter' || pathname?.startsWith('/newsletter/')
+    return pathname?.startsWith(href)
+  }
 
   const handleDropdownClick = (e: React.MouseEvent, itemName: string) => {
     e.stopPropagation()

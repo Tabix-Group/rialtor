@@ -36,6 +36,10 @@ import {
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 import 'react-quill/dist/quill.snow.css'
 
+// Importar librerías de PDF
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
+
 interface Newsletter {
   id: string;
   title: string;
@@ -97,6 +101,7 @@ export default function NewsletterPage() {
   const [availableProperties, setAvailableProperties] = useState<PropertyPlaque[]>([]);
   const [loadingNews, setLoadingNews] = useState(false);
   const [loadingProperties, setLoadingProperties] = useState(false);
+  const [showInternationalNews, setShowInternationalNews] = useState(false);
   const [creating, setCreating] = useState(false);
 
   // Proteger ruta
@@ -119,7 +124,7 @@ export default function NewsletterPage() {
       fetchAvailableNews();
       fetchAvailableProperties();
     }
-  }, [showCreateModal]);
+  }, [showCreateModal, showInternationalNews]);
 
   const fetchNewsletters = async (page = 1, limit = 10) => {
     try {
@@ -141,10 +146,15 @@ export default function NewsletterPage() {
   const fetchAvailableNews = async () => {
     setLoadingNews(true);
     try {
-      const res = await authenticatedFetch('/api/news?limit=50');
+      const res = await authenticatedFetch('/api/news?limit=100');
       const data = await res.json();
       if (res.ok) {
-        setAvailableNews(data.news || []);
+        // Filtrar noticias: excluir "Internacional" por defecto, incluir solo si showInternationalNews es true
+        let filteredNews = data.news || [];
+        if (!showInternationalNews) {
+          filteredNews = filteredNews.filter((news: NewsItem) => news.category !== 'Internacional');
+        }
+        setAvailableNews(filteredNews);
       }
     } catch (error) {
       console.error('Error cargando noticias:', error);
@@ -356,6 +366,189 @@ export default function NewsletterPage() {
     }
   };
 
+  const downloadNewsletterAsPDF = async (newsletter: Newsletter) => {
+    try {
+      // Crear un elemento temporal con el contenido de la newsletter
+      const tempDiv = document.createElement('div');
+      // Aplicar estilos según la plantilla
+      const getTemplateStyles = (template: string) => {
+        switch (template) {
+          case 'modern':
+            return {
+              background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
+              headerBorder: '4px solid #3b82f6',
+              headerBg: '',
+              textColor: '#1e40af',
+              accentColor: '#2563eb',
+              cardBg: '#ffffff',
+              cardBorder: '1px solid #bfdbfe',
+              cardShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1)'
+            };
+          case 'classic':
+            return {
+              background: '#fef3c7',
+              headerBorder: '2px solid #d97706',
+              headerBg: '#fed7aa',
+              textColor: '#92400e',
+              accentColor: '#d97706',
+              cardBg: '#fef3c7',
+              cardBorder: '1px solid #fcd34d',
+              cardShadow: 'none'
+            };
+          case 'professional':
+            return {
+              background: '#f8fafc',
+              headerBorder: '2px solid #64748b',
+              headerBg: '',
+              textColor: '#0f172a',
+              accentColor: '#475569',
+              cardBg: '#ffffff',
+              cardBorder: '1px solid #cbd5e1',
+              cardShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            };
+          default:
+            return {
+              background: '#f9fafb',
+              headerBorder: '2px solid #d1d5db',
+              headerBg: '',
+              textColor: '#111827',
+              accentColor: '#374151',
+              cardBg: '#ffffff',
+              cardBorder: '1px solid #e5e7eb',
+              cardShadow: 'none'
+            };
+        }
+      };
+
+      const styles = getTemplateStyles(newsletter.template);
+
+      tempDiv.style.width = '800px';
+      tempDiv.style.padding = '40px';
+      tempDiv.style.background = styles.background;
+      tempDiv.style.fontFamily = 'Arial, sans-serif';
+      tempDiv.innerHTML = `
+        <div style="text-align: center; margin-bottom: 40px; ${styles.headerBorder}; padding-bottom: 20px; ${styles.headerBg ? `background-color: ${styles.headerBg}; padding: 20px; border-radius: 8px;` : ''}">
+          <h1 style="color: ${styles.textColor}; font-size: 32px; margin: 0; font-weight: bold;">${newsletter.title}</h1>
+          <p style="color: ${styles.accentColor}; margin: 10px 0 0 0; font-size: 14px;">${new Date(newsletter.createdAt).toLocaleDateString('es-AR')}</p>
+        </div>
+
+        <div style="margin-bottom: 40px; line-height: 1.6; color: #374151;">
+          ${newsletter.content}
+        </div>
+
+        ${newsletter.agentInfo ? `
+          <div style="background-color: #f9fafb; padding: 30px; border-radius: 8px; margin-bottom: 40px; border: 1px solid #e5e7eb;">
+            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Sobre el Agente</h3>
+            <div style="display: flex; align-items: flex-start; gap: 20px;">
+              <div style="flex: 1;">
+                <h4 style="color: #1f2937; font-size: 20px; margin: 0 0 10px 0; font-weight: bold;">${newsletter.agentInfo.name}</h4>
+                ${newsletter.agentInfo.agency ? `<p style="color: #6b7280; margin: 0 0 15px 0; font-size: 16px;">${newsletter.agentInfo.agency}</p>` : ''}
+                ${newsletter.agentInfo.bio ? `<p style="color: #374151; margin: 0 0 20px 0; line-height: 1.5;">${newsletter.agentInfo.bio}</p>` : ''}
+                <div style="display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; color: #6b7280;">
+                  ${newsletter.agentInfo.email ? `<div>📧 ${newsletter.agentInfo.email}</div>` : ''}
+                  ${newsletter.agentInfo.phone ? `<div>📱 ${newsletter.agentInfo.phone}</div>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+
+        ${newsletter.news && newsletter.news.length > 0 ? `
+          <div style="margin-bottom: 40px;">
+            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Últimas Noticias</h3>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              ${newsletter.news.map((newsId: string) => {
+                const news = availableNews.find(n => n.id === newsId);
+                return news ? `
+                  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    <h4 style="color: #1f2937; font-size: 18px; margin: 0 0 10px 0; font-weight: bold;">${news.title}</h4>
+                    <p style="color: #374151; margin: 0 0 10px 0; line-height: 1.5;">${news.synopsis}</p>
+                    <p style="color: #9ca3af; margin: 0; font-size: 12px;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
+                  </div>
+                ` : '';
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${newsletter.properties && newsletter.properties.length > 0 ? `
+          <div style="margin-bottom: 40px;">
+            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Propiedades Destacadas</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              ${newsletter.properties.map((propertyId: string) => {
+                const property = availableProperties.find(p => p.id === propertyId);
+                return property ? `
+                  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+                    ${property.generatedImages.length > 0 ? `<img src="${property.generatedImages[0]}" alt="${property.title}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 15px;" />` : ''}
+                    <h4 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">${property.title}</h4>
+                    <div style="font-size: 14px; color: #6b7280; line-height: 1.4;">
+                      <p style="margin: 0 0 5px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
+                      <p style="margin: 0 0 5px 0;">🏠 ${property.propertyData.tipo}</p>
+                      <p style="margin: 0; font-weight: bold; color: #059669; font-size: 16px;">${property.propertyData.moneda} ${property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}</p>
+                    </div>
+                  </div>
+                ` : '';
+              }).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${newsletter.images.length > 0 ? `
+          <div style="margin-bottom: 40px;">
+            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Imágenes</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+              ${newsletter.images.map((url, index) => `
+                <img src="${url}" alt="Imagen ${index + 1}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px;" />
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <div style="text-align: center; color: #9ca3af; font-size: 12px; border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 40px;">
+          <p style="margin: 0;">Newsletter creada con RIALTOR</p>
+        </div>
+      `;
+
+      document.body.appendChild(tempDiv);
+
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: 800,
+        height: tempDiv.scrollHeight
+      });
+
+      document.body.removeChild(tempDiv);
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 295; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+    } catch (error) {
+      console.error('Error generando PDF:', error);
+      alert('Error al generar el PDF. Inténtalo de nuevo.');
+    }
+  };
+
   if (loading || !hasPermission) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -490,6 +683,14 @@ export default function NewsletterPage() {
                         Ver
                       </button>
 
+                      <button
+                        onClick={() => downloadNewsletterAsPDF(newsletter)}
+                        className="flex items-center justify-center gap-1 bg-purple-100 text-purple-700 px-2 py-1.5 rounded text-xs hover:bg-purple-200 transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
+                        PDF
+                      </button>
+
                       {newsletter.status === 'DRAFT' && (
                         <button
                           onClick={() => publishNewsletter(newsletter.id)}
@@ -598,9 +799,10 @@ export default function NewsletterPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, template: e.target.value }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
-                        <option value="default">Predeterminada</option>
                         <option value="modern">Moderna</option>
                         <option value="classic">Clásica</option>
+                        <option value="professional">Profesional</option>
+                        <option value="minimal">Minimalista</option>
                       </select>
                     </div>
                   </div>
@@ -697,10 +899,21 @@ export default function NewsletterPage() {
 
                   {/* Selector de Noticias */}
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Newspaper className="w-5 h-5" />
-                      Incluir Noticias ({selectedNews.length} seleccionadas)
-                    </h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <Newspaper className="w-5 h-5" />
+                        Incluir Noticias ({selectedNews.length} seleccionadas)
+                      </h3>
+                      <label className="flex items-center gap-2 text-sm text-gray-600">
+                        <input
+                          type="checkbox"
+                          checked={showInternationalNews}
+                          onChange={(e) => setShowInternationalNews(e.target.checked)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        Incluir noticias internacionales
+                      </label>
+                    </div>
                     {loadingNews ? (
                       <div className="flex items-center justify-center py-4">
                         <Loader2 className="w-6 h-6 animate-spin" />
@@ -908,20 +1121,61 @@ export default function NewsletterPage() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">Vista Previa: {previewNewsletter.title}</h2>
-                  <button
-                    onClick={() => setShowPreviewModal(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => downloadNewsletterAsPDF(previewNewsletter)}
+                      className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                    >
+                      <Download className="w-4 h-4" />
+                      Descargar PDF
+                    </button>
+                    <button
+                      onClick={() => setShowPreviewModal(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Newsletter Preview */}
-                <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <div className={`border border-gray-200 rounded-lg p-6 ${
+                  previewNewsletter.template === 'modern'
+                    ? 'bg-gradient-to-br from-blue-50 to-indigo-50'
+                    : previewNewsletter.template === 'classic'
+                    ? 'bg-amber-50'
+                    : previewNewsletter.template === 'professional'
+                    ? 'bg-slate-50'
+                    : 'bg-gray-50'
+                }`}>
                   {/* Header */}
-                  <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{previewNewsletter.title}</h1>
-                    <p className="text-gray-600">{new Date(previewNewsletter.createdAt).toLocaleDateString('es-AR')}</p>
+                  <div className={`text-center mb-8 ${
+                    previewNewsletter.template === 'modern'
+                      ? 'border-b-4 border-blue-500 pb-6'
+                      : previewNewsletter.template === 'classic'
+                      ? 'border-b-2 border-amber-600 pb-6 bg-amber-100 rounded-lg p-4'
+                      : previewNewsletter.template === 'professional'
+                      ? 'border-b-2 border-slate-400 pb-6'
+                      : 'border-b-2 border-gray-300 pb-6'
+                  }`}>
+                    <h1 className={`mb-2 font-bold ${
+                      previewNewsletter.template === 'modern'
+                        ? 'text-4xl text-blue-900'
+                        : previewNewsletter.template === 'classic'
+                        ? 'text-3xl text-amber-900'
+                        : previewNewsletter.template === 'professional'
+                        ? 'text-2xl text-slate-900'
+                        : 'text-3xl text-gray-900'
+                    }`}>{previewNewsletter.title}</h1>
+                    <p className={`${
+                      previewNewsletter.template === 'modern'
+                        ? 'text-blue-700'
+                        : previewNewsletter.template === 'classic'
+                        ? 'text-amber-800'
+                        : previewNewsletter.template === 'professional'
+                        ? 'text-slate-600'
+                        : 'text-gray-600'
+                    }`}>{new Date(previewNewsletter.createdAt).toLocaleDateString('es-AR')}</p>
                   </div>
 
                   {/* Content */}
@@ -932,26 +1186,82 @@ export default function NewsletterPage() {
 
                   {/* Agent Info */}
                   {previewNewsletter.agentInfo && (
-                    <div className="bg-white p-6 rounded-lg border border-gray-200 mb-8">
-                      <h3 className="text-xl font-semibold mb-4">Sobre el Agente</h3>
+                    <div className={`p-6 rounded-lg border mb-8 ${
+                      previewNewsletter.template === 'modern'
+                        ? 'bg-white border-blue-200 shadow-lg'
+                        : previewNewsletter.template === 'classic'
+                        ? 'bg-amber-100 border-amber-300'
+                        : previewNewsletter.template === 'professional'
+                        ? 'bg-white border-slate-300 shadow-sm'
+                        : 'bg-white border-gray-200'
+                    }`}>
+                      <h3 className={`font-semibold mb-4 ${
+                        previewNewsletter.template === 'modern'
+                          ? 'text-xl text-blue-900'
+                          : previewNewsletter.template === 'classic'
+                          ? 'text-lg text-amber-900'
+                          : previewNewsletter.template === 'professional'
+                          ? 'text-lg text-slate-900'
+                          : 'text-xl text-gray-900'
+                      }`}>Sobre el Agente</h3>
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-lg">{previewNewsletter.agentInfo.name}</h4>
+                          <h4 className={`font-semibold ${
+                            previewNewsletter.template === 'modern'
+                              ? 'text-lg text-blue-800'
+                              : previewNewsletter.template === 'classic'
+                              ? 'text-lg text-amber-800'
+                              : previewNewsletter.template === 'professional'
+                              ? 'text-lg text-slate-800'
+                              : 'text-lg text-gray-900'
+                          }`}>{previewNewsletter.agentInfo.name}</h4>
                           {previewNewsletter.agentInfo.agency && (
-                            <p className="text-gray-600 mb-2">{previewNewsletter.agentInfo.agency}</p>
+                            <p className={`mb-2 ${
+                              previewNewsletter.template === 'modern'
+                                ? 'text-blue-700'
+                                : previewNewsletter.template === 'classic'
+                                ? 'text-amber-700'
+                                : previewNewsletter.template === 'professional'
+                                ? 'text-slate-600'
+                                : 'text-gray-600'
+                            }`}>{previewNewsletter.agentInfo.agency}</p>
                           )}
                           {previewNewsletter.agentInfo.bio && (
-                            <p className="text-gray-700 mb-3">{previewNewsletter.agentInfo.bio}</p>
+                            <p className={`mb-3 ${
+                              previewNewsletter.template === 'modern'
+                                ? 'text-blue-800'
+                                : previewNewsletter.template === 'classic'
+                                ? 'text-amber-800'
+                                : previewNewsletter.template === 'professional'
+                                ? 'text-slate-700'
+                                : 'text-gray-700'
+                            }`}>{previewNewsletter.agentInfo.bio}</p>
                           )}
-                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                          <div className="flex flex-wrap gap-4 text-sm">
                             {previewNewsletter.agentInfo.email && (
-                              <div className="flex items-center gap-1">
+                              <div className={`flex items-center gap-1 ${
+                                previewNewsletter.template === 'modern'
+                                  ? 'text-blue-700'
+                                  : previewNewsletter.template === 'classic'
+                                  ? 'text-amber-700'
+                                  : previewNewsletter.template === 'professional'
+                                  ? 'text-slate-600'
+                                  : 'text-gray-600'
+                              }`}>
                                 <Mail className="w-4 h-4" />
                                 {previewNewsletter.agentInfo.email}
                               </div>
                             )}
                             {previewNewsletter.agentInfo.phone && (
-                              <div className="flex items-center gap-1">
+                              <div className={`flex items-center gap-1 ${
+                                previewNewsletter.template === 'modern'
+                                  ? 'text-blue-700'
+                                  : previewNewsletter.template === 'classic'
+                                  ? 'text-amber-700'
+                                  : previewNewsletter.template === 'professional'
+                                  ? 'text-slate-600'
+                                  : 'text-gray-600'
+                              }`}>
                                 <Phone className="w-4 h-4" />
                                 {previewNewsletter.agentInfo.phone}
                               </div>
@@ -965,15 +1275,55 @@ export default function NewsletterPage() {
                   {/* News Section */}
                   {previewNewsletter.news && previewNewsletter.news.length > 0 && (
                     <div className="mb-8">
-                      <h3 className="text-xl font-semibold mb-4">Últimas Noticias</h3>
+                      <h3 className={`font-semibold mb-4 ${
+                        previewNewsletter.template === 'modern'
+                          ? 'text-xl text-blue-900'
+                          : previewNewsletter.template === 'classic'
+                          ? 'text-lg text-amber-900'
+                          : previewNewsletter.template === 'professional'
+                          ? 'text-lg text-slate-900'
+                          : 'text-xl text-gray-900'
+                      }`}>Últimas Noticias</h3>
                       <div className="space-y-4">
                         {previewNewsletter.news.map((newsId: string) => {
                           const news = availableNews.find(n => n.id === newsId);
                           return news ? (
-                            <div key={news.id} className="bg-white p-4 rounded-lg border border-gray-200">
-                              <h4 className="font-semibold text-lg mb-2">{news.title}</h4>
-                              <p className="text-gray-700 mb-2">{news.synopsis}</p>
-                              <p className="text-sm text-gray-500">
+                            <div key={news.id} className={`p-4 rounded-lg border ${
+                              previewNewsletter.template === 'modern'
+                                ? 'bg-white border-blue-200 shadow-md'
+                                : previewNewsletter.template === 'classic'
+                                ? 'bg-amber-100 border-amber-300'
+                                : previewNewsletter.template === 'professional'
+                                ? 'bg-white border-slate-300 shadow-sm'
+                                : 'bg-white border-gray-200'
+                            }`}>
+                              <h4 className={`font-semibold mb-2 ${
+                                previewNewsletter.template === 'modern'
+                                  ? 'text-lg text-blue-900'
+                                  : previewNewsletter.template === 'classic'
+                                  ? 'text-lg text-amber-900'
+                                  : previewNewsletter.template === 'professional'
+                                  ? 'text-lg text-slate-900'
+                                  : 'text-lg text-gray-900'
+                              }`}>{news.title}</h4>
+                              <p className={`mb-2 ${
+                                previewNewsletter.template === 'modern'
+                                  ? 'text-blue-800'
+                                  : previewNewsletter.template === 'classic'
+                                  ? 'text-amber-800'
+                                  : previewNewsletter.template === 'professional'
+                                  ? 'text-slate-700'
+                                  : 'text-gray-700'
+                              }`}>{news.synopsis}</p>
+                              <p className={`text-sm ${
+                                previewNewsletter.template === 'modern'
+                                  ? 'text-blue-600'
+                                  : previewNewsletter.template === 'classic'
+                                  ? 'text-amber-700'
+                                  : previewNewsletter.template === 'professional'
+                                  ? 'text-slate-500'
+                                  : 'text-gray-500'
+                              }`}>
                                 {news.source} • {new Date(news.publishedAt).toLocaleDateString('es-AR')}
                               </p>
                             </div>
@@ -986,12 +1336,28 @@ export default function NewsletterPage() {
                   {/* Properties Section */}
                   {previewNewsletter.properties && previewNewsletter.properties.length > 0 && (
                     <div className="mb-8">
-                      <h3 className="text-xl font-semibold mb-4">Propiedades Destacadas</h3>
+                      <h3 className={`font-semibold mb-4 ${
+                        previewNewsletter.template === 'modern'
+                          ? 'text-xl text-blue-900'
+                          : previewNewsletter.template === 'classic'
+                          ? 'text-lg text-amber-900'
+                          : previewNewsletter.template === 'professional'
+                          ? 'text-lg text-slate-900'
+                          : 'text-xl text-gray-900'
+                      }`}>Propiedades Destacadas</h3>
                       <div className="grid gap-4 md:grid-cols-2">
                         {previewNewsletter.properties.map((propertyId: string) => {
                           const property = availableProperties.find(p => p.id === propertyId);
                           return property ? (
-                            <div key={property.id} className="bg-white p-4 rounded-lg border border-gray-200">
+                            <div key={property.id} className={`p-4 rounded-lg border ${
+                              previewNewsletter.template === 'modern'
+                                ? 'bg-white border-blue-200 shadow-md'
+                                : previewNewsletter.template === 'classic'
+                                ? 'bg-amber-100 border-amber-300'
+                                : previewNewsletter.template === 'professional'
+                                ? 'bg-white border-slate-300 shadow-sm'
+                                : 'bg-white border-gray-200'
+                            }`}>
                               {property.generatedImages.length > 0 && (
                                 <img
                                   src={property.generatedImages[0]}
@@ -999,17 +1365,49 @@ export default function NewsletterPage() {
                                   className="w-full h-32 object-cover rounded mb-3"
                                 />
                               )}
-                              <h4 className="font-semibold text-lg mb-2">{property.title}</h4>
-                              <div className="space-y-1 text-sm text-gray-600">
-                                <p className="flex items-center gap-1">
+                              <h4 className={`font-semibold mb-2 ${
+                                previewNewsletter.template === 'modern'
+                                  ? 'text-lg text-blue-900'
+                                  : previewNewsletter.template === 'classic'
+                                  ? 'text-lg text-amber-900'
+                                  : previewNewsletter.template === 'professional'
+                                  ? 'text-lg text-slate-900'
+                                  : 'text-lg text-gray-900'
+                              }`}>{property.title}</h4>
+                              <div className="space-y-1 text-sm">
+                                <p className={`flex items-center gap-1 ${
+                                  previewNewsletter.template === 'modern'
+                                    ? 'text-blue-700'
+                                    : previewNewsletter.template === 'classic'
+                                    ? 'text-amber-700'
+                                    : previewNewsletter.template === 'professional'
+                                    ? 'text-slate-600'
+                                    : 'text-gray-600'
+                                }`}>
                                   <MapPin className="w-4 h-4" />
                                   {property.propertyData.direccion || 'Sin dirección'}
                                 </p>
-                                <p className="flex items-center gap-1">
+                                <p className={`flex items-center gap-1 ${
+                                  previewNewsletter.template === 'modern'
+                                    ? 'text-blue-700'
+                                    : previewNewsletter.template === 'classic'
+                                    ? 'text-amber-700'
+                                    : previewNewsletter.template === 'professional'
+                                    ? 'text-slate-600'
+                                    : 'text-gray-600'
+                                }`}>
                                   <Home className="w-4 h-4" />
                                   {property.propertyData.tipo}
                                 </p>
-                                <p className="font-semibold text-green-600 text-lg">
+                                <p className={`font-semibold text-lg ${
+                                  previewNewsletter.template === 'modern'
+                                    ? 'text-blue-600'
+                                    : previewNewsletter.template === 'classic'
+                                    ? 'text-amber-600'
+                                    : previewNewsletter.template === 'professional'
+                                    ? 'text-slate-600'
+                                    : 'text-green-600'
+                                }`}>
                                   {property.propertyData.moneda} {property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
                                 </p>
                               </div>
@@ -1038,7 +1436,15 @@ export default function NewsletterPage() {
                   )}
 
                   {/* Footer */}
-                  <div className="text-center text-gray-500 text-sm border-t border-gray-200 pt-4">
+                  <div className={`text-center text-sm border-t pt-4 ${
+                    previewNewsletter.template === 'modern'
+                      ? 'text-blue-600 border-blue-200'
+                      : previewNewsletter.template === 'classic'
+                      ? 'text-amber-700 border-amber-300'
+                      : previewNewsletter.template === 'professional'
+                      ? 'text-slate-500 border-slate-300'
+                      : 'text-gray-500 border-gray-200'
+                  }`}>
                     <p>Newsletter creada con RIALTOR</p>
                   </div>
                 </div>
