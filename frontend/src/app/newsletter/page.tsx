@@ -327,7 +327,7 @@ export default function NewsletterPage() {
     setShowCreateModal(true);
   };
 
-  const previewNewsletter = (newsletter: Newsletter) => {
+  const openPreviewModal = (newsletter: Newsletter) => {
     setPreviewNewsletter(newsletter);
     setShowPreviewModal(true);
   };
@@ -483,7 +483,7 @@ export default function NewsletterPage() {
                     {/* Acciones */}
                     <div className="flex flex-wrap gap-1">
                       <button
-                        onClick={() => previewNewsletter(newsletter)}
+                        onClick={() => openPreviewModal(newsletter)}
                         className="flex-1 flex items-center justify-center gap-1 bg-blue-100 text-blue-700 px-2 py-1.5 rounded text-xs hover:bg-blue-200 transition-colors"
                       >
                         <Eye className="w-3 h-3" />
