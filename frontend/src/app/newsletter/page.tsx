@@ -23,6 +23,13 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  User,
+  Building,
+  MapPin,
+  Phone,
+  Globe,
+  Check,
+  X,
 } from 'lucide-react'
 
 // Importar ReactQuill dinámicamente para evitar SSR issues
@@ -43,6 +50,21 @@ interface Newsletter {
   updatedAt: string;
 }
 
+interface NewsItem {
+  id: string;
+  title: string;
+  synopsis: string;
+  source: string;
+  publishedAt: string;
+}
+
+interface PropertyPlaque {
+  id: string;
+  title: string;
+  propertyData: any;
+  generatedImages: string[];
+}
+
 export default function NewsletterPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -55,13 +77,26 @@ export default function NewsletterPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalNewsletters, setTotalNewsletters] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [editingNewsletter, setEditingNewsletter] = useState<Newsletter | null>(null);
+  const [previewNewsletter, setPreviewNewsletter] = useState<Newsletter | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    template: 'default'
+    template: 'default',
+    agentName: '',
+    agentEmail: '',
+    agentPhone: '',
+    agency: '',
+    agentBio: ''
   });
+  const [selectedNews, setSelectedNews] = useState<string[]>([]);
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+  const [availableNews, setAvailableNews] = useState<NewsItem[]>([]);
+  const [availableProperties, setAvailableProperties] = useState<PropertyPlaque[]>([]);
+  const [loadingNews, setLoadingNews] = useState(false);
+  const [loadingProperties, setLoadingProperties] = useState(false);
   const [creating, setCreating] = useState(false);
 
   // Proteger ruta
@@ -77,6 +112,14 @@ export default function NewsletterPage() {
       fetchNewsletters();
     }
   }, [user, hasPermission]);
+
+  // Cargar noticias y propiedades disponibles cuando se abre el modal
+  useEffect(() => {
+    if (showCreateModal) {
+      fetchAvailableNews();
+      fetchAvailableProperties();
+    }
+  }, [showCreateModal]);
 
   const fetchNewsletters = async (page = 1, limit = 10) => {
     try {
@@ -95,6 +138,36 @@ export default function NewsletterPage() {
     }
   };
 
+  const fetchAvailableNews = async () => {
+    setLoadingNews(true);
+    try {
+      const res = await authenticatedFetch('/api/news?limit=50');
+      const data = await res.json();
+      if (res.ok) {
+        setAvailableNews(data.news || []);
+      }
+    } catch (error) {
+      console.error('Error cargando noticias:', error);
+    } finally {
+      setLoadingNews(false);
+    }
+  };
+
+  const fetchAvailableProperties = async () => {
+    setLoadingProperties(true);
+    try {
+      const res = await authenticatedFetch('/api/placas?page=1&limit=50');
+      const data = await res.json();
+      if (res.ok) {
+        setAvailableProperties(data.plaques || []);
+      }
+    } catch (error) {
+      console.error('Error cargando propiedades:', error);
+    } finally {
+      setLoadingProperties(false);
+    }
+  };
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setSelectedImages(files.slice(0, 10)); // Máximo 10 imágenes
@@ -102,6 +175,22 @@ export default function NewsletterPage() {
 
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const toggleNewsSelection = (newsId: string) => {
+    setSelectedNews(prev =>
+      prev.includes(newsId)
+        ? prev.filter(id => id !== newsId)
+        : [...prev, newsId]
+    );
+  };
+
+  const togglePropertySelection = (propertyId: string) => {
+    setSelectedProperties(prev =>
+      prev.includes(propertyId)
+        ? prev.filter(id => id !== propertyId)
+        : [...prev, propertyId]
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,10 +204,21 @@ export default function NewsletterPage() {
     setCreating(true);
 
     try {
+      const agentInfo = {
+        name: formData.agentName,
+        email: formData.agentEmail,
+        phone: formData.agentPhone,
+        agency: formData.agency,
+        bio: formData.agentBio
+      };
+
       const formDataToSend = new FormData();
       formDataToSend.append('title', formData.title);
       formDataToSend.append('content', formData.content);
       formDataToSend.append('template', formData.template);
+      formDataToSend.append('agentInfo', JSON.stringify(agentInfo));
+      formDataToSend.append('news', JSON.stringify(selectedNews));
+      formDataToSend.append('properties', JSON.stringify(selectedProperties));
 
       selectedImages.forEach(image => {
         formDataToSend.append('images', image);
@@ -139,12 +239,7 @@ export default function NewsletterPage() {
       if (res.ok) {
         setShowCreateModal(false);
         setEditingNewsletter(null);
-        setSelectedImages([]);
-        setFormData({
-          title: '',
-          content: '',
-          template: 'default'
-        });
+        resetForm();
         fetchNewsletters(currentPage);
         alert(`Newsletter ${editingNewsletter ? 'actualizada' : 'creada'} exitosamente`);
       } else {
@@ -155,6 +250,42 @@ export default function NewsletterPage() {
       alert('Error guardando newsletter');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      content: '',
+      template: 'default',
+      agentName: '',
+      agentEmail: '',
+      agentPhone: '',
+      agency: '',
+      agentBio: ''
+    });
+    setSelectedImages([]);
+    setSelectedNews([]);
+    setSelectedProperties([]);
+  };
+
+  const publishNewsletter = async (id: string) => {
+    try {
+      const res = await authenticatedFetch(`/api/newsletters/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'PUBLISHED' })
+      });
+
+      if (res.ok) {
+        fetchNewsletters(currentPage);
+        alert('Newsletter publicada exitosamente');
+      } else {
+        alert('Error publicando newsletter');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error publicando newsletter');
     }
   };
 
@@ -183,10 +314,22 @@ export default function NewsletterPage() {
     setFormData({
       title: newsletter.title,
       content: newsletter.content,
-      template: newsletter.template
+      template: newsletter.template,
+      agentName: newsletter.agentInfo?.name || '',
+      agentEmail: newsletter.agentInfo?.email || '',
+      agentPhone: newsletter.agentInfo?.phone || '',
+      agency: newsletter.agentInfo?.agency || '',
+      agentBio: newsletter.agentInfo?.bio || ''
     });
+    setSelectedNews(newsletter.news || []);
+    setSelectedProperties(newsletter.properties || []);
     setSelectedImages([]);
     setShowCreateModal(true);
+  };
+
+  const previewNewsletter = (newsletter: Newsletter) => {
+    setPreviewNewsletter(newsletter);
+    setShowPreviewModal(true);
   };
 
   const getStatusIcon = (status: string) => {
@@ -240,7 +383,7 @@ export default function NewsletterPage() {
               </h1>
 
               <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
-                Crea newsletters profesionales para promocionar tus propiedades y mantener contacto con tus clientes.
+                Crea newsletters profesionales con contenido, noticias e información para tus clientes.
               </p>
 
               <button
@@ -269,7 +412,7 @@ export default function NewsletterPage() {
               No hay newsletters creadas
             </h3>
             <p className="text-gray-600 mb-6">
-              Comienza creando tu primera newsletter de marketing
+              Comienza creando tu primera newsletter de marketing con contenido e información
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -323,16 +466,45 @@ export default function NewsletterPage() {
                           <span>{newsletter.images.length} imagen(es)</span>
                         </div>
                       )}
+                      {newsletter.news && newsletter.news.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Newspaper className="w-3 h-3 text-green-600" />
+                          <span>{newsletter.news.length} noticia(s)</span>
+                        </div>
+                      )}
+                      {newsletter.properties && newsletter.properties.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Home className="w-3 h-3 text-orange-600" />
+                          <span>{newsletter.properties.length} propiedad(es)</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Acciones */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex flex-wrap gap-1">
+                      <button
+                        onClick={() => previewNewsletter(newsletter)}
+                        className="flex-1 flex items-center justify-center gap-1 bg-blue-100 text-blue-700 px-2 py-1.5 rounded text-xs hover:bg-blue-200 transition-colors"
+                      >
+                        <Eye className="w-3 h-3" />
+                        Ver
+                      </button>
+
+                      {newsletter.status === 'DRAFT' && (
+                        <button
+                          onClick={() => publishNewsletter(newsletter.id)}
+                          className="flex items-center justify-center gap-1 bg-green-100 text-green-700 px-2 py-1.5 rounded text-xs hover:bg-green-200 transition-colors"
+                        >
+                          <CheckCircle className="w-3 h-3" />
+                          Publicar
+                        </button>
+                      )}
+
                       <button
                         onClick={() => editNewsletter(newsletter)}
-                        className="flex-1 flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition-colors"
+                        className="flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-2 py-1.5 rounded text-xs hover:bg-gray-200 transition-colors"
                       >
                         <Edit className="w-3 h-3" />
-                        Editar
                       </button>
 
                       <button
@@ -394,42 +566,43 @@ export default function NewsletterPage() {
         {/* Modal de creación/edición */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <h2 className="text-2xl font-bold mb-6">
                   {editingNewsletter ? 'Editar Newsletter' : 'Nueva Newsletter'}
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Título */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Título *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ej: Propiedades destacadas - Noviembre 2025"
-                    />
-                  </div>
+                  {/* Título y Plantilla */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Título *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.title}
+                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ej: Actualización del Mercado Inmobiliario - Noviembre 2025"
+                      />
+                    </div>
 
-                  {/* Plantilla */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Plantilla
-                    </label>
-                    <select
-                      value={formData.template}
-                      onChange={(e) => setFormData(prev => ({ ...prev, template: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="default">Predeterminada</option>
-                      <option value="modern">Moderna</option>
-                      <option value="classic">Clásica</option>
-                    </select>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Plantilla
+                      </label>
+                      <select
+                        value={formData.template}
+                        onChange={(e) => setFormData(prev => ({ ...prev, template: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="default">Predeterminada</option>
+                        <option value="modern">Moderna</option>
+                        <option value="classic">Clásica</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Contenido */}
@@ -442,16 +615,194 @@ export default function NewsletterPage() {
                         value={formData.content}
                         onChange={(content) => setFormData(prev => ({ ...prev, content }))}
                         theme="snow"
-                        placeholder="Escribe el contenido de tu newsletter..."
+                        placeholder="Escribe el contenido de tu newsletter. Puedes incluir información sobre el mercado, consejos, análisis, etc."
                         style={{ minHeight: '300px' }}
                       />
                     </div>
                   </div>
 
+                  {/* Información del Agente */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <User className="w-5 h-5" />
+                      Información del Agente
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Nombre del Agente
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.agentName}
+                          onChange={(e) => setFormData(prev => ({ ...prev, agentName: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Tu nombre completo"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Agencia
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.agency}
+                          onChange={(e) => setFormData(prev => ({ ...prev, agency: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Nombre de tu agencia"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email de Contacto
+                        </label>
+                        <input
+                          type="email"
+                          value={formData.agentEmail}
+                          onChange={(e) => setFormData(prev => ({ ...prev, agentEmail: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="tu@email.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Teléfono
+                        </label>
+                        <input
+                          type="tel"
+                          value={formData.agentPhone}
+                          onChange={(e) => setFormData(prev => ({ ...prev, agentPhone: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="+54 11 1234-5678"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Biografía / Descripción
+                        </label>
+                        <textarea
+                          value={formData.agentBio}
+                          onChange={(e) => setFormData(prev => ({ ...prev, agentBio: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows={3}
+                          placeholder="Breve descripción sobre ti y tu experiencia en el sector inmobiliario"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Selector de Noticias */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Newspaper className="w-5 h-5" />
+                      Incluir Noticias ({selectedNews.length} seleccionadas)
+                    </h3>
+                    {loadingNews ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md">
+                        {availableNews.map((news) => (
+                          <div
+                            key={news.id}
+                            className={`p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
+                              selectedNews.includes(news.id) ? 'bg-blue-50 border-blue-200' : ''
+                            }`}
+                            onClick={() => toggleNewsSelection(news.id)}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 ${
+                                selectedNews.includes(news.id)
+                                  ? 'bg-blue-600 border-blue-600'
+                                  : 'border-gray-300'
+                              }`}>
+                                {selectedNews.includes(news.id) && (
+                                  <Check className="w-3 h-3 text-white" />
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-medium text-sm text-gray-900">{news.title}</h4>
+                                <p className="text-xs text-gray-600 mt-1">{news.synopsis}</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {news.source} • {new Date(news.publishedAt).toLocaleDateString('es-AR')}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Selector de Propiedades */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Home className="w-5 h-5" />
+                      Incluir Propiedades ({selectedProperties.length} seleccionadas)
+                    </h3>
+                    {loadingProperties ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md">
+                        {availableProperties.map((property) => (
+                          <div
+                            key={property.id}
+                            className={`p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
+                              selectedProperties.includes(property.id) ? 'bg-blue-50 border-blue-200' : ''
+                            }`}
+                            onClick={() => togglePropertySelection(property.id)}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 ${
+                                selectedProperties.includes(property.id)
+                                  ? 'bg-blue-600 border-blue-600'
+                                  : 'border-gray-300'
+                              }`}>
+                                {selectedProperties.includes(property.id) && (
+                                  <Check className="w-3 h-3 text-white" />
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-medium text-sm text-gray-900">{property.title}</h4>
+                                <div className="flex items-center gap-4 text-xs text-gray-600 mt-1">
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" />
+                                    {property.propertyData.direccion || 'Sin dirección'}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Home className="w-3 h-3" />
+                                    {property.propertyData.tipo}
+                                  </span>
+                                  <span className="font-semibold text-green-600">
+                                    {property.propertyData.moneda} {property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
+                                  </span>
+                                </div>
+                              </div>
+                              {property.generatedImages.length > 0 && (
+                                <img
+                                  src={property.generatedImages[0]}
+                                  alt={property.title}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Subida de imágenes */}
-                  <div>
+                  <div className="border-t pt-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Imágenes
+                      Imágenes adicionales
                     </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       <input
@@ -468,7 +819,7 @@ export default function NewsletterPage() {
                       >
                         <Upload className="w-12 h-12 text-gray-400 mb-4" />
                         <span className="text-sm text-gray-600">
-                          Haz clic para seleccionar imágenes o arrastra aquí
+                          Haz clic para seleccionar imágenes adicionales o arrastra aquí
                         </span>
                         <span className="text-xs text-gray-500 mt-1">
                           Máximo 10 imágenes
@@ -523,8 +874,7 @@ export default function NewsletterPage() {
                       onClick={() => {
                         setShowCreateModal(false);
                         setEditingNewsletter(null);
-                        setFormData({ title: '', content: '', template: 'default' });
-                        setSelectedImages([]);
+                        resetForm();
                       }}
                       className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
                     >
@@ -546,6 +896,152 @@ export default function NewsletterPage() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Preview */}
+        {showPreviewModal && previewNewsletter && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Vista Previa: {previewNewsletter.title}</h2>
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {/* Newsletter Preview */}
+                <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                  {/* Header */}
+                  <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">{previewNewsletter.title}</h1>
+                    <p className="text-gray-600">{new Date(previewNewsletter.createdAt).toLocaleDateString('es-AR')}</p>
+                  </div>
+
+                  {/* Content */}
+                  <div
+                    className="prose prose-lg max-w-none mb-8"
+                    dangerouslySetInnerHTML={{ __html: previewNewsletter.content }}
+                  />
+
+                  {/* Agent Info */}
+                  {previewNewsletter.agentInfo && (
+                    <div className="bg-white p-6 rounded-lg border border-gray-200 mb-8">
+                      <h3 className="text-xl font-semibold mb-4">Sobre el Agente</h3>
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-lg">{previewNewsletter.agentInfo.name}</h4>
+                          {previewNewsletter.agentInfo.agency && (
+                            <p className="text-gray-600 mb-2">{previewNewsletter.agentInfo.agency}</p>
+                          )}
+                          {previewNewsletter.agentInfo.bio && (
+                            <p className="text-gray-700 mb-3">{previewNewsletter.agentInfo.bio}</p>
+                          )}
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                            {previewNewsletter.agentInfo.email && (
+                              <div className="flex items-center gap-1">
+                                <Mail className="w-4 h-4" />
+                                {previewNewsletter.agentInfo.email}
+                              </div>
+                            )}
+                            {previewNewsletter.agentInfo.phone && (
+                              <div className="flex items-center gap-1">
+                                <Phone className="w-4 h-4" />
+                                {previewNewsletter.agentInfo.phone}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* News Section */}
+                  {previewNewsletter.news && previewNewsletter.news.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold mb-4">Últimas Noticias</h3>
+                      <div className="space-y-4">
+                        {previewNewsletter.news.map((newsId: string) => {
+                          const news = availableNews.find(n => n.id === newsId);
+                          return news ? (
+                            <div key={news.id} className="bg-white p-4 rounded-lg border border-gray-200">
+                              <h4 className="font-semibold text-lg mb-2">{news.title}</h4>
+                              <p className="text-gray-700 mb-2">{news.synopsis}</p>
+                              <p className="text-sm text-gray-500">
+                                {news.source} • {new Date(news.publishedAt).toLocaleDateString('es-AR')}
+                              </p>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Properties Section */}
+                  {previewNewsletter.properties && previewNewsletter.properties.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold mb-4">Propiedades Destacadas</h3>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {previewNewsletter.properties.map((propertyId: string) => {
+                          const property = availableProperties.find(p => p.id === propertyId);
+                          return property ? (
+                            <div key={property.id} className="bg-white p-4 rounded-lg border border-gray-200">
+                              {property.generatedImages.length > 0 && (
+                                <img
+                                  src={property.generatedImages[0]}
+                                  alt={property.title}
+                                  className="w-full h-32 object-cover rounded mb-3"
+                                />
+                              )}
+                              <h4 className="font-semibold text-lg mb-2">{property.title}</h4>
+                              <div className="space-y-1 text-sm text-gray-600">
+                                <p className="flex items-center gap-1">
+                                  <MapPin className="w-4 h-4" />
+                                  {property.propertyData.direccion || 'Sin dirección'}
+                                </p>
+                                <p className="flex items-center gap-1">
+                                  <Home className="w-4 h-4" />
+                                  {property.propertyData.tipo}
+                                </p>
+                                <p className="font-semibold text-green-600 text-lg">
+                                  {property.propertyData.moneda} {property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
+                                </p>
+                              </div>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Images */}
+                  {previewNewsletter.images.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-xl font-semibold mb-4">Imágenes</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {previewNewsletter.images.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`Imagen ${index + 1}`}
+                            className="w-full h-32 object-cover rounded"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  <div className="text-center text-gray-500 text-sm border-t border-gray-200 pt-4">
+                    <p>Newsletter creada con RIALTOR</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
