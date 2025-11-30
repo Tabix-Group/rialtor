@@ -1318,10 +1318,10 @@ export default function NewsletterPage() {
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Vista Previa: {previewNewsletter.title}</h2>
+                  <h2 className="text-2xl font-bold">Vista Previa: {previewNewsletter?.title}</h2>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => downloadNewsletterAsPDF(previewNewsletter)}
+                      onClick={() => downloadNewsletterAsPDF(previewNewsletter!)}
                       className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
                     >
                       <Download className="w-4 h-4" />
@@ -1339,98 +1339,98 @@ export default function NewsletterPage() {
                 {/* Newsletter Preview */}
                 <div className={`border border-gray-200 rounded-lg p-6 ${
                   (() => {
-                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                     return template ? `bg-gradient-to-br` : 'bg-gray-50';
                   })()
                 }`}
                 style={{
                   background: (() => {
-                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                     return template ? template.preview.background : '#f9fafb';
                   })()
                 }}>
                   {/* Header */}
                   <div className={`text-center mb-8 ${
                     (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template ? `border-b-4` : 'border-b-2 border-gray-300';
                     })()
                   }`}
                   style={{
                     borderBottom: (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template ? template.preview.headerBorder : '2px solid #d1d5db';
                     })(),
                     backgroundColor: (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template?.preview.headerBg || '';
                     })(),
                     padding: (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template?.preview.headerBg ? '20px' : '';
                     })(),
                     borderRadius: (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template?.preview.headerBg ? '8px' : '';
                     })()
                   }}>
                     <h1 className={`mb-2 font-bold ${
                       (() => {
-                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                         return template ? 'text-4xl' : 'text-3xl text-gray-900';
                       })()
                     }`}
                     style={{
                       color: (() => {
-                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                         return template?.preview.textColor || '#111827';
                       })()
-                    }}>{previewNewsletter.title}</h1>
+                    }}>{previewNewsletter!.title}</h1>
                     <p style={{
                       color: (() => {
-                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                         return template?.preview.accentColor || '#374151';
                       })()
-                    }}>{new Date(previewNewsletter.createdAt).toLocaleDateString('es-AR')}</p>
+                    }}>{new Date(previewNewsletter!.createdAt).toLocaleDateString('es-AR')}</p>
                   </div>
 
                   {/* Content */}
                   <div
                     className="prose prose-lg max-w-none mb-8"
-                    dangerouslySetInnerHTML={{ __html: previewNewsletter.content }}
+                    dangerouslySetInnerHTML={{ __html: previewNewsletter!.content }}
                   />
 
                   {/* Agent Info */}
-                  {previewNewsletter.agentInfo && (
+                  {previewNewsletter!.agentInfo && (
                     <div className={`p-6 rounded-lg border mb-8 ${
                       (() => {
-                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                         return template ? 'shadow-lg' : '';
                       })()
                     }`}
                     style={{
                       backgroundColor: (() => {
-                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                         return template?.preview.cardBg || '#ffffff';
                       })(),
                       borderColor: (() => {
-                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                         return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
                       })(),
                       boxShadow: (() => {
-                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                         return template?.preview.cardShadow || 'none';
                       })()
                     }}>
                       <h3 className={`font-semibold mb-4 ${
                         (() => {
-                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                           return template ? 'text-xl' : 'text-xl text-gray-900';
                         })()
                       }`}
                       style={{
                         color: (() => {
-                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                           return template?.preview.textColor || '#1f2937';
                         })()
                       }}>Sobre el Agente</h3>
@@ -1438,77 +1438,77 @@ export default function NewsletterPage() {
                         <div className="flex-1">
                           <h4 className={`font-semibold ${
                             (() => {
-                              const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                              const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                               return template ? 'text-lg' : 'text-lg text-gray-900';
                             })()
                           }`}
                           style={{
                             color: (() => {
-                              const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                              const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                               return template?.preview.textColor || '#1f2937';
                             })()
-                          }}>{previewNewsletter.agentInfo.name}</h4>
-                          {previewNewsletter.agentInfo.agency && (
+                          }}>{previewNewsletter!.agentInfo.name}</h4>
+                          {previewNewsletter!.agentInfo.agency && (
                             <p className={`mb-2 ${
                               (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template ? '' : 'text-gray-600';
                               })()
                             }`}
                             style={{
                               color: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.accentColor || '#6b7280';
                               })()
-                            }}>{previewNewsletter.agentInfo.agency}</p>
+                            }}>{previewNewsletter!.agentInfo.agency}</p>
                           )}
-                          {previewNewsletter.agentInfo.bio && (
+                          {previewNewsletter!.agentInfo.bio && (
                             <p className={`mb-3 ${
                               (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template ? '' : 'text-gray-700';
                               })()
                             }`}
                             style={{
                               color: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.textColor || '#374151';
                               })()
-                            }}>{previewNewsletter.agentInfo.bio}</p>
+                            }}>{previewNewsletter!.agentInfo.bio}</p>
                           )}
                           <div className="flex flex-wrap gap-4 text-sm">
-                            {previewNewsletter.agentInfo.email && (
+                            {previewNewsletter!.agentInfo.email && (
                               <div className={`flex items-center gap-1 ${
                                 (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template ? '' : 'text-gray-600';
                                 })()
                               }`}
                               style={{
                                 color: (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template?.preview.accentColor || '#6b7280';
                                 })()
                               }}>
                                 <Mail className="w-4 h-4" />
-                                {previewNewsletter.agentInfo.email}
+                                {previewNewsletter!.agentInfo.email}
                               </div>
                             )}
-                            {previewNewsletter.agentInfo.phone && (
+                            {previewNewsletter!.agentInfo.phone && (
                               <div className={`flex items-center gap-1 ${
                                 (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template ? '' : 'text-gray-600';
                                 })()
                               }`}
                               style={{
                                 color: (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template?.preview.accentColor || '#6b7280';
                                 })()
                               }}>
                                 <Phone className="w-4 h-4" />
-                                {previewNewsletter.agentInfo.phone}
+                                {previewNewsletter!.agentInfo.phone}
                               </div>
                             )}
                           </div>
@@ -1518,77 +1518,77 @@ export default function NewsletterPage() {
                   )}
 
                   {/* News Section */}
-                  {previewNewsletter.news && previewNewsletter.news.length > 0 && (
+                  {previewNewsletter!.news && previewNewsletter!.news.length > 0 && (
                     <div className="mb-8">
                       <h3 className={`font-semibold mb-4 ${
                         (() => {
-                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                           return template ? 'text-xl' : 'text-xl text-gray-900';
                         })()
                       }`}
                       style={{
                         color: (() => {
-                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                           return template?.preview.textColor || '#1f2937';
                         })()
                       }}>Últimas Noticias</h3>
                       <div className="space-y-4">
-                        {previewNewsletter.news.map((newsId: string) => {
+                        {previewNewsletter!.news.map((newsId: string) => {
                           const news = availableNews.find(n => n.id === newsId);
                           return news ? (
                             <div key={news.id} className={`p-4 rounded-lg border ${
                               (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template ? 'shadow-md' : 'border-gray-200';
                               })()
                             }`}
                             style={{
                               backgroundColor: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.cardBg || '#ffffff';
                               })(),
                               borderColor: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
                               })(),
                               boxShadow: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.cardShadow || 'none';
                               })()
                             }}>
                               <h4 className={`font-semibold mb-2 ${
                                 (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template ? 'text-lg' : 'text-lg text-gray-900';
                                 })()
                               }`}
                               style={{
                                 color: (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template?.preview.textColor || '#1f2937';
                                 })()
                               }}>{news.title}</h4>
                               <p className={`mb-2 ${
                                 (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template ? '' : 'text-gray-700';
                                 })()
                               }`}
                               style={{
                                 color: (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template?.preview.textColor || '#374151';
                                 })()
                               }}>{news.synopsis}</p>
                               <p className={`text-sm ${
                                 (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template ? '' : 'text-gray-500';
                                 })()
                               }`}
                               style={{
                                 color: (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template?.preview.accentColor || '#9ca3af';
                                 })()
                               }}>
@@ -1602,41 +1602,41 @@ export default function NewsletterPage() {
                   )}
 
                   {/* Properties Section */}
-                  {previewNewsletter.properties && previewNewsletter.properties.length > 0 && (
+                  {previewNewsletter!.properties && previewNewsletter!.properties.length > 0 && (
                     <div className="mb-8">
                       <h3 className={`font-semibold mb-4 ${
                         (() => {
-                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                           return template ? 'text-xl' : 'text-xl text-gray-900';
                         })()
                       }`}
                       style={{
                         color: (() => {
-                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                           return template?.preview.textColor || '#1f2937';
                         })()
                       }}>Propiedades Destacadas</h3>
                       <div className="grid gap-4 md:grid-cols-2">
-                        {previewNewsletter.properties.map((propertyId: string) => {
+                        {previewNewsletter!.properties.map((propertyId: string) => {
                           const property = availableProperties.find(p => p.id === propertyId);
                           return property ? (
                             <div key={property.id} className={`p-4 rounded-lg border ${
                               (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template ? 'shadow-md' : 'border-gray-200';
                               })()
                             }`}
                             style={{
                               backgroundColor: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.cardBg || '#ffffff';
                               })(),
                               borderColor: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
                               })(),
                               boxShadow: (() => {
-                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                 return template?.preview.cardShadow || 'none';
                               })()
                             }}>
@@ -1649,26 +1649,26 @@ export default function NewsletterPage() {
                               )}
                               <h4 className={`font-semibold mb-2 ${
                                 (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template ? 'text-lg' : 'text-lg text-gray-900';
                                 })()
                               }`}
                               style={{
                                 color: (() => {
-                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                   return template?.preview.textColor || '#1f2937';
                                 })()
                               }}>{property.title}</h4>
                               <div className="space-y-1 text-sm">
                                 <p className={`flex items-center gap-1 ${
                                   (() => {
-                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                     return template ? '' : 'text-gray-600';
                                   })()
                                 }`}
                                 style={{
                                   color: (() => {
-                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                     return template?.preview.accentColor || '#6b7280';
                                   })()
                                 }}>
@@ -1677,13 +1677,13 @@ export default function NewsletterPage() {
                                 </p>
                                 <p className={`flex items-center gap-1 ${
                                   (() => {
-                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                     return template ? '' : 'text-gray-600';
                                   })()
                                 }`}
                                 style={{
                                   color: (() => {
-                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                     return template?.preview.accentColor || '#6b7280';
                                   })()
                                 }}>
@@ -1692,13 +1692,13 @@ export default function NewsletterPage() {
                                 </p>
                                 <p className={`font-semibold text-lg ${
                                   (() => {
-                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                     return template ? '' : 'text-green-600';
                                   })()
                                 }`}
                                 style={{
                                   color: (() => {
-                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                                     return template?.preview.accentColor || '#059669';
                                   })()
                                 }}>
@@ -1713,11 +1713,11 @@ export default function NewsletterPage() {
                   )}
 
                   {/* Images */}
-                  {previewNewsletter.images.length > 0 && (
+                  {previewNewsletter!.images.length > 0 && (
                     <div className="mb-8">
                       <h3 className="text-xl font-semibold mb-4">Imágenes</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {previewNewsletter.images.map((url, index) => (
+                        {previewNewsletter!.images.map((url, index) => (
                           <img
                             key={index}
                             src={url}
@@ -1732,17 +1732,17 @@ export default function NewsletterPage() {
                   {/* Footer */}
                   <div className={`text-center text-sm border-t pt-4 ${
                     (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template ? '' : 'text-gray-500 border-gray-200';
                     })()
                   }`}
                   style={{
                     color: (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template?.preview.accentColor || '#9ca3af';
                     })(),
                     borderTopColor: (() => {
-                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
                       return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
                     })()
                   }}>
