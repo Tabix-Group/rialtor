@@ -36,9 +36,95 @@ import {
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 import 'react-quill/dist/quill.snow.css'
 
-// Importar librerías de PDF
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
+// Definición de plantillas disponibles
+const AVAILABLE_TEMPLATES = [
+  {
+    id: 'default',
+    name: 'Minimalista',
+    description: 'Diseño limpio y simple, perfecto para contenido directo',
+    features: [
+      'Colores neutros y tipografía clara',
+      'Enfoque en el contenido sin distracciones',
+      'Ideal para newsletters corporativos',
+      'Fácil de leer en dispositivos móviles'
+    ],
+    preview: {
+      background: '#f9fafb',
+      headerBorder: '2px solid #d1d5db',
+      headerBg: '',
+      textColor: '#111827',
+      accentColor: '#374151',
+      cardBg: '#ffffff',
+      cardBorder: '1px solid #e5e7eb',
+      cardShadow: 'none'
+    }
+  },
+  {
+    id: 'modern',
+    name: 'Moderna',
+    description: 'Diseño contemporáneo con gradientes y elementos visuales atractivos',
+    features: [
+      'Gradientes azules modernos',
+      'Elementos visuales destacados',
+      'Perfecto para inmobiliarias modernas',
+      'Alta conversión visual'
+    ],
+    preview: {
+      background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
+      headerBorder: '4px solid #3b82f6',
+      headerBg: '',
+      textColor: '#1e40af',
+      accentColor: '#2563eb',
+      cardBg: '#ffffff',
+      cardBorder: '1px solid #bfdbfe',
+      cardShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1)'
+    }
+  },
+  {
+    id: 'classic',
+    name: 'Clásica',
+    description: 'Estilo tradicional y elegante, ideal para clientes conservadores',
+    features: [
+      'Colores cálidos y tradicionales',
+      'Tipografía serif elegante',
+      'Perfecto para mercados maduros',
+      'Transmite confianza y estabilidad'
+    ],
+    preview: {
+      background: '#fef3c7',
+      headerBorder: '2px solid #d97706',
+      headerBg: '#fed7aa',
+      textColor: '#92400e',
+      accentColor: '#d97706',
+      cardBg: '#fef3c7',
+      cardBorder: '1px solid #fcd34d',
+      cardShadow: 'none'
+    }
+  },
+  {
+    id: 'professional',
+    name: 'Profesional',
+    description: 'Diseño corporativo y sofisticado para comunicaciones empresariales',
+    features: [
+      'Paleta de colores grises profesionales',
+      'Layout estructurado y organizado',
+      'Ideal para comunicaciones B2B',
+      'Transmite seriedad y profesionalismo'
+    ],
+    preview: {
+      background: '#f8fafc',
+      headerBorder: '2px solid #64748b',
+      headerBg: '',
+      textColor: '#0f172a',
+      accentColor: '#475569',
+      cardBg: '#ffffff',
+      cardBorder: '1px solid #cbd5e1',
+      cardShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+    }
+  }
+];
+
+interface Newsletter {
 
 interface Newsletter {
   id: string;
@@ -87,6 +173,7 @@ export default function NewsletterPage() {
   const [totalNewsletters, setTotalNewsletters] = useState(0);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [editingNewsletter, setEditingNewsletter] = useState<Newsletter | null>(null);
   const [previewNewsletter, setPreviewNewsletter] = useState<Newsletter | null>(null);
@@ -377,52 +464,8 @@ export default function NewsletterPage() {
       const tempDiv = document.createElement('div');
       // Aplicar estilos según la plantilla
       const getTemplateStyles = (template: string) => {
-        switch (template) {
-          case 'modern':
-            return {
-              background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
-              headerBorder: '4px solid #3b82f6',
-              headerBg: '',
-              textColor: '#1e40af',
-              accentColor: '#2563eb',
-              cardBg: '#ffffff',
-              cardBorder: '1px solid #bfdbfe',
-              cardShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1)'
-            };
-          case 'classic':
-            return {
-              background: '#fef3c7',
-              headerBorder: '2px solid #d97706',
-              headerBg: '#fed7aa',
-              textColor: '#92400e',
-              accentColor: '#d97706',
-              cardBg: '#fef3c7',
-              cardBorder: '1px solid #fcd34d',
-              cardShadow: 'none'
-            };
-          case 'professional':
-            return {
-              background: '#f8fafc',
-              headerBorder: '2px solid #64748b',
-              headerBg: '',
-              textColor: '#0f172a',
-              accentColor: '#475569',
-              cardBg: '#ffffff',
-              cardBorder: '1px solid #cbd5e1',
-              cardShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-            };
-          default:
-            return {
-              background: '#f9fafb',
-              headerBorder: '2px solid #d1d5db',
-              headerBg: '',
-              textColor: '#111827',
-              accentColor: '#374151',
-              cardBg: '#ffffff',
-              cardBorder: '1px solid #e5e7eb',
-              cardShadow: 'none'
-            };
-        }
+        const templateConfig = AVAILABLE_TEMPLATES.find(t => t.id === template);
+        return templateConfig ? templateConfig.preview : AVAILABLE_TEMPLATES[0].preview;
       };
 
       const styles = getTemplateStyles(newsletter.template);
@@ -591,12 +634,72 @@ export default function NewsletterPage() {
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-90 transition-transform duration-300" />
                 Nueva Newsletter
               </button>
+
+              <button
+                onClick={() => setShowTemplatesModal(true)}
+                className="group inline-flex items-center gap-2 sm:gap-3 bg-slate-800/50 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:bg-slate-700/50 hover:shadow-2xl hover:shadow-slate-900/20 transition-all duration-300 hover:-translate-y-1 font-semibold text-sm sm:text-base ml-4"
+              >
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300" />
+                Ver Plantillas
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* Sección de Plantillas Disponibles */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Plantillas Disponibles</h2>
+              <p className="text-gray-600">Elige la plantilla que mejor se adapte a tu estilo de comunicación</p>
+            </div>
+            <button
+              onClick={() => setShowTemplatesModal(true)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Ver Todas las Plantillas
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {AVAILABLE_TEMPLATES.slice(0, 4).map((template) => (
+              <div key={template.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                   onClick={() => {
+                     setFormData(prev => ({ ...prev, template: template.id }));
+                     setShowCreateModal(true);
+                   }}>
+                {/* Preview del template */}
+                <div 
+                  className="h-24 p-3 flex items-center justify-center text-center"
+                  style={{
+                    background: template.preview.background,
+                    borderBottom: template.preview.headerBorder
+                  }}
+                >
+                  <div>
+                    <h4 
+                      className="text-sm font-bold"
+                      style={{ color: template.preview.textColor }}
+                    >
+                      {template.name}
+                    </h4>
+                  </div>
+                </div>
+
+                {/* Información del template */}
+                <div className="p-3">
+                  <p className="text-xs text-gray-600 mb-2 line-clamp-2">{template.description}</p>
+                  <div className="text-xs text-blue-600 font-medium">
+                    {template.features.length} características
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Lista de newsletters */}
         {loadingNewsletters ? (
@@ -804,11 +907,31 @@ export default function NewsletterPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, template: e.target.value }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
-                        <option value="modern">Moderna</option>
-                        <option value="classic">Clásica</option>
-                        <option value="professional">Profesional</option>
-                        <option value="minimal">Minimalista</option>
+                        {AVAILABLE_TEMPLATES.map(template => (
+                          <option key={template.id} value={template.id}>
+                            {template.name} - {template.description}
+                          </option>
+                        ))}
                       </select>
+                      
+                      {/* Mostrar características de la plantilla seleccionada */}
+                      {(() => {
+                        const selectedTemplate = AVAILABLE_TEMPLATES.find(t => t.id === formData.template);
+                        return selectedTemplate ? (
+                          <div className="mt-3 p-3 bg-gray-50 rounded-md border">
+                            <h4 className="text-sm font-medium text-gray-900 mb-2">{selectedTemplate.name}</h4>
+                            <p className="text-xs text-gray-600 mb-2">{selectedTemplate.description}</p>
+                            <ul className="text-xs text-gray-600 space-y-1">
+                              {selectedTemplate.features.map((feature, index) => (
+                                <li key={index} className="flex items-center gap-1">
+                                  <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
 
@@ -1119,8 +1242,92 @@ export default function NewsletterPage() {
           </div>
         )}
 
-        {/* Modal de Preview */}
-        {showPreviewModal && previewNewsletter && (
+        {/* Modal de Templates */}
+        {showTemplatesModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Plantillas Disponibles</h2>
+                  <button
+                    onClick={() => setShowTemplatesModal(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {AVAILABLE_TEMPLATES.map((template) => (
+                    <div key={template.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                      {/* Preview del template */}
+                      <div 
+                        className="h-48 p-4 flex items-center justify-center text-center"
+                        style={{
+                          background: template.preview.background,
+                          borderBottom: template.preview.headerBorder
+                        }}
+                      >
+                        <div>
+                          <h3 
+                            className="text-xl font-bold mb-2"
+                            style={{ color: template.preview.textColor }}
+                          >
+                            {template.name}
+                          </h3>
+                          <p 
+                            className="text-sm"
+                            style={{ color: template.preview.accentColor }}
+                          >
+                            Newsletter de ejemplo
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Información del template */}
+                      <div className="p-4">
+                        <h4 className="font-semibold text-gray-900 mb-2">{template.name}</h4>
+                        <p className="text-sm text-gray-600 mb-3">{template.description}</p>
+                        
+                        <div className="mb-4">
+                          <h5 className="text-sm font-medium text-gray-900 mb-2">Características:</h5>
+                          <ul className="text-xs text-gray-600 space-y-1">
+                            {template.features.map((feature, index) => (
+                              <li key={index} className="flex items-center gap-1">
+                                <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, template: template.id }));
+                            setShowTemplatesModal(false);
+                            setShowCreateModal(true);
+                          }}
+                          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                        >
+                          Usar esta plantilla
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={() => setShowTemplatesModal(false)}
+                    className="bg-gray-100 text-gray-700 py-2 px-6 rounded-md hover:bg-gray-200 transition-colors"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
@@ -1145,42 +1352,60 @@ export default function NewsletterPage() {
 
                 {/* Newsletter Preview */}
                 <div className={`border border-gray-200 rounded-lg p-6 ${
-                  previewNewsletter.template === 'modern'
-                    ? 'bg-gradient-to-br from-blue-50 to-indigo-50'
-                    : previewNewsletter.template === 'classic'
-                    ? 'bg-amber-50'
-                    : previewNewsletter.template === 'professional'
-                    ? 'bg-slate-50'
-                    : 'bg-gray-50'
-                }`}>
+                  (() => {
+                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                    return template ? `bg-gradient-to-br` : 'bg-gray-50';
+                  })()
+                }`}
+                style={{
+                  background: (() => {
+                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                    return template ? template.preview.background : '#f9fafb';
+                  })()
+                }}>
                   {/* Header */}
                   <div className={`text-center mb-8 ${
-                    previewNewsletter.template === 'modern'
-                      ? 'border-b-4 border-blue-500 pb-6'
-                      : previewNewsletter.template === 'classic'
-                      ? 'border-b-2 border-amber-600 pb-6 bg-amber-100 rounded-lg p-4'
-                      : previewNewsletter.template === 'professional'
-                      ? 'border-b-2 border-slate-400 pb-6'
-                      : 'border-b-2 border-gray-300 pb-6'
-                  }`}>
+                    (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template ? `border-b-4` : 'border-b-2 border-gray-300';
+                    })()
+                  }`}
+                  style={{
+                    borderBottom: (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template ? template.preview.headerBorder : '2px solid #d1d5db';
+                    })(),
+                    backgroundColor: (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template?.preview.headerBg || '';
+                    })(),
+                    padding: (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template?.preview.headerBg ? '20px' : '';
+                    })(),
+                    borderRadius: (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template?.preview.headerBg ? '8px' : '';
+                    })()
+                  }}>
                     <h1 className={`mb-2 font-bold ${
-                      previewNewsletter.template === 'modern'
-                        ? 'text-4xl text-blue-900'
-                        : previewNewsletter.template === 'classic'
-                        ? 'text-3xl text-amber-900'
-                        : previewNewsletter.template === 'professional'
-                        ? 'text-2xl text-slate-900'
-                        : 'text-3xl text-gray-900'
-                    }`}>{previewNewsletter.title}</h1>
-                    <p className={`${
-                      previewNewsletter.template === 'modern'
-                        ? 'text-blue-700'
-                        : previewNewsletter.template === 'classic'
-                        ? 'text-amber-800'
-                        : previewNewsletter.template === 'professional'
-                        ? 'text-slate-600'
-                        : 'text-gray-600'
-                    }`}>{new Date(previewNewsletter.createdAt).toLocaleDateString('es-AR')}</p>
+                      (() => {
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        return template ? 'text-4xl' : 'text-3xl text-gray-900';
+                      })()
+                    }`}
+                    style={{
+                      color: (() => {
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        return template?.preview.textColor || '#111827';
+                      })()
+                    }}>{previewNewsletter.title}</h1>
+                    <p style={{
+                      color: (() => {
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        return template?.preview.accentColor || '#374151';
+                      })()
+                    }}>{new Date(previewNewsletter.createdAt).toLocaleDateString('es-AR')}</p>
                   </div>
 
                   {/* Content */}
@@ -1192,81 +1417,110 @@ export default function NewsletterPage() {
                   {/* Agent Info */}
                   {previewNewsletter.agentInfo && (
                     <div className={`p-6 rounded-lg border mb-8 ${
-                      previewNewsletter.template === 'modern'
-                        ? 'bg-white border-blue-200 shadow-lg'
-                        : previewNewsletter.template === 'classic'
-                        ? 'bg-amber-100 border-amber-300'
-                        : previewNewsletter.template === 'professional'
-                        ? 'bg-white border-slate-300 shadow-sm'
-                        : 'bg-white border-gray-200'
-                    }`}>
+                      (() => {
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        return template ? 'shadow-lg' : '';
+                      })()
+                    }`}
+                    style={{
+                      backgroundColor: (() => {
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        return template?.preview.cardBg || '#ffffff';
+                      })(),
+                      borderColor: (() => {
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
+                      })(),
+                      boxShadow: (() => {
+                        const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                        return template?.preview.cardShadow || 'none';
+                      })()
+                    }}>
                       <h3 className={`font-semibold mb-4 ${
-                        previewNewsletter.template === 'modern'
-                          ? 'text-xl text-blue-900'
-                          : previewNewsletter.template === 'classic'
-                          ? 'text-lg text-amber-900'
-                          : previewNewsletter.template === 'professional'
-                          ? 'text-lg text-slate-900'
-                          : 'text-xl text-gray-900'
-                      }`}>Sobre el Agente</h3>
+                        (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          return template ? 'text-xl' : 'text-xl text-gray-900';
+                        })()
+                      }`}
+                      style={{
+                        color: (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          return template?.preview.textColor || '#1f2937';
+                        })()
+                      }}>Sobre el Agente</h3>
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
                           <h4 className={`font-semibold ${
-                            previewNewsletter.template === 'modern'
-                              ? 'text-lg text-blue-800'
-                              : previewNewsletter.template === 'classic'
-                              ? 'text-lg text-amber-800'
-                              : previewNewsletter.template === 'professional'
-                              ? 'text-lg text-slate-800'
-                              : 'text-lg text-gray-900'
-                          }`}>{previewNewsletter.agentInfo.name}</h4>
+                            (() => {
+                              const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                              return template ? 'text-lg' : 'text-lg text-gray-900';
+                            })()
+                          }`}
+                          style={{
+                            color: (() => {
+                              const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                              return template?.preview.textColor || '#1f2937';
+                            })()
+                          }}>{previewNewsletter.agentInfo.name}</h4>
                           {previewNewsletter.agentInfo.agency && (
                             <p className={`mb-2 ${
-                              previewNewsletter.template === 'modern'
-                                ? 'text-blue-700'
-                                : previewNewsletter.template === 'classic'
-                                ? 'text-amber-700'
-                                : previewNewsletter.template === 'professional'
-                                ? 'text-slate-600'
-                                : 'text-gray-600'
-                            }`}>{previewNewsletter.agentInfo.agency}</p>
+                              (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template ? '' : 'text-gray-600';
+                              })()
+                            }`}
+                            style={{
+                              color: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.accentColor || '#6b7280';
+                              })()
+                            }}>{previewNewsletter.agentInfo.agency}</p>
                           )}
                           {previewNewsletter.agentInfo.bio && (
                             <p className={`mb-3 ${
-                              previewNewsletter.template === 'modern'
-                                ? 'text-blue-800'
-                                : previewNewsletter.template === 'classic'
-                                ? 'text-amber-800'
-                                : previewNewsletter.template === 'professional'
-                                ? 'text-slate-700'
-                                : 'text-gray-700'
-                            }`}>{previewNewsletter.agentInfo.bio}</p>
+                              (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template ? '' : 'text-gray-700';
+                              })()
+                            }`}
+                            style={{
+                              color: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.textColor || '#374151';
+                              })()
+                            }}>{previewNewsletter.agentInfo.bio}</p>
                           )}
                           <div className="flex flex-wrap gap-4 text-sm">
                             {previewNewsletter.agentInfo.email && (
                               <div className={`flex items-center gap-1 ${
-                                previewNewsletter.template === 'modern'
-                                  ? 'text-blue-700'
-                                  : previewNewsletter.template === 'classic'
-                                  ? 'text-amber-700'
-                                  : previewNewsletter.template === 'professional'
-                                  ? 'text-slate-600'
-                                  : 'text-gray-600'
-                              }`}>
+                                (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template ? '' : 'text-gray-600';
+                                })()
+                              }`}
+                              style={{
+                                color: (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template?.preview.accentColor || '#6b7280';
+                                })()
+                              }}>
                                 <Mail className="w-4 h-4" />
                                 {previewNewsletter.agentInfo.email}
                               </div>
                             )}
                             {previewNewsletter.agentInfo.phone && (
                               <div className={`flex items-center gap-1 ${
-                                previewNewsletter.template === 'modern'
-                                  ? 'text-blue-700'
-                                  : previewNewsletter.template === 'classic'
-                                  ? 'text-amber-700'
-                                  : previewNewsletter.template === 'professional'
-                                  ? 'text-slate-600'
-                                  : 'text-gray-600'
-                              }`}>
+                                (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template ? '' : 'text-gray-600';
+                                })()
+                              }`}
+                              style={{
+                                color: (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template?.preview.accentColor || '#6b7280';
+                                })()
+                              }}>
                                 <Phone className="w-4 h-4" />
                                 {previewNewsletter.agentInfo.phone}
                               </div>
@@ -1281,54 +1535,77 @@ export default function NewsletterPage() {
                   {previewNewsletter.news && previewNewsletter.news.length > 0 && (
                     <div className="mb-8">
                       <h3 className={`font-semibold mb-4 ${
-                        previewNewsletter.template === 'modern'
-                          ? 'text-xl text-blue-900'
-                          : previewNewsletter.template === 'classic'
-                          ? 'text-lg text-amber-900'
-                          : previewNewsletter.template === 'professional'
-                          ? 'text-lg text-slate-900'
-                          : 'text-xl text-gray-900'
-                      }`}>Últimas Noticias</h3>
+                        (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          return template ? 'text-xl' : 'text-xl text-gray-900';
+                        })()
+                      }`}
+                      style={{
+                        color: (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          return template?.preview.textColor || '#1f2937';
+                        })()
+                      }}>Últimas Noticias</h3>
                       <div className="space-y-4">
                         {previewNewsletter.news.map((newsId: string) => {
                           const news = availableNews.find(n => n.id === newsId);
                           return news ? (
                             <div key={news.id} className={`p-4 rounded-lg border ${
-                              previewNewsletter.template === 'modern'
-                                ? 'bg-white border-blue-200 shadow-md'
-                                : previewNewsletter.template === 'classic'
-                                ? 'bg-amber-100 border-amber-300'
-                                : previewNewsletter.template === 'professional'
-                                ? 'bg-white border-slate-300 shadow-sm'
-                                : 'bg-white border-gray-200'
-                            }`}>
+                              (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template ? 'shadow-md' : 'border-gray-200';
+                              })()
+                            }`}
+                            style={{
+                              backgroundColor: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.cardBg || '#ffffff';
+                              })(),
+                              borderColor: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
+                              })(),
+                              boxShadow: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.cardShadow || 'none';
+                              })()
+                            }}>
                               <h4 className={`font-semibold mb-2 ${
-                                previewNewsletter.template === 'modern'
-                                  ? 'text-lg text-blue-900'
-                                  : previewNewsletter.template === 'classic'
-                                  ? 'text-lg text-amber-900'
-                                  : previewNewsletter.template === 'professional'
-                                  ? 'text-lg text-slate-900'
-                                  : 'text-lg text-gray-900'
-                              }`}>{news.title}</h4>
+                                (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template ? 'text-lg' : 'text-lg text-gray-900';
+                                })()
+                              }`}
+                              style={{
+                                color: (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template?.preview.textColor || '#1f2937';
+                                })()
+                              }}>{news.title}</h4>
                               <p className={`mb-2 ${
-                                previewNewsletter.template === 'modern'
-                                  ? 'text-blue-800'
-                                  : previewNewsletter.template === 'classic'
-                                  ? 'text-amber-800'
-                                  : previewNewsletter.template === 'professional'
-                                  ? 'text-slate-700'
-                                  : 'text-gray-700'
-                              }`}>{news.synopsis}</p>
+                                (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template ? '' : 'text-gray-700';
+                                })()
+                              }`}
+                              style={{
+                                color: (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template?.preview.textColor || '#374151';
+                                })()
+                              }}>{news.synopsis}</p>
                               <p className={`text-sm ${
-                                previewNewsletter.template === 'modern'
-                                  ? 'text-blue-600'
-                                  : previewNewsletter.template === 'classic'
-                                  ? 'text-amber-700'
-                                  : previewNewsletter.template === 'professional'
-                                  ? 'text-slate-500'
-                                  : 'text-gray-500'
-                              }`}>
+                                (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template ? '' : 'text-gray-500';
+                                })()
+                              }`}
+                              style={{
+                                color: (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template?.preview.accentColor || '#9ca3af';
+                                })()
+                              }}>
                                 {news.source} • {new Date(news.publishedAt).toLocaleDateString('es-AR')}
                               </p>
                             </div>
@@ -1342,27 +1619,41 @@ export default function NewsletterPage() {
                   {previewNewsletter.properties && previewNewsletter.properties.length > 0 && (
                     <div className="mb-8">
                       <h3 className={`font-semibold mb-4 ${
-                        previewNewsletter.template === 'modern'
-                          ? 'text-xl text-blue-900'
-                          : previewNewsletter.template === 'classic'
-                          ? 'text-lg text-amber-900'
-                          : previewNewsletter.template === 'professional'
-                          ? 'text-lg text-slate-900'
-                          : 'text-xl text-gray-900'
-                      }`}>Propiedades Destacadas</h3>
+                        (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          return template ? 'text-xl' : 'text-xl text-gray-900';
+                        })()
+                      }`}
+                      style={{
+                        color: (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                          return template?.preview.textColor || '#1f2937';
+                        })()
+                      }}>Propiedades Destacadas</h3>
                       <div className="grid gap-4 md:grid-cols-2">
                         {previewNewsletter.properties.map((propertyId: string) => {
                           const property = availableProperties.find(p => p.id === propertyId);
                           return property ? (
                             <div key={property.id} className={`p-4 rounded-lg border ${
-                              previewNewsletter.template === 'modern'
-                                ? 'bg-white border-blue-200 shadow-md'
-                                : previewNewsletter.template === 'classic'
-                                ? 'bg-amber-100 border-amber-300'
-                                : previewNewsletter.template === 'professional'
-                                ? 'bg-white border-slate-300 shadow-sm'
-                                : 'bg-white border-gray-200'
-                            }`}>
+                              (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template ? 'shadow-md' : 'border-gray-200';
+                              })()
+                            }`}
+                            style={{
+                              backgroundColor: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.cardBg || '#ffffff';
+                              })(),
+                              borderColor: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
+                              })(),
+                              boxShadow: (() => {
+                                const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                return template?.preview.cardShadow || 'none';
+                              })()
+                            }}>
                               {property.generatedImages.length > 0 && (
                                 <img
                                   src={property.generatedImages[0]}
@@ -1371,48 +1662,60 @@ export default function NewsletterPage() {
                                 />
                               )}
                               <h4 className={`font-semibold mb-2 ${
-                                previewNewsletter.template === 'modern'
-                                  ? 'text-lg text-blue-900'
-                                  : previewNewsletter.template === 'classic'
-                                  ? 'text-lg text-amber-900'
-                                  : previewNewsletter.template === 'professional'
-                                  ? 'text-lg text-slate-900'
-                                  : 'text-lg text-gray-900'
-                              }`}>{property.title}</h4>
+                                (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template ? 'text-lg' : 'text-lg text-gray-900';
+                                })()
+                              }`}
+                              style={{
+                                color: (() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                  return template?.preview.textColor || '#1f2937';
+                                })()
+                              }}>{property.title}</h4>
                               <div className="space-y-1 text-sm">
                                 <p className={`flex items-center gap-1 ${
-                                  previewNewsletter.template === 'modern'
-                                    ? 'text-blue-700'
-                                    : previewNewsletter.template === 'classic'
-                                    ? 'text-amber-700'
-                                    : previewNewsletter.template === 'professional'
-                                    ? 'text-slate-600'
-                                    : 'text-gray-600'
-                                }`}>
+                                  (() => {
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    return template ? '' : 'text-gray-600';
+                                  })()
+                                }`}
+                                style={{
+                                  color: (() => {
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    return template?.preview.accentColor || '#6b7280';
+                                  })()
+                                }}>
                                   <MapPin className="w-4 h-4" />
                                   {property.propertyData.direccion || 'Sin dirección'}
                                 </p>
                                 <p className={`flex items-center gap-1 ${
-                                  previewNewsletter.template === 'modern'
-                                    ? 'text-blue-700'
-                                    : previewNewsletter.template === 'classic'
-                                    ? 'text-amber-700'
-                                    : previewNewsletter.template === 'professional'
-                                    ? 'text-slate-600'
-                                    : 'text-gray-600'
-                                }`}>
+                                  (() => {
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    return template ? '' : 'text-gray-600';
+                                  })()
+                                }`}
+                                style={{
+                                  color: (() => {
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    return template?.preview.accentColor || '#6b7280';
+                                  })()
+                                }}>
                                   <Home className="w-4 h-4" />
                                   {property.propertyData.tipo}
                                 </p>
                                 <p className={`font-semibold text-lg ${
-                                  previewNewsletter.template === 'modern'
-                                    ? 'text-blue-600'
-                                    : previewNewsletter.template === 'classic'
-                                    ? 'text-amber-600'
-                                    : previewNewsletter.template === 'professional'
-                                    ? 'text-slate-600'
-                                    : 'text-green-600'
-                                }`}>
+                                  (() => {
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    return template ? '' : 'text-green-600';
+                                  })()
+                                }`}
+                                style={{
+                                  color: (() => {
+                                    const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                                    return template?.preview.accentColor || '#059669';
+                                  })()
+                                }}>
                                   {property.propertyData.moneda} {property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
                                 </p>
                               </div>
@@ -1442,14 +1745,21 @@ export default function NewsletterPage() {
 
                   {/* Footer */}
                   <div className={`text-center text-sm border-t pt-4 ${
-                    previewNewsletter.template === 'modern'
-                      ? 'text-blue-600 border-blue-200'
-                      : previewNewsletter.template === 'classic'
-                      ? 'text-amber-700 border-amber-300'
-                      : previewNewsletter.template === 'professional'
-                      ? 'text-slate-500 border-slate-300'
-                      : 'text-gray-500 border-gray-200'
-                  }`}>
+                    (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template ? '' : 'text-gray-500 border-gray-200';
+                    })()
+                  }`}
+                  style={{
+                    color: (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template?.preview.accentColor || '#9ca3af';
+                    })(),
+                    borderTopColor: (() => {
+                      const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter.template);
+                      return template?.preview.cardBorder.split(' ')[2] || '#e5e7eb';
+                    })()
+                  }}>
                     <p>Newsletter creada con RIALTOR</p>
                   </div>
                 </div>
