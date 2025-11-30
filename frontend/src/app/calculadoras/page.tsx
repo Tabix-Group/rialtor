@@ -7,11 +7,11 @@ export default function CalculadorasPage() {
 
   const calculators = [
     {
-      name: 'Calculadora de ajustes de alquiler',
-      href: '/ajustes',
-      description: 'Calculá ajustes por IPC, acuerdos o índices para contratos de alquiler en Argentina.',
-      color: 'bg-indigo-50',
-      icon: Calculator,
+      name: 'Calculadora Alquileres',
+      href: '/calculadoraalquiler',
+      description: 'Calculá proyecciones de aumentos de alquiler basados en índices económicos como IPC, ICL, UVA y más.',
+      color: 'bg-orange-50',
+      icon: TrendingUp,
     },
     {
       name: 'Calculadora de gastos inmobiliarios',
@@ -40,13 +40,6 @@ export default function CalculadorasPage() {
       description: 'Accedé a la calculadora de costo de caución (seguros) para operaciones de alquiler y garantías.',
       color: 'bg-blue-50',
       icon: ShieldCheck,
-    },
-    {
-      name: 'Calculadora Alquileres',
-      href: '/calculadoraalquiler',
-      description: 'Calculá proyecciones de aumentos de alquiler basados en índices económicos como IPC, ICL, UVA y más.',
-      color: 'bg-orange-50',
-      icon: TrendingUp,
     },
   ]
 
