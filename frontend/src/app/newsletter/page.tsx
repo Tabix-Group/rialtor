@@ -125,8 +125,6 @@ const AVAILABLE_TEMPLATES = [
 ];
 
 interface Newsletter {
-
-interface Newsletter {
   id: string;
   title: string;
   content: string;
