@@ -29,6 +29,7 @@ import {
   TrendingUp,
   MessageCircle,
   HelpCircle,
+  Mail,
 } from "lucide-react"
 
 function Navigation() {
@@ -136,6 +137,12 @@ function Navigation() {
       href: "/placas",
       icon: ImageIcon,
       description: "Genera placas profesionales",
+    },
+    {
+      name: "Newsletter",
+      href: "/newsletter",
+      icon: Mail,
+      description: "Crea newsletters de marketing",
     },
     {
       name: "Noticias",

@@ -28,6 +28,7 @@ model User {
   documentTemplates   DocumentTemplate[]
   fileUploads         FileUpload[]
   financeTransactions FinanceTransaction[]
+  newsletters         Newsletter[]
   propertyPlaques     PropertyPlaque[]
   roleAssignments     RoleAssignment[]
 
@@ -355,4 +356,22 @@ model EconomicIndex {
 
   @@unique([indicator, date])
   @@map("economic_indices")
+}
+
+model Newsletter {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   // HTML content
+  images      String   // JSON array of image URLs
+  properties  String?  // JSON array of property IDs or data
+  news        String?  // JSON array of news IDs
+  agentInfo   String?  // JSON with agent information
+  template    String   @default("default")
+  status      String   @default("DRAFT") // DRAFT, PUBLISHED, SENT
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("newsletters")
 }

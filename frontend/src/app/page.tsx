@@ -120,13 +120,13 @@ const Calendar = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const Crown = ({ className }: { className?: string }) => (
+const Mail = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}
-      d="M5 16l-1-4 5.5 2 6-6 6 6 5.5-2L21 16H5zM19 20H5a1 1 0 01-1-1v-1a1 1 0 011-1h14a1 1 0 011 1v1a1 1 0 01-1 1z"
+      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
     />
   </svg>
 )
@@ -217,6 +217,14 @@ export default function Home() {
         "Creá placas profesionales con IA que venden más. Subí fotos y obtené imágenes optimizadas para redes sociales y portales argentinos.",
       icon: ShieldCheck,
       href: "https://www.rialtor.app/placas",
+      requiresAuth: true,
+    },
+    {
+      name: "Newsletter Marketing",
+      description:
+        "Creá newsletters profesionales para promocionar tus propiedades. Incluye noticias, imágenes y contenido personalizado para tus clientes.",
+      icon: Mail,
+      href: "/newsletter",
       requiresAuth: true,
     },
     {
