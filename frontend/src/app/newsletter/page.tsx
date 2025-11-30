@@ -36,6 +36,10 @@ import {
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 import 'react-quill/dist/quill.snow.css'
 
+// Importar html2canvas para generar PDFs
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+
 // Definición de plantillas disponibles
 const AVAILABLE_TEMPLATES = [
   {
@@ -604,12 +608,11 @@ export default function NewsletterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
-
-        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-purple-500/20 backdrop-blur-3xl"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8">
             <div className="flex-1 w-full lg:w-auto">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
@@ -1098,39 +1101,21 @@ export default function NewsletterPage() {
                             }`}
                             onClick={() => togglePropertySelection(property.id)}
                           >
-                            <div className="flex items-start gap-3">
-                              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 ${
-                                selectedProperties.includes(property.id)
-                                  ? 'bg-blue-600 border-blue-600'
-                                  : 'border-gray-300'
-                              }`}>
-                                {selectedProperties.includes(property.id) && (
-                                  <Check className="w-3 h-3 text-white" />
-                                )}
+                            <div className="flex-1">
+                              <h4 className="font-medium text-sm text-gray-900">{property.title}</h4>
+                              <div className="flex items-center gap-4 text-xs text-gray-600 mt-1">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {property.propertyData.direccion || 'Sin dirección'}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Home className="w-3 h-3" />
+                                  {property.propertyData.tipo}
+                                </span>
+                                <span className="font-semibold text-green-600">
+                                  {property.propertyData.moneda} {property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
+                                </span>
                               </div>
-                              <div className="flex-1">
-                                <h4 className="font-medium text-sm text-gray-900">{property.title}</h4>
-                                <div className="flex items-center gap-4 text-xs text-gray-600 mt-1">
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="w-3 h-3" />
-                                    {property.propertyData.direccion || 'Sin dirección'}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Home className="w-3 h-3" />
-                                    {property.propertyData.tipo}
-                                  </span>
-                                  <span className="font-semibold text-green-600">
-                                    {property.propertyData.moneda} {property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
-                                  </span>
-                                </div>
-                              </div>
-                              {property.generatedImages.length > 0 && (
-                                <img
-                                  src={property.generatedImages[0]}
-                                  alt={property.title}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
-                              )}
                             </div>
                           </div>
                         ))}
@@ -1240,7 +1225,7 @@ export default function NewsletterPage() {
           </div>
         )}
 
-        {/* Modal de Templates */}
+        {/* Modal de plantillas */}
         {showTemplatesModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
@@ -1326,6 +1311,9 @@ export default function NewsletterPage() {
             </div>
           </div>
         )}
+
+        {/* Modal de Vista Previa */}
+        {showPreviewModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
