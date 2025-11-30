@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { Calculator, ShieldCheck, Home, CalendarDays } from 'lucide-react'
+import { Calculator, ShieldCheck, Home, CalendarDays, TrendingUp } from 'lucide-react'
 
 export default function CalculadorasPage() {
 
@@ -40,6 +40,13 @@ export default function CalculadorasPage() {
       description: 'Accedé a la calculadora de costo de caución (seguros) para operaciones de alquiler y garantías.',
       color: 'bg-blue-50',
       icon: ShieldCheck,
+    },
+    {
+      name: 'Calculadora Alquileres',
+      href: '/calculadoraalquiler',
+      description: 'Calculá proyecciones de aumentos de alquiler basados en índices económicos como IPC, ICL, UVA y más.',
+      color: 'bg-orange-50',
+      icon: TrendingUp,
     },
   ]
 

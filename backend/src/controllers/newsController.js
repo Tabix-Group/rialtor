@@ -19,8 +19,23 @@ const getNews = async (req, res, next) => {
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
         const where = { isActive: true };
+        
         if (category) {
+            // Si se especifica una categoría, filtrar por esa categoría
             where.categoryId = category;
+        } else {
+            // Si no se especifica categoría (modo "Todas las noticias"), 
+            // excluir la categoría "Internacional" por defecto
+            const internationalCategory = await prisma.category.findFirst({
+                where: { 
+                    name: { equals: 'Internacional', mode: 'insensitive' },
+                    isActive: true 
+                }
+            });
+            
+            if (internationalCategory) {
+                where.categoryId = { not: internationalCategory.id };
+            }
         }
 
         const [news, total] = await Promise.all([
