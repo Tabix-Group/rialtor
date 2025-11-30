@@ -60,6 +60,11 @@ interface NewsItem {
   synopsis: string;
   source: string;
   publishedAt: string;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
 }
 
 interface PropertyPlaque {
@@ -152,7 +157,7 @@ export default function NewsletterPage() {
         // Filtrar noticias: excluir "Internacional" por defecto, incluir solo si showInternationalNews es true
         let filteredNews = data.news || [];
         if (!showInternationalNews) {
-          filteredNews = filteredNews.filter((news: NewsItem) => news.category !== 'Internacional');
+          filteredNews = filteredNews.filter((news: NewsItem) => news.category?.name !== 'Internacional');
         }
         setAvailableNews(filteredNews);
       }
