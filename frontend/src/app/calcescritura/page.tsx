@@ -66,6 +66,7 @@ export default function CalceEscrituraPage() {
     let notaryFees = 0
     let notaryFeesIVA = 0
     let stamps = 0
+    let otros = 0
     let writingCosts = 0
     let reserveFund = 0
     let totalCosts = 0
@@ -82,14 +83,21 @@ export default function CalceEscrituraPage() {
 
       // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
       const stampRate = location === 'CABA' ? 0.035 : 0.02
+      const exemptionThreshold = 205000000 // ARS
       if (stampExemption && location === 'CABA') {
-        // Full exemption for first property in CABA
-        stamps = 0
+        if (arsTransactionPrice <= exemptionThreshold) {
+          stamps = 0
+        } else {
+          stamps = (arsTransactionPrice - exemptionThreshold) * (stampRate / 2) / numericExchangeRate
+        }
       } else {
         stamps = numericTransactionPrice * (stampRate / 2)
       }
 
-      totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + stamps
+      // Otros: 0.75%
+      otros = numericTransactionPrice * 0.0075
+
+      totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + stamps + otros
       finalAmount = numericTransactionPrice + totalCosts
 
     } else if (activeTab === 'vendedor') {
@@ -99,7 +107,16 @@ export default function CalceEscrituraPage() {
 
       // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
       const stampRate = location === 'CABA' ? 0.035 : 0.02
-      stamps = numericTransactionPrice * (stampRate / 2)
+      const exemptionThreshold = 205000000 // ARS
+      if (stampExemption && location === 'CABA') {
+        if (arsTransactionPrice <= exemptionThreshold) {
+          stamps = 0
+        } else {
+          stamps = (arsTransactionPrice - exemptionThreshold) * (stampRate / 2) / numericExchangeRate
+        }
+      } else {
+        stamps = numericTransactionPrice * (stampRate / 2)
+      }
 
       // Writing costs: 2% (no IVA)
       writingCosts = arsWritingPrice * 0.02 / numericExchangeRate // Convert back to USD
@@ -116,10 +133,19 @@ export default function CalceEscrituraPage() {
       notaryFees = numericTransactionPrice * 0.035
       notaryFeesIVA = notaryFees * ivaRate
 
+      // Stamps: 3.5% in CABA, 2% in PBA, with exemption threshold
+      const stampRate = location === 'CABA' ? 0.035 : 0.02
+      const exemptionThreshold = 205000000 // ARS
+      if (arsTransactionPrice <= exemptionThreshold) {
+        stamps = 0
+      } else {
+        stamps = (arsTransactionPrice - exemptionThreshold) * stampRate / numericExchangeRate
+      }
+
       // Reserve fund: up to 6% (no IVA)
       reserveFund = numericTransactionPrice * 0.01
 
-      totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + reserveFund
+      totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + stamps + reserveFund
       finalAmount = numericTransactionPrice + totalCosts
     }
 
@@ -129,6 +155,7 @@ export default function CalceEscrituraPage() {
       notaryFees,
       notaryFeesIVA,
       stamps,
+      otros,
       writingCosts,
       reserveFund,
       totalCosts,
@@ -374,6 +401,22 @@ export default function CalceEscrituraPage() {
                   )}
 
                   {/* Stamps */}
+                  {calculations.stamps > 0 && activeTab === 'primera' && (
+                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                      <div>
+                        <div className="font-medium text-gray-900">Sellos</div>
+                        <div className="text-sm text-gray-500">
+                          {location === 'CABA' ? '3,50%' : '2,00%'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">{formatARS(calculations.stamps * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.stamps)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stamps */}
                   {(calculations.stamps > 0 || (stampExemption && location === 'CABA' && activeTab === 'comprador')) && (
                     <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <div>
@@ -385,6 +428,20 @@ export default function CalceEscrituraPage() {
                       <div className="text-right">
                         <div className="font-semibold text-gray-900">{calculations.stamps === 0 && stampExemption && location === 'CABA' ? 'Exento' : formatARS(calculations.stamps * numericExchangeRate)}</div>
                         <div className="text-sm text-gray-500">{calculations.stamps === 0 && stampExemption && location === 'CABA' ? '' : formatUSD(calculations.stamps)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Otros */}
+                  {calculations.otros > 0 && activeTab === 'comprador' && (
+                    <div className="flex justify-between items-center py-3 border-b border-gray-200">
+                      <div>
+                        <div className="font-medium text-gray-900">Otros</div>
+                        <div className="text-sm text-gray-500">0,75%</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">{formatARS(calculations.otros * numericExchangeRate)}</div>
+                        <div className="text-sm text-gray-500">{formatUSD(calculations.otros)}</div>
                       </div>
                     </div>
                   )}
