@@ -58,6 +58,10 @@ const authenticateToken = async (req, res, next) => {
       console.log('[AUTH] User is not active:', user.email);
       return res.status(401).json({ error: 'Account deactivated' });
     }
+    if (user.roleAssignments.length === 0) {
+      console.log('[AUTH] User has no role assignments:', user.email);
+      return res.status(401).json({ error: 'User has no assigned roles' });
+    }
     console.log('[AUTH] User authenticated successfully:', user.email);
     console.log('[AUTH] User has', user.roleAssignments.length, 'role assignments');
     req.user = user;
