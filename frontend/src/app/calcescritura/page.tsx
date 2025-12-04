@@ -417,7 +417,7 @@ export default function CalceEscrituraPage() {
                   )}
 
                   {/* Stamps */}
-                  {(calculations.stamps > 0 || (stampExemption && location === 'CABA' && activeTab === 'comprador')) && (
+                  {(activeTab !== 'primera' && (calculations.stamps > 0 || (stampExemption && location === 'CABA' && (activeTab === 'comprador' || activeTab === 'vendedor')))) && (
                     <div className="flex justify-between items-center py-3 border-b border-gray-200">
                       <div>
                         <div className="font-medium text-gray-900">Sellos</div>
