@@ -2029,7 +2029,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   <defs>
     <style>
       /* === TIPOGRAFÍA VIP PREMIUM === */
-      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+      /* Fuentes: Playfair Display y Inter */
       
       /* Labels superiores - elegante y sutil */
       .vip-label { 
