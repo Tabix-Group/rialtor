@@ -23,7 +23,7 @@ export default function CalculadorasPage() {
     {
       name: 'Calculadora de días hábiles',
       href: '/dias',
-      description: 'Calculá días hábiles y días de corrido entre dos fechas, considerando feriados y fines de semana en Argentina.',
+      description: 'Calculá días hábiles entre fechas o encontrá la fecha de vencimiento sumando días hábiles, considerando feriados de Argentina.',
       color: 'bg-green-50',
       icon: CalendarDays,
     },

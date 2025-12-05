@@ -696,6 +696,111 @@ const calculateDays = async (req, res) => {
   }
 };
 
+// Calcular fecha de vencimiento dado fecha inicial y cantidad de días hábiles
+const calculateDueDate = async (req, res) => {
+  try {
+    const { startDate, businessDaysCount } = req.body;
+
+    if (!startDate) {
+      return res.status(400).json({ success: false, message: 'Debe proporcionar una fecha de inicio' });
+    }
+
+    if (!businessDaysCount || businessDaysCount <= 0) {
+      return res.status(400).json({ success: false, message: 'Debe proporcionar una cantidad válida de días hábiles (mayor a 0)' });
+    }
+
+    if (businessDaysCount > 365) {
+      return res.status(400).json({ success: false, message: 'La cantidad máxima de días hábiles es 365' });
+    }
+
+    const start = new Date(startDate);
+
+    if (isNaN(start.getTime())) {
+      return res.status(400).json({ success: false, message: 'Fecha de inicio inválida' });
+    }
+
+    // Calcular fecha de vencimiento
+    const Holidays = require('date-holidays');
+    const hd = new Holidays('AR'); // Argentina
+
+    let businessDaysAdded = 0;
+    const holidays = [];
+    let weekendCount = 0;
+    let totalCalendarDays = 0;
+
+    const currentDate = new Date(start);
+    currentDate.setDate(currentDate.getDate() + 1); // Empezamos desde el día siguiente
+
+    while (businessDaysAdded < businessDaysCount) {
+      totalCalendarDays++;
+      const dayOfWeek = currentDate.getDay(); // 0 = Domingo, 6 = Sábado
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const holidayInfo = hd.isHoliday(currentDate);
+
+      if (isWeekend) {
+        weekendCount++;
+      } else if (holidayInfo) {
+        holidays.push({
+          date: currentDate.toISOString().split('T')[0],
+          day: currentDate.toLocaleDateString('es-AR', { weekday: 'long' }),
+          reason: Array.isArray(holidayInfo) ? holidayInfo[0].name : (holidayInfo.name || 'Feriado'),
+          type: Array.isArray(holidayInfo) ? holidayInfo[0].type : (holidayInfo.type || 'public')
+        });
+      } else {
+        businessDaysAdded++;
+      }
+
+      if (businessDaysAdded < businessDaysCount) {
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+
+    const endDate = currentDate;
+
+    const result = {
+      startDate: start.toISOString().split('T')[0],
+      dueDate: endDate.toISOString().split('T')[0],
+      businessDaysRequested: parseInt(businessDaysCount),
+      totalCalendarDays,
+      nonBusinessDays: {
+        total: weekendCount + holidays.length,
+        weekends: weekendCount,
+        holidays: holidays.length,
+        details: holidays
+      },
+      holidays: holidays,
+      weekends: weekendCount
+    };
+
+    // Guardar en historial si hay usuario logueado
+    if (req.user) {
+      await prisma.calculatorHistory.create({
+        data: {
+          type: 'DUE_DATE',
+          inputs: JSON.stringify({
+            startDate: start.toISOString().split('T')[0],
+            businessDaysCount: parseInt(businessDaysCount)
+          }),
+          result: JSON.stringify(result),
+          userId: req.user.id
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error calculating due date:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al calcular fecha de vencimiento',
+      error: error.message
+    });
+  }
+};
+
 // Calculadora de alquileres usando API externa de ARquiler
 const calculateRent = async (req, res) => {
   try {
@@ -826,5 +931,6 @@ module.exports = {
   calculateGananciaInmobiliaria,
   calculateMortgage,
   calculateDays,
+  calculateDueDate,
   calculateRent
 };
