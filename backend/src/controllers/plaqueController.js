@@ -1540,50 +1540,51 @@ async function createVIPPlaqueOverlay(templatePath, propertyInfo, interiorImageB
 // Función auxiliar que contiene la lógica real de composición
 async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyInfo, interiorImageBuffer, exteriorImageBuffer, agentImageBuffer) {
   try {
-    // DISEÑO BASADO EN IMAGEN DE REFERENCIA (imagen 2):
-    // - Imagen EXTERIOR grande ocupa área superior (casi toda la mitad superior)
-    // - Imagen INTERIOR circular en esquina superior derecha como miniatura
-    // - Foto AGENTE en área inferior izquierda
-    // - BARRA AZUL inferior con información de propiedad
-    // - Textos blancos sobre la barra azul
+    // DISEÑO PREMIUM INSPIRADO EN IMAGEN DE REFERENCIA
+    // Layout optimizado con proporciones áureas y diseño editorial
+    // - Imagen EXTERIOR: 55% del alto (595px) - hero principal
+    // - Imagen INTERIOR: círculo de 200px con borde dorado elegante
+    // - Área de CONTENIDO: 32% del alto (345px) - info de propiedad
+    // - FOOTER: 13% del alto (140px) - contacto y branding
     
     const width = 1080;
     const height = 1080;
     
-    console.log('[PLACAS VIP] Creando placa VIP con diseño de referencia');
+    console.log('[PLACAS VIP] Creando placa VIP premium con diseño editorial');
     
-    // SISTEMA DE LAYOUT COHERENTE
-    // Footer: 70px en la parte inferior
-    // Área de contenido: desde exteriorHeight hasta footerY
-    // Exterior: 58% de la altura total (626px de 1080px)
+    // === SISTEMA DE PROPORCIÓN ÁUREA ===
+    const exteriorHeight = 595;        // 55% - Hero principal
+    const contentHeight = 345;         // 32% - Información
+    const footerHeight = 140;          // 13% - Contacto y branding
     
-    const footerHeight = 70;
-    const footerY = height - footerHeight; // 1010px
+    const contentY = exteriorHeight;
+    const footerY = contentY + contentHeight;
     
-    // 1. Imagen EXTERIOR grande (área superior)
-    const exteriorHeight = Math.floor(height * 0.58); // 626px - más compacto
+    // 1. Imagen EXTERIOR - Hero principal con tratamiento profesional
     const exteriorProcessed = await sharp(exteriorImageBuffer)
       .resize(width, exteriorHeight, {
         fit: 'cover',
         position: 'center'
       })
-      .png()
+      // Aplicar mejora sutil de brillo y contraste
+      .modulate({
+        brightness: 1.02,
+        saturation: 1.05
+      })
+      .sharpen({ sigma: 0.5 })
+      .png({ quality: 95 })
       .toBuffer();
     
-    // Área de contenido disponible
-    const contentY = exteriorHeight;
-    const contentHeight = footerY - exteriorHeight; // 384px disponibles
+    // 2. Imagen INTERIOR circular premium con borde dorado refinado
+    const interiorCircleSize = 200; // Tamaño óptimo para balance visual
+    const interiorX = width - interiorCircleSize - 50; // Más separación del borde
+    const interiorY = 50; // Más separación del borde superior
     
-    // 2. Imagen INTERIOR circular con borde dorado (miniatura en esquina superior derecha)
-    const interiorCircleSize = 180; // Reducido para balance
-    const interiorX = width - interiorCircleSize - 40;
-    const interiorY = 40;
-    
-    // Posición del precio: ángulo inferior derecho de la imagen exterior
-    const priceCardWidth = 220;
-    const priceCardHeight = 120;
-    const priceCardX = width - priceCardWidth - 30; // 30px del borde derecho
-    const priceCardY = exteriorHeight - priceCardHeight - 30; // 30px del borde inferior del exterior
+    // === TARJETA DE PRECIO PREMIUM ===
+    const priceCardWidth = 280;  // Más ancha para mejor legibilidad
+    const priceCardHeight = 140; // Más alta para mejor proporción
+    const priceCardX = width - priceCardWidth - 40;
+    const priceCardY = exteriorHeight - priceCardHeight - 40;
     
     // Crear canvas para la imagen interior circular
     const interiorCanvas = await sharp({
@@ -1597,19 +1598,25 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     .png()
     .toBuffer();
     
-    // Procesar imagen interior y hacerla circular
+    // Procesar imagen interior con tratamiento profesional
     const interiorResized = await sharp(interiorImageBuffer)
       .resize(interiorCircleSize, interiorCircleSize, {
         fit: 'cover',
         position: 'center'
       })
-      .png()
+      // Aplicar mejora sutil
+      .modulate({
+        brightness: 1.02,
+        saturation: 1.03
+      })
+      .sharpen({ sigma: 0.5 })
+      .png({ quality: 95 })
       .toBuffer();
     
-    // Crear máscara circular
+    // Crear máscara circular perfecta
     const circleMask = Buffer.from(
       `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
-        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 8}" fill="white"/>
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 10}" fill="white"/>
       </svg>`
     );
     
@@ -1622,25 +1629,24 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .png()
       .toBuffer();
     
-    // Crear borde dorado VIP PREMIUM - elegante y refinado
+    // Crear borde dorado PREMIUM - diseño minimalista y sofisticado
     const goldenBorder = Buffer.from(
       `<svg width="${interiorCircleSize}" height="${interiorCircleSize}">
         <defs>
-          <!-- Gradiente dorado premium más refinado -->
+          <!-- Gradiente dorado champagne premium -->
           <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#c9a227;stop-opacity:1" />
-            <stop offset="25%" style="stop-color:#e8d48b;stop-opacity:1" />
-            <stop offset="50%" style="stop-color:#d4af37;stop-opacity:1" />
-            <stop offset="75%" style="stop-color:#e8d48b;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#b8942a;stop-opacity:1" />
+            <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+            <stop offset="30%" style="stop-color:#f4e5a8;stop-opacity:1" />
+            <stop offset="60%" style="stop-color:#d4af37;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#c9a227;stop-opacity:1" />
           </linearGradient>
           
-          <!-- Sombra exterior elegante -->
-          <filter id="circleShadow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
-            <feOffset dx="0" dy="3" result="offsetblur"/>
+          <!-- Sombra suave y elegante -->
+          <filter id="circleShadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+            <feOffset dx="0" dy="4" result="offsetblur"/>
             <feComponentTransfer>
-              <feFuncA type="linear" slope="0.25"/>
+              <feFuncA type="linear" slope="0.18"/>
             </feComponentTransfer>
             <feMerge>
               <feMergeNode/>
@@ -1649,21 +1655,21 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
           </filter>
         </defs>
         
-        <!-- Sombra del círculo -->
-        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 4}" 
-                fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="8" filter="url(#circleShadow)"/>
-        
-        <!-- Borde dorado principal - más grueso y premium -->
+        <!-- Sombra exterior profunda -->
         <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 5}" 
-                fill="none" stroke="url(#goldGradient)" stroke-width="6"/>
+                fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="10" filter="url(#circleShadow)"/>
         
-        <!-- Borde blanco interno fino -->
-        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 1}" 
-                fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5"/>
+        <!-- Borde dorado principal - grosor premium -->
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 7}" 
+                fill="none" stroke="url(#goldGradient)" stroke-width="7"/>
         
-        <!-- Highlight superior sutil para efecto 3D -->
-        <ellipse cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2 - 15}" rx="${(interiorCircleSize/2) - 12}" ry="20"
-                fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        <!-- Borde interno blanco brillante -->
+        <circle cx="${interiorCircleSize/2}" cy="${interiorCircleSize/2}" r="${(interiorCircleSize/2) - 2}" 
+                fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2"/>
+        
+        <!-- Highlight superior para efecto metálico 3D -->
+        <path d="M ${interiorCircleSize/2 - 60} ${interiorCircleSize/2 - 70} Q ${interiorCircleSize/2} ${interiorCircleSize/2 - 85} ${interiorCircleSize/2 + 60} ${interiorCircleSize/2 - 70}"
+              fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2.5" stroke-linecap="round"/>
       </svg>`
     );
     
@@ -1684,12 +1690,12 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .png()
       .toBuffer();
     
-    // 3. Foto del AGENTE con marco VIP PREMIUM (área inferior izquierda)
-    // Tamaño optimizado para mejor balance visual
-    const agentWidth = 190;
-    const agentHeight = 250;
-    const agentX = 35;
-    const agentY = contentY + 30; // 30px desde el inicio del área de contenido
+    // 3. Foto del AGENTE con marco PREMIUM editorial (área inferior izquierda)
+    // Proporciones optimizadas: ratio 3:4 para retrato profesional
+    const agentWidth = 210;   // Ancho profesional
+    const agentHeight = 280;  // Alto proporcional 3:4
+    const agentX = 45;        // Margen izquierdo elegante
+    const agentY = contentY + 35; // Margen superior del área de contenido
     
     let agentProcessed = null;
     if (agentImageBuffer) {
@@ -1705,31 +1711,37 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .png()
       .toBuffer();
       
-      // Procesar imagen del agente con padding para el marco premium
+      // Procesar imagen del agente con tratamiento profesional
       const agentImg = await sharp(agentImageBuffer)
-        .resize(agentWidth - 14, agentHeight - 14, {
+        .resize(agentWidth - 16, agentHeight - 16, {
           fit: 'cover',
           position: 'center'
         })
-        .png()
+        // Aplicar mejoras sutiles para foto de retrato
+        .modulate({
+          brightness: 1.03,
+          saturation: 0.98
+        })
+        .sharpen({ sigma: 0.3 })
+        .png({ quality: 95 })
         .toBuffer();
       
-      // Crear marco VIP PREMIUM - diseño elegante y minimalista
+      // Crear marco EDITORIAL PREMIUM - minimalista y sofisticado
       const agentFrame = Buffer.from(
         `<svg width="${agentWidth}" height="${agentHeight}">
           <defs>
-            <!-- Gradiente premium azul oscuro elegante -->
+            <!-- Gradiente neutral elegante -->
             <linearGradient id="frameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style="stop-color:#3a5f85;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#2c4a6e;stop-opacity:1" />
+              <stop offset="0%" style="stop-color:#4a5568;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#2d3748;stop-opacity:1" />
             </linearGradient>
             
-            <!-- Sombra suave y elegante -->
-            <filter id="frameShadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
-              <feOffset dx="0" dy="3" result="offsetblur"/>
+            <!-- Sombra profesional profunda -->
+            <filter id="frameShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+              <feOffset dx="0" dy="4" result="offsetblur"/>
               <feComponentTransfer>
-                <feFuncA type="linear" slope="0.2"/>
+                <feFuncA type="linear" slope="0.22"/>
               </feComponentTransfer>
               <feMerge>
                 <feMergeNode/>
@@ -1738,17 +1750,21 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
             </filter>
           </defs>
           
-          <!-- Marco exterior con sombra premium -->
+          <!-- Marco exterior premium con sombra -->
           <rect x="0" y="0" width="${agentWidth}" height="${agentHeight}" 
-                fill="url(#frameGradient)" rx="8" filter="url(#frameShadow)"/>
+                fill="url(#frameGradient)" rx="10" filter="url(#frameShadow)"/>
           
-          <!-- Línea decorativa interior superior - toque premium -->
-          <line x1="10" y1="3" x2="${agentWidth - 10}" y2="3" 
-                stroke="rgba(255,255,255,0.25)" stroke-width="1" stroke-linecap="round"/>
+          <!-- Highlight superior metálico -->
+          <line x1="15" y1="4" x2="${agentWidth - 15}" y2="4" 
+                stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
           
-          <!-- Área blanca interior con bordes suaves -->
-          <rect x="7" y="7" width="${agentWidth - 14}" height="${agentHeight - 14}" 
-                fill="#ffffff" rx="4"/>
+          <!-- Área blanca interior elegante -->
+          <rect x="8" y="8" width="${agentWidth - 16}" height="${agentHeight - 16}" 
+                fill="#ffffff" rx="6"/>
+          
+          <!-- Sombra interna sutil -->
+          <rect x="8" y="8" width="${agentWidth - 16}" height="2" 
+                fill="rgba(0,0,0,0.03)" rx="6" ry="0"/>
         </svg>`
       );
       
@@ -1809,22 +1825,24 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       left: 0
     });
     
-    // Capa 2: Tarjeta de precio PREMIUM sobre la imagen exterior
+    // Capa 2: Tarjeta de precio EDITORIAL PREMIUM sobre la imagen exterior
     const precioStr = (propertyInfo.precio || 'Consultar').toString();
-    const precioFontSize = precioStr.length <= 4 ? 54 : precioStr.length <= 6 ? 46 : precioStr.length <= 8 ? 40 : 34;
+    const precioFontSize = precioStr.length <= 4 ? 60 : precioStr.length <= 6 ? 52 : precioStr.length <= 8 ? 44 : 36;
     
     const priceCardSvg = `
       <svg width="${priceCardWidth}" height="${priceCardHeight}" xmlns="http://www.w3.org/2000/svg">
         <defs>
+          <!-- Gradiente blanco premium con textura -->
           <linearGradient id="priceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.98" />
-            <stop offset="100%" style="stop-color:#fafafa;stop-opacity:0.98" />
+            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.97" />
+            <stop offset="100%" style="stop-color:#f9f9f9;stop-opacity:0.97" />
           </linearGradient>
-          <filter id="priceShadow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
-            <feOffset dx="0" dy="4" result="offsetblur"/>
+          <!-- Sombra profunda y suave -->
+          <filter id="priceShadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+            <feOffset dx="0" dy="6" result="offsetblur"/>
             <feComponentTransfer>
-              <feFuncA type="linear" slope="0.2"/>
+              <feFuncA type="linear" slope="0.25"/>
             </feComponentTransfer>
             <feMerge>
               <feMergeNode/>
@@ -1833,13 +1851,21 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
           </filter>
         </defs>
         <g filter="url(#priceShadow)">
-          <rect x="0" y="0" width="${priceCardWidth}" height="${priceCardHeight}" rx="14" fill="url(#priceGrad)" stroke="#e8e8e8" stroke-width="1" />
-          <!-- Label "Precio" con tipografía premium -->
-          <text x="20" y="26" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 500; fill: #888888; letter-spacing: 2px; text-transform: uppercase;">Precio</text>
-          <!-- Moneda -->
-          <text x="20" y="52" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 18px; font-weight: 600; fill: #666666; letter-spacing: 0.5px;">${propertyInfo.moneda || 'USD'}</text>
-          <!-- Precio principal - tipografía hero -->
-          <text x="20" y="95" style="font-family: 'Playfair Display', Georgia, serif; font-size: ${precioFontSize}px; font-weight: 700; fill: #1a1a1a; letter-spacing: -1px;">${propertyInfo.precio || 'Consultar'}</text>
+          <!-- Fondo principal con borde sutil -->
+          <rect x="0" y="0" width="${priceCardWidth}" height="${priceCardHeight}" rx="18" fill="url(#priceGrad)" stroke="rgba(0,0,0,0.08)" stroke-width="1.5" />
+          
+          <!-- Barra decorativa superior dorada -->
+          <rect x="0" y="0" width="${priceCardWidth}" height="4" rx="18" fill="url(#priceGrad)" />
+          <rect x="0" y="0" width="${priceCardWidth}" height="4" fill="linear-gradient(90deg, #d4af37 0%, #f4e5a8 50%, #d4af37 100%)" opacity="0.6" />
+          
+          <!-- Label "Precio" - tipografía refinada -->
+          <text x="24" y="32" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #999999; letter-spacing: 2.5px; text-transform: uppercase;">Precio</text>
+          
+          <!-- Moneda con estilo -->
+          <text x="24" y="62" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 20px; font-weight: 700; fill: #666666; letter-spacing: 0.5px;">${propertyInfo.moneda || 'USD'}</text>
+          
+          <!-- Precio principal - tipografía display -->
+          <text x="24" y="112" style="font-family: 'Playfair Display', Georgia, serif; font-size: ${precioFontSize}px; font-weight: 800; fill: #0a0a0a; letter-spacing: -1.5px;">${propertyInfo.precio || 'Consultar'}</text>
         </g>
       </svg>
     `;
@@ -1873,36 +1899,41 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       left: interiorX
     });
     
-    // Capa 6: Código QR a la altura del agente
+    // Capa 6: Código QR premium con diseño editorial
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
-    const qrSize = 160; // Tamaño aumentado
-    const qrX = width - qrSize - 55; // 55px del borde derecho
-    // Posicionar QR: alineado verticalmente en el área de contenido
-    const qrY = agentY + 15; // Alineado con el agente
+    const qrSize = 175; // Tamaño óptimo para escaneo
+    const qrX = width - qrSize - 65; // 65px del borde derecho
+    // Posicionar QR: centrado verticalmente en el área de contenido
+    const qrY = contentY + ((contentHeight - qrSize) / 2); // Centrado vertical perfecto
     
     try {
-      // Generar código QR premium con colores optimizados
+      // Generar código QR premium con alta calidad
       const qrBuffer = await QRCode.toBuffer(qrUrl, {
         width: qrSize,
-        margin: 2,
+        margin: 1,
         color: {
-          dark: '#2a2a2a',  // Negro suave premium
+          dark: '#1a1a1a',  // Negro profundo para mejor contraste
           light: '#ffffff'  // Fondo blanco puro
         },
-        errorCorrectionLevel: 'M'
+        errorCorrectionLevel: 'H' // Alta corrección de errores
       });
       
-      // Crear marco VIP PREMIUM para el QR - minimalista y elegante
-      const qrFrameSize = qrSize + 28;
+      // Crear marco EDITORIAL PREMIUM para el QR
+      const qrFrameSize = qrSize + 36;
       const qrFrame = Buffer.from(
         `<svg width="${qrFrameSize}" height="${qrFrameSize}">
           <defs>
-            <!-- Sombra suave y premium -->
-            <filter id="qrShadow" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
-              <feOffset dx="0" dy="3" result="offsetblur"/>
+            <!-- Gradiente sutil para el marco -->
+            <linearGradient id="qrFrameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#4a5568;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#2d3748;stop-opacity:1" />
+            </linearGradient>
+            <!-- Sombra profesional profunda -->
+            <filter id="qrShadow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="7"/>
+              <feOffset dx="0" dy="4" result="offsetblur"/>
               <feComponentTransfer>
-                <feFuncA type="linear" slope="0.12"/>
+                <feFuncA type="linear" slope="0.2"/>
               </feComponentTransfer>
               <feMerge>
                 <feMergeNode/>
@@ -1911,17 +1942,25 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
             </filter>
           </defs>
           
-          <!-- Fondo blanco con sombra elegante -->
-          <rect x="14" y="14" width="${qrSize}" height="${qrSize}" 
-                fill="#ffffff" rx="8" filter="url(#qrShadow)"/>
+          <!-- Marco exterior elegante con gradiente -->
+          <rect x="0" y="0" width="${qrFrameSize}" height="${qrFrameSize}" 
+                fill="url(#qrFrameGrad)" rx="12" filter="url(#qrShadow)"/>
           
-          <!-- Borde sutil y refinado -->
-          <rect x="12" y="12" width="${qrSize + 4}" height="${qrSize + 4}" 
-                fill="none" stroke="#e5e5e5" stroke-width="1" rx="10"/>
+          <!-- Highlight superior metálico -->
+          <line x1="18" y1="6" x2="${qrFrameSize - 18}" y2="6" 
+                stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+          
+          <!-- Fondo blanco para el QR -->
+          <rect x="8" y="8" width="${qrSize + 20}" height="${qrSize + 20}" 
+                fill="#ffffff" rx="8"/>
+          
+          <!-- Borde interno sutil -->
+          <rect x="8" y="8" width="${qrSize + 20}" height="${qrSize + 20}" 
+                fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="1" rx="8"/>
         </svg>`
       );
       
-      // Componer QR con su marco premium
+      // Componer QR con su marco editorial premium
       const qrWithFrame = await sharp({
         create: {
           width: qrFrameSize,
@@ -1938,21 +1977,21 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
         },
         {
           input: qrBuffer,
-          top: 10,
-          left: 10
+          top: 18,
+          left: 18
         }
       ])
-      .png()
+      .png({ quality: 95 })
       .toBuffer();
       
       // Agregar el QR con marco a las composiciones
       composites.push({
         input: qrWithFrame,
-        top: qrY - 10, // Ajustar por el padding del marco
-        left: qrX - 10
+        top: Math.round(qrY - 18), // Ajustar por el padding del marco
+        left: qrX - 18
       });
       
-      console.log('[PLACAS VIP] Código QR generado para URL:', qrUrl);
+      console.log('[PLACAS VIP] Código QR premium generado para URL:', qrUrl);
     } catch (qrError) {
       console.error('[PLACAS VIP] Error generando código QR:', qrError);
       // Continuar sin el QR si hay error
@@ -2013,16 +2052,16 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   const contacto = esc(propertyInfo.contacto || '');
   const url = esc(propertyInfo.url || 'www.rialtor.app');
   
-  // === SISTEMA DE LAYOUT VIP PREMIUM ===
-  // La foto del agente ocupa 180px + 40px padding = área izquierda de ~240px
-  // Área central para información: desde 240px hasta ~620px (donde empieza QR)
-  // QR ocupa área derecha: ~620px hasta 1080px
+  // === SISTEMA DE LAYOUT EDITORIAL PREMIUM ===
+  // - Agente: 210px + márgenes = área izquierda de ~285px
+  // - Info central: desde 285px hasta ~750px (465px de ancho)
+  // - QR: desde ~750px hasta borde derecho (~330px de área)
   
-  const agentAreaWidth = hasAgentPhoto ? 240 : 0;
-  const qrAreaWidth = 280; // Espacio reservado para el QR
-  const infoStartX = hasAgentPhoto ? 250 : 50;
+  const agentAreaWidth = hasAgentPhoto ? 285 : 0;
+  const qrAreaWidth = 330; // Espacio amplio para QR centrado
+  const infoStartX = hasAgentPhoto ? 285 : 55;
   const infoEndX = width - qrAreaWidth;
-  const infoWidth = infoEndX - infoStartX;
+  const infoWidth = infoEndX - infoStartX; // ~465px para información
   
   let svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
@@ -2031,94 +2070,104 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       /* === TIPOGRAFÍA VIP PREMIUM === */
       /* Fuentes: Playfair Display y Inter */
       
-      /* Labels superiores - elegante y sutil */
+      /* Labels superiores - elegante y refinado */
       .vip-label { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 12px; 
-        font-weight: 500; 
-        fill: #8a8a8a; 
-        letter-spacing: 2.5px; 
+        font-size: 11px; 
+        font-weight: 600; 
+        fill: #999999; 
+        letter-spacing: 3px; 
         text-transform: uppercase; 
       }
       
-      /* Tipo de propiedad - destacado pero elegante */
+      /* Tipo de propiedad - tipografía display */
       .vip-tipo { 
         font-family: 'Playfair Display', Georgia, serif; 
-        font-size: 26px; 
-        font-weight: 600; 
-        fill: #1a1a1a; 
-        letter-spacing: 0.5px;
+        font-size: 32px; 
+        font-weight: 700; 
+        fill: #0a0a0a; 
+        letter-spacing: 0px;
       }
       
-      /* Dirección - secundario pero legible */
+      /* Dirección - legible y profesional */
       .vip-direccion { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 15px; 
-        font-weight: 400; 
-        fill: #555555; 
-        letter-spacing: 0.3px;
+        font-size: 16px; 
+        font-weight: 500; 
+        fill: #4a4a4a; 
+        letter-spacing: 0.2px;
       }
       
-      /* Número de ambientes - hero typography */
+      /* Número de ambientes - hero display */
       .vip-ambientes-number { 
         font-family: 'Playfair Display', Georgia, serif; 
-        font-size: 72px; 
-        font-weight: 700; 
-        fill: #1a1a1a; 
-        letter-spacing: -2px; 
+        font-size: 80px; 
+        font-weight: 800; 
+        fill: #0a0a0a; 
+        letter-spacing: -3px; 
       }
       
-      /* Texto "ambientes" - complementario */
+      /* Texto "ambientes" - complementario refinado */
       .vip-ambientes-text { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 16px; 
-        font-weight: 400; 
-        fill: #666666; 
-        letter-spacing: 0.5px;
-      }
-      
-      /* Valores de características - bold pero limpio */
-      .vip-feature-value { 
-        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 22px; 
-        font-weight: 600; 
-        fill: #2a2a2a; 
-      }
-      
-      /* Labels de características - sutil */
-      .vip-feature-label { 
-        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 12px; 
-        font-weight: 400; 
-        fill: #888888; 
+        font-size: 18px; 
+        font-weight: 500; 
+        fill: #5a5a5a; 
         letter-spacing: 0.3px;
       }
       
-      /* Footer URL - profesional */
+      /* Valores de características - bold y claro */
+      .vip-feature-value { 
+        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
+        font-size: 26px; 
+        font-weight: 700; 
+        fill: #1a1a1a; 
+      }
+      
+      /* Labels de características - sutil pero legible */
+      .vip-feature-label { 
+        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
+        font-size: 13px; 
+        font-weight: 500; 
+        fill: #777777; 
+        letter-spacing: 0.2px;
+      }
+      
+      /* Footer URL - destacado */
       .vip-footer-url { 
+        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
+        font-size: 22px; 
+        font-weight: 700; 
+        fill: #1a1a1a; 
+        letter-spacing: 0.3px;
+      }
+      
+      /* Footer contacto principal */
+      .vip-footer-contact { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
         font-size: 16px; 
         font-weight: 600; 
-        fill: #333333; 
-        letter-spacing: 0.5px;
+        fill: #2a2a2a; 
+        letter-spacing: 0.2px;
       }
       
       /* Footer info secundaria */
       .vip-footer-info { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 13px; 
-        font-weight: 400; 
-        fill: #666666; 
-        letter-spacing: 0.3px;
+        font-size: 14px; 
+        font-weight: 500; 
+        fill: #5a5a5a; 
+        letter-spacing: 0.2px;
       }
       
-      /* Badge RIALTOR */
+      /* Badge RIALTOR premium */
       .vip-badge { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 11px; 
-        font-weight: 700; 
+        font-size: 13px; 
+        font-weight: 800; 
         fill: #ffffff; 
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
       }
     </style>
     
@@ -2153,21 +2202,26 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       <line x1="7" y1="17" x2="17" y2="17" stroke="currentColor" stroke-width="0.8"/>
     </symbol>
     
-    <!-- Gradientes premium -->
+    <!-- Gradientes editorial premium -->
     <linearGradient id="premiumContentGradient" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#fefefe;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#f8f8f8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fafafa;stop-opacity:1" />
     </linearGradient>
     
     <linearGradient id="footerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#f5f5f5;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#ebebeb;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#f8f8f8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#eeeeee;stop-opacity:1" />
     </linearGradient>
     
     <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#34495e;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#2d3748;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4a5568;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c9a227;stop-opacity:0.3" />
+      <stop offset="50%" style="stop-color:#d4af37;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#c9a227;stop-opacity:0.3" />
     </linearGradient>
     
     <!-- Sombras refinadas -->
@@ -2199,41 +2253,45 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   <!-- === ÁREA DE CONTENIDO PRINCIPAL === -->
   <rect x="0" y="${contentY}" width="${width}" height="${contentHeight}" fill="url(#premiumContentGradient)" />
   
-  <!-- Línea decorativa sutil superior -->
-  <line x1="0" y1="${contentY}" x2="${width}" y2="${contentY}" stroke="#e8e8e8" stroke-width="1" />
+  <!-- Línea decorativa superior con gradiente dorado -->
+  <rect x="0" y="${contentY}" width="${width}" height="3" fill="url(#goldAccent)" />
+  <line x1="0" y1="${contentY + 3}" x2="${width}" y2="${contentY + 3}" stroke="#e5e5e5" stroke-width="1" />
   
   <!-- === SECCIÓN DE INFORMACIÓN DE PROPIEDAD === -->\n`;
   
   // Posicionamiento vertical optimizado
-  let currentY = contentY + 35;
+  let currentY = contentY + 42;
   
-  // LABEL: "Propiedad" - más elegante
-  svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-label">Propiedad</text>\n`;
-  currentY += 30;
+  // LABEL: "Propiedad" - refinado
+  svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-label">PROPIEDAD EN VENTA</text>\n`;
+  currentY += 35;
   
-  // TIPO de propiedad - tipografía serif elegante
+  // TIPO de propiedad - tipografía display
   svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-tipo">${tipo}</text>\n`;
-  currentY += 28;
+  currentY += 32;
   
   // DIRECCIÓN - si existe
   if (direccion) {
     svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
-    currentY += 30;
+    currentY += 35;
   }
   
-  // Separador decorativo minimalista
-  svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 80}" y2="${currentY}" stroke="#d0d0d0" stroke-width="2" stroke-linecap="round" />\n`;
-  currentY += 35;
+  // Separador decorativo con toque dorado
+  svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 100}" y2="${currentY}" stroke="url(#goldAccent)" stroke-width="3" stroke-linecap="round" opacity="0.8" />\n`;
+  svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 100}" y2="${currentY}" stroke="#c9a227" stroke-width="1.5" stroke-linecap="round" />\n`;
+  currentY += 40;
   
-  // AMBIENTES - Hero typography con número grande
+  // AMBIENTES - Hero display con número grande y elegante
   if (ambientes) {
     svg += `  <g>\n`;
-    svg += `    <text x="${infoStartX}" y="${currentY + 40}" class="vip-ambientes-number">${ambientes}</text>\n`;
+    svg += `    <text x="${infoStartX}" y="${currentY + 50}" class="vip-ambientes-number">${ambientes}</text>\n`;
     // Calcular posición del texto "ambientes" basado en el ancho del número
-    const numWidth = ambientes.toString().length * 42;
-    svg += `    <text x="${infoStartX + numWidth + 8}" y="${currentY + 22}" class="vip-ambientes-text">ambientes</text>\n`;
+    const numWidth = ambientes.toString().length * 48;
+    svg += `    <text x="${infoStartX + numWidth + 12}" y="${currentY + 26}" class="vip-ambientes-text">AMBIENTES</text>\n`;
+    // Línea decorativa dorada debajo del número
+    svg += `    <line x1="${infoStartX}" y1="${currentY + 60}" x2="${infoStartX + numWidth - 5}" y2="${currentY + 60}" stroke="url(#goldAccent)" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
     svg += `  </g>\n`;
-    currentY += 70;
+    currentY += 80;
   }
   
   // === CARACTERÍSTICAS en grid de 2x2 ===
@@ -2245,13 +2303,13 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   if (cocheras) features.push({ icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' });
   
   if (features.length > 0) {
-    svg += `\n  <!-- Grid de características 2x2 -->\n`;
+    svg += `\n  <!-- Grid de características premium 2x2 -->\n`;
     
-    const iconSize = 24;
-    const featureColWidth = Math.min(180, (infoWidth - 20) / 2);
-    const featureRowHeight = 55;
+    const iconSize = 28;  // Iconos más grandes
+    const featureColWidth = Math.min(200, (infoWidth - 30) / 2);
+    const featureRowHeight = 65;  // Más espacio vertical
     const col1X = infoStartX;
-    const col2X = infoStartX + featureColWidth + 20;
+    const col2X = infoStartX + featureColWidth + 30;
     
     features.forEach((feature, index) => {
       if (index >= 4) return; // Máximo 4 características visibles
@@ -2262,48 +2320,63 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       const featureY = currentY + (row * featureRowHeight);
       
       // Verificar que no se salga del área
-      if (featureY + 40 > footerY - 15) return;
+      if (featureY + 50 > footerY - 20) return;
       
-      svg += `  <g style="color: #666666">\n`;
+      // Fondo sutil para cada característica
+      svg += `  <rect x="${featureX - 6}" y="${featureY - 6}" width="${featureColWidth - 10}" height="58" rx="8" fill="#ffffff" opacity="0.7" />\n`;
+      svg += `  <rect x="${featureX - 6}" y="${featureY - 6}" width="${featureColWidth - 10}" height="58" rx="8" fill="none" stroke="#e8e8e8" stroke-width="1" />\n`;
+      
+      svg += `  <g style="color: #5a5a5a">\n`;
       svg += `    <svg x="${featureX}" y="${featureY}" width="${iconSize}" height="${iconSize}">\n`;
       svg += `      <use href="#${feature.icon}" />\n`;
       svg += `    </svg>\n`;
-      svg += `    <text x="${featureX + iconSize + 10}" y="${featureY + 17}" class="vip-feature-value">${feature.value}<tspan style="font-size: 14px; font-weight: 400;"> ${feature.unit}</tspan></text>\n`;
-      svg += `    <text x="${featureX + iconSize + 10}" y="${featureY + 34}" class="vip-feature-label">${feature.label}</text>\n`;
+      svg += `    <text x="${featureX + iconSize + 12}" y="${featureY + 20}" class="vip-feature-value">${feature.value}<tspan style="font-size: 16px; font-weight: 500; fill: #777777;"> ${feature.unit}</tspan></text>\n`;
+      svg += `    <text x="${featureX + iconSize + 12}" y="${featureY + 38}" class="vip-feature-label">${feature.label}</text>\n`;
       svg += `  </g>\n`;
     });
   }
   
-  // === FOOTER PREMIUM ===
-  svg += `\n  <!-- Footer VIP Premium -->\n`;
+  // === FOOTER EDITORIAL PREMIUM ===
+  svg += `\n  <!-- Footer VIP Editorial Premium -->\n`;
   
-  // Línea separadora elegante
-  svg += `  <line x1="30" y1="${footerY}" x2="${width - 30}" y2="${footerY}" stroke="#e0e0e0" stroke-width="1" />\n`;
+  // Separador superior con gradiente dorado
+  svg += `  <rect x="0" y="${footerY}" width="${width}" height="2" fill="url(#goldAccent)" />\n`;
+  svg += `  <line x1="50" y1="${footerY + 2}" x2="${width - 50}" y2="${footerY + 2}" stroke="#d5d5d5" stroke-width="1" />\n`;
   
-  // Fondo del footer
-  svg += `  <rect x="0" y="${footerY + 1}" width="${width}" height="${footerHeight - 1}" fill="url(#footerGradient)" />\n`;
+  // Fondo del footer con textura
+  svg += `  <rect x="0" y="${footerY + 3}" width="${width}" height="${footerHeight - 3}" fill="url(#footerGradient)" />\n`;
   
-  const footerCenterY = footerY + (footerHeight / 2);
+  const footerTop = footerY + 28;
+  const footerMid = footerY + 65;
+  const footerBottom = footerY + 100;
   
-  // Badge RIALTOR elegante a la izquierda
-  svg += `  <g filter="url(#shadowSoft)">\n`;
-  svg += `    <rect x="25" y="${footerY + 17}" width="110" height="36" rx="18" fill="url(#accentGradient)" />\n`;
-  svg += `    <text x="80" y="${footerCenterY + 5}" text-anchor="middle" class="vip-badge">RIALTOR</text>\n`;
+  // Badge RIALTOR premium a la izquierda
+  svg += `  <g filter="url(#shadowMedium)">\n`;
+  svg += `    <rect x="45" y="${footerY + 28}" width="140" height="46" rx="23" fill="url(#accentGradient)" />\n`;
+  svg += `    <rect x="45" y="${footerY + 28}" width="140" height="46" rx="23" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" />\n`;
+  svg += `    <text x="115" y="${footerY + 58}" text-anchor="middle" class="vip-badge">RIALTOR</text>\n`;
   svg += `  </g>\n`;
   
-  // URL principal centrada
-  svg += `  <text x="${width/2}" y="${footerCenterY - 2}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+  // Contenedor central para URL y contacto
+  const centerX = width / 2;
   
-  // Información del corredor/contacto debajo
-  if (corredores || contacto) {
-    let infoText = '';
-    if (corredores && contacto) {
-      infoText = `${corredores}  ·  ${contacto}`;
-    } else {
-      infoText = corredores || contacto;
-    }
-    svg += `  <text x="${width/2}" y="${footerCenterY + 18}" text-anchor="middle" class="vip-footer-info">${infoText}</text>\n`;
+  // URL principal - destacada
+  svg += `  <text x="${centerX}" y="${footerTop + 12}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
+  
+  // Información del corredor/contacto
+  if (corredores) {
+    svg += `  <text x="${centerX}" y="${footerMid}" text-anchor="middle" class="vip-footer-contact">${corredores}</text>\n`;
   }
+  
+  if (contacto) {
+    const contactY = corredores ? footerBottom - 10 : footerMid;
+    svg += `  <text x="${centerX}" y="${contactY}" text-anchor="middle" class="vip-footer-info">${contacto}</text>\n`;
+  }
+  
+  // Logo o texto decorativo a la derecha
+  svg += `  <g opacity="0.15">\n`;
+  svg += `    <text x="${width - 55}" y="${footerY + 58}" text-anchor="end" style="font-family: 'Playfair Display', Georgia, serif; font-size: 48px; font-weight: 700; fill: #2d3748; letter-spacing: -1px;">VIP</text>\n`;
+  svg += `  </g>\n`;
   
   svg += `</svg>`;
   
