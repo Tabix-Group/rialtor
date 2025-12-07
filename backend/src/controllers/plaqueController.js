@@ -2333,15 +2333,15 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   if (direccion) {
     // Calcular ancho aproximado del tipo (Playfair Display 30px, bold, serif)
-    // Aproximación: ~19px por carácter para fuente serif bold de 30px
-    const tipoWidth = tipo.length * 19;
-    const separatorX = infoStartX + tipoWidth + 20;
+    // Usar cálculo muy generoso para evitar superposición
+    const tipoWidth = tipo.length * 21; // Ajustado a 21px por carácter
+    const separatorX = infoStartX + tipoWidth + 30; // Margen de 30px
     
     // Separador vertical entre tipo y dirección
     svg += `  <line x1="${separatorX}" y1="${currentY - 20}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
     
     // Dirección a la derecha del separador
-    svg += `  <text x="${separatorX + 20}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
+    svg += `  <text x="${separatorX + 30}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
   }
   
   currentY += 28;
@@ -2374,9 +2374,16 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   if (banos) features.push({ icon: 'icon-bath', value: banos, unit: '', label: banos === '1' ? 'baño' : 'baños' });
   
   // Calcular posiciones de columnas para características
+  // Ajustar para que las tarjetas ocupen el mismo alto que el agente (265px)
   const iconSize = 26;
   const featureColWidth = Math.min(210, (infoWidth - 25) / 2);
-  const featureRowHeight = 60;
+  
+  // Calcular altura disponible desde currentY hasta footerY - 25px (donde termina el agente)
+  const availableHeight = (footerY - 25) - currentY;
+  // Si tenemos 4 features en 2 filas, calcular spacing para distribuir uniformemente
+  const numRows = Math.ceil(features.length / 2);
+  const featureRowHeight = numRows > 0 ? (availableHeight - 52) / numRows : 60; // 52px es la altura de cada card
+  
   const col1X = infoStartX;
   const col2X = infoStartX + featureColWidth + 25;
   
