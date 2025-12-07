@@ -1751,7 +1751,8 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const agentWidth = 200;   // Ancho balanceado
     const agentHeight = 265;  // Alto proporcional 3:4
     const agentX = 50;        // Margen izquierdo elegante
-    const agentY = contentY + 30; // Margen superior reducido (antes 45)
+    // Alinear bottom del agente con el área de características
+    const agentY = footerY - agentHeight - 25; // 25px de margen antes del footer
     
     let agentProcessed = null;
     if (agentImageBuffer) {
@@ -1960,9 +1961,10 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     // Capa 6: Código QR con diseño limpio y profesional
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
     const qrSize = 165; // Tamaño óptimo
+    const qrFrameSize = qrSize + 32; // Marco incluido
     const qrX = width - qrSize - 70; // Posición desde el borde derecho
-    // Centrado vertical en el área de contenido
-    const qrY = contentY + ((contentHeight - qrSize) / 2);
+    // Alinear bottom del QR con el agente y características
+    const qrY = footerY - qrFrameSize - 25; // Alineado con agente
     
     try {
       // Generar código QR de alta calidad
@@ -1977,7 +1979,6 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       });
       
       // Marco limpio y minimalista para el QR
-      const qrFrameSize = qrSize + 32;
       const qrFrame = Buffer.from(
         `<svg width="${qrFrameSize}" height="${qrFrameSize}">
           <defs>
@@ -2327,19 +2328,26 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-label">PROPIEDAD</text>\n`;
   currentY += 32;
   
-  // TIPO de propiedad
+  // TIPO de propiedad y DIRECCIÓN en la misma línea
   svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-tipo">${tipo}</text>\n`;
-  currentY += 30;
   
-  // DIRECCIÓN - si existe
   if (direccion) {
-    svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
-    currentY += 32;
+    // Calcular ancho aproximado del tipo
+    const tipoWidth = tipo.length * 14; // Aproximación para font-size 30px
+    const separatorX = infoStartX + tipoWidth + 18;
+    
+    // Separador vertical entre tipo y dirección
+    svg += `  <line x1="${separatorX}" y1="${currentY - 20}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
+    
+    // Dirección a la derecha del separador
+    svg += `  <text x="${separatorX + 18}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
   }
+  
+  currentY += 28;
   
   // Separador minimalista celeste
   svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 80}" y2="${currentY}" stroke="#a8c5dd" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />\n`;
-  currentY += 38;
+  currentY += 32;
   
   // AMBIENTES - Hero display con número grande
   if (ambientes) {
@@ -2364,34 +2372,33 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   if (dormitorios) features.push({ icon: 'icon-bed', value: dormitorios, unit: '', label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
   if (banos) features.push({ icon: 'icon-bath', value: banos, unit: '', label: banos === '1' ? 'baño' : 'baños' });
   
-  // Renderizar COCHERA a la derecha de ambientes si existe
+  // Calcular posiciones de columnas para características
+  const iconSize = 26;
+  const featureColWidth = Math.min(210, (infoWidth - 25) / 2);
+  const featureRowHeight = 60;
+  const col1X = infoStartX;
+  const col2X = infoStartX + featureColWidth + 25;
+  
+  // Renderizar COCHERA alineada con la segunda columna (col2X)
   if (cocheraCard) {
     const cocheraStartY = currentY - 75; // Alineada con el final de ambientes
-    const cocheraX = infoStartX + 280; // A la derecha de ambientes
-    const cocheraWidth = 180;
-    const iconSize = 26;
+    const cocheraWidth = featureColWidth - 12;
     
-    svg += `\n  <!-- Cochera - Posicionada a la derecha de ambientes -->\n`;
-    svg += `  <rect x="${cocheraX - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="#f5f9fc" opacity="0.8" />\n`;
-    svg += `  <rect x="${cocheraX - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
+    svg += `\n  <!-- Cochera - Alineada con segunda columna -->\n`;
+    svg += `  <rect x="${col2X - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="#f5f9fc" opacity="0.8" />\n`;
+    svg += `  <rect x="${col2X - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
     
     svg += `  <g style="color: #6b8299">\n`;
-    svg += `    <svg x="${cocheraX}" y="${cocheraStartY}" width="${iconSize}" height="${iconSize}">\n`;
+    svg += `    <svg x="${col2X}" y="${cocheraStartY}" width="${iconSize}" height="${iconSize}">\n`;
     svg += `      <use href="#${cocheraCard.icon}" />\n`;
     svg += `    </svg>\n`;
-    svg += `    <text x="${cocheraX + iconSize + 10}" y="${cocheraStartY + 18}" class="vip-feature-value">${cocheraCard.value}<tspan style="font-size: 15px; font-weight: 500; fill: #8197ab;"> ${cocheraCard.unit}</tspan></text>\n`;
-    svg += `    <text x="${cocheraX + iconSize + 10}" y="${cocheraStartY + 36}" class="vip-feature-label">${cocheraCard.label}</text>\n`;
+    svg += `    <text x="${col2X + iconSize + 10}" y="${cocheraStartY + 18}" class="vip-feature-value">${cocheraCard.value}<tspan style="font-size: 15px; font-weight: 500; fill: #8197ab;"> ${cocheraCard.unit}</tspan></text>\n`;
+    svg += `    <text x="${col2X + iconSize + 10}" y="${cocheraStartY + 36}" class="vip-feature-label">${cocheraCard.label}</text>\n`;
     svg += `  </g>\n`;
   }
   
   if (features.length > 0) {
     svg += `\n  <!-- Grid de características (metros, dormitorios, baños) -->\n`;
-    
-    const iconSize = 26;
-    const featureColWidth = Math.min(210, (infoWidth - 25) / 2);
-    const featureRowHeight = 60;
-    const col1X = infoStartX;
-    const col2X = infoStartX + featureColWidth + 25;
     
     features.forEach((feature, index) => {
       if (index >= 4) return; // Máximo 4 características
