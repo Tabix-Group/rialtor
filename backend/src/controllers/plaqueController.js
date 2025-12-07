@@ -1,4 +1,4 @@
-require('dotenv').config();
+                                                                                                  require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const OpenAI = require('openai');
 const cloudinary = require('../cloudinary');
@@ -1585,17 +1585,17 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     console.log('[PLACAS VIP] Creando placa VIP premium con diseño editorial');
     
     // === SISTEMA DE PROPORCIÓN ÓPTIMA ===
-    const exteriorHeight = 600;        // 55.5% - Hero principal más balanceado
-    const contentHeight = 360;         // 33.3% - Más espacio para información
-    const footerHeight = 120;          // 11.1% - Footer más compacto y elegante
+    const exteriorHeight = 588;        // Altura interna (sin borde inferior)
+    const contentHeight = 380;         // Más espacio para información
+    const footerHeight = 112;          // Footer más compacto
     
-    const contentY = exteriorHeight;
+    const contentY = exteriorHeight + 12; // +12px del borde superior
     const footerY = contentY + contentHeight;
     
-    // 1. Imagen EXTERIOR con BORDE BLANCO - Hero principal con tratamiento profesional
-    const borderSize = 12; // Borde blanco de 12px alrededor
+    // 1. Imagen EXTERIOR con BORDE BLANCO SOLO ARRIBA Y LATERALES
+    const borderSize = 12; // Borde blanco de 12px en top, left, right
     const exteriorInnerWidth = width - (borderSize * 2);
-    const exteriorInnerHeight = exteriorHeight - (borderSize * 2);
+    const exteriorInnerHeight = exteriorHeight; // Sin restar borde inferior
     
     // Procesar imagen exterior
     const exteriorImg = await sharp(exteriorImageBuffer)
@@ -1612,22 +1612,24 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .png({ quality: 95 })
       .toBuffer();
     
-    // Crear canvas con borde blanco
-    const exteriorProcessed = await sharp({
+    // Crear canvas con borde blanco solo arriba y laterales (NO abajo)
+    const exteriorWithBorder = await sharp({
       create: {
         width: width,
-        height: exteriorHeight,
+        height: exteriorHeight + borderSize, // +12px solo para borde superior
         channels: 4,
         background: { r: 255, g: 255, b: 255, alpha: 1 } // Fondo blanco
       }
     })
     .composite([{
       input: exteriorImg,
-      top: borderSize,
-      left: borderSize
+      top: borderSize,  // Borde superior
+      left: borderSize  // Borde izquierdo
     }])
     .png({ quality: 95 })
     .toBuffer();
+    
+    const exteriorProcessed = exteriorWithBorder;
     
     // 2. Imagen INTERIOR circular premium con borde dorado refinado
     const interiorCircleSize = 190; // Tamaño más balanceado
@@ -1749,7 +1751,7 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const agentWidth = 200;   // Ancho balanceado
     const agentHeight = 265;  // Alto proporcional 3:4
     const agentX = 50;        // Margen izquierdo elegante
-    const agentY = contentY + 45; // Margen superior del área de contenido
+    const agentY = contentY + 30; // Margen superior reducido (antes 45)
     
     let agentProcessed = null;
     if (agentImageBuffer) {
@@ -2352,16 +2354,38 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
     currentY += 75;
   }
   
-  // === CARACTERÍSTICAS en grid de 2x2 ===
+  // === CARACTERÍSTICAS - Cochera especial + grid 2x2 ===
+  // Cochera va a la derecha de ambientes, alineada con las otras características
+  const cocheraCard = cocheras ? { icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' } : null;
+  
   const features = [];
   if (m2_totales) features.push({ icon: 'icon-area', value: `${m2_totales}`, unit: 'm²', label: 'totales' });
   if (m2_cubiertos) features.push({ icon: 'icon-covered', value: `${m2_cubiertos}`, unit: 'm²', label: 'cubiertos' });
   if (dormitorios) features.push({ icon: 'icon-bed', value: dormitorios, unit: '', label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
   if (banos) features.push({ icon: 'icon-bath', value: banos, unit: '', label: banos === '1' ? 'baño' : 'baños' });
-  if (cocheras) features.push({ icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' });
+  
+  // Renderizar COCHERA a la derecha de ambientes si existe
+  if (cocheraCard) {
+    const cocheraStartY = currentY - 75; // Alineada con el final de ambientes
+    const cocheraX = infoStartX + 280; // A la derecha de ambientes
+    const cocheraWidth = 180;
+    const iconSize = 26;
+    
+    svg += `\n  <!-- Cochera - Posicionada a la derecha de ambientes -->\n`;
+    svg += `  <rect x="${cocheraX - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="#f5f9fc" opacity="0.8" />\n`;
+    svg += `  <rect x="${cocheraX - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
+    
+    svg += `  <g style="color: #6b8299">\n`;
+    svg += `    <svg x="${cocheraX}" y="${cocheraStartY}" width="${iconSize}" height="${iconSize}">\n`;
+    svg += `      <use href="#${cocheraCard.icon}" />\n`;
+    svg += `    </svg>\n`;
+    svg += `    <text x="${cocheraX + iconSize + 10}" y="${cocheraStartY + 18}" class="vip-feature-value">${cocheraCard.value}<tspan style="font-size: 15px; font-weight: 500; fill: #8197ab;"> ${cocheraCard.unit}</tspan></text>\n`;
+    svg += `    <text x="${cocheraX + iconSize + 10}" y="${cocheraStartY + 36}" class="vip-feature-label">${cocheraCard.label}</text>\n`;
+    svg += `  </g>\n`;
+  }
   
   if (features.length > 0) {
-    svg += `\n  <!-- Grid de características 2x2 -->\n`;
+    svg += `\n  <!-- Grid de características (metros, dormitorios, baños) -->\n`;
     
     const iconSize = 26;
     const featureColWidth = Math.min(210, (infoWidth - 25) / 2);
@@ -2409,15 +2433,15 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   // Badge RIALTOR premium a la izquierda - más compacto
   svg += `  <g filter="url(#shadowMedium)">\n`;
-  svg += `    <rect x="50" y="${footerY + 32}" width="130" height="40" rx="20" fill="url(#accentGradient)" />\n`;
-  svg += `    <rect x="50" y="${footerY + 32}" width="130" height="40" rx="20" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />\n`;
-  svg += `    <line x1="65" y1="${footerY + 36}" x2="165" y2="${footerY + 36}" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-linecap="round" />\n`;
-  svg += `    <text x="115" y="${footerY + 58}" text-anchor="middle" class="vip-badge">RIALTOR</text>\n`;
+  svg += `    <rect x="50" y="${footerY + 22}" width="130" height="40" rx="20" fill="url(#accentGradient)" />\n`;
+  svg += `    <rect x="50" y="${footerY + 22}" width="130" height="40" rx="20" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" />\n`;
+  svg += `    <line x1="65" y1="${footerY + 26}" x2="165" y2="${footerY + 26}" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-linecap="round" />\n`;
+  svg += `    <text x="115" y="${footerY + 48}" text-anchor="middle" class="vip-badge">RIALTOR</text>\n`;
   svg += `  </g>\n`;
   
-  // Sección central - información de contacto en dos líneas
-  const lineHeight = 24;
-  let currentLineY = footerY + 42;
+  // Sección central - información de contacto en dos líneas (más compacto)
+  const lineHeight = 22;
+  let currentLineY = footerY + 32;
   
   // URL principal - primera línea
   svg += `  <text x="${centerX}" y="${currentLineY}" text-anchor="middle" class="vip-footer-url">${url}</text>\n`;
