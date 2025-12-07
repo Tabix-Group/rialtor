@@ -198,33 +198,16 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo, mo
     console.log('[PLACAS] Iniciando procesamiento de imágenes para placa:', plaqueId);
     console.log('[PLACAS] Modelo:', modelType);
 
-    // Actualizar estado inicial
-    await prisma.propertyPlaque.update({
-      where: { id: plaqueId },
-      data: {
-        status: 'GENERATING'
-      }
-    });
-
     let result;
 
     // Delegar al controlador específico según el tipo de modelo
+    // Cada controlador se encarga de actualizar la BD
     if (modelType === 'vip') {
       result = await processVIPPlaque(plaqueId, files, propertyInfo);
     } else {
       // standard o premium
       result = await processStandardAndPremiumPlaques(plaqueId, files, propertyInfo, modelType);
     }
-
-    // Actualizar el registro con las imágenes generadas
-    await prisma.propertyPlaque.update({
-      where: { id: plaqueId },
-      data: {
-        originalImages: JSON.stringify(result.originalImageUrls || []),
-        generatedImages: JSON.stringify(result.generatedImages || []),
-        status: 'COMPLETED'
-      }
-    });
 
     console.log('[PLACAS] Procesamiento completado exitosamente');
     return result;
@@ -241,6 +224,91 @@ async function processImagesAndGeneratePlaques(plaqueId, files, propertyInfo, mo
       }
     }).catch(console.error);
     
+    throw error;
+  }
+}
+
+/**
+ * Procesar placas standard y premium
+ */
+async function processStandardAndPremiumPlaques(plaqueId, files, propertyInfo, modelType) {
+  try {
+    console.log(`[PLACAS ${modelType.toUpperCase()}] Iniciando procesamiento:`, plaqueId);
+    
+    // 1. Subir imágenes originales a Cloudinary
+    const originalImageUrls = [];
+    const imageFiles = files.images || [];
+    
+    for (const file of imageFiles) {
+      console.log('[PLACAS] Subiendo imagen a Cloudinary...');
+      const result = await uploadImageToCloudinary(file.buffer, `placas/originales/${plaqueId}`);
+      originalImageUrls.push(result.secure_url);
+      console.log('[PLACAS] Imagen subida:', result.secure_url);
+    }
+
+    console.log('[PLACAS] Imágenes originales subidas:', originalImageUrls.length);
+
+    // 2. Actualizar registro con URLs originales
+    await prisma.propertyPlaque.update({
+      where: { id: plaqueId },
+      data: {
+        originalImages: JSON.stringify(originalImageUrls),
+        status: 'GENERATING'
+      }
+    });
+
+    console.log('[PLACAS] Estado actualizado a GENERATING');
+
+    // 3. Generar placas usando el overlay
+    const generatedImageUrls = [];
+
+    for (let i = 0; i < originalImageUrls.length; i++) {
+      const originalUrl = originalImageUrls[i];
+      console.log(`[PLACAS] Procesando imagen ${i + 1}/${originalImageUrls.length}: ${originalUrl}`);
+
+      try {
+        const imageAnalysis = {
+          ubicacion_texto: null,
+          colores: null,
+          tipo: null
+        };
+
+        console.log('[PLACAS] Generando overlay...');
+        const plaqueImageBuffer = await createPlaqueOverlay(originalUrl, propertyInfo, imageAnalysis, null, modelType);
+        console.log('[PLACAS] Overlay generado, tamaño del buffer:', plaqueImageBuffer.length);
+
+        console.log('[PLACAS] Subiendo placa final a Cloudinary...');
+        const folder = 'placas/generadas';
+        const filename = `${Date.now()}_placa`;
+        const result = await uploadBufferToCloudinary(plaqueImageBuffer, folder, filename);
+        generatedImageUrls.push(result.secure_url);
+        console.log('[PLACAS] Placa final subida a:', result.secure_url);
+
+      } catch (err) {
+        console.error(`[PLACAS] Error generando placa para imagen ${i + 1}:`, err && err.message ? err.message : err);
+      }
+    }
+
+    console.log('[PLACAS] Total de placas generadas:', generatedImageUrls.length);
+
+    // 4. Actualizar el registro con las imágenes generadas y marcar como COMPLETED
+    await prisma.propertyPlaque.update({
+      where: { id: plaqueId },
+      data: {
+        generatedImages: JSON.stringify(generatedImageUrls),
+        status: 'COMPLETED'
+      }
+    });
+
+    console.log(`[PLACAS ${modelType.toUpperCase()}] Procesamiento completado. Placas generadas:`, generatedImageUrls.length);
+    
+    return {
+      originalImageUrls,
+      generatedImages: generatedImageUrls
+    };
+
+  } catch (error) {
+    console.error(`[PLACAS ${modelType.toUpperCase()}] Error en procesamiento:`, error);
     throw error;
   }
 }
@@ -344,7 +412,8 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
         console.log('[PLACAS VIP] Placa final subida a:', result.secure_url);
         
         // Actualizar registro con placa generada
-        await prisma.propertyPlaque.update({
+        console.log('[PLACAS VIP] Actualizando registro en BD con plaqueId:', plaqueId);
+        const updatedPlaque = await prisma.propertyPlaque.update({
           where: { id: plaqueId },
           data: {
             generatedImages: JSON.stringify([result.secure_url]),
@@ -352,6 +421,7 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
           }
         });
         
+        console.log('[PLACAS VIP] Registro actualizado exitosamente. Status:', updatedPlaque.status);
         console.log('[PLACAS VIP] Procesamiento completado exitosamente');
         return [result.secure_url];
         
@@ -379,7 +449,8 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
     console.log('[PLACAS VIP] Placa final subida a:', result.secure_url);
     
     // 5. Actualizar registro con placa generada
-    await prisma.propertyPlaque.update({
+    console.log('[PLACAS VIP] Actualizando registro en BD con plaqueId:', plaqueId);
+    const updatedPlaque = await prisma.propertyPlaque.update({
       where: { id: plaqueId },
       data: {
         generatedImages: JSON.stringify([result.secure_url]),
@@ -387,6 +458,7 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
       }
     });
     
+    console.log('[PLACAS VIP] Registro actualizado exitosamente. Status:', updatedPlaque.status);
     console.log('[PLACAS VIP] Procesamiento completado exitosamente');
     return [result.secure_url];
     
