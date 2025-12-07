@@ -2332,15 +2332,16 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-tipo">${tipo}</text>\n`;
   
   if (direccion) {
-    // Calcular ancho aproximado del tipo
-    const tipoWidth = tipo.length * 14; // Aproximación para font-size 30px
-    const separatorX = infoStartX + tipoWidth + 18;
+    // Calcular ancho aproximado del tipo (Playfair Display 30px, bold, serif)
+    // Aproximación: ~19px por carácter para fuente serif bold de 30px
+    const tipoWidth = tipo.length * 19;
+    const separatorX = infoStartX + tipoWidth + 20;
     
     // Separador vertical entre tipo y dirección
     svg += `  <line x1="${separatorX}" y1="${currentY - 20}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
     
     // Dirección a la derecha del separador
-    svg += `  <text x="${separatorX + 18}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
+    svg += `  <text x="${separatorX + 20}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
   }
   
   currentY += 28;
