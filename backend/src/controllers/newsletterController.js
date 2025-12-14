@@ -97,9 +97,18 @@ const createNewsletter = async (req, res, next) => {
       }
     });
 
+    // Parsear campos JSON para la respuesta
+    const parsedNewsletter = {
+      ...newsletter,
+      images: JSON.parse(newsletter.images || '[]'),
+      properties: newsletter.properties ? JSON.parse(newsletter.properties) : null,
+      news: newsletter.news ? JSON.parse(newsletter.news) : null,
+      agentInfo: newsletter.agentInfo ? JSON.parse(newsletter.agentInfo) : null
+    };
+
     res.status(201).json({
       message: 'Newsletter creada exitosamente',
-      newsletter
+      newsletter: parsedNewsletter
     });
   } catch (error) {
     console.error('Error creando newsletter:', error);
@@ -224,8 +233,8 @@ const updateNewsletter = async (req, res, next) => {
 
     // Subir nuevas imágenes si existen
     let imageUrls = JSON.parse(existingNewsletter.images || '[]');
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+    if (req.files && req.files['images']) {
+      for (const file of req.files['images']) {
         try {
           const result = await cloudinary.uploader.upload(file.buffer, {
             folder: 'newsletters',
@@ -238,6 +247,32 @@ const updateNewsletter = async (req, res, next) => {
       }
     }
 
+    // Subir foto del agente si existe
+    let agentPhotoUrl = null;
+    if (req.files && req.files['agentPhoto'] && req.files['agentPhoto'].length > 0) {
+      try {
+        const result = await cloudinary.uploader.upload(req.files['agentPhoto'][0].buffer, {
+          folder: 'newsletters/agents',
+          resource_type: 'image',
+          transformation: [
+            { width: 300, height: 300, crop: 'fill', gravity: 'face' },
+            { quality: 'auto', fetch_format: 'auto' }
+          ]
+        });
+        agentPhotoUrl = result.secure_url;
+      } catch (uploadError) {
+        console.error('Error uploading agent photo:', uploadError);
+      }
+    }
+
+    // Parsear y actualizar agentInfo
+    let updatedAgentInfo = agentInfo !== undefined ? agentInfo : existingNewsletter.agentInfo;
+    if (updatedAgentInfo && agentPhotoUrl) {
+      const parsedInfo = typeof updatedAgentInfo === 'string' ? JSON.parse(updatedAgentInfo) : updatedAgentInfo;
+      parsedInfo.photo = agentPhotoUrl;
+      updatedAgentInfo = JSON.stringify(parsedInfo);
+    }
+
     // Actualizar newsletter
     const updatedNewsletter = await prisma.newsletter.update({
       where: { id },
@@ -247,7 +282,7 @@ const updateNewsletter = async (req, res, next) => {
         images: JSON.stringify(imageUrls),
         properties: properties !== undefined ? properties : existingNewsletter.properties,
         news: news !== undefined ? news : existingNewsletter.news,
-        agentInfo: agentInfo !== undefined ? agentInfo : existingNewsletter.agentInfo,
+        agentInfo: updatedAgentInfo,
         template: template || existingNewsletter.template,
         status: status || existingNewsletter.status
       }
