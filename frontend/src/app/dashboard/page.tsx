@@ -38,6 +38,8 @@ import {
   Video,
   DollarSign,
   Building2,
+  Mail,
+  Send,
 } from "lucide-react"
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
@@ -409,6 +411,14 @@ export default function DashboardPage() {
       href: "/finanzas",
       badge: "Finanzas",
       stats: "Control total",
+    },
+    {
+      title: "Newsletter Marketing",
+      description: "Crea newsletters profesionales con plantillas premium, contenido dinámico y exportación a PDF de alta calidad.",
+      icon: Send,
+      href: "/newsletter",
+      badge: "Marketing Pro",
+      stats: "Plantillas premium",
     },
   ]
 

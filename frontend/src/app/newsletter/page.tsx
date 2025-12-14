@@ -476,8 +476,12 @@ export default function NewsletterPage() {
       agentEmail: newsletter.agentInfo?.email || '',
       agentPhone: newsletter.agentInfo?.phone || '',
       agency: newsletter.agentInfo?.agency || '',
-      agentBio: newsletter.agentInfo?.bio || ''
+      agentBio: newsletter.agentInfo?.bio || '',
+      agentPhoto: newsletter.agentInfo?.photo || ''
     });
+    if (newsletter.agentInfo?.photo) {
+      setAgentPhotoPreview(newsletter.agentInfo.photo);
+    }
     setSelectedNews(newsletter.news || []);
     setSelectedProperties(newsletter.properties || []);
     setSelectedImages([]);
