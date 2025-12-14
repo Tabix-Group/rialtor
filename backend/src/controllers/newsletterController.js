@@ -45,7 +45,11 @@ const createNewsletter = async (req, res, next) => {
     if (req.files && req.files['images']) {
       for (const file of req.files['images']) {
         try {
-          const result = await cloudinary.uploader.upload(file.buffer, {
+          // Convertir buffer a base64 data URI
+          const b64 = Buffer.from(file.buffer).toString('base64');
+          const dataURI = `data:${file.mimetype};base64,${b64}`;
+          
+          const result = await cloudinary.uploader.upload(dataURI, {
             folder: 'newsletters',
             resource_type: 'image'
           });
@@ -60,7 +64,12 @@ const createNewsletter = async (req, res, next) => {
     let agentPhotoUrl = null;
     if (req.files && req.files['agentPhoto'] && req.files['agentPhoto'].length > 0) {
       try {
-        const result = await cloudinary.uploader.upload(req.files['agentPhoto'][0].buffer, {
+        // Convertir buffer a base64 data URI
+        const file = req.files['agentPhoto'][0];
+        const b64 = Buffer.from(file.buffer).toString('base64');
+        const dataURI = `data:${file.mimetype};base64,${b64}`;
+        
+        const result = await cloudinary.uploader.upload(dataURI, {
           folder: 'newsletters/agents',
           resource_type: 'image',
           transformation: [
@@ -236,7 +245,11 @@ const updateNewsletter = async (req, res, next) => {
     if (req.files && req.files['images']) {
       for (const file of req.files['images']) {
         try {
-          const result = await cloudinary.uploader.upload(file.buffer, {
+          // Convertir buffer a base64 data URI
+          const b64 = Buffer.from(file.buffer).toString('base64');
+          const dataURI = `data:${file.mimetype};base64,${b64}`;
+          
+          const result = await cloudinary.uploader.upload(dataURI, {
             folder: 'newsletters',
             resource_type: 'image'
           });
@@ -251,7 +264,12 @@ const updateNewsletter = async (req, res, next) => {
     let agentPhotoUrl = null;
     if (req.files && req.files['agentPhoto'] && req.files['agentPhoto'].length > 0) {
       try {
-        const result = await cloudinary.uploader.upload(req.files['agentPhoto'][0].buffer, {
+        // Convertir buffer a base64 data URI
+        const file = req.files['agentPhoto'][0];
+        const b64 = Buffer.from(file.buffer).toString('base64');
+        const dataURI = `data:${file.mimetype};base64,${b64}`;
+        
+        const result = await cloudinary.uploader.upload(dataURI, {
           folder: 'newsletters/agents',
           resource_type: 'image',
           transformation: [
