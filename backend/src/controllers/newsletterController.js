@@ -19,8 +19,11 @@ const upload = multer({
   }
 });
 
-// Configurar multer para múltiples imágenes
-const uploadImages = upload.array('images', 10);
+// Configurar multer para múltiples campos
+const uploadFields = upload.fields([
+  { name: 'images', maxCount: 10 },
+  { name: 'agentPhoto', maxCount: 1 }
+]);
 
 /**
  * Crear una nueva newsletter
@@ -39,8 +42,8 @@ const createNewsletter = async (req, res, next) => {
 
     // Subir imágenes a Cloudinary si existen
     let imageUrls = [];
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+    if (req.files && req.files['images']) {
+      for (const file of req.files['images']) {
         try {
           const result = await cloudinary.uploader.upload(file.buffer, {
             folder: 'newsletters',
@@ -53,6 +56,33 @@ const createNewsletter = async (req, res, next) => {
       }
     }
 
+    // Subir foto del agente si existe
+    let agentPhotoUrl = null;
+    if (req.files && req.files['agentPhoto'] && req.files['agentPhoto'].length > 0) {
+      try {
+        const result = await cloudinary.uploader.upload(req.files['agentPhoto'][0].buffer, {
+          folder: 'newsletters/agents',
+          resource_type: 'image',
+          transformation: [
+            { width: 300, height: 300, crop: 'fill', gravity: 'face' },
+            { quality: 'auto', fetch_format: 'auto' }
+          ]
+        });
+        agentPhotoUrl = result.secure_url;
+      } catch (uploadError) {
+        console.error('Error uploading agent photo:', uploadError);
+      }
+    }
+
+    // Parsear agentInfo y agregar foto
+    let parsedAgentInfo = null;
+    if (agentInfo) {
+      parsedAgentInfo = typeof agentInfo === 'string' ? JSON.parse(agentInfo) : agentInfo;
+      if (agentPhotoUrl) {
+        parsedAgentInfo.photo = agentPhotoUrl;
+      }
+    }
+
     // Crear newsletter
     const newsletter = await prisma.newsletter.create({
       data: {
@@ -61,7 +91,7 @@ const createNewsletter = async (req, res, next) => {
         images: JSON.stringify(imageUrls),
         properties: properties || null,
         news: news || null,
-        agentInfo: agentInfo || null,
+        agentInfo: parsedAgentInfo ? JSON.stringify(parsedAgentInfo) : null,
         template,
         userId
       }
@@ -298,5 +328,5 @@ module.exports = {
   getNewsletterById,
   updateNewsletter,
   deleteNewsletter,
-  uploadImages
+  uploadFields
 };

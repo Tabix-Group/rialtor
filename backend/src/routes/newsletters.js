@@ -11,7 +11,7 @@ router.use(authenticateToken);
 // Middleware condicional para subida de imágenes
 const conditionalUpload = (req, res, next) => {
   if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
-    newsletterController.uploadImages(req, res, next);
+    newsletterController.uploadFields(req, res, next);
   } else {
     next();
   }
@@ -20,7 +20,7 @@ const conditionalUpload = (req, res, next) => {
 // Crear nueva newsletter (con subida de imágenes)
 router.post('/',
   checkPermission('use_placas'), // Usar el mismo permiso por ahora, o crear uno nuevo
-  newsletterController.uploadImages,
+  newsletterController.uploadFields,
   newsletterController.createNewsletter
 );
 

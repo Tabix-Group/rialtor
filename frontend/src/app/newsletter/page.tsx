@@ -40,90 +40,113 @@ import 'react-quill/dist/quill.snow.css'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
-// Definición de plantillas disponibles
+// Definición de plantillas disponibles con diseños mejorados de alta gama
 const AVAILABLE_TEMPLATES = [
   {
     id: 'default',
-    name: 'Minimalista',
-    description: 'Diseño limpio y simple, perfecto para contenido directo',
+    name: 'Minimalista Premium',
+    description: 'Diseño limpio y sofisticado con elegancia minimalista',
     features: [
-      'Colores neutros y tipografía clara',
-      'Enfoque en el contenido sin distracciones',
-      'Ideal para newsletters corporativos',
-      'Fácil de leer en dispositivos móviles'
+      'Tipografía Helvetica y espaciados amplios',
+      'Paleta monocromática refinada',
+      'Diseño breathing space para contenido premium',
+      'Experiencia de lectura excepcional'
     ],
     preview: {
-      background: '#f9fafb',
-      headerBorder: '2px solid #d1d5db',
+      background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+      headerBorder: 'none',
       headerBg: '',
-      textColor: '#111827',
-      accentColor: '#374151',
+      headerGradient: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+      textColor: '#0f172a',
+      accentColor: '#64748b',
       cardBg: '#ffffff',
-      cardBorder: '1px solid #e5e7eb',
-      cardShadow: 'none'
+      cardBorder: '1px solid #e2e8f0',
+      cardShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+      headerPadding: '60px 40px',
+      contentPadding: '40px',
+      fontFamily: "'Helvetica Neue', Arial, sans-serif",
+      lineHeight: '1.8'
     }
   },
   {
     id: 'modern',
-    name: 'Moderna',
-    description: 'Diseño contemporáneo con gradientes y elementos visuales atractivos',
+    name: 'Vanguardia Digital',
+    description: 'Diseño ultramoderno con elementos visuales de alto impacto',
     features: [
-      'Gradientes azules modernos',
-      'Elementos visuales destacados',
-      'Perfecto para inmobiliarias modernas',
-      'Alta conversión visual'
+      'Gradientes vibrantes y dinámicos',
+      'Elementos glassmorphism de última generación',
+      'Animaciones sutiles y transiciones elegantes',
+      'Perfecto para marcas innovadoras'
     ],
     preview: {
-      background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
-      headerBorder: '4px solid #3b82f6',
-      headerBg: '',
-      textColor: '#1e40af',
-      accentColor: '#2563eb',
-      cardBg: '#ffffff',
-      cardBorder: '1px solid #bfdbfe',
-      cardShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1)'
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+      headerBorder: 'none',
+      headerBg: 'rgba(255, 255, 255, 0.95)',
+      headerGradient: '',
+      textColor: '#1a202c',
+      accentColor: '#667eea',
+      cardBg: 'rgba(255, 255, 255, 0.95)',
+      cardBorder: '1px solid rgba(255, 255, 255, 0.3)',
+      cardShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      headerPadding: '50px 40px',
+      contentPadding: '40px',
+      fontFamily: "'Inter', -apple-system, sans-serif",
+      lineHeight: '1.7',
+      backdropBlur: 'blur(10px)'
     }
   },
   {
     id: 'classic',
-    name: 'Clásica',
-    description: 'Estilo tradicional y elegante, ideal para clientes conservadores',
+    name: 'Elegancia Atemporal',
+    description: 'Diseño editorial de alta categoría con toques dorados',
     features: [
-      'Colores cálidos y tradicionales',
-      'Tipografía serif elegante',
-      'Perfecto para mercados maduros',
-      'Transmite confianza y estabilidad'
+      'Paleta tierra con acentos dorados',
+      'Tipografía serif de revista premium',
+      'Detalles ornamentales sofisticados',
+      'Exuda lujo y exclusividad'
     ],
     preview: {
-      background: '#fef3c7',
-      headerBorder: '2px solid #d97706',
-      headerBg: '#fed7aa',
-      textColor: '#92400e',
-      accentColor: '#d97706',
-      cardBg: '#fef3c7',
-      cardBorder: '1px solid #fcd34d',
-      cardShadow: 'none'
+      background: 'linear-gradient(180deg, #fdfcfb 0%, #f6f3ed 100%)',
+      headerBorder: '3px solid #d4af37',
+      headerBg: '',
+      headerGradient: 'linear-gradient(135deg, #8b7355 0%, #a0826d 100%)',
+      textColor: '#5a4a3a',
+      accentColor: '#d4af37',
+      cardBg: '#fffaf5',
+      cardBorder: '2px solid #e8d5c4',
+      cardShadow: '0 8px 16px rgba(139, 115, 85, 0.15)',
+      headerPadding: '50px 40px',
+      contentPadding: '40px',
+      fontFamily: "'Playfair Display', Georgia, serif",
+      lineHeight: '1.9',
+      accentGold: '#d4af37'
     }
   },
   {
     id: 'professional',
-    name: 'Profesional',
-    description: 'Diseño corporativo y sofisticado para comunicaciones empresariales',
+    name: 'Corporativo Elite',
+    description: 'Diseño ejecutivo de nivel C-Suite con máxima sofisticación',
     features: [
-      'Paleta de colores grises profesionales',
-      'Layout estructurado y organizado',
-      'Ideal para comunicaciones B2B',
-      'Transmite seriedad y profesionalismo'
+      'Esquema de color navy y platinum',
+      'Estructura grid de precisión suiza',
+      'Micro-interacciones profesionales',
+      'Autoridad y credibilidad máxima'
     ],
     preview: {
-      background: '#f8fafc',
-      headerBorder: '2px solid #64748b',
+      background: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)',
+      headerBorder: 'none',
       headerBg: '',
-      textColor: '#0f172a',
-      accentColor: '#475569',
+      headerGradient: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
+      textColor: '#1e293b',
+      accentColor: '#3b82f6',
       cardBg: '#ffffff',
       cardBorder: '1px solid #cbd5e1',
-      cardShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      cardShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      headerPadding: '60px 40px',
+      contentPadding: '40px',
+      fontFamily: "'SF Pro Display', -apple-system, sans-serif",
+      lineHeight: '1.75',
+      accentLine: '4px solid #3b82f6'
     }
   }
 ];
@@ -187,8 +210,11 @@ export default function NewsletterPage() {
     agentEmail: '',
     agentPhone: '',
     agency: '',
-    agentBio: ''
+    agentBio: '',
+    agentPhoto: ''
   });
+  const [agentPhotoFile, setAgentPhotoFile] = useState<File | null>(null);
+  const [agentPhotoPreview, setAgentPhotoPreview] = useState<string>('');
   const [selectedNews, setSelectedNews] = useState<string[]>([]);
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const [availableNews, setAvailableNews] = useState<NewsItem[]>([]);
@@ -277,6 +303,24 @@ export default function NewsletterPage() {
     setSelectedImages(files.slice(0, 10)); // Máximo 10 imágenes
   };
 
+  const handleAgentPhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAgentPhotoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAgentPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeAgentPhoto = () => {
+    setAgentPhotoFile(null);
+    setAgentPhotoPreview('');
+    setFormData(prev => ({ ...prev, agentPhoto: '' }));
+  };
+
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
   };
@@ -313,7 +357,8 @@ export default function NewsletterPage() {
         email: formData.agentEmail,
         phone: formData.agentPhone,
         agency: formData.agency,
-        bio: formData.agentBio
+        bio: formData.agentBio,
+        photo: formData.agentPhoto
       };
 
       const formDataToSend = new FormData();
@@ -323,6 +368,11 @@ export default function NewsletterPage() {
       formDataToSend.append('agentInfo', JSON.stringify(agentInfo));
       formDataToSend.append('news', JSON.stringify(selectedNews));
       formDataToSend.append('properties', JSON.stringify(selectedProperties));
+
+      // Agregar foto del agente si existe
+      if (agentPhotoFile) {
+        formDataToSend.append('agentPhoto', agentPhotoFile);
+      }
 
       selectedImages.forEach(image => {
         formDataToSend.append('images', image);
@@ -366,11 +416,14 @@ export default function NewsletterPage() {
       agentEmail: '',
       agentPhone: '',
       agency: '',
-      agentBio: ''
+      agentBio: '',
+      agentPhoto: ''
     });
     setSelectedImages([]);
     setSelectedNews([]);
     setSelectedProperties([]);
+    setAgentPhotoFile(null);
+    setAgentPhotoPreview('');
   };
 
   const publishNewsletter = async (id: string) => {
@@ -462,140 +515,270 @@ export default function NewsletterPage() {
 
   const downloadNewsletterAsPDF = async (newsletter: Newsletter) => {
     try {
-      // Crear un elemento temporal con el contenido de la newsletter
+      // Obtener configuración de plantilla
+      const templateConfig = AVAILABLE_TEMPLATES.find(t => t.id === newsletter.template) || AVAILABLE_TEMPLATES[0];
+      const styles = templateConfig.preview;
+
+      // Crear contenedor principal con estilos mejorados
       const tempDiv = document.createElement('div');
-      // Aplicar estilos según la plantilla
-      const getTemplateStyles = (template: string) => {
-        const templateConfig = AVAILABLE_TEMPLATES.find(t => t.id === template);
-        return templateConfig ? templateConfig.preview : AVAILABLE_TEMPLATES[0].preview;
-      };
+      tempDiv.style.width = '210mm'; // A4 width
+      tempDiv.style.maxWidth = '210mm';
+      tempDiv.style.margin = '0 auto';
+      tempDiv.style.background = '#ffffff';
+      tempDiv.style.fontFamily = styles.fontFamily || "'Helvetica Neue', Arial, sans-serif";
+      tempDiv.style.color = styles.textColor;
+      tempDiv.style.fontSize = '11pt';
+      tempDiv.style.lineHeight = styles.lineHeight || '1.6';
 
-      const styles = getTemplateStyles(newsletter.template);
+      // Generar HTML con diseño profesional optimizado para PDF
+      const headerBackground = styles.headerGradient || styles.headerBg || styles.background;
+      const isGradientHeader = headerBackground.includes('gradient');
 
-      tempDiv.style.width = '800px';
-      tempDiv.style.padding = '40px';
-      tempDiv.style.background = styles.background;
-      tempDiv.style.fontFamily = 'Arial, sans-serif';
       tempDiv.innerHTML = `
-        <div style="text-align: center; margin-bottom: 40px; ${styles.headerBorder}; padding-bottom: 20px; ${styles.headerBg ? `background-color: ${styles.headerBg}; padding: 20px; border-radius: 8px;` : ''}">
-          <h1 style="color: ${styles.textColor}; font-size: 32px; margin: 0; font-weight: bold;">${newsletter.title}</h1>
-          <p style="color: ${styles.accentColor}; margin: 10px 0 0 0; font-size: 14px;">${new Date(newsletter.createdAt).toLocaleDateString('es-AR')}</p>
-        </div>
+        <div style="padding: 20mm; box-sizing: border-box;">
+          <!-- Header Section -->
+          <div style="
+            ${isGradientHeader ? `background: ${headerBackground};` : `background-color: ${headerBackground};`}
+            padding: ${styles.headerPadding || '40px'};
+            margin: -20mm -20mm 30px -20mm;
+            text-align: center;
+            ${styles.headerBorder || ''}
+            ${styles.accentLine ? `border-bottom: ${styles.accentLine};` : ''}
+          ">
+            <h1 style="
+              color: ${isGradientHeader ? '#ffffff' : styles.textColor};
+              font-size: 28pt;
+              margin: 0 0 8px 0;
+              font-weight: 700;
+              letter-spacing: -0.5px;
+              line-height: 1.2;
+            ">${newsletter.title}</h1>
+            <p style="
+              color: ${isGradientHeader ? 'rgba(255, 255, 255, 0.9)' : styles.accentColor};
+              margin: 0;
+              font-size: 10pt;
+              font-weight: 500;
+            ">${new Date(newsletter.createdAt).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          </div>
 
-        <div style="margin-bottom: 40px; line-height: 1.6; color: #374151;">
-          ${newsletter.content}
-        </div>
+          <!-- Content Section -->
+          <div style="
+            margin-bottom: 30px;
+            line-height: ${styles.lineHeight || '1.8'};
+            color: ${styles.textColor};
+            font-size: 11pt;
+          ">
+            ${newsletter.content}
+          </div>
 
-        ${newsletter.agentInfo ? `
-          <div style="background-color: #f9fafb; padding: 30px; border-radius: 8px; margin-bottom: 40px; border: 1px solid #e5e7eb;">
-            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Sobre el Agente</h3>
-            <div style="display: flex; align-items: flex-start; gap: 20px;">
-              <div style="flex: 1;">
-                <h4 style="color: #1f2937; font-size: 20px; margin: 0 0 10px 0; font-weight: bold;">${newsletter.agentInfo.name}</h4>
-                ${newsletter.agentInfo.agency ? `<p style="color: #6b7280; margin: 0 0 15px 0; font-size: 16px;">${newsletter.agentInfo.agency}</p>` : ''}
-                ${newsletter.agentInfo.bio ? `<p style="color: #374151; margin: 0 0 20px 0; line-height: 1.5;">${newsletter.agentInfo.bio}</p>` : ''}
-                <div style="display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; color: #6b7280;">
-                  ${newsletter.agentInfo.email ? `<div>📧 ${newsletter.agentInfo.email}</div>` : ''}
-                  ${newsletter.agentInfo.phone ? `<div>📱 ${newsletter.agentInfo.phone}</div>` : ''}
+          <!-- Agent Info Section -->
+          ${newsletter.agentInfo ? `
+            <div style="
+              background: ${styles.cardBg};
+              padding: 25px;
+              border-radius: 12px;
+              margin-bottom: 30px;
+              border: ${styles.cardBorder};
+              ${styles.cardShadow ? `box-shadow: ${styles.cardShadow};` : ''}
+              page-break-inside: avoid;
+            ">
+              <h3 style="
+                color: ${styles.textColor};
+                font-size: 16pt;
+                margin: 0 0 20px 0;
+                font-weight: 700;
+                ${styles.accentGold ? `border-bottom: 2px solid ${styles.accentGold}; padding-bottom: 10px;` : ''}
+              ">Información del Agente</h3>
+              <div style="display: flex; align-items: flex-start; gap: 20px;">
+                ${newsletter.agentInfo.photo ? `
+                  <div style="flex-shrink: 0;">
+                    <img src="${newsletter.agentInfo.photo}" 
+                         alt="${newsletter.agentInfo.name}"
+                         style="
+                           width: 80px;
+                           height: 80px;
+                           border-radius: 50%;
+                           object-fit: cover;
+                           border: 4px solid ${styles.accentColor};
+                           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                         " />
+                  </div>
+                ` : ''}
+                <div style="flex: 1;">
+                  <h4 style="
+                    color: ${styles.textColor};
+                    font-size: 14pt;
+                    margin: 0 0 5px 0;
+                    font-weight: 600;
+                  ">${newsletter.agentInfo.name}</h4>
+                  ${newsletter.agentInfo.agency ? `
+                    <p style="
+                      color: ${styles.accentColor};
+                      margin: 0 0 12px 0;
+                      font-size: 11pt;
+                      font-weight: 500;
+                    ">${newsletter.agentInfo.agency}</p>
+                  ` : ''}
+                  ${newsletter.agentInfo.bio ? `
+                    <p style="
+                      color: ${styles.textColor};
+                      margin: 0 0 15px 0;
+                      line-height: 1.6;
+                      font-size: 10pt;
+                    ">${newsletter.agentInfo.bio}</p>
+                  ` : ''}
+                  <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 9.5pt;">
+                    ${newsletter.agentInfo.email ? `
+                      <div style="color: ${styles.accentColor};">
+                        <strong>📧</strong> ${newsletter.agentInfo.email}
+                      </div>
+                    ` : ''}
+                    ${newsletter.agentInfo.phone ? `
+                      <div style="color: ${styles.accentColor};">
+                        <strong>📱</strong> ${newsletter.agentInfo.phone}
+                      </div>
+                    ` : ''}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ` : ''}
+          ` : ''}
 
-        ${newsletter.news && newsletter.news.length > 0 ? `
-          <div style="margin-bottom: 40px;">
-            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Últimas Noticias</h3>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
+          <!-- News Section -->
+          ${newsletter.news && newsletter.news.length > 0 ? `
+            <div style="margin-bottom: 30px; page-break-inside: avoid;">
+              <h3 style="
+                color: ${styles.textColor};
+                font-size: 16pt;
+                margin: 0 0 20px 0;
+                font-weight: 700;
+                ${styles.accentGold ? `border-bottom: 2px solid ${styles.accentGold}; padding-bottom: 10px;` : ''}
+              ">Últimas Noticias</h3>
               ${newsletter.news.map((newsId: string) => {
                 const news = availableNews.find(n => n.id === newsId);
                 return news ? `
-                  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                    <h4 style="color: #1f2937; font-size: 18px; margin: 0 0 10px 0; font-weight: bold;">${news.title}</h4>
-                    <p style="color: #374151; margin: 0 0 10px 0; line-height: 1.5;">${news.synopsis}</p>
-                    <p style="color: #9ca3af; margin: 0; font-size: 12px;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
+                  <div style="
+                    background: ${styles.cardBg};
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin-bottom: 15px;
+                    border: ${styles.cardBorder};
+                    page-break-inside: avoid;
+                  ">
+                    <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 8px 0; font-weight: 600;">${news.title}</h4>
+                    <p style="color: ${styles.textColor}; margin: 0 0 8px 0; line-height: 1.5; font-size: 10pt;">${news.synopsis}</p>
+                    <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
                   </div>
                 ` : '';
               }).join('')}
             </div>
-          </div>
-        ` : ''}
+          ` : ''}
 
-        ${newsletter.properties && newsletter.properties.length > 0 ? `
-          <div style="margin-bottom: 40px;">
-            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Propiedades Destacadas</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-              ${newsletter.properties.map((propertyId: string) => {
-                const property = availableProperties.find(p => p.id === propertyId);
-                return property ? `
-                  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                    ${property.generatedImages.length > 0 ? `<img src="${property.generatedImages[0]}" alt="${property.title}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 15px;" />` : ''}
-                    <h4 style="color: #1f2937; font-size: 18px; margin: 0 0 15px 0; font-weight: bold;">${property.title}</h4>
-                    <div style="font-size: 14px; color: #6b7280; line-height: 1.4;">
-                      <p style="margin: 0 0 5px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
-                      <p style="margin: 0 0 5px 0;">🏠 ${property.propertyData.tipo}</p>
-                      <p style="margin: 0; font-weight: bold; color: #059669; font-size: 16px;">${property.propertyData.moneda} ${property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}</p>
+          <!-- Properties Section -->
+          ${newsletter.properties && newsletter.properties.length > 0 ? `
+            <div style="margin-bottom: 30px;">
+              <h3 style="
+                color: ${styles.textColor};
+                font-size: 16pt;
+                margin: 0 0 20px 0;
+                font-weight: 700;
+                ${styles.accentGold ? `border-bottom: 2px solid ${styles.accentGold}; padding-bottom: 10px;` : ''}
+              ">Propiedades Destacadas</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                ${newsletter.properties.map((propertyId: string) => {
+                  const property = availableProperties.find(p => p.id === propertyId);
+                  return property ? `
+                    <div style="
+                      background: ${styles.cardBg};
+                      padding: 15px;
+                      border-radius: 8px;
+                      border: ${styles.cardBorder};
+                      page-break-inside: avoid;
+                    ">
+                      ${property.generatedImages.length > 0 ? `
+                        <img src="${property.generatedImages[0]}" 
+                             alt="${property.title}" 
+                             style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 12px;" />
+                      ` : ''}
+                      <h4 style="color: ${styles.textColor}; font-size: 11pt; margin: 0 0 10px 0; font-weight: 600;">${property.title}</h4>
+                      <div style="font-size: 9pt; color: ${styles.accentColor}; line-height: 1.5;">
+                        <p style="margin: 0 0 4px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
+                        <p style="margin: 0 0 4px 0;">🏠 ${property.propertyData.tipo}</p>
+                        <p style="margin: 0; font-weight: 700; color: #059669; font-size: 11pt;">
+                          ${property.propertyData.moneda} ${property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ` : '';
-              }).join('')}
+                  ` : '';
+                }).join('')}
+              </div>
             </div>
-          </div>
-        ` : ''}
+          ` : ''}
 
-        ${newsletter.images.length > 0 ? `
-          <div style="margin-bottom: 40px;">
-            <h3 style="color: #1f2937; font-size: 24px; margin: 0 0 20px 0; font-weight: bold;">Imágenes</h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-              ${newsletter.images.map((url, index) => `
-                <img src="${url}" alt="Imagen ${index + 1}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px;" />
-              `).join('')}
-            </div>
+          <!-- Footer -->
+          <div style="
+            text-align: center;
+            color: ${styles.accentColor};
+            font-size: 8pt;
+            border-top: 1px solid ${styles.accentColor};
+            padding-top: 15px;
+            margin-top: 40px;
+          ">
+            <p style="margin: 0;">Newsletter creada con RIALTOR • www.rialtor.app</p>
           </div>
-        ` : ''}
-
-        <div style="text-align: center; color: #9ca3af; font-size: 12px; border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 40px;">
-          <p style="margin: 0;">Newsletter creada con RIALTOR</p>
         </div>
       `;
 
       document.body.appendChild(tempDiv);
 
+      // Generar PDF con configuración mejorada
       const canvas = await html2canvas(tempDiv, {
-        scale: 2,
+        scale: 3, // Mayor calidad
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         backgroundColor: '#ffffff',
-        width: 800,
-        height: tempDiv.scrollHeight
+        width: tempDiv.scrollWidth,
+        windowWidth: 794, // A4 width in pixels at 96 DPI
+        logging: false
       });
 
       document.body.removeChild(tempDiv);
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
 
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
+      const pageWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
       let heightLeft = imgHeight;
-
       let position = 0;
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      // Primera página
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
       heightLeft -= pageHeight;
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+      // Páginas adicionales con mejor manejo de cortes
+      while (heightLeft > 0) {
+        position = -(imgHeight - heightLeft);
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
         heightLeft -= pageHeight;
       }
 
-      pdf.save(`${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+      const fileName = `newsletter_${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().getTime()}.pdf`;
+      pdf.save(fileName);
+      
+      alert('PDF generado exitosamente');
     } catch (error) {
       console.error('Error generando PDF:', error);
-      alert('Error al generar el PDF. Inténtalo de nuevo.');
+      alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
     }
   };
 
@@ -651,54 +834,101 @@ export default function NewsletterPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Sección de Plantillas Disponibles */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Plantillas Disponibles</h2>
-              <p className="text-gray-600">Elige la plantilla que mejor se adapte a tu estilo de comunicación</p>
+        <div className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 rounded-2xl shadow-lg border-2 border-gray-200 p-8 mb-8 relative overflow-hidden">
+          {/* Decorative background elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-pink-400/10 to-orange-400/10 rounded-full blur-3xl"></div>
+          
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-3 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl shadow-lg">
+                    <FileText className="w-7 h-7 text-white" />
+                  </div>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+                    Plantillas Premium
+                  </h2>
+                </div>
+                <p className="text-gray-600 text-sm md:text-base">Diseños profesionales de alta gama para newsletters excepcionales</p>
+              </div>
+              <button
+                onClick={() => setShowTemplatesModal(true)}
+                className="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 text-sm font-semibold hover:scale-105"
+              >
+                <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                Ver Todas las Plantillas
+              </button>
             </div>
-            <button
-              onClick={() => setShowTemplatesModal(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-              Ver Todas las Plantillas
-            </button>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {AVAILABLE_TEMPLATES.slice(0, 4).map((template) => (
-              <div key={template.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                   onClick={() => {
-                     setFormData(prev => ({ ...prev, template: template.id }));
-                     setShowCreateModal(true);
-                   }}>
-                {/* Preview del template */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {AVAILABLE_TEMPLATES.map((template) => (
                 <div 
-                  className="h-24 p-3 flex items-center justify-center text-center"
-                  style={{
-                    background: template.preview.background,
-                    borderBottom: template.preview.headerBorder
+                  key={template.id} 
+                  className="group relative border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:scale-105 hover:border-blue-400 transition-all duration-300 cursor-pointer bg-white"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, template: template.id }));
+                    setShowCreateModal(true);
                   }}
                 >
-                  <div>
-                    <h4 
-                      className="text-sm font-bold"
-                      style={{ color: template.preview.textColor }}
-                    >
-                      {template.name}
-                    </h4>
+                  {/* Badge Premium */}
+                  <div className="absolute top-3 right-3 z-20 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    PRO
                   </div>
-                </div>
 
-                {/* Información del template */}
-                <div className="p-3">
-                  <p className="text-xs text-gray-600 mb-2 line-clamp-2">{template.description}</p>
-                  <div className="text-xs text-blue-600 font-medium">
-                    {template.features.length} características
+                  {/* Preview del template mejorado */}
+                  <div 
+                    className="h-40 flex items-center justify-center p-6 relative overflow-hidden"
+                    style={{
+                      background: template.preview.headerGradient || template.preview.background
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="text-center relative z-10 transform group-hover:scale-110 transition-transform duration-300">
+                      <div className="mb-3 inline-block">
+                        <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg border-2 border-white/30">
+                          <Mail className="w-7 h-7" style={{ color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor }} />
+                        </div>
+                      </div>
+                      <h4 
+                        className="font-bold text-base mb-2 drop-shadow-sm"
+                        style={{
+                          color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor
+                        }}
+                      >
+                        {template.name}
+                      </h4>
+                      <div 
+                        className="h-1 w-20 mx-auto rounded-full shadow-sm"
+                        style={{
+                          backgroundColor: template.preview.accentGold || template.preview.accentColor,
+                          opacity: 0.8
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Información del template mejorada */}
+                  <div className="p-5 bg-gradient-to-b from-white to-gray-50/50">
+                    <p className="text-xs text-gray-700 mb-3 line-clamp-2 font-medium leading-relaxed">
+                      {template.description}
+                    </p>
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-600">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{template.features.length} features</span>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <span>Usar</span>
+                          <Eye className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -958,6 +1188,55 @@ export default function NewsletterPage() {
                       <User className="w-5 h-5" />
                       Información del Agente
                     </h3>
+                    
+                    {/* Foto del Agente */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Foto del Agente (Opcional)
+                      </label>
+                      <div className="flex items-center gap-4">
+                        {agentPhotoPreview ? (
+                          <div className="relative">
+                            <img
+                              src={agentPhotoPreview}
+                              alt="Preview"
+                              className="w-24 h-24 rounded-full object-cover border-4 border-blue-100 shadow-md"
+                            />
+                            <button
+                              type="button"
+                              onClick={removeAgentPhoto}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                            <User className="w-10 h-10 text-gray-400" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAgentPhotoSelect}
+                            className="hidden"
+                            id="agent-photo-upload"
+                          />
+                          <label
+                            htmlFor="agent-photo-upload"
+                            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+                          >
+                            <Upload className="w-4 h-4" />
+                            {agentPhotoPreview ? 'Cambiar foto' : 'Subir foto'}
+                          </label>
+                          <p className="text-xs text-gray-500 mt-2">
+                            La foto aparecerá con marco circular junto a tu información
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1225,60 +1504,107 @@ export default function NewsletterPage() {
           </div>
         )}
 
-        {/* Modal de plantillas */}
+        {/* Modal de plantillas mejorado */}
         {showTemplatesModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Plantillas Disponibles</h2>
+          <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto border-2 border-gray-200">
+              <div className="p-8">
+                {/* Header del modal */}
+                <div className="flex items-center justify-between mb-8 pb-6 border-b-2 border-gray-200">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl shadow-lg">
+                      <FileText className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+                        Galería de Plantillas Premium
+                      </h2>
+                      <p className="text-gray-600 text-sm mt-1">Selecciona el diseño perfecto para tu newsletter</p>
+                    </div>
+                  </div>
                   <button
                     onClick={() => setShowTemplatesModal(false)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-all"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-7 h-7" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {AVAILABLE_TEMPLATES.map((template) => (
-                    <div key={template.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                      {/* Preview del template */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {AVAILABLE_TEMPLATES.map((template, index) => (
+                    <div 
+                      key={template.id} 
+                      className="group border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:scale-[1.02] hover:border-blue-400 transition-all duration-300 bg-white"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {/* Preview del template mejorado */}
                       <div 
-                        className="h-48 p-4 flex items-center justify-center text-center"
+                        className="h-64 p-8 flex items-center justify-center text-center relative overflow-hidden"
                         style={{
-                          background: template.preview.background,
-                          borderBottom: template.preview.headerBorder
+                          background: template.preview.headerGradient || template.preview.background
                         }}
                       >
-                        <div>
+                        {/* Overlay decorativo */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        
+                        {/* Elementos decorativos */}
+                        <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                        <div className="absolute bottom-4 left-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+                        
+                        <div className="relative z-10 transform group-hover:scale-105 transition-transform duration-300">
+                          <div className="mb-4 inline-block">
+                            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl border-4 border-white/40">
+                              <Mail className="w-10 h-10" style={{ color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor }} />
+                            </div>
+                          </div>
                           <h3 
-                            className="text-xl font-bold mb-2"
-                            style={{ color: template.preview.textColor }}
+                            className="text-2xl font-bold mb-3 drop-shadow-lg"
+                            style={{
+                              color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor
+                            }}
                           >
                             {template.name}
                           </h3>
+                          <div 
+                            className="h-1.5 w-24 mx-auto rounded-full shadow-lg"
+                            style={{
+                              backgroundColor: template.preview.accentGold || template.preview.accentColor,
+                              opacity: 0.9
+                            }}
+                          ></div>
                           <p 
-                            className="text-sm"
-                            style={{ color: template.preview.accentColor }}
+                            className="text-sm mt-3 opacity-90"
+                            style={{ color: template.preview.headerGradient ? '#ffffff' : template.preview.accentColor }}
                           >
-                            Newsletter de ejemplo
+                            Newsletter Premium
                           </p>
+                        </div>
+
+                        {/* Badge Premium */}
+                        <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-20">
+                          ✨ PREMIUM
                         </div>
                       </div>
 
-                      {/* Información del template */}
-                      <div className="p-4">
-                        <h4 className="font-semibold text-gray-900 mb-2">{template.name}</h4>
-                        <p className="text-sm text-gray-600 mb-3">{template.description}</p>
-                        
+                      {/* Información del template mejorada */}
+                      <div className="p-6 bg-gradient-to-b from-white to-gray-50/50">
                         <div className="mb-4">
-                          <h5 className="text-sm font-medium text-gray-900 mb-2">Características:</h5>
-                          <ul className="text-xs text-gray-600 space-y-1">
-                            {template.features.map((feature, index) => (
-                              <li key={index} className="flex items-center gap-1">
-                                <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
-                                {feature}
+                          <h4 className="text-xl font-bold text-gray-900 mb-2">{template.name}</h4>
+                          <p className="text-sm text-gray-600 leading-relaxed">{template.description}</p>
+                        </div>
+                        
+                        <div className="mb-6 bg-white rounded-lg p-4 border border-gray-200">
+                          <h5 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                            <Check className="w-4 h-4 text-green-600" />
+                            Características destacadas:
+                          </h5>
+                          <ul className="text-xs text-gray-700 space-y-2">
+                            {template.features.map((feature, idx) => (
+                              <li key={idx} className="flex items-start gap-2">
+                                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
+                                  <Check className="w-3 h-3 text-green-600" />
+                                </span>
+                                <span className="leading-relaxed">{feature}</span>
                               </li>
                             ))}
                           </ul>
@@ -1290,9 +1616,12 @@ export default function NewsletterPage() {
                             setShowTemplatesModal(false);
                             setShowCreateModal(true);
                           }}
-                          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-xl hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 text-sm font-bold group hover:scale-105"
                         >
-                          Usar esta plantilla
+                          <span className="flex items-center justify-center gap-2">
+                            Usar esta plantilla
+                            <span className="group-hover:translate-x-1 transition-transform">→</span>
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -1435,6 +1764,21 @@ export default function NewsletterPage() {
                         })()
                       }}>Sobre el Agente</h3>
                       <div className="flex items-start gap-4">
+                        {previewNewsletter!.agentInfo.photo && (
+                          <div className="flex-shrink-0">
+                            <img
+                              src={previewNewsletter!.agentInfo.photo}
+                              alt={previewNewsletter!.agentInfo.name}
+                              className="w-24 h-24 rounded-full object-cover shadow-lg"
+                              style={{
+                                border: `4px solid ${(() => {
+                                  const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
+                                  return template?.preview.accentColor || '#3b82f6';
+                                })()}`
+                              }}
+                            />
+                          </div>
+                        )}
                         <div className="flex-1">
                           <h4 className={`font-semibold ${
                             (() => {
