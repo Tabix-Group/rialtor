@@ -999,12 +999,14 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     let priceBoxFill, priceTextColor, corredoresBoxFill, corredoresTextColor;
     
     if (isPremium) {
-      // Esquema elegante y sofisticado para premium - azul marino con dorado/bronce
+      // Esquema premium: tonos más cálidos y menos contrastados para combinar con dorado
       selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.95)';
-      priceBoxFill = 'rgba(15, 23, 42, 0.95)'; // Azul marino oscuro (slate-900)
-      priceTextColor = '#D4AF37'; // Dorado metálico elegante
-      corredoresBoxFill = 'rgba(30, 41, 59, 0.92)'; // Azul marino medio (slate-800)
-      corredoresTextColor = '#F5E6D3'; // Beige dorado claro
+      // Fondo del precio: tono cálido y más claro que el anterior para mejor legibilidad con dorado
+      priceBoxFill = 'rgba(112,85,58,0.95)'; // #70553A
+      priceTextColor = '#D4AF37'; // Dorado metálico elegante (mantener)
+      // Fondo del bloque de corredores/agencia: tono complementario y texto en blanco
+      corredoresBoxFill = 'rgba(108,79,47,0.92)'; // #6C4F2F
+      corredoresTextColor = '#FFFFFF'; // Texto blanco para agencia y teléfono
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;
       priceTextColor = selectedScheme.priceTextColor;
@@ -1474,8 +1476,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
       const textX = agentX + agentImageSize + 40;
 
-      // Fondo del zócalo con gradiente elegante más sutil - Azul marino premium
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(15, 23, 42, 0.95)" opacity="1" />\n`;
+      // Fondo del zócalo con gradiente elegante más sutil - tono cálido premium
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(112,85,58,0.95)" opacity="1" />\n`;
       
       // Línea superior decorativa dorada más gruesa - Dorado metálico elegante
       svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#D4AF37" stroke-width="4" opacity="1" />\n`;
@@ -1502,12 +1504,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       // Nombre del agente con efecto de brillo y sombra para legibilidad - MÁS GRANDE - Dorado metálico
       svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 32px; fill: #D4AF37; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0 0 15px rgba(212,175,55,0.6);">${agentName}</text>\n`;
       
-      // Agencia con fuente más grande y elegante con sombra - Beige dorado claro
-      svg += `  <text x="${textX}" y="${textY + 42}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 22px; fill: #F5E6D3; font-weight: 500; text-shadow: 2px 2px 4px rgba(0,0,0,0.9);">${agency}</text>\n`;
+      // Agencia con fuente más grande y elegante con sombra - texto en blanco para contraste
+      svg += `  <text x="${textX}" y="${textY + 42}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 22px; fill: #FFFFFF; font-weight: 500; text-shadow: 2px 2px 4px rgba(0,0,0,0.9);">${agency}</text>\n`;
       
-      // Contacto si existe con mejor contraste - MÁS GRANDE - Beige dorado claro
+      // Contacto si existe con mejor contraste - texto blanco
       if (agentContact) {
-        svg += `  <text x="${textX}" y="${textY + 72}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 18px; fill: #F5E6D3; opacity: 1; text-shadow: 2px 2px 3px rgba(0,0,0,0.9);">${agentContact}</text>\n`;
+        svg += `  <text x="${textX}" y="${textY + 72}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 18px; fill: #FFFFFF; opacity: 1; text-shadow: 2px 2px 3px rgba(0,0,0,0.9);">${agentContact}</text>\n`;
       }
 
       // Logo de Rialtor.app en el extremo derecho del zócalo con sombra - MÁS GRANDE - Dorado metálico
