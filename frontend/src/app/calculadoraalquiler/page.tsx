@@ -267,7 +267,7 @@ export default function CalculadoraAlquilerPage() {
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-sm text-gray-600">Monto final proyectado</p>
                       <p className="text-2xl font-bold text-orange-600">
-                        {formatCurrency(result.projections[result.projections.length - 1]?.amount || 0)}
+                        {result.projections[result.projections.length - 1]?.amount !== undefined ? formatCurrency(result.projections[result.projections.length - 1].amount) : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -319,15 +319,15 @@ export default function CalculadoraAlquilerPage() {
                               {formatDate(projection.date)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {projection.value.toFixed(2)}
+                              {projection.value !== undefined ? projection.value.toFixed(2) : 'N/A'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <span className={`font-medium ${projection.difference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {formatPercentage(projection.difference)}
+                              <span className={`font-medium ${projection.difference !== undefined && projection.difference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {projection.difference !== undefined ? formatPercentage(projection.difference) : 'N/A'}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {formatCurrency(projection.amount)}
+                              {projection.amount !== undefined ? formatCurrency(projection.amount) : 'N/A'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               {projection.estimated ? (
@@ -364,7 +364,7 @@ export default function CalculadoraAlquilerPage() {
                               {projection.details.map((detail, detailIndex) => (
                                 <div key={detailIndex} className="flex justify-between">
                                   <span>{formatDate(detail.date)}:</span>
-                                  <span>{detail.month_before.toFixed(2)}% (acum: {detail.accumulate.toFixed(2)}%)</span>
+                                  <span>{detail.month_before !== undefined ? detail.month_before.toFixed(2) : 'N/A'}% (acum: {detail.accumulate !== undefined ? detail.accumulate.toFixed(2) : 'N/A'}%)</span>
                                 </div>
                               ))}
                             </div>
