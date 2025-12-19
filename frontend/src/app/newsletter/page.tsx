@@ -533,21 +533,24 @@ export default function NewsletterPage() {
       tempDiv.style.color = styles.textColor;
       tempDiv.style.fontSize = '11pt';
       tempDiv.style.lineHeight = styles.lineHeight || '1.6';
+      tempDiv.style.overflowWrap = 'break-word';
+      tempDiv.style.wordBreak = 'break-word';
 
       // Generar HTML con diseño profesional optimizado para PDF
       const headerBackground = styles.headerGradient || styles.headerBg || styles.background;
       const isGradientHeader = headerBackground.includes('gradient');
 
       tempDiv.innerHTML = `
-        <div style="padding: 20mm; box-sizing: border-box;">
+        <div style="padding: 20mm; box-sizing: border-box; width: 100%; margin: 0; padding: 15mm 20mm;">
           <!-- Header Section -->
           <div style="
             ${isGradientHeader ? `background: ${headerBackground};` : `background-color: ${headerBackground};`}
             padding: ${styles.headerPadding || '40px'};
-            margin: -20mm -20mm 30px -20mm;
+            margin: -15mm -20mm 30px -20mm;
             text-align: center;
             ${styles.headerBorder || ''}
             ${styles.accentLine ? `border-bottom: ${styles.accentLine};` : ''}
+            page-break-inside: avoid;
           ">
             <h1 style="
               color: ${isGradientHeader ? '#ffffff' : styles.textColor};
@@ -571,11 +574,93 @@ export default function NewsletterPage() {
             line-height: ${styles.lineHeight || '1.8'};
             color: ${styles.textColor};
             font-size: 11pt;
+            page-break-inside: avoid;
+            orphans: 3;
+            widows: 3;
           ">
             ${newsletter.content}
           </div>
 
-          <!-- Agent Info Section -->
+          <!-- News Section -->
+          ${newsletter.news && newsletter.news.length > 0 ? `
+            <div style="margin-bottom: 30px; page-break-inside: auto;">
+              <div style="page-break-inside: avoid;">
+                <h3 style="
+                  color: ${styles.textColor};
+                  font-size: 16pt;
+                  margin: 20px 0 20px 0;
+                  font-weight: 700;
+                  ${styles.accentGold ? `border-bottom: 2px solid ${styles.accentGold}; padding-bottom: 10px;` : ''}
+                  page-break-after: avoid;
+                ">Últimas Noticias</h3>
+              </div>
+              ${newsletter.news.map((newsId: string) => {
+                const news = availableNews.find(n => n.id === newsId);
+                return news ? `
+                  <div style="
+                    background: ${styles.cardBg};
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin-bottom: 15px;
+                    border: ${styles.cardBorder};
+                    page-break-inside: avoid;
+                    orphans: 2;
+                    widows: 2;
+                  ">
+                    <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 8px 0; font-weight: 600;">${news.title}</h4>
+                    <p style="color: ${styles.textColor}; margin: 0 0 8px 0; line-height: 1.5; font-size: 10pt;">${news.synopsis}</p>
+                    <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
+                  </div>
+                ` : '';
+              }).join('')}
+            </div>
+          ` : ''}
+
+          <!-- Properties Section -->
+          ${newsletter.properties && newsletter.properties.length > 0 ? `
+            <div style="margin-bottom: 30px; page-break-inside: auto;">
+              <div style="page-break-inside: avoid;">
+                <h3 style="
+                  color: ${styles.textColor};
+                  font-size: 16pt;
+                  margin: 20px 0 20px 0;
+                  font-weight: 700;
+                  ${styles.accentGold ? `border-bottom: 2px solid ${styles.accentGold}; padding-bottom: 10px;` : ''}
+                  page-break-after: avoid;
+                ">Propiedades Destacadas</h3>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; orphans: 2; widows: 2;">
+                ${newsletter.properties.map((propertyId: string) => {
+                  const property = availableProperties.find(p => p.id === propertyId);
+                  return property ? `
+                    <div style="
+                      background: ${styles.cardBg};
+                      padding: 15px;
+                      border-radius: 8px;
+                      border: ${styles.cardBorder};
+                      page-break-inside: avoid;
+                    ">
+                      ${property.generatedImages.length > 0 ? `
+                        <img src="${property.generatedImages[0]}" 
+                             alt="${property.title}" 
+                             style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 12px;" />
+                      ` : ''}
+                      <h4 style="color: ${styles.textColor}; font-size: 11pt; margin: 0 0 10px 0; font-weight: 600;">${property.title}</h4>
+                      <div style="font-size: 9pt; color: ${styles.accentColor}; line-height: 1.5;">
+                        <p style="margin: 0 0 4px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
+                        <p style="margin: 0 0 4px 0;">🏠 ${property.propertyData.tipo}</p>
+                        <p style="margin: 0; font-weight: 700; color: #059669; font-size: 11pt;">
+                          ${property.propertyData.moneda} ${property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                  ` : '';
+                }).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Agent Info Section (al final) -->
           ${newsletter.agentInfo ? `
             <div style="
               background: ${styles.cardBg};
@@ -585,6 +670,9 @@ export default function NewsletterPage() {
               border: ${styles.cardBorder};
               ${styles.cardShadow ? `box-shadow: ${styles.cardShadow};` : ''}
               page-break-inside: avoid;
+              margin-top: 40px;
+              orphans: 3;
+              widows: 3;
             ">
               <h3 style="
                 color: ${styles.textColor};
@@ -648,77 +736,6 @@ export default function NewsletterPage() {
             </div>
           ` : ''}
 
-          <!-- News Section -->
-          ${newsletter.news && newsletter.news.length > 0 ? `
-            <div style="margin-bottom: 30px; page-break-inside: avoid;">
-              <h3 style="
-                color: ${styles.textColor};
-                font-size: 16pt;
-                margin: 0 0 20px 0;
-                font-weight: 700;
-                ${styles.accentGold ? `border-bottom: 2px solid ${styles.accentGold}; padding-bottom: 10px;` : ''}
-              ">Últimas Noticias</h3>
-              ${newsletter.news.map((newsId: string) => {
-                const news = availableNews.find(n => n.id === newsId);
-                return news ? `
-                  <div style="
-                    background: ${styles.cardBg};
-                    padding: 20px;
-                    border-radius: 8px;
-                    margin-bottom: 15px;
-                    border: ${styles.cardBorder};
-                    page-break-inside: avoid;
-                  ">
-                    <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 8px 0; font-weight: 600;">${news.title}</h4>
-                    <p style="color: ${styles.textColor}; margin: 0 0 8px 0; line-height: 1.5; font-size: 10pt;">${news.synopsis}</p>
-                    <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
-                  </div>
-                ` : '';
-              }).join('')}
-            </div>
-          ` : ''}
-
-          <!-- Properties Section -->
-          ${newsletter.properties && newsletter.properties.length > 0 ? `
-            <div style="margin-bottom: 30px;">
-              <h3 style="
-                color: ${styles.textColor};
-                font-size: 16pt;
-                margin: 0 0 20px 0;
-                font-weight: 700;
-                ${styles.accentGold ? `border-bottom: 2px solid ${styles.accentGold}; padding-bottom: 10px;` : ''}
-              ">Propiedades Destacadas</h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                ${newsletter.properties.map((propertyId: string) => {
-                  const property = availableProperties.find(p => p.id === propertyId);
-                  return property ? `
-                    <div style="
-                      background: ${styles.cardBg};
-                      padding: 15px;
-                      border-radius: 8px;
-                      border: ${styles.cardBorder};
-                      page-break-inside: avoid;
-                    ">
-                      ${property.generatedImages.length > 0 ? `
-                        <img src="${property.generatedImages[0]}" 
-                             alt="${property.title}" 
-                             style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 12px;" />
-                      ` : ''}
-                      <h4 style="color: ${styles.textColor}; font-size: 11pt; margin: 0 0 10px 0; font-weight: 600;">${property.title}</h4>
-                      <div style="font-size: 9pt; color: ${styles.accentColor}; line-height: 1.5;">
-                        <p style="margin: 0 0 4px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
-                        <p style="margin: 0 0 4px 0;">🏠 ${property.propertyData.tipo}</p>
-                        <p style="margin: 0; font-weight: 700; color: #059669; font-size: 11pt;">
-                          ${property.propertyData.moneda} ${property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                  ` : '';
-                }).join('')}
-              </div>
-            </div>
-          ` : ''}
-
           <!-- Footer -->
           <div style="
             text-align: center;
@@ -727,6 +744,7 @@ export default function NewsletterPage() {
             border-top: 1px solid ${styles.accentColor};
             padding-top: 15px;
             margin-top: 40px;
+            page-break-inside: avoid;
           ">
             <p style="margin: 0;">Newsletter creada con RIALTOR • www.rialtor.app</p>
           </div>
@@ -735,45 +753,51 @@ export default function NewsletterPage() {
 
       document.body.appendChild(tempDiv);
 
-      // Generar PDF con configuración mejorada
+      // Generar PDF con configuración mejorada para evitar cortes
       const canvas = await html2canvas(tempDiv, {
-        scale: 3, // Mayor calidad
+        scale: 2, // Escala optimizada para calidad y tamaño
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
         width: tempDiv.scrollWidth,
         windowWidth: 794, // A4 width in pixels at 96 DPI
-        logging: false
+        logging: false,
+        // Agregar padding para evitar cortes en los bordes
+        imageTimeout: 5000
       });
 
       document.body.removeChild(tempDiv);
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL('image/png', 1);
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
-        compress: true
+        compress: true,
+        precision: 2
       });
 
       const pageWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
-      const imgWidth = pageWidth;
+      const margins = 5; // mm
+      const effectivePageHeight = pageHeight - (margins * 2);
+      
+      const imgWidth = pageWidth - (margins * 2);
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       let heightLeft = imgHeight;
-      let position = 0;
+      let position = margins;
 
       // Primera página
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pageHeight;
+      pdf.addImage(imgData, 'PNG', margins, position, imgWidth, imgHeight, undefined, 'FAST');
+      heightLeft -= effectivePageHeight;
 
       // Páginas adicionales con mejor manejo de cortes
       while (heightLeft > 0) {
-        position = -(imgHeight - heightLeft);
+        position = -(imgHeight - (effectivePageHeight * 1.5)) + margins;
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', margins, position, imgWidth, imgHeight, undefined, 'FAST');
+        heightLeft -= effectivePageHeight;
       }
 
       const fileName = `newsletter_${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().getTime()}.pdf`;
