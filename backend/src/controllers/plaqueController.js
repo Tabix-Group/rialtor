@@ -1076,7 +1076,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     
     // Tamaños de fuente aumentados especialmente para el modelo premium
     const precioSize = isPremium 
-      ? Math.max(48, Math.min(80, Math.floor(width / 12)))  // Precio mucho más grande en premium
+      ? Math.max(36, Math.min(60, Math.floor(width / 16)))  // 25% reducción en premium (80 * 0.75 = 60, 48 * 0.75 = 36)
       : Math.max(36, Math.min(72, Math.floor(width / 18 * finalScaleFactor * baseScale / 10)));
     const infoSize = Math.max(20, Math.min(38, Math.floor(width / 28 * finalScaleFactor * baseScale / 10)));
     const contactoSize = Math.max(16, Math.min(28, Math.floor(width / 35 * finalScaleFactor * baseScale / 10)));
@@ -1126,10 +1126,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const precioText = `${moneda} ${formatPrice(precio)}`;
     const precioTextWidth = precioText.length * Math.floor(precioSize * 0.65);
     const precioBoxWidth = isPremium
-      ? Math.max(350, Math.min(precioTextWidth + padding * 4, Math.floor(width * 0.50)))  // Más ancho en premium
+      ? Math.max(263, Math.min(precioTextWidth + padding * 4, Math.floor(width * 0.375)))  // 25% reducción en premium (0.50 * 0.75 = 0.375, 350 * 0.75 = 262.5)
       : Math.max(280, Math.min(precioTextWidth + padding * 3, Math.floor(width * 0.45)));
     const precioBoxHeight = isPremium
-      ? Math.max(120, Math.floor(height * 0.18))  // Más alto en premium
+      ? Math.max(90, Math.floor(height * 0.135))  // 25% reducción en premium (0.18 * 0.75 = 0.135, 120 * 0.75 = 90)
       : Math.max(100, Math.floor(height * 0.15));
     const precioBoxX = width - precioBoxWidth - margin;
     const precioBoxY = margin;
@@ -1232,8 +1232,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         finalPrecioSize = minSizeByHeight;
       }
       
-      // Límites para el tamaño
-      finalPrecioSize = Math.max(40, Math.min(90, finalPrecioSize));
+      // Límites para el tamaño - reducidos 25% en premium
+      finalPrecioSize = Math.max(30, Math.min(67, finalPrecioSize));  // 40 * 0.75 = 30, 90 * 0.75 = 67
     }
 
     // Texto del precio centrado con color específico para cada modelo y tamaño calculado
@@ -1639,8 +1639,8 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const interiorY = 45; // Posición balanceada desde el borde superior
     
     // === TARJETA DE PRECIO PREMIUM ===
-    const priceCardWidth = 260;  // Ancho optimizado
-    const priceCardHeight = 130; // Alto balanceado
+    const priceCardWidth = 195;  // 25% reducción (260 * 0.75 = 195)
+    const priceCardHeight = 98;  // 25% reducción (130 * 0.75 = 97.5)
     const priceCardX = width - priceCardWidth - 45;
     const priceCardY = exteriorHeight - priceCardHeight - 45;
     
@@ -1886,7 +1886,7 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     
     // Capa 2: Tarjeta de precio PREMIUM EDITORIAL sobre la imagen exterior
     const precioStr = (propertyInfo.precio || 'Consultar').toString();
-    const precioFontSize = precioStr.length <= 4 ? 56 : precioStr.length <= 6 ? 48 : precioStr.length <= 8 ? 42 : 36;
+    const precioFontSize = precioStr.length <= 4 ? 42 : precioStr.length <= 6 ? 36 : precioStr.length <= 8 ? 31 : 27;  // 25% reducción: 56->42, 48->36, 42->31, 36->27
     
     const priceCardSvg = `
       <svg width="${priceCardWidth}" height="${priceCardHeight}" xmlns="http://www.w3.org/2000/svg">
@@ -1911,22 +1911,22 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
         </defs>
         <g filter="url(#priceShadow)">
           <!-- Fondo blanco premium -->
-          <rect x="0" y="0" width="${priceCardWidth}" height="${priceCardHeight}" rx="16" fill="url(#priceGrad)" />
+          <rect x="0" y="0" width="${priceCardWidth}" height="${priceCardHeight}" rx="12" fill="url(#priceGrad)" />
           
           <!-- Borde exterior sutil -->
-          <rect x="0" y="0" width="${priceCardWidth}" height="${priceCardHeight}" rx="16" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1" />
+          <rect x="0" y="0" width="${priceCardWidth}" height="${priceCardHeight}" rx="12" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1" />
           
-          <!-- Acento dorado superior -->
-          <rect x="20" y="12" width="40" height="3" rx="1.5" fill="#d4af37" opacity="0.8" />
+          <!-- Acento dorado superior - 25% reducido -->
+          <rect x="15" y="9" width="30" height="2" rx="1" fill="#d4af37" opacity="0.8" />
           
-          <!-- Label "Precio" -->
-          <text x="20" y="38" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 10px; font-weight: 600; fill: #888888; letter-spacing: 2px; text-transform: uppercase;">Precio</text>
+          <!-- Label "Precio" - 25% reducido -->
+          <text x="15" y="28" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 8px; font-weight: 600; fill: #888888; letter-spacing: 1px; text-transform: uppercase;">Precio</text>
           
-          <!-- Moneda -->
-          <text x="20" y="64" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #555555; letter-spacing: 0.3px;">${propertyInfo.moneda || 'USD'}</text>
+          <!-- Moneda - 25% reducido -->
+          <text x="15" y="48" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 700; fill: #555555; letter-spacing: 0.2px;">${propertyInfo.moneda || 'USD'}</text>
           
-          <!-- Precio principal -->
-          <text x="20" y="106" style="font-family: 'Playfair Display', Georgia, serif; font-size: ${precioFontSize}px; font-weight: 800; fill: #1a1a1a; letter-spacing: -1px;">${propertyInfo.precio || 'Consultar'}</text>
+          <!-- Precio principal - 25% reducido en posición -->
+          <text x="15" y="79" style="font-family: 'Playfair Display', Georgia, serif; font-size: ${precioFontSize}px; font-weight: 800; fill: #1a1a1a; letter-spacing: -1px;">${propertyInfo.precio || 'Consultar'}</text>
         </g>
       </svg>
     `;
