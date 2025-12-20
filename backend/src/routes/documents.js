@@ -35,7 +35,7 @@ if (process.env.OPENAI_API_KEY) {
 // Multer en memoria
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB
   fileFilter: (req, file, cb) => {
     const allowed = [
       'application/pdf',
@@ -435,8 +435,23 @@ router.post('/summary', async (req, res) => {
     // Extraer datos específicos según el tipo
     const extractedData = await extractDocumentData(text, documentType);
 
-    // Truncar texto para no exceder tokens (usar primeros 4000 caracteres)
-    const safeText = text.length > 4000 ? text.substring(0, 4000) : text;
+    // Truncar texto inteligentemente para no exceder tokens
+    // Para documentos grandes (>50KB), usar Smart Chunking
+    let safeText = text;
+    if (text.length > 50000) {
+      // Encontrar último párrafo completo dentro del límite
+      safeText = text.substring(0, 8000);
+      const lastPeriod = safeText.lastIndexOf('.');
+      if (lastPeriod > 4000) {
+        safeText = text.substring(0, lastPeriod + 1);
+      }
+    } else if (text.length > 4000) {
+      safeText = text.substring(0, 8000);
+      const lastPeriod = safeText.lastIndexOf('.');
+      if (lastPeriod > 0) {
+        safeText = text.substring(0, lastPeriod + 1);
+      }
+    }
 
     // Generar resumen general
     const systemPrompt = 'Eres un asistente experto en documentos legales e inmobiliarios. ' +
@@ -463,7 +478,7 @@ ${safeText}`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      max_tokens: 800,
+      max_tokens: 1500,
       temperature: 0.1
     });
 
