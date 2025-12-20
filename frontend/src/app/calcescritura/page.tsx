@@ -73,11 +73,11 @@ export default function CalceEscrituraPage() {
     let finalAmount = 0
 
     if (activeTab === 'comprador') {
-      // Real estate fee: 4% + IVA
+      // Real estate fee: 4% + IVA (IVA not included in total)
       realEstateFee = numericTransactionPrice * 0.04
       realEstateFeeIVA = realEstateFee * ivaRate
 
-      // Notary fees: 2% + IVA
+      // Notary fees: 2% + IVA (IVA not included in total)
       notaryFees = numericTransactionPrice * 0.02
       notaryFeesIVA = notaryFees * ivaRate
 
@@ -97,11 +97,11 @@ export default function CalceEscrituraPage() {
       // Otros: 0.75%
       otros = numericTransactionPrice * 0.0075
 
-      totalCosts = realEstateFee + realEstateFeeIVA + notaryFees + notaryFeesIVA + stamps + otros
+      totalCosts = realEstateFee + notaryFees + stamps + otros
       finalAmount = numericTransactionPrice + totalCosts
 
     } else if (activeTab === 'vendedor') {
-      // Real estate fee: 3% + IVA
+      // Real estate fee: 3% + IVA (IVA not included in total)
       realEstateFee = numericTransactionPrice * 0.03
       realEstateFeeIVA = realEstateFee * ivaRate
 
@@ -118,10 +118,11 @@ export default function CalceEscrituraPage() {
         stamps = numericTransactionPrice * (stampRate / 2)
       }
 
-      // Writing costs: 2% (no IVA)
+      // Writing costs: 2% + IVA (IVA not included in total)
       writingCosts = arsWritingPrice * 0.02 / numericExchangeRate // Convert back to USD
+      const writingCostsIVA = writingCosts * ivaRate
 
-      totalCosts = realEstateFee + realEstateFeeIVA + stamps + writingCosts
+      totalCosts = realEstateFee + stamps + writingCosts
       finalAmount = numericTransactionPrice - totalCosts
 
     } else if (activeTab === 'primera') {
@@ -362,8 +363,8 @@ export default function CalceEscrituraPage() {
                     </div>
                   )}
 
-                  {/* IVA for Real Estate Fee */}
-                  {calculations.realEstateFeeIVA > 0 && (
+                  {/* IVA for Real Estate Fee - Only shown for 'primera' tab */}
+                  {calculations.realEstateFeeIVA > 0 && activeTab === 'primera' && (
                     <div className="flex justify-between items-center py-2 pl-4 border-b border-gray-100">
                       <div className="text-sm text-gray-600">IVA</div>
                       <div className="text-right">
@@ -389,8 +390,8 @@ export default function CalceEscrituraPage() {
                     </div>
                   )}
 
-                  {/* IVA for Notary Fees */}
-                  {calculations.notaryFeesIVA > 0 && (
+                  {/* IVA for Notary Fees - Only shown for 'primera' tab */}
+                  {calculations.notaryFeesIVA > 0 && activeTab === 'primera' && (
                     <div className="flex justify-between items-center py-2 pl-4 border-b border-gray-100">
                       <div className="text-sm text-gray-600">IVA</div>
                       <div className="text-right">
