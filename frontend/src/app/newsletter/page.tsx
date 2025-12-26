@@ -651,13 +651,39 @@ export default function NewsletterPage() {
                       <div style="font-size: 9pt; color: ${styles.accentColor}; line-height: 1.5;">
                         <p style="margin: 0 0 4px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
                         <p style="margin: 0 0 4px 0;">🏠 ${property.propertyData.tipo}</p>
-                        <p style="margin: 0; font-weight: 700; color: #059669; font-size: 11pt;">
+                        <p style="margin: 0; font-weight: 700; color: ${styles.textColor}; font-size: 11pt;">
                           ${property.propertyData.moneda} ${property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
                         </p>
                       </div>
                     </div>
                   ` : '';
                 }).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Additional Images Section (antes del agente) -->
+          ${newsletter.images && newsletter.images.length > 0 ? `
+            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: avoid;">
+              <h3 style="
+                color: ${styles.textColor};
+                font-size: 16pt;
+                margin: 30px 0 20px 0;
+                font-weight: 700;
+                ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
+                page-break-inside: avoid;
+                page-break-after: avoid;
+                orphans: 5;
+                widows: 5;
+              ">Imágenes Adicionales</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; orphans: 2; widows: 2; page-break-inside: avoid;">
+                ${newsletter.images.map((imageUrl: string) => `
+                  <div style="page-break-inside: avoid;">
+                    <img src="${imageUrl}" 
+                         alt="Imagen adicional" 
+                         style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
+                  </div>
+                `).join('')}
               </div>
             </div>
           ` : ''}
@@ -1955,6 +1981,34 @@ export default function NewsletterPage() {
                     </div>
                   )}
 
+                  {/* Images - Antes de la información del agente */}
+                  {previewNewsletter!.images.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className={`font-semibold mb-4 ${
+                        (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
+                          return template ? 'text-xl' : 'text-xl text-gray-900';
+                        })()
+                      }`}
+                      style={{
+                        color: (() => {
+                          const template = AVAILABLE_TEMPLATES.find(t => t.id === previewNewsletter!.template);
+                          return template?.preview.textColor || '#1f2937';
+                        })()
+                      }}>Imágenes Adicionales</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {previewNewsletter!.images.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`Imagen ${index + 1}`}
+                            className="w-full h-48 object-cover rounded-lg shadow-md"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Agent Info - al final */}
                   {previewNewsletter!.agentInfo && (
                     <div className={`p-6 rounded-lg border mb-8 ${
@@ -2083,23 +2137,6 @@ export default function NewsletterPage() {
                             )}
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Images */}
-                  {previewNewsletter!.images.length > 0 && (
-                    <div className="mb-8">
-                      <h3 className="text-xl font-semibold mb-4">Imágenes</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {previewNewsletter!.images.map((url, index) => (
-                          <img
-                            key={index}
-                            src={url}
-                            alt={`Imagen ${index + 1}`}
-                            className="w-full h-32 object-cover rounded"
-                          />
-                        ))}
                       </div>
                     </div>
                   )}
