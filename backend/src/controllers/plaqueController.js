@@ -3052,17 +3052,46 @@ const deletePlaque = async (req, res, next) => {
       });
     }
 
-    // Eliminar imágenes de Cloudinary (opcional)
+    // Eliminar imágenes de Cloudinary y la carpeta completa
     try {
       const originalImages = JSON.parse(plaque.originalImages);
       const generatedImages = JSON.parse(plaque.generatedImages);
 
+      // Eliminar archivos individuales
       for (const imageUrl of [...originalImages, ...generatedImages]) {
         const publicId = extractPublicIdFromUrl(imageUrl);
         if (publicId) {
+          console.log(`[PLACAS DELETE] Eliminando imagen: ${publicId}`);
           await cloudinary.uploader.destroy(publicId);
         }
       }
+
+      // Eliminar la carpeta completa de originales (placas/originales/{plaqueId})
+      const folderPath = `placas/originales/${id}`;
+      console.log(`[PLACAS DELETE] Eliminando carpeta: ${folderPath}`);
+      
+      // Cloudinary requiere eliminar todos los recursos de la carpeta primero
+      // Listar todos los recursos en la carpeta
+      try {
+        const resources = await cloudinary.api.resources({
+          type: 'upload',
+          prefix: folderPath,
+          max_results: 500
+        });
+
+        // Eliminar cada recurso
+        for (const resource of resources.resources) {
+          await cloudinary.uploader.destroy(resource.public_id);
+        }
+
+        // Eliminar la carpeta vacía
+        await cloudinary.api.delete_folder(folderPath);
+        console.log(`[PLACAS DELETE] Carpeta eliminada exitosamente: ${folderPath}`);
+      } catch (folderError) {
+        console.error('[PLACAS DELETE] Error eliminando carpeta:', folderError.message);
+        // No fallar la operación si la carpeta no existe o ya fue eliminada
+      }
+
     } catch (error) {
       console.error('[PLACAS] Error eliminando imágenes de Cloudinary:', error);
       // No fallar la eliminación por esto
