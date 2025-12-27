@@ -1329,16 +1329,16 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       }
     }
 
-    // Render corredores box bottom-left if present
+    // Render corredores box bottom-center if present (como disclaimer pequeño)
     if (corredoresText) {
-      // Aumentar tamaño de fuente para corredores proporcionalmente
-      const corrFontSize = Math.max(16, Math.floor((width / 55) * finalScaleFactor * baseScale / 10));
-      const corrChar = Math.max(8, Math.floor(corrFontSize * 0.65));
+      // Tamaño de fuente más pequeño para que sea un disclaimer discreto
+      const corrFontSize = Math.max(14, Math.floor((width / 65) * finalScaleFactor * baseScale / 10));
+      const corrChar = Math.max(7, Math.floor(corrFontSize * 0.65));
       const corrMargin = Math.max(25, Math.floor(width / 40));
-      const maxCorrBoxW = Math.min(Math.floor(width * 0.7), 650);
-      const estW = corredoresText.length * corrChar + padding * 3;
-      const cW = Math.min(maxCorrBoxW, Math.max(250, estW));
-      const cMaxChars = Math.max(20, Math.floor((cW - padding * 3) / corrChar));
+      const maxCorrBoxW = Math.min(Math.floor(width * 0.6), 550);
+      const estW = corredoresText.length * corrChar + padding * 2.5;
+      const cW = Math.min(maxCorrBoxW, Math.max(200, estW));
+      const cMaxChars = Math.max(20, Math.floor((cW - padding * 2.5) / corrChar));
       // split into parts
       const safeCorr = escapeForSvg(corredoresText);
       // word-wrap based on cMaxChars estimate
@@ -1360,28 +1360,37 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         }
       }
       if (line) corrParts.push(line);
-      const cH = Math.max(50, corrParts.length * (Math.max(18, corrFontSize) + adaptiveSpacing) + padding * 2);
-      const cX = corrMargin;
-      const cY = height - Math.floor(corrMargin / 2);
+      const cH = Math.max(40, corrParts.length * (Math.max(16, corrFontSize) + Math.floor(adaptiveSpacing * 0.7)) + padding * 1.5);
+      
+      // Posicionar en el centro inferior, con margen suficiente desde el bottom
+      const bottomMargin = Math.max(corrMargin * 1.5, 40);
+      const cY = height - bottomMargin;
+      
       // compute final width to accommodate the longest wrapped part (by chars -> pixels estimate)
       let maxPartLen = 0;
       for (const p of corrParts) if (p.length > maxPartLen) maxPartLen = p.length;
       // Use a more generous character width estimate and add extra margin
-      const charWidthGenerous = Math.max(10, Math.floor(corrFontSize * 0.65));
-      const neededForParts = maxPartLen * charWidthGenerous + padding * 3;
-      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 250));
-      // draw rect with final width - usar color del esquema seleccionado
+      const charWidthGenerous = Math.max(8, Math.floor(corrFontSize * 0.65));
+      const neededForParts = maxPartLen * charWidthGenerous + padding * 2.5;
+      const finalCW = Math.min(maxCorrBoxW, Math.max(cW, neededForParts, 200));
+      
+      // Centrar horizontalmente
+      const cX = Math.floor((width - finalCW) / 2);
+      
+      // draw rect with final width - usar color del esquema seleccionado con mayor transparencia para disclaimer
+      const disclaimerOpacity = isPremium ? '0.85' : '0.92';
       svg += `  <g filter="url(#f1)">\n`;
-      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="8" fill="${corredoresBoxFill}" opacity="1" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" />\n`;
+      svg += `    <rect x="${cX}" y="${cY - cH}" width="${finalCW}" height="${cH}" rx="6" fill="${corredoresBoxFill}" opacity="${disclaimerOpacity}" stroke="rgba(0,0,0,0.12)" stroke-width="1" />\n`;
       svg += `  </g>\n`;
       // icon and text centered horizontally and vertically
       const centerY = cY - cH + cH / 2;
-      const totalLinesHeight = (corrParts.length - 1) * (lineHeight + adaptiveSpacing);
+      const lineSpacing = Math.max(16, corrFontSize) + Math.floor(adaptiveSpacing * 0.7);
+      const totalLinesHeight = (corrParts.length - 1) * lineSpacing;
       let startY = Math.floor(centerY - totalLinesHeight / 2);
       for (let i = 0; i < corrParts.length; i++) {
-        const lineY = startY + i * (lineHeight + adaptiveSpacing);
+        const lineY = startY + i * lineSpacing;
         const textCenterX = cX + finalCW / 2;
-        svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; fill: ${corredoresTextColor};">${corrParts[i]}</text>\n`;
+        svg += `  <text x="${textCenterX}" y="${lineY}" text-anchor="middle" dominant-baseline="middle" style="font-family: 'DejaVu Sans', Arial, sans-serif; font-size:${corrFontSize}px; font-weight: 500; fill: ${corredoresTextColor};">${corrParts[i]}</text>\n`;
       }
     }
 
