@@ -81,17 +81,18 @@ export default function CalceEscrituraPage() {
       notaryFees = numericTransactionPrice * 0.02
       notaryFeesIVA = notaryFees * ivaRate
 
-      // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
-      const stampRate = location === 'CABA' ? 0.035 : 0.02
+      // Stamps: 1.35% (2.7% in CABA split between buyer/seller, 1% PBA split)
+      // Stamps are applied to writing price (precio de escrituración)
+      const stampRate = location === 'CABA' ? 0.027 : 0.02
       const exemptionThreshold = 205000000 // ARS
       if (stampExemption && location === 'CABA') {
-        if (arsTransactionPrice <= exemptionThreshold) {
+        if (arsWritingPrice <= exemptionThreshold) {
           stamps = 0
         } else {
-          stamps = (arsTransactionPrice - exemptionThreshold) * (stampRate / 2) / numericExchangeRate
+          stamps = (arsWritingPrice - exemptionThreshold) * (stampRate / 2) / numericExchangeRate
         }
       } else {
-        stamps = numericTransactionPrice * (stampRate / 2)
+        stamps = numericWritingPrice * (stampRate / 2)
       }
 
       // Otros: 0.75%
@@ -105,17 +106,18 @@ export default function CalceEscrituraPage() {
       realEstateFee = numericTransactionPrice * 0.03
       realEstateFeeIVA = realEstateFee * ivaRate
 
-      // Stamps: 1.75% (3.5% in CABA, but split between buyer/seller)
-      const stampRate = location === 'CABA' ? 0.035 : 0.02
+      // Stamps: 1.35% (2.7% in CABA split between buyer/seller, 1% PBA split)
+      // Stamps are applied to writing price (precio de escrituración)
+      const stampRate = location === 'CABA' ? 0.027 : 0.02
       const exemptionThreshold = 205000000 // ARS
       if (stampExemption && location === 'CABA') {
-        if (arsTransactionPrice <= exemptionThreshold) {
+        if (arsWritingPrice <= exemptionThreshold) {
           stamps = 0
         } else {
-          stamps = (arsTransactionPrice - exemptionThreshold) * (stampRate / 2) / numericExchangeRate
+          stamps = (arsWritingPrice - exemptionThreshold) * (stampRate / 2) / numericExchangeRate
         }
       } else {
-        stamps = numericTransactionPrice * (stampRate / 2)
+        stamps = numericWritingPrice * (stampRate / 2)
       }
 
       // Writing costs: 2% + IVA (IVA not included in total)
@@ -134,13 +136,14 @@ export default function CalceEscrituraPage() {
       notaryFees = numericTransactionPrice * 0.035
       notaryFeesIVA = notaryFees * ivaRate
 
-      // Stamps: 3.5% in CABA, 2% in PBA, with exemption threshold
-      const stampRate = location === 'CABA' ? 0.035 : 0.02
+      // Stamps: 2.7% in CABA, 2% in PBA, with exemption threshold
+      // Stamps are applied to writing price (precio de escrituración)
+      const stampRate = location === 'CABA' ? 0.027 : 0.02
       const exemptionThreshold = 205000000 // ARS
-      if (arsTransactionPrice <= exemptionThreshold) {
+      if (arsWritingPrice <= exemptionThreshold) {
         stamps = 0
       } else {
-        stamps = (arsTransactionPrice - exemptionThreshold) * stampRate / numericExchangeRate
+        stamps = (arsWritingPrice - exemptionThreshold) * stampRate / numericExchangeRate
       }
 
       // Reserve fund: up to 6% (no IVA)

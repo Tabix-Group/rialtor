@@ -602,14 +602,15 @@ export default function NewsletterPage() {
                     background: ${styles.cardBg};
                     padding: 20px;
                     border-radius: 8px;
-                    margin-bottom: 15px;
+                    margin-bottom: 20px;
                     border: ${styles.cardBorder};
                     page-break-inside: avoid;
-                    orphans: 2;
-                    widows: 2;
+                    orphans: 3;
+                    widows: 3;
+                    min-height: 80px;
                   ">
-                    <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 8px 0; font-weight: 600;">${news.title}</h4>
-                    <p style="color: ${styles.textColor}; margin: 0 0 8px 0; line-height: 1.5; font-size: 10pt;">${news.synopsis}</p>
+                    <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 10px 0; font-weight: 600; line-height: 1.3;">${news.title}</h4>
+                    <p style="color: ${styles.textColor}; margin: 0 0 10px 0; line-height: 1.6; font-size: 10pt;">${news.synopsis}</p>
                     <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
                   </div>
                 ` : '';
@@ -631,7 +632,7 @@ export default function NewsletterPage() {
                 orphans: 5;
                 widows: 5;
               ">Propiedades Destacadas</h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; orphans: 2; widows: 2; page-break-inside: avoid;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; orphans: 2; widows: 2;">
                 ${newsletter.properties.map((propertyId: string) => {
                   const property = availableProperties.find(p => p.id === propertyId);
                   return property ? `
@@ -641,16 +642,18 @@ export default function NewsletterPage() {
                       border-radius: 8px;
                       border: ${styles.cardBorder};
                       page-break-inside: avoid;
+                      min-height: 100px;
+                      margin-bottom: 10px;
                     ">
                       ${property.generatedImages.length > 0 ? `
                         <img src="${property.generatedImages[0]}" 
                              alt="${property.title}" 
-                             style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 12px;" />
+                             style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; display: block;" />
                       ` : ''}
-                      <h4 style="color: ${styles.textColor}; font-size: 11pt; margin: 0 0 10px 0; font-weight: 600;">${property.title}</h4>
-                      <div style="font-size: 9pt; color: ${styles.accentColor}; line-height: 1.5;">
-                        <p style="margin: 0 0 4px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
-                        <p style="margin: 0 0 4px 0;">🏠 ${property.propertyData.tipo}</p>
+                      <h4 style="color: ${styles.textColor}; font-size: 11pt; margin: 0 0 10px 0; font-weight: 600; line-height: 1.3;">${property.title}</h4>
+                      <div style="font-size: 9pt; color: ${styles.accentColor}; line-height: 1.6;">
+                        <p style="margin: 0 0 5px 0;">📍 ${property.propertyData.direccion || 'Sin dirección'}</p>
+                        <p style="margin: 0 0 5px 0;">🏠 ${property.propertyData.tipo}</p>
                         <p style="margin: 0; font-weight: 700; color: ${styles.textColor}; font-size: 11pt;">
                           ${property.propertyData.moneda} ${property.propertyData.precio ? parseInt(property.propertyData.precio).toLocaleString('es-AR') : 'N/A'}
                         </p>
@@ -807,26 +810,46 @@ export default function NewsletterPage() {
 
       const pageWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
-      const margins = 8; // mm - aumentado para mejor margen
+      const margins = 10; // mm - márgenes generosos
       const effectivePageHeight = pageHeight - (margins * 2);
       
       const imgWidth = pageWidth - (margins * 2);
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      // Algoritmo optimizado para respetar saltos de página CSS
-      // y evitar cortes en el medio de secciones
+      // Algoritmo mejorado para evitar cortar contenido en medio de secciones
+      // Divide en páginas con overlap pequeño para evitar cortes abruptos
       const totalPages = Math.ceil(imgHeight / effectivePageHeight);
+      const overlap = 5; // mm de overlap para transición suave
       
       for (let pageNum = 0; pageNum < totalPages; pageNum++) {
         if (pageNum > 0) {
           pdf.addPage();
         }
         
-        // Calcular la posición vertical de esta página en la imagen
-        const yPosition = -(pageNum * effectivePageHeight);
+        // Calcular posición con overlap para evitar cortes bruscos
+        let yPosition = -(pageNum * effectivePageHeight);
         
-        // Agregar la imagen con clip para mostrar solo la parte de esta página
-        pdf.addImage(imgData, 'PNG', margins, yPosition + margins, imgWidth, imgHeight, undefined, 'FAST');
+        // Para páginas intermedias, agregar overlap para no cortar elementos
+        if (pageNum > 0) {
+          yPosition += overlap;
+        }
+        
+        // Agregar la imagen - usar máxima calidad
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          margins, 
+          yPosition + margins, 
+          imgWidth, 
+          imgHeight, 
+          undefined, 
+          'SLOW' // Cambiar a SLOW para mejor calidad
+        );
+        
+        // Si no es la última página, agregar una pequeña marca de continuación
+        if (pageNum < totalPages - 1) {
+          // Opcional: agregar indicador visual de continuación
+        }
       }
 
       const fileName = `newsletter_${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().getTime()}.pdf`;
