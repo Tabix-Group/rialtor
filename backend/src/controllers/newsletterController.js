@@ -351,14 +351,39 @@ const deleteNewsletter = async (req, res, next) => {
     const images = JSON.parse(newsletter.images || '[]');
     for (const imageUrl of images) {
       try {
-        const publicId = imageUrl.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(`newsletters/${publicId}`);
+        // Extraer el public_id completo de la URL de Cloudinary
+        const urlParts = imageUrl.split('/');
+        const uploadIndex = urlParts.findIndex(part => part === 'upload');
+        if (uploadIndex !== -1 && uploadIndex + 1 < urlParts.length) {
+          // El public_id está después de /upload/v{version}/
+          const pathAfterVersion = urlParts.slice(uploadIndex + 2).join('/');
+          const publicId = pathAfterVersion.split('.')[0]; // Remover extensión
+          console.log(`[NEWSLETTER DELETE] Eliminando imagen: ${publicId}`);
+          await cloudinary.uploader.destroy(publicId);
+        }
       } catch (deleteError) {
         console.error('Error deleting image from Cloudinary:', deleteError);
       }
     }
 
-    // Eliminar newsletter
+    // Eliminar foto del agente si existe
+    const agentInfo = newsletter.agentInfo ? JSON.parse(newsletter.agentInfo) : null;
+    if (agentInfo?.photo) {
+      try {
+        const urlParts = agentInfo.photo.split('/');
+        const uploadIndex = urlParts.findIndex(part => part === 'upload');
+        if (uploadIndex !== -1 && uploadIndex + 1 < urlParts.length) {
+          const pathAfterVersion = urlParts.slice(uploadIndex + 2).join('/');
+          const publicId = pathAfterVersion.split('.')[0];
+          console.log(`[NEWSLETTER DELETE] Eliminando foto de agente: ${publicId}`);
+          await cloudinary.uploader.destroy(publicId);
+        }
+      } catch (deleteError) {
+        console.error('Error deleting agent photo from Cloudinary:', deleteError);
+      }
+    }
+
+    // Eliminar newsletter de la base de datos
     await prisma.newsletter.delete({
       where: { id }
     });
