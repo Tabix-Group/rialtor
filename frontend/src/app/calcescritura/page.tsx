@@ -426,7 +426,7 @@ export default function CalceEscrituraPage() {
                       <div>
                         <div className="font-medium text-gray-900">Sellos</div>
                         <div className="text-sm text-gray-500">
-                          {stampExemption && location === 'CABA' && calculations.stamps === 0 ? 'Exento' : `${location === 'CABA' ? '1,75%' : '1,00%'}`}
+                          {stampExemption && location === 'CABA' && calculations.stamps === 0 ? 'Exento' : `${location === 'CABA' ? '1,35%' : '1,00%'}`}
                         </div>
                       </div>
                       <div className="text-right">
