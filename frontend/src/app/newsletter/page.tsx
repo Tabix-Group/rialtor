@@ -583,10 +583,10 @@ export default function NewsletterPage() {
 
           <!-- News Section -->
           ${newsletter.news && newsletter.news.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: avoid;">
+            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: auto;">
               <h3 style="
                 color: ${styles.textColor};
-                font-size: 16pt;
+                font-size: 12pt;
                 margin: 30px 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
@@ -620,10 +620,10 @@ export default function NewsletterPage() {
 
           <!-- Properties Section -->
           ${newsletter.properties && newsletter.properties.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: avoid;">
+            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: auto;">
               <h3 style="
                 color: ${styles.textColor};
-                font-size: 16pt;
+                font-size: 12pt;
                 margin: 30px 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
@@ -667,10 +667,10 @@ export default function NewsletterPage() {
 
           <!-- Additional Images Section (antes del agente) -->
           ${newsletter.images && newsletter.images.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: avoid;">
+            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: auto;">
               <h3 style="
                 color: ${styles.textColor};
-                font-size: 16pt;
+                font-size: 12pt;
                 margin: 30px 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
@@ -817,24 +817,20 @@ export default function NewsletterPage() {
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       // Algoritmo mejorado para evitar cortar contenido en medio de secciones
-      // Divide en páginas con overlap pequeño para evitar cortes abruptos
+      // Divide en páginas respetando el contenido sin cortes abruptos
       const totalPages = Math.ceil(imgHeight / effectivePageHeight);
-      const overlap = 5; // mm de overlap para transición suave
+      const smartPageBreak = 3; // mm de margen antes de considerar mover contenido a siguiente página
       
       for (let pageNum = 0; pageNum < totalPages; pageNum++) {
         if (pageNum > 0) {
           pdf.addPage();
         }
         
-        // Calcular posición con overlap para evitar cortes bruscos
+        // Calcular posición sin overlap para evitar cortes abruptos
+        // Esto permite que el contenido se divida naturalmente por página completa
         let yPosition = -(pageNum * effectivePageHeight);
         
-        // Para páginas intermedias, agregar overlap para no cortar elementos
-        if (pageNum > 0) {
-          yPosition += overlap;
-        }
-        
-        // Agregar la imagen - usar máxima calidad
+        // Agregar la imagen con mejor calidad
         pdf.addImage(
           imgData, 
           'PNG', 
@@ -843,13 +839,8 @@ export default function NewsletterPage() {
           imgWidth, 
           imgHeight, 
           undefined, 
-          'SLOW' // Cambiar a SLOW para mejor calidad
+          'FAST' // Usar FAST para mejor balance entre calidad y tamaño
         );
-        
-        // Si no es la última página, agregar una pequeña marca de continuación
-        if (pageNum < totalPages - 1) {
-          // Opcional: agregar indicador visual de continuación
-        }
       }
 
       const fileName = `newsletter_${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().getTime()}.pdf`;
