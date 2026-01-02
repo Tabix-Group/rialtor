@@ -819,20 +819,20 @@ export default function NewsletterPage() {
       // Calcular páginas necesarias sin repetición
       const totalPages = Math.ceil(imgHeight / effectivePageHeight);
       
+      // Calcular la relación de píxeles por milímetro
+      const pixelsPerMM = canvas.width / imgWidth; // píxeles por mm
+      const pageHeightInPixels = Math.round(effectivePageHeight * pixelsPerMM);
+      
       for (let pageNum = 0; pageNum < totalPages; pageNum++) {
         if (pageNum > 0) {
           pdf.addPage();
         }
         
-        // Calcular la posición exacta de corte para esta página
-        // Cada página muestra un segmento exacto sin overlap
-        const yOffset = pageNum * effectivePageHeight;
-        
-        // Usar srcX, srcY, srcW, srcH para extraer solo la sección de esta página
+        // Calcular la posición exacta de corte en píxeles del canvas
         const srcX = 0;
-        const srcY = yOffset;
+        const srcY = pageNum * pageHeightInPixels;
         const srcW = canvas.width;
-        const srcH = Math.min(canvas.height - srcY, canvas.height * effectivePageHeight / imgHeight);
+        const srcH = Math.min(pageHeightInPixels, canvas.height - srcY);
         
         // Crear canvas temporal para esta página
         const pageCanvas = document.createElement('canvas');
@@ -851,7 +851,7 @@ export default function NewsletterPage() {
             margins, 
             margins, 
             imgWidth, 
-            effectivePageHeight
+            (srcH / pixelsPerMM) // Ajustar altura según lo que realmente se capturó
           );
         }
       }
