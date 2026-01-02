@@ -2349,8 +2349,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   currentY += 32;
   
   // === CARACTERÍSTICAS - Grid 2x2 con ambientes, cochera, dormitorios, baños, etc. ===
-  const ambientesCard = ambientes ? { icon: 'icon-ambientes', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' } : null;
-  const cocheraCard = cocheras ? { icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' } : null;
+const ambientesCard = ambientes ? { icon: 'icon-descripcion', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' } : null;  const cocheraCard = cocheras ? { icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' } : null;
   
   const features = [];
   // Construir el array de features en orden: ambientes, cochera, m2_totales, m2_cubiertos, dormitorios, baños
