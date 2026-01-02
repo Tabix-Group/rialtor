@@ -810,37 +810,50 @@ export default function NewsletterPage() {
 
       const pageWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
-      const margins = 10; // mm - márgenes generosos
+      const margins = 10; // mm - márgenes
       const effectivePageHeight = pageHeight - (margins * 2);
       
       const imgWidth = pageWidth - (margins * 2);
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      // Algoritmo mejorado para evitar cortar contenido en medio de secciones
-      // Divide en páginas respetando el contenido sin cortes abruptos
+      // Calcular páginas necesarias sin repetición
       const totalPages = Math.ceil(imgHeight / effectivePageHeight);
-      const smartPageBreak = 3; // mm de margen antes de considerar mover contenido a siguiente página
       
       for (let pageNum = 0; pageNum < totalPages; pageNum++) {
         if (pageNum > 0) {
           pdf.addPage();
         }
         
-        // Calcular posición sin overlap para evitar cortes abruptos
-        // Esto permite que el contenido se divida naturalmente por página completa
-        let yPosition = -(pageNum * effectivePageHeight);
+        // Calcular la posición exacta de corte para esta página
+        // Cada página muestra un segmento exacto sin overlap
+        const yOffset = pageNum * effectivePageHeight;
         
-        // Agregar la imagen con mejor calidad
-        pdf.addImage(
-          imgData, 
-          'PNG', 
-          margins, 
-          yPosition + margins, 
-          imgWidth, 
-          imgHeight, 
-          undefined, 
-          'FAST' // Usar FAST para mejor balance entre calidad y tamaño
-        );
+        // Usar srcX, srcY, srcW, srcH para extraer solo la sección de esta página
+        const srcX = 0;
+        const srcY = yOffset;
+        const srcW = canvas.width;
+        const srcH = Math.min(canvas.height - srcY, canvas.height * effectivePageHeight / imgHeight);
+        
+        // Crear canvas temporal para esta página
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = srcW;
+        pageCanvas.height = srcH;
+        
+        const ctx = pageCanvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(canvas, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+          const pageImgData = pageCanvas.toDataURL('image/png', 1);
+          
+          // Agregar imagen sin repetición
+          pdf.addImage(
+            pageImgData, 
+            'PNG', 
+            margins, 
+            margins, 
+            imgWidth, 
+            effectivePageHeight
+          );
+        }
       }
 
       const fileName = `newsletter_${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().getTime()}.pdf`;
