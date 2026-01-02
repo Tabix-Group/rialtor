@@ -2168,24 +2168,6 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         letter-spacing: 0.1px;
       }
       
-      /* Número de ambientes - azul profundo */
-      .vip-ambientes-number { 
-        font-family: 'Playfair Display', Georgia, serif; 
-        font-size: 76px; 
-        font-weight: 800; 
-        fill: #2d4458; 
-        letter-spacing: -2.5px; 
-      }
-      
-      /* Texto "ambientes" - celeste medio */
-      .vip-ambientes-text { 
-        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 17px; 
-        font-weight: 600; 
-        fill: #6b8299; 
-        letter-spacing: 0.2px;
-      }
-      
       /* Valores de características - azul grisáceo */
       .vip-feature-value { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
@@ -2269,6 +2251,10 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       <path d="M4 20V10l8-6 8 6v10" fill="none" stroke="currentColor" stroke-width="1.2"/>
       <rect x="7" y="14" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.2" rx="1"/>
       <line x1="7" y1="17" x2="17" y2="17" stroke="currentColor" stroke-width="0.8"/>
+    </symbol>
+    
+    <symbol id="icon-ambientes" viewBox="0 0 24 24">
+      <path d="M3 9h2v12H3zM7 3h2v18H7zM11 6h2v15h-2zM15 4h2v17h-2zM19 8h2v13h-2z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
     
     <!-- Gradientes editorial premium con tonos celestes/pasteles -->
@@ -2362,24 +2348,14 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 80}" y2="${currentY}" stroke="#a8c5dd" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />\n`;
   currentY += 32;
   
-  // AMBIENTES - Hero display con número grande
-  if (ambientes) {
-    svg += `  <g>\n`;
-    svg += `    <text x="${infoStartX}" y="${currentY + 48}" class="vip-ambientes-number">${ambientes}</text>\n`;
-    // Calcular posición del texto "ambientes"
-    const numWidth = ambientes.toString().length * 46;
-    svg += `    <text x="${infoStartX + numWidth + 10}" y="${currentY + 25}" class="vip-ambientes-text">ambientes</text>\n`;
-    // Línea decorativa celeste sutil
-    svg += `    <line x1="${infoStartX}" y1="${currentY + 56}" x2="${infoStartX + numWidth - 8}" y2="${currentY + 56}" stroke="#a8c5dd" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />\n`;
-    svg += `  </g>\n`;
-    currentY += 75;
-  }
-  
-  // === CARACTERÍSTICAS - Cochera especial + grid 2x2 ===
-  // Cochera va a la derecha de ambientes, alineada con las otras características
+  // === CARACTERÍSTICAS - Grid 2x2 con ambientes, cochera, dormitorios, baños, etc. ===
+  const ambientesCard = ambientes ? { icon: 'icon-ambientes', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' } : null;
   const cocheraCard = cocheras ? { icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' } : null;
   
   const features = [];
+  // Construir el array de features en orden: ambientes, cochera, m2_totales, m2_cubiertos, dormitorios, baños
+  if (ambientesCard) features.push(ambientesCard);
+  if (cocheraCard) features.push(cocheraCard);
   if (m2_totales) features.push({ icon: 'icon-area', value: `${m2_totales}`, unit: 'm²', label: 'totales' });
   if (m2_cubiertos) features.push({ icon: 'icon-covered', value: `${m2_cubiertos}`, unit: 'm²', label: 'cubiertos' });
   if (dormitorios) features.push({ icon: 'icon-bed', value: dormitorios, unit: '', label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
@@ -2392,36 +2368,18 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   // Calcular altura disponible desde currentY hasta footerY - 25px (donde termina el agente)
   const availableHeight = (footerY - 25) - currentY;
-  // Si tenemos 4 features en 2 filas, calcular spacing para distribuir uniformemente
+  // Si tenemos features en 2 columnas, calcular spacing para distribuir uniformemente
   const numRows = Math.ceil(features.length / 2);
   const featureRowHeight = numRows > 0 ? (availableHeight - 52) / numRows : 60; // 52px es la altura de cada card
   
   const col1X = infoStartX;
   const col2X = infoStartX + featureColWidth + 25;
   
-  // Renderizar COCHERA alineada con la segunda columna (col2X)
-  if (cocheraCard) {
-    const cocheraStartY = currentY - 75; // Alineada con el final de ambientes
-    const cocheraWidth = featureColWidth - 12;
-    
-    svg += `\n  <!-- Cochera - Alineada con segunda columna -->\n`;
-    svg += `  <rect x="${col2X - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="#f5f9fc" opacity="0.8" />\n`;
-    svg += `  <rect x="${col2X - 5}" y="${cocheraStartY - 5}" width="${cocheraWidth}" height="52" rx="10" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
-    
-    svg += `  <g style="color: #6b8299">\n`;
-    svg += `    <svg x="${col2X}" y="${cocheraStartY}" width="${iconSize}" height="${iconSize}">\n`;
-    svg += `      <use href="#${cocheraCard.icon}" />\n`;
-    svg += `    </svg>\n`;
-    svg += `    <text x="${col2X + iconSize + 10}" y="${cocheraStartY + 18}" class="vip-feature-value">${cocheraCard.value}<tspan style="font-size: 15px; font-weight: 500; fill: #8197ab;"> ${cocheraCard.unit}</tspan></text>\n`;
-    svg += `    <text x="${col2X + iconSize + 10}" y="${cocheraStartY + 36}" class="vip-feature-label">${cocheraCard.label}</text>\n`;
-    svg += `  </g>\n`;
-  }
-  
   if (features.length > 0) {
-    svg += `\n  <!-- Grid de características (metros, dormitorios, baños) -->\n`;
+    svg += `\n  <!-- Grid de características (ambientes, cochera, metros, dormitorios, baños) -->\n`;
     
     features.forEach((feature, index) => {
-      if (index >= 4) return; // Máximo 4 características
+      if (index >= 6) return; // Máximo 6 características
       
       const col = index % 2;
       const row = Math.floor(index / 2);
