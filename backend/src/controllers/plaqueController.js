@@ -998,10 +998,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const isPremium = modelType === 'premium';
     let priceBoxFill, priceTextColor, corredoresBoxFill, corredoresTextColor;
     
+    // Aplicar transparencia reducida a 0.71 para ambos modelos (standard y premium)
+    // para mejor consistencia visual
+    selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.71)';
+    
     if (isPremium) {
       // Esquema premium: tonos más cálidos y menos contrastados para combinar con dorado
-      // Aumentar transparencia del fondo de características en 25% (de 0.95 a 0.71)
-      selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.71)';
       // Fondo del precio: tono cálido y más claro que el anterior para mejor legibilidad con dorado
       priceBoxFill = 'rgba(112,85,58,0.95)'; // #70553A
       priceTextColor = '#D4AF37'; // Dorado metálico elegante (mantener)
