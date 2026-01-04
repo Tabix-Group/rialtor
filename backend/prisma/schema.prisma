@@ -317,6 +317,7 @@ model DocumentFavorite {
 
 model FinanceTransaction {
   id          String   @id @default(uuid())
+  tipo        String   @default("Laboral") // "Personal" o "Laboral"
   type        String
   concept     String
   description String?

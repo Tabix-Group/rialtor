@@ -35,7 +35,11 @@ const getTransactions = async (req, res, next) => {
 const createTransaction = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { type, concept, description, amount, currency, date } = req.body;
+    const { tipo, type, concept, description, amount, currency, date } = req.body;
+
+    if (!['Personal', 'Laboral'].includes(tipo)) {
+      return res.status(400).json({ error: 'Tipo must be Personal or Laboral' });
+    }
 
     if (!['ingreso', 'egreso'].includes(type)) {
       return res.status(400).json({ error: 'Type must be ingreso or egreso' });
@@ -48,6 +52,7 @@ const createTransaction = async (req, res, next) => {
     const transaction = await prisma.financeTransaction.create({
       data: {
         userId,
+        tipo,
         type,
         concept,
         description,
@@ -68,7 +73,7 @@ const updateTransaction = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const { type, concept, description, amount, currency, date } = req.body;
+    const { tipo, type, concept, description, amount, currency, date } = req.body;
 
     // Verificar que la transacción pertenece al usuario
     const existing = await prisma.financeTransaction.findFirst({
@@ -77,6 +82,10 @@ const updateTransaction = async (req, res, next) => {
 
     if (!existing) {
       return res.status(404).json({ error: 'Transaction not found' });
+    }
+
+    if (tipo && !['Personal', 'Laboral'].includes(tipo)) {
+      return res.status(400).json({ error: 'Tipo must be Personal or Laboral' });
     }
 
     if (type && !['ingreso', 'egreso'].includes(type)) {
@@ -88,6 +97,7 @@ const updateTransaction = async (req, res, next) => {
     }
 
     const updateData = {};
+    if (tipo) updateData.tipo = tipo;
     if (type) updateData.type = type;
     if (concept) updateData.concept = concept;
     if (description !== undefined) updateData.description = description;

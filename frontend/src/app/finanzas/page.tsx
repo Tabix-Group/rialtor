@@ -11,6 +11,7 @@ import {
 
 interface FinanceTransaction {
   id: string
+  tipo: 'Personal' | 'Laboral'
   type: 'ingreso' | 'egreso'
   concept: string
   description?: string
@@ -34,8 +35,8 @@ export default function FinanzasPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<FinanceTransaction | null>(null)
 
-  // Conceptos predeterminados
-  const ingresosConcepts = [
+  // Conceptos predeterminados por Tipo
+  const conceptosLaboralIngresos = [
     'Comisiones Inmobiliarias x Venta',
     'Comisiones Inmobiliarias x Alquiler',
     'Comisiones por Seguro de Caucion',
@@ -44,7 +45,7 @@ export default function FinanzasPage() {
     'Otros'
   ]
 
-  const egresosConcepts = [
+  const conceptosLaboralEgresos = [
     'Gastos de Publicacion',
     'Gastos de Redes Sociales',
     'Gastos Membresia Oficina',
@@ -58,8 +59,34 @@ export default function FinanzasPage() {
     'Otros'
   ]
 
+  const conceptosPersonalIngresos = [
+    'SALARIO',
+    'OTROS'
+  ]
+
+  const conceptosPersonalEgresos = [
+    'ALQUILER',
+    'AYSA',
+    'CELULAR',
+    'COLEGIO',
+    'COMIDA',
+    'CONTADOR',
+    'EXPENSAS',
+    'GARAGE',
+    'GAS',
+    'IIBB',
+    'INTERNET',
+    'LUZ',
+    'MONOTRIBUTO',
+    'OTROS',
+    'PERSONAL',
+    'PREPAGA',
+    'SEGURO'
+  ]
+
   // Form state
   const [formData, setFormData] = useState({
+    tipo: 'Laboral' as 'Personal' | 'Laboral',
     type: 'ingreso' as 'ingreso' | 'egreso',
     concept: '',
     description: '',
@@ -73,6 +100,7 @@ export default function FinanzasPage() {
     startDate: '',
     endDate: '',
     currency: '',
+    tipo: '',
     type: '',
     concept: ''
   })
@@ -167,6 +195,7 @@ export default function FinanzasPage() {
 
   const resetForm = () => {
     setFormData({
+      tipo: 'Laboral',
       type: 'ingreso',
       concept: '',
       description: '',
@@ -184,9 +213,18 @@ export default function FinanzasPage() {
     }))
   }
 
+  const handleTipoChange = (newTipo: 'Personal' | 'Laboral') => {
+    setFormData(prev => ({
+      ...prev,
+      tipo: newTipo,
+      concept: '' // Limpiar el concepto cuando cambia el tipo
+    }))
+  }
+
   const startEdit = (transaction: FinanceTransaction) => {
     setEditingTransaction(transaction)
     setFormData({
+      tipo: transaction.tipo,
       type: transaction.type,
       concept: transaction.concept,
       description: transaction.description || '',
@@ -198,6 +236,7 @@ export default function FinanzasPage() {
   }
 
   const filteredTransactions = transactions.filter(t => {
+    if (filters.tipo && t.tipo !== filters.tipo) return false
     if (filters.type && t.type !== filters.type) return false
     if (filters.concept && t.concept !== filters.concept) return false
     return true
@@ -294,7 +333,7 @@ export default function FinanzasPage() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
                 <input
                   type="date"
                   value={filters.startDate}
@@ -321,8 +360,18 @@ export default function FinanzasPage() {
                 </select>
 
                 <select
+                  value={filters.tipo}
+                  onChange={(e) => setFilters(prev => ({ ...prev, tipo: e.target.value, concept: '' }))}
+                  className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
+                >
+                  <option value="">Todas las categorías</option>
+                  <option value="Laboral">Laboral</option>
+                  <option value="Personal">Personal</option>
+                </select>
+
+                <select
                   value={filters.type}
-                  onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
+                  onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value, concept: '' }))}
                   className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
                 >
                   <option value="">Todos los tipos</option>
@@ -336,22 +385,38 @@ export default function FinanzasPage() {
                   className="w-full px-3 sm:px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all sm:col-span-2 lg:col-span-1"
                 >
                   <option value="">Todos los conceptos</option>
-                  {filters.type === 'ingreso' && ingresosConcepts.map((concept) => (
+                  {filters.tipo === 'Laboral' && filters.type === 'ingreso' && conceptosLaboralIngresos.map((concept) => (
                     <option key={concept} value={concept}>{concept}</option>
                   ))}
-                  {filters.type === 'egreso' && egresosConcepts.map((concept) => (
+                  {filters.tipo === 'Laboral' && filters.type === 'egreso' && conceptosLaboralEgresos.map((concept) => (
                     <option key={concept} value={concept}>{concept}</option>
                   ))}
-                  {!filters.type && (
+                  {filters.tipo === 'Personal' && filters.type === 'ingreso' && conceptosPersonalIngresos.map((concept) => (
+                    <option key={concept} value={concept}>{concept}</option>
+                  ))}
+                  {filters.tipo === 'Personal' && filters.type === 'egreso' && conceptosPersonalEgresos.map((concept) => (
+                    <option key={concept} value={concept}>{concept}</option>
+                  ))}
+                  {!filters.tipo && !filters.type && (
                     <>
-                      <optgroup label="Ingresos">
-                        {ingresosConcepts.map((concept) => (
-                          <option key={`ing-${concept}`} value={concept}>{concept}</option>
+                      <optgroup label="Laboral - Ingresos">
+                        {conceptosLaboralIngresos.map((concept) => (
+                          <option key={`lab-ing-${concept}`} value={concept}>{concept}</option>
                         ))}
                       </optgroup>
-                      <optgroup label="Egresos">
-                        {egresosConcepts.map((concept) => (
-                          <option key={`egr-${concept}`} value={concept}>{concept}</option>
+                      <optgroup label="Laboral - Egresos">
+                        {conceptosLaboralEgresos.map((concept) => (
+                          <option key={`lab-egr-${concept}`} value={concept}>{concept}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Personal - Ingresos">
+                        {conceptosPersonalIngresos.map((concept) => (
+                          <option key={`per-ing-${concept}`} value={concept}>{concept}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Personal - Egresos">
+                        {conceptosPersonalEgresos.map((concept) => (
+                          <option key={`per-egr-${concept}`} value={concept}>{concept}</option>
                         ))}
                       </optgroup>
                     </>
@@ -360,7 +425,7 @@ export default function FinanzasPage() {
               </div>
 
               <button
-                onClick={() => setFilters({ startDate: '', endDate: '', currency: '', type: '', concept: '' })}
+                onClick={() => setFilters({ startDate: '', endDate: '', currency: '', tipo: '', type: '', concept: '' })}
                 className="w-full sm:w-auto px-4 py-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all text-sm font-medium border border-slate-200"
               >
                 Limpiar filtros
@@ -391,6 +456,34 @@ export default function FinanzasPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Categoría</label>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="tipo"
+                          value="Laboral"
+                          checked={formData.tipo === 'Laboral'}
+                          onChange={(e) => handleTipoChange(e.target.value as 'Personal' | 'Laboral')}
+                          className="text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-blue-600 font-medium text-sm sm:text-base">Laboral</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="tipo"
+                          value="Personal"
+                          checked={formData.tipo === 'Personal'}
+                          onChange={(e) => handleTipoChange(e.target.value as 'Personal' | 'Laboral')}
+                          className="text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="text-purple-600 font-medium text-sm sm:text-base">Personal</span>
+                      </label>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Tipo</label>
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -428,7 +521,16 @@ export default function FinanzasPage() {
                       required
                     >
                       <option value="">Seleccionar concepto</option>
-                      {(formData.type === 'ingreso' ? ingresosConcepts : egresosConcepts).map((concept) => (
+                      {formData.tipo === 'Laboral' && formData.type === 'ingreso' && conceptosLaboralIngresos.map((concept) => (
+                        <option key={concept} value={concept}>{concept}</option>
+                      ))}
+                      {formData.tipo === 'Laboral' && formData.type === 'egreso' && conceptosLaboralEgresos.map((concept) => (
+                        <option key={concept} value={concept}>{concept}</option>
+                      ))}
+                      {formData.tipo === 'Personal' && formData.type === 'ingreso' && conceptosPersonalIngresos.map((concept) => (
+                        <option key={concept} value={concept}>{concept}</option>
+                      ))}
+                      {formData.tipo === 'Personal' && formData.type === 'egreso' && conceptosPersonalEgresos.map((concept) => (
                         <option key={concept} value={concept}>{concept}</option>
                       ))}
                     </select>
