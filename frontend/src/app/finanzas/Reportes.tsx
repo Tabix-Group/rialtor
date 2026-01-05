@@ -6,7 +6,6 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts'
 import { BarChart3, Download } from 'lucide-react' 
-import * as XLSX from 'xlsx' 
 
 type FinanceTransaction = {
   id: string
@@ -107,24 +106,32 @@ export default function Reportes({ transactions, balance }: Props) {
     ]
   }, [totals])
 
-  const exportToXLSX = () => {
+  const exportToXLSX = async () => {
     if (filteredTransactions.length === 0) return
 
-    const wsData = filteredTransactions.map(t => ({
-      Fecha: new Date(t.date).toISOString().split('T')[0],
-      Categoria: t.tipo,
-      Tipo: t.type,
-      Concepto: t.concept,
-      Descripcion: t.description || '',
-      Monto: Number(t.amount),
-      Moneda: t.currency,
-      Creado: new Date(t.createdAt).toISOString()
-    }))
+    try {
+      // Cargar XLSX dinámicamente en cliente (evita bundling SSR y reduce riesgo de crash en deploy)
+      const XLSX = (await import('xlsx')) as typeof import('xlsx')
 
-    const ws = XLSX.utils.json_to_sheet(wsData)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Reportes')
-    XLSX.writeFile(wb, `reportes_finanzas_${new Date().toISOString().slice(0,10)}.xlsx`)
+      const wsData = filteredTransactions.map(t => ({
+        Fecha: new Date(t.date).toISOString().split('T')[0],
+        Categoria: t.tipo,
+        Tipo: t.type,
+        Concepto: t.concept,
+        Descripcion: t.description || '',
+        Monto: Number(t.amount),
+        Moneda: t.currency,
+        Creado: new Date(t.createdAt).toISOString()
+      }))
+
+      const ws = XLSX.utils.json_to_sheet(wsData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Reportes')
+      XLSX.writeFile(wb, `reportes_finanzas_${new Date().toISOString().slice(0,10)}.xlsx`)
+    } catch (err) {
+      console.error('Error exporting XLSX:', err)
+      alert('Error al generar el archivo .xlsx. Revisa la consola o intenta exportar en CSV.')
+    }
   }
 
   return (
