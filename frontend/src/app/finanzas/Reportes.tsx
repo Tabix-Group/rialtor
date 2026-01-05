@@ -6,6 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts'
 import { BarChart3, Download } from 'lucide-react' 
+import * as XLSX from 'xlsx' 
 
 type FinanceTransaction = {
   id: string
@@ -106,30 +107,24 @@ export default function Reportes({ transactions, balance }: Props) {
     ]
   }, [totals])
 
-  const exportToCSV = () => {
+  const exportToXLSX = () => {
     if (filteredTransactions.length === 0) return
-    const header = ['Fecha','Categoria','Tipo','Concepto','Descripcion','Monto','Moneda','Creado']
-    const rows = filteredTransactions.map(t => [
-      new Date(t.date).toISOString().split('T')[0],
-      t.tipo,
-      t.type,
-      t.concept,
-      (t.description || '').replace(/"/g, '""'),
-      t.amount.toFixed(2),
-      t.currency,
-      new Date(t.createdAt).toISOString()
-    ])
 
-    const csv = [header, ...rows].map(r => r.map(cell => `"${String(cell).replace(/"/g, '""') }"`).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `reportes_finanzas_${new Date().toISOString().slice(0,10)}.csv`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
+    const wsData = filteredTransactions.map(t => ({
+      Fecha: new Date(t.date).toISOString().split('T')[0],
+      Categoria: t.tipo,
+      Tipo: t.type,
+      Concepto: t.concept,
+      Descripcion: t.description || '',
+      Monto: Number(t.amount),
+      Moneda: t.currency,
+      Creado: new Date(t.createdAt).toISOString()
+    }))
+
+    const ws = XLSX.utils.json_to_sheet(wsData)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Reportes')
+    XLSX.writeFile(wb, `reportes_finanzas_${new Date().toISOString().slice(0,10)}.xlsx`)
   }
 
   return (
@@ -241,9 +236,9 @@ export default function Reportes({ transactions, balance }: Props) {
 
           <div className="flex items-center gap-2">
             <div className="text-sm text-slate-500 mr-2">{filteredTransactions.length} registros</div>
-            <button onClick={exportToCSV} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-2 rounded-xl hover:shadow-lg text-sm">
+            <button onClick={exportToXLSX} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-2 rounded-xl hover:shadow-lg text-sm">
               <Download className="w-4 h-4" />
-              Exportar a Excel
+              Exportar a Excel (.xlsx)
             </button>
           </div>
         </div>
