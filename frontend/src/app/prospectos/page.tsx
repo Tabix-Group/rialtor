@@ -81,7 +81,7 @@ export default function ProspectosPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Mis <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Prospectos</span></h1>
-              <p className="mt-2 text-slate-500 max-w-2xl">Seguimiento minimalista para tus proyecciones y conversiones de clientes potenciales.</p>
+              <p className="mt-2 text-slate-500 max-w-2xl">Seguimiento para tus proyecciones y conversiones de clientes potenciales.</p>
             </div>
             <div className="flex gap-3">
               <button onClick={handleCreate} className="bg-primary text-white px-4 py-2 rounded-xl font-semibold">Nueva Proyección</button>
