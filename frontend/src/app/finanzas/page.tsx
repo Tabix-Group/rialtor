@@ -8,6 +8,7 @@ import {
   DollarSign, Plus, Minus, Calendar, Filter, TrendingUp, TrendingDown,
   ArrowUpRight, Edit3, Trash2, Search, X, ChevronDown, BarChart3
 } from 'lucide-react'
+import Reportes from './Reportes'
 
 interface FinanceTransaction {
   id: string
@@ -34,6 +35,7 @@ export default function FinanzasPage() {
   const [loadingData, setLoadingData] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<FinanceTransaction | null>(null)
+  const [activeTab, setActiveTab] = useState<'transacciones' | 'reportes'>('transacciones')
 
   // Conceptos predeterminados por Tipo
   const conceptosLaboralIngresos = [
@@ -611,9 +613,30 @@ export default function FinanzasPage() {
         {/* Transactions List */}
         <div className="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-2xl border border-slate-200/60 overflow-hidden">
           <div className="p-4 sm:p-6 lg:p-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6">Transacciones</h2>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                {activeTab === 'transacciones' ? 'Transacciones' : 'Reportes'}
+              </h2>
 
-            {loadingData ? (
+              <div className="inline-flex bg-slate-50 rounded-xl p-1">
+                <button
+                  onClick={() => setActiveTab('transacciones')}
+                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${activeTab === 'transacciones' ? 'bg-white shadow' : 'text-slate-600'}`}
+                >
+                  Transacciones
+                </button>
+                <button
+                  onClick={() => setActiveTab('reportes')}
+                  className={`px-3 py-1 rounded-lg text-sm font-semibold ${activeTab === 'reportes' ? 'bg-white shadow' : 'text-slate-600'}`}
+                >
+                  Reportes
+                </button>
+              </div>
+            </div>
+
+            {activeTab === 'transacciones' ? (
+              <>
+                {loadingData ? (
               <div className="flex flex-col items-center justify-center py-12 sm:py-16 lg:py-20">
                 <div className="relative">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
@@ -717,7 +740,10 @@ export default function FinanzasPage() {
                   </div>
                 ))}
               </div>
-            )}
+    
+                )}
+              </>
+            ) : (<Reportes transactions={filteredTransactions} balance={balance} />)}
           </div>
         </div>
       </div>
