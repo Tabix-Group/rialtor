@@ -6,6 +6,7 @@ import ProspectCard from '../../components/prospects/ProspectCard'
 import ProspectForm from '../../components/prospects/ProspectForm'
 import Link from 'next/link'
 import { useAuth } from '../auth/authContext'
+import { authenticatedFetch } from '@/utils/api'
 
 import type { Prospect, ProspectFormData, ProspectStats } from '../../types/prospect'
 
@@ -23,14 +24,14 @@ export default function ProspectosPage() {
     if (!user) return
     setLoading(true)
     try {
-      const r1 = await fetch('/api/prospects')
+      const r1 = await authenticatedFetch('/api/prospects')
       const data1 = await r1.json()
       setProspects(data1.prospects || [])
     } catch (e) {
       console.error('Error fetching prospects', e)
     }
     try {
-      const r2 = await fetch('/api/prospects/stats')
+      const r2 = await authenticatedFetch('/api/prospects/stats')
       const data2 = await r2.json()
       setStats(data2.stats || {})
     } catch (e) {
@@ -46,7 +47,7 @@ export default function ProspectosPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de que querés eliminar este prospecto?')) return
     try {
-      const r = await fetch(`/api/prospects/${id}`, { method: 'DELETE' })
+      const r = await authenticatedFetch(`/api/prospects/${id}`, { method: 'DELETE' })
       if (r.ok) load()
     } catch (e) { console.error(e) }
   }
@@ -54,14 +55,20 @@ export default function ProspectosPage() {
   const handleSave = async (form: ProspectFormData) => {
     try {
       if (editing) {
-        const r = await fetch(`/api/prospects/${editing.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+        const r = await authenticatedFetch(`/api/prospects/${editing.id}`, { method: 'PUT', body: JSON.stringify(form) })
+        const data = await r.json()
         if (r.ok) {
           setIsFormOpen(false); setEditing(null); load()
+        } else {
+          console.error('Error updating prospect', data)
         }
       } else {
-        const r = await fetch('/api/prospects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+        const r = await authenticatedFetch('/api/prospects', { method: 'POST', body: JSON.stringify(form) })
+        const data = await r.json()
         if (r.ok) {
           setIsFormOpen(false); load()
+        } else {
+          console.error('Error creating prospect', data)
         }
       }
     } catch (e) { console.error('Error saving prospect', e) }
@@ -70,15 +77,15 @@ export default function ProspectosPage() {
   return (
     <div className="min-h-screen bg-background py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-2xl p-8 text-white mb-6">
+        <div className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 rounded-2xl shadow-lg border-2 border-gray-200 p-8 mb-8 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Mis <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Prospectos</span></h1>
-              <p className="mt-2 text-slate-200 max-w-2xl">Seguimiento minimalista para tus proyecciones y conversiones de clientes potenciales.</p>
+              <p className="mt-2 text-slate-500 max-w-2xl">Seguimiento minimalista para tus proyecciones y conversiones de clientes potenciales.</p>
             </div>
             <div className="flex gap-3">
-              <button onClick={handleCreate} className="bg-white text-slate-900 px-4 py-2 rounded-xl font-semibold">Nueva Proyección</button>
-              <Link href="/dashboard" className="px-4 py-2 rounded-xl border border-white/20 hover:bg-white/10">Volver</Link>
+              <button onClick={handleCreate} className="bg-primary text-white px-4 py-2 rounded-xl font-semibold">Nueva Proyección</button>
+              <Link href="/dashboard" className="px-4 py-2 rounded-xl border border-border hover:bg-slate-50">Volver</Link>
             </div>
           </div>
         </div>
