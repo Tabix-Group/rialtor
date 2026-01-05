@@ -479,6 +479,15 @@ export default function AyudaPage() {
                   </div>
                 </div>
 
+                <div id="finanzas-prospectos" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Mis Prospectos</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Registrá tus proyecciones y prospectos concretados. Podés agregar un monto estimado, comisión prevista y cuántos clientes fueron contactados. También verás indicadores clave (monto promedio, comisión promedio, clientes prospectados y tasa de conversión) para comparar tu desempeño frente a lo planificado.
+                    </p>
+                  </div>
+                </div>
+
                 <div id="finanzas-categorias" className="mb-8 scroll-mt-24">
                   <h3 className="text-xl font-semibold mb-3">Categorías Personalizadas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">

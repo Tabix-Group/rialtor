@@ -164,6 +164,47 @@ async function main() {
 
   console.log('✅ Users created and roles assigned');
 
+  // Crear prospectos de ejemplo para usuarios (demo)
+  const prospects = [
+    {
+      title: 'Proyección: Venta departamento CABA',
+      note: 'Cliente interesado, visita agendada',
+      estimatedValue: 120000,
+      estimatedCommission: 6000,
+      clientsProspected: 3,
+      probability: 30,
+      status: 'TENTATIVE',
+      userId: corredorUser.id
+    },
+    {
+      title: 'Prospecto Concretado - PH vendido',
+      note: 'Cerrado con comisión realizada',
+      closedValue: 95000,
+      estimatedCommission: 4750,
+      clientsProspected: 1,
+      probability: 100,
+      status: 'WON',
+      closeDate: new Date(),
+      userId: corredorUser.id
+    },
+    {
+      title: 'Proyección: Alquiler temporal',
+      note: 'Interés por 6 meses',
+      estimatedValue: 1200,
+      estimatedCommission: 120,
+      clientsProspected: 5,
+      probability: 20,
+      status: 'TENTATIVE',
+      userId: regularUser.id
+    }
+  ];
+
+  for (const p of prospects) {
+    await prisma.prospect.create({ data: p });
+  }
+
+  console.log('✅ Example prospects created');
+
   // Crear categorías de conocimiento
   const categories = [
     {

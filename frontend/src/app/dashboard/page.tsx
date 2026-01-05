@@ -37,6 +37,7 @@ import {
   X,
   Video,
   DollarSign,
+  User2,
   Building2,
   Mail,
   Send,
@@ -402,6 +403,14 @@ export default function DashboardPage() {
       href: "/news",
       badge: "En Vivo",
       stats: "Actualización diaria",
+    },
+    {
+      title: "Mis Prospectos",
+      description: "Gestioná tus prospectos: proyecciones, conversiones y seguimiento por cliente.",
+      icon: User2,
+      href: "/prospectos",
+      badge: "Prospectos",
+      stats: "Conversiones"
     },
     {
       title: "Centro de Finanzas",
@@ -972,6 +981,7 @@ export default function DashboardPage() {
                   { icon: Edit3, label: "Editar Formulario", href: "/formularios" },
                   { icon: ImageIcon, label: "Crear Placa", href: "/placas" },
                   { icon: MessageSquare, label: "Consultar IA", href: "/chat" },
+                  { icon: User2, label: "Ver Prospectos", href: "/prospectos" },
                   { icon: BarChart3, label: "Ver Finanzas", href: "/finanzas" },
                 ].map((action, index) => (
                   <Link

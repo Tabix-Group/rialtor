@@ -96,6 +96,12 @@ function Navigation() {
       description: "Gestión financiera personal",
     },
     {
+      name: "Mis Prospectos",
+      href: "/prospectos",
+      icon: User2,
+      description: "Gestión de prospectos y conversiones",
+    },
+    {
       name: "Calculadoras",
       href: "/calculadoras",
       icon: Calculator,

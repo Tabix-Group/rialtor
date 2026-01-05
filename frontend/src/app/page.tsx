@@ -841,6 +841,7 @@ export default function Home() {
                   { name: "Generador de Placas", href: "/placas", requiresAuth: true },
                   { name: "Seguro de Caución", href: "/creditos", requiresAuth: true },
                   { name: "Mis Finanzas", href: "/finanzas", requiresAuth: true },
+                  { name: "Mis Prospectos", href: "/prospectos", requiresAuth: true },
                   { name: "Calendario", href: "/calendario", requiresAuth: true },
                   { name: "Resumidor", href: "/documents/summary", requiresAuth: true },
                 ].map((tool) =>

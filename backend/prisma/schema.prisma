@@ -30,6 +30,7 @@ model User {
   financeTransactions FinanceTransaction[]
   newsletters         Newsletter[]
   propertyPlaques     PropertyPlaque[]
+  prospects           Prospect[]
   roleAssignments     RoleAssignment[]
 
   @@map("users")
@@ -332,6 +333,34 @@ model FinanceTransaction {
   @@map("finance_transactions")
 }
 
+// Prospects model: personal prospecting records for each user
+enum ProspectStatus {
+  TENTATIVE
+  CONTACTED
+  QUALIFIED
+  WON
+  LOST
+}
+
+model Prospect {
+  id                  String         @id @default(uuid())
+  title               String
+  note                String?
+  estimatedValue      Float?
+  estimatedCommission Float? // Suggested commission estimate
+  clientsProspected   Int?           @default(0)
+  probability         Int? // 0-100
+  status              ProspectStatus @default(TENTATIVE)
+  closedValue         Float?
+  closeDate           DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  userId              String
+  user                User           @relation(fields: [userId], references: [id])
+
+  @@map("prospects")
+}
+
 model CalendarToken {
   id           String    @id @default(uuid())
   userId       String    @unique
@@ -347,7 +376,7 @@ model CalendarToken {
 
 model EconomicIndex {
   id          String   @id @default(uuid())
-  indicator   String   // 'ipc', 'cacGeneral', 'cacMateriales', 'cacManoObra', 'icc', 'is'
+  indicator   String // 'ipc', 'cacGeneral', 'cacMateriales', 'cacManoObra', 'icc', 'is'
   value       Float
   variation   Float?
   date        DateTime
@@ -360,19 +389,19 @@ model EconomicIndex {
 }
 
 model Newsletter {
-  id          String   @id @default(uuid())
-  title       String
-  content     String   // HTML content
-  images      String   // JSON array of image URLs
-  properties  String?  // JSON array of property IDs or data
-  news        String?  // JSON array of news IDs
-  agentInfo   String?  // JSON with agent information
-  template    String   @default("default")
-  status      String   @default("DRAFT") // DRAFT, PUBLISHED, SENT
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  id         String   @id @default(uuid())
+  title      String
+  content    String // HTML content
+  images     String // JSON array of image URLs
+  properties String? // JSON array of property IDs or data
+  news       String? // JSON array of news IDs
+  agentInfo  String? // JSON with agent information
+  template   String   @default("default")
+  status     String   @default("DRAFT") // DRAFT, PUBLISHED, SENT
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
 
   @@map("newsletters")
 }
