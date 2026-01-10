@@ -127,8 +127,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       <div className="bg-gray-50 py-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
-        {/* Responsive Container */}
-        <div className="space-y-8">
+            {/* Responsive Container */}
+            <div className="space-y-8">
           {/* Desktop: 3-Column Layout */}
           <div className="hidden lg:block">
             {stages.map((stage, index) => {
