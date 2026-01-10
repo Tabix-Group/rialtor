@@ -7,7 +7,6 @@ interface FunnelStage {
   label: string
   clientsHot: number
   clientsCold: number
-  // 'color' se mantiene por compatibilidad, pero usamos 'tailwindColor' para el visual
   color: string
   tailwindColor: string
   width: string
@@ -18,7 +17,6 @@ interface SalesFunnelProps {
 }
 
 export default function SalesFunnel({ onSave }: SalesFunnelProps) {
-  // 1. ESTADO ACTUALIZADO CON DEGRADADOS (GRADIENTS)
   const [stages, setStages] = useState<FunnelStage[]>([
     { 
       id: 1, 
@@ -68,8 +66,13 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
   ])
 
   const [isSaving, setIsSaving] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
-  // --- LÓGICA DE NEGOCIO (INTACTA) ---
+  // Efecto simple para animar la entrada
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const calculateComposition = (stageIndex: number) => {
     const stage = stages[stageIndex]
     const total = stage.clientsHot + stage.clientsCold
@@ -135,13 +138,16 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
   return (
     <div className="w-full font-sans">
       {/* HEADER */}
-      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16 rounded-t-2xl shadow-xl">
-        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
+      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16 rounded-t-2xl shadow-xl relative overflow-hidden">
+        {/* Decoración de fondo */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-12 translate-x-12"></div>
+        
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start relative z-10">
           <div>
-            <div className="mb-4 inline-block rounded-full bg-blue-700/50 px-4 py-2 backdrop-blur border border-blue-500/30">
+            <div className="mb-4 inline-block rounded-full bg-blue-700/50 px-4 py-2 backdrop-blur border border-blue-500/30 shadow-lg">
               <p className="text-sm font-semibold text-blue-100">📊 Centro de Análisis</p>
             </div>
-            <h1 className="text-4xl font-bold text-white sm:text-5xl tracking-tight">
+            <h1 className="text-4xl font-bold text-white sm:text-5xl tracking-tight drop-shadow-lg">
               Mis <span className="text-cyan-400">Proyecciones</span>
             </h1>
             <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg opacity-90">
@@ -151,7 +157,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 sm:w-auto flex items-center justify-center gap-2"
+            className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 hover:shadow-cyan-500/20 hover:-translate-y-0.5 disabled:opacity-50 sm:w-auto flex items-center justify-center gap-2"
           >
             <span>💾</span>
             {isSaving ? 'Guardando...' : 'Guardar'}
@@ -159,22 +165,21 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         </div>
       </div>
 
-      <div className="bg-gray-50 py-6 min-h-[600px]">
+      <div className="bg-gray-50 py-8 min-h-[600px]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-b-2xl border border-t-0 border-gray-200 bg-white p-4 shadow-sm sm:p-12">
             <div className="space-y-8">
               
-              {/* --- DESKTOP LAYOUT (PREMIUM LOOK) --- */}
+              {/* --- DESKTOP LAYOUT (PREMIUM + BARRA RESTAURADA) --- */}
               <div className="hidden lg:block pt-8 pb-4">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
                   const totalClients = stage.clientsHot + stage.clientsCold
 
                   return (
-                    // relative z-10 para manejar el stacking
                     <div key={stage.id} className={`grid grid-cols-3 items-center gap-6 relative z-10 ${index === stages.length - 1 ? 'pb-6' : 'mb-0'}`}>
                       
-                      {/* LÍNEA CONECTORA IZQUIERDA (Decorativa) */}
+                      {/* LÍNEA CONECTORA IZQUIERDA */}
                       <div className="absolute left-[28%] top-1/2 w-[10%] border-t-2 border-dashed border-gray-200 -translate-y-1/2 z-0 hidden xl:block opacity-60" />
 
                       {/* COLUMNA IZQUIERDA (Inputs) */}
@@ -189,51 +194,68 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                           />
                           <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mt-1">Referidos</span>
                         </div>
-                        <div className={`mt-2 text-xs font-bold px-3 py-1 rounded-full transition-colors ${totalClients > 0 ? 'bg-teal-50 text-teal-700' : 'bg-gray-100 text-gray-400'}`}>
+                        <div className={`mt-2 text-xs font-bold px-3 py-1 rounded-full transition-colors flex items-center gap-1 ${totalClients > 0 ? 'bg-teal-50 text-teal-700' : 'bg-gray-100 text-gray-400'}`}>
+                           <span className="w-2 h-2 rounded-full bg-teal-500"></span>
                           {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
                         </div>
                       </div>
 
-                      {/* COLUMNA CENTRAL (Embudo Geométrico) */}
+                      {/* COLUMNA CENTRAL (Embudo Geométrico + Barra) */}
                       <div className="flex flex-col items-center relative group perspective-1000">
                         <div 
-                          className={`relative ${stage.width} transition-transform duration-300 hover:scale-[1.02] drop-shadow-xl -mb-7`} 
-                          style={{ zIndex: 20 - index }} 
+                          className={`relative ${stage.width} transition-transform duration-500 hover:scale-[1.02] drop-shadow-2xl -mb-7`} 
+                          style={{ 
+                            zIndex: 20 - index,
+                            opacity: mounted ? 1 : 0,
+                            transform: mounted ? 'translateY(0)' : 'translateY(20px)',
+                            transitionDelay: `${index * 100}ms`
+                          }} 
                         >
                           <div 
-                            className={`${stage.tailwindColor} shadow-inner transition-all overflow-hidden rounded-none`}
+                            className={`${stage.tailwindColor} shadow-inner transition-all overflow-hidden rounded-none relative`}
                             style={{
-                                // Geometría Trapezoidal
                                 clipPath: 'polygon(0 0, 100% 0, 90% 100%, 10% 100%)',
-                                height: '85px', 
+                                height: '90px', // Un poco más alto para acomodar la barra
                                 display: 'flex',
                                 flexDirection: 'column',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                alignItems: 'center'
                             }}
                           >
-                            {/* Efecto Rim Light (Borde de luz superior) */}
-                            <div className="absolute top-0 left-0 w-full h-px bg-white/40" />
-                            <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-white/10 to-transparent" />
-                            
-                            {/* Barra de progreso sutil interna */}
-                            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                               <div className="h-full bg-black/30" style={{ width: `${coldPercent}%`, marginLeft: `${hotPercent}%` }} />
-                            </div>
+                            {/* BRILLO SUPERIOR (GLASS EFFECT) */}
+                            <div className="absolute top-0 inset-x-0 h-[1px] bg-white/60 z-20"></div>
+                            <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-white/20 to-transparent z-10"></div>
 
-                            {/* Contenido Texto */}
-                            <div className="px-4 text-center z-10 pt-1">
-                              <p className="font-extrabold text-white text-lg tracking-wide drop-shadow-md filter">
+                            {/* CONTENIDO TEXTO */}
+                            <div className="px-4 text-center z-30 mb-1">
+                              <p className="font-extrabold text-white text-xl tracking-wide drop-shadow-md">
                                 {stage.label}
                               </p>
                               <p className="text-center text-xs text-white/90 font-medium mt-0.5">
                                 {totalClients} clientes
                               </p>
                             </div>
+
+                            {/* BARRA DE PROGRESO (RESTAURADA) */}
+                            {totalClients > 0 && (
+                              <div className="w-2/3 h-1.5 bg-black/30 rounded-full flex overflow-hidden backdrop-blur-sm z-30 mt-1 shadow-inner">
+                                {/* Parte Hot (Referidos) - Blanco Puro para resaltar */}
+                                <div 
+                                  className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-700 ease-out" 
+                                  style={{ width: `${hotPercent}%` }} 
+                                />
+                                {/* Parte Cold (Frios) - Transparente (se ve el fondo oscuro) */}
+                                <div 
+                                  className="h-full bg-transparent transition-all duration-700 ease-out" 
+                                  style={{ width: `${coldPercent}%` }} 
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      {/* LÍNEA CONECTORA DERECHA (Decorativa) */}
+                      {/* LÍNEA CONECTORA DERECHA */}
                       <div className="absolute right-[28%] top-1/2 w-[10%] border-t-2 border-dashed border-gray-200 -translate-y-1/2 z-0 hidden xl:block opacity-60" />
 
                       {/* COLUMNA DERECHA (Inputs) */}
@@ -248,7 +270,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                           />
                           <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mt-1">Bases frías</span>
                         </div>
-                        <div className={`mt-2 text-xs font-bold px-3 py-1 rounded-full transition-colors ${totalClients > 0 ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-400'}`}>
+                        <div className={`mt-2 text-xs font-bold px-3 py-1 rounded-full transition-colors flex items-center gap-1 ${totalClients > 0 ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-400'}`}>
+                           <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
                           {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
                         </div>
                       </div>
@@ -257,7 +280,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                 })}
               </div>
 
-              {/* --- TABLET LAYOUT (Simplificado pero con colores correctos) --- */}
+              {/* --- TABLET LAYOUT --- */}
               <div className="hidden md:block lg:hidden">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
@@ -280,14 +303,15 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                       </div>
 
                       <div className={`${stage.width} flex-1 px-4`}>
-                        <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-lg`}>
-                          <div className="flex h-1.5 w-full">
-                            <div className="bg-white/40" style={{ width: `${hotPercent}%` }} />
-                            <div className="bg-black/20" style={{ width: `${coldPercent}%` }} />
-                          </div>
-                          <div className="px-3 py-3 text-center">
+                        <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-lg p-3`}>
+                          <div className="text-center mb-2">
                             <p className="font-bold text-white text-sm">{stage.label}</p>
                             <p className="text-xs text-white/90">{totalClients} clientes</p>
+                          </div>
+                          {/* Barra interna */}
+                          <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-black/20">
+                            <div className="bg-white shadow-[0_0_5px_white]" style={{ width: `${hotPercent}%` }} />
+                            <div className="bg-transparent" style={{ width: `${coldPercent}%` }} />
                           </div>
                         </div>
                       </div>
@@ -310,7 +334,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                 })}
               </div>
 
-              {/* --- MOBILE LAYOUT (Cards Verticales) --- */}
+              {/* --- MOBILE LAYOUT --- */}
               <div className="space-y-4 md:hidden">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
@@ -320,14 +344,14 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                     <div key={stage.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                       <div className="mb-4 flex justify-center">
                         <div className={`w-full ${stage.width}`}>
-                          <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-md`}>
-                            <div className="flex h-2 w-full">
-                              <div className="bg-white/40" style={{ width: `${hotPercent}%` }} />
-                              <div className="bg-black/20" style={{ width: `${coldPercent}%` }} />
-                            </div>
-                            <div className="px-4 py-3 text-center">
+                          <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-md p-3`}>
+                            <div className="text-center mb-2">
                               <p className="font-bold text-white text-sm">{stage.label}</p>
                               <p className="text-xs text-white/90">{totalClients} clientes</p>
+                            </div>
+                            <div className="flex h-2 w-full rounded-full overflow-hidden bg-black/20">
+                              <div className="bg-white" style={{ width: `${hotPercent}%` }} />
+                              <div className="bg-transparent" style={{ width: `${coldPercent}%` }} />
                             </div>
                           </div>
                         </div>
@@ -373,16 +397,16 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
           <div className="mt-8 pt-8 border-t border-gray-200">
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
               {stages.map((stage) => (
-                <div key={stage.id} className="rounded-lg border border-gray-100 bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-all">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">{stage.label}</p>
+                <div key={stage.id} className="rounded-lg border border-gray-100 bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-all group">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide group-hover:text-blue-600 transition-colors">{stage.label}</p>
                   <p className="mt-1 text-2xl font-extrabold text-gray-900">
                     {stage.clientsHot + stage.clientsCold}
                   </p>
                   <div className="mt-2 flex gap-1 text-[10px] sm:gap-2 font-medium">
-                    <span className="inline-block rounded-full bg-teal-100 px-2 py-0.5 text-teal-700 truncate">
+                    <span className="inline-block rounded-full bg-teal-50 px-2 py-0.5 text-teal-700 truncate border border-teal-100">
                       {stage.clientsHot} Ref
                     </span>
-                    <span className="inline-block rounded-full bg-indigo-100 px-2 py-0.5 text-indigo-700 truncate">
+                    <span className="inline-block rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 truncate border border-indigo-100">
                       {stage.clientsCold} Frío
                     </span>
                   </div>
