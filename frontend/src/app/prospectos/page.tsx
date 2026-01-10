@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from 'react'
 import ProspectSummary from '../../components/prospects/ProspectSummary'
 import ProspectCard from '../../components/prospects/ProspectCard'
 import ProspectForm from '../../components/prospects/ProspectForm'
-import Link from 'next/link'
 import { useAuth } from '../auth/authContext'
 import { authenticatedFetch } from '@/utils/api'
 
@@ -42,8 +41,11 @@ export default function ProspectosPage() {
 
   useEffect(()=>{ if (user) load() },[user, load])
 
+  // Esta función ahora se pasa al Header nuevo para que el botón funcione
   const handleCreate = () => { setEditing(null); setIsFormOpen(true) }
+  
   const handleEdit = (p: Prospect) => { setEditing(p); setIsFormOpen(true) }
+  
   const handleDelete = async (id: string) => {
     if (!confirm('¿Estás seguro de que querés eliminar este prospecto?')) return
     try {
@@ -75,34 +77,52 @@ export default function ProspectosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 rounded-2xl shadow-lg border-2 border-gray-200 p-8 mb-8 relative overflow-hidden">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Mis <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">Prospectos</span></h1>
-              <p className="mt-2 text-slate-500 max-w-2xl">Seguimiento para tus proyecciones y conversiones de clientes potenciales.</p>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={handleCreate} className="bg-primary text-white px-4 py-2 rounded-xl font-semibold">Nueva Proyección</button>
-              <Link href="/dashboard" className="px-4 py-2 rounded-xl border border-border hover:bg-slate-50">Volver</Link>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-slate-50">
+      
+      {/* 1. EL ENCABEZADO AZUL NUEVO:
+        Lo colocamos aquí, FUERA del contenedor con padding. 
+        Así ocupa todo el ancho de la pantalla (full width).
+      */}
+      <ProspectSummary stats={stats} onCreateClick={handleCreate} />
 
+      {/* 2. CONTENIDO PRINCIPAL (Formularios y Tarjetas):
+        Este sí lleva padding y max-width para que quede centrado y prolijo.
+      */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
         <div className="space-y-6">
-          <ProspectSummary stats={stats} />
-
+          {/* El Formulario se muestra aquí si está abierto */}
           {isFormOpen && (
-            <ProspectForm initial={editing || undefined} onCancel={() => { setIsFormOpen(false); setEditing(null) }} onSave={handleSave} />
+            <div className="animate-in fade-in slide-in-from-top duration-300">
+               <ProspectForm 
+                 initial={editing || undefined} 
+                 onCancel={() => { setIsFormOpen(false); setEditing(null) }} 
+                 onSave={handleSave} 
+               />
+            </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Grilla de Tarjetas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading ? (
-              <div>Loading...</div>
+              <div className="col-span-full py-20 text-center text-slate-500">
+                Cargando prospectos...
+              </div>
+            ) : prospects.length === 0 ? (
+              <div className="col-span-full py-20 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+                <p className="text-slate-500 mb-4">No tienes prospectos cargados aún.</p>
+                <button onClick={handleCreate} className="text-blue-600 font-semibold hover:underline">
+                  Crea tu primer prospecto
+                </button>
+              </div>
             ) : (
               prospects.map((p) => (
-                <ProspectCard key={p.id} prospect={p} onEdit={handleEdit} onDelete={handleDelete} />
+                <ProspectCard 
+                  key={p.id} 
+                  prospect={p} 
+                  onEdit={handleEdit} 
+                  onDelete={handleDelete} 
+                />
               ))
             )}
           </div>
