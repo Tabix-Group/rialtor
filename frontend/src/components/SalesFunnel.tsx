@@ -2,6 +2,14 @@
 
 import { useState, useEffect } from 'react'
 
+// Iconos SVG simples para mejorar la estética sin librerías externas
+const UserIcon = () => (
+  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+)
+const ChartIcon = () => (
+  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+)
+
 interface FunnelStage {
   id: number
   label: string
@@ -24,7 +32,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       clientsHot: 20, 
       clientsCold: 0, 
       color: 'teal', 
-      tailwindColor: 'bg-gradient-to-r from-teal-400 to-teal-600', 
+      tailwindColor: 'bg-gradient-to-r from-teal-500 to-teal-600', 
       width: 'w-full' 
     },
     { 
@@ -33,7 +41,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       clientsHot: 13, 
       clientsCold: 0, 
       color: 'indigo', 
-      tailwindColor: 'bg-gradient-to-r from-indigo-500 to-indigo-700', 
+      tailwindColor: 'bg-gradient-to-r from-indigo-500 to-indigo-600', 
       width: 'w-11/12' 
     },
     { 
@@ -41,8 +49,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       label: 'Captaciones', 
       clientsHot: 9, 
       clientsCold: 1, 
-      color: 'red', 
-      tailwindColor: 'bg-gradient-to-r from-rose-500 to-rose-700', 
+      color: 'rose', 
+      tailwindColor: 'bg-gradient-to-r from-rose-500 to-rose-600', 
       width: 'w-10/12' 
     },
     { 
@@ -50,8 +58,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       label: 'Reservas', 
       clientsHot: 4, 
       clientsCold: 2, 
-      color: 'green', 
-      tailwindColor: 'bg-gradient-to-r from-emerald-500 to-emerald-700', 
+      color: 'emerald', 
+      tailwindColor: 'bg-gradient-to-r from-emerald-500 to-emerald-600', 
       width: 'w-9/12' 
     },
     { 
@@ -59,8 +67,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       label: 'Cierres', 
       clientsHot: 3, 
       clientsCold: 2, 
-      color: 'yellow', 
-      tailwindColor: 'bg-gradient-to-r from-amber-400 to-amber-600', 
+      color: 'amber', 
+      tailwindColor: 'bg-gradient-to-r from-amber-400 to-amber-500', 
       width: 'w-8/12' 
     },
   ])
@@ -68,7 +76,6 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  // Efecto simple para animar la entrada
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -77,14 +84,23 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     const stage = stages[stageIndex]
     const total = stage.clientsHot + stage.clientsCold
 
-    if (total === 0) {
-      return { hotPercent: 0, coldPercent: 0 }
+    // Cálculo del % de conversión respecto a la etapa anterior
+    let conversionRate = 100
+    if (stageIndex > 0) {
+      const prevStage = stages[stageIndex - 1]
+      const prevTotal = prevStage.clientsHot + prevStage.clientsCold
+      if (prevTotal > 0) {
+        conversionRate = Math.round((total / prevTotal) * 100)
+      } else {
+        conversionRate = 0
+      }
     }
 
-    const hotPercent = (stage.clientsHot / total) * 100
-    const coldPercent = (stage.clientsCold / total) * 100
+    // Cálculo visual para la barra (proporción interna)
+    const hotPercent = total === 0 ? 0 : (stage.clientsHot / total) * 100
+    const coldPercent = total === 0 ? 0 : (stage.clientsCold / total) * 100
 
-    return { hotPercent, coldPercent }
+    return { hotPercent, coldPercent, conversionRate }
   }
 
   const handleInputChange = (stageId: number, field: 'clientsHot' | 'clientsCold', value: string) => {
@@ -102,14 +118,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/sales-funnel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: stages }),
-      })
-
-      if (!response.ok) throw new Error('Error saving funnel data')
-
+      // Simulación de guardado
+      await new Promise(resolve => setTimeout(resolve, 800))
       if (onSave) onSave(stages)
     } catch (error) {
       console.error('Error saving sales funnel:', error)
@@ -118,301 +128,189 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     }
   }
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const response = await fetch('/api/sales-funnel')
-        if (response.ok) {
-          const result = await response.json()
-          if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-            setStages(result.data)
-          }
-        }
-      } catch (error) {
-        console.error('Error loading sales funnel:', error)
-      }
-    }
-    loadData()
-  }, [])
-
   return (
-    <div className="w-full font-sans">
-      {/* HEADER */}
-      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16 rounded-t-2xl shadow-xl relative overflow-hidden">
-        {/* Decoración de fondo */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-12 translate-x-12"></div>
+    <div className="w-full font-sans text-slate-800">
+      {/* HEADER PREMIUM */}
+      <div className="bg-[#0f172a] px-6 py-12 sm:px-8 sm:py-16 rounded-t-3xl shadow-2xl relative overflow-hidden">
+        {/* Efectos de fondo sutiles */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/4"></div>
         
-        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start relative z-10">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center relative z-10">
           <div>
-            <div className="mb-4 inline-block rounded-full bg-blue-700/50 px-4 py-2 backdrop-blur border border-blue-500/30 shadow-lg">
-              <p className="text-sm font-semibold text-blue-100">📊 Centro de Análisis</p>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-slate-800/80 px-3 py-1 text-xs font-medium text-blue-200 border border-slate-700 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              Pipeline en tiempo real
             </div>
-            <h1 className="text-4xl font-bold text-white sm:text-5xl tracking-tight drop-shadow-lg">
-              Mis <span className="text-cyan-400">Proyecciones</span>
+            <h1 className="text-3xl font-bold text-white sm:text-4xl tracking-tight">
+              Proyecciones <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Comerciales</span>
             </h1>
-            <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg opacity-90">
-              Visualiza y gestiona tu pipeline de ventas en tiempo real.
+            <p className="mt-2 text-slate-400 max-w-lg text-sm sm:text-base">
+              Gestiona el flujo de conversión de tus referidos y bases frías.
             </p>
           </div>
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 hover:shadow-cyan-500/20 hover:-translate-y-0.5 disabled:opacity-50 sm:w-auto flex items-center justify-center gap-2"
+            className="group relative inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition-all hover:bg-blue-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] disabled:opacity-50"
           >
-            <span>💾</span>
-            {isSaving ? 'Guardando...' : 'Guardar'}
+            {isSaving ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Guardando...
+              </>
+            ) : (
+              <>
+                <span>Guardar Cambios</span>
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </>
+            )}
           </button>
         </div>
       </div>
 
-      <div className="bg-gray-50 py-8 min-h-[600px]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-b-2xl border border-t-0 border-gray-200 bg-white p-4 shadow-sm sm:p-12">
-            <div className="space-y-8">
+      <div className="bg-slate-50 py-10 min-h-[600px]">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10 relative">
+            
+            {/* Etiquetas de columnas superiores */}
+            <div className="grid grid-cols-12 mb-6 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">
+              <div className="col-span-3 text-right pr-12">Referidos</div>
+              <div className="col-span-6">Embudo de Conversión</div>
+              <div className="col-span-3 text-left pl-12">Fríos</div>
+            </div>
+
+            <div className="space-y-1"> {/* Espaciado reducido para mayor compacidad */}
               
-              {/* --- DESKTOP LAYOUT (PREMIUM + BARRA RESTAURADA) --- */}
-              <div className="hidden lg:block pt-8 pb-4">
-                {stages.map((stage, index) => {
-                  const { hotPercent, coldPercent } = calculateComposition(index)
-                  const totalClients = stage.clientsHot + stage.clientsCold
+              {stages.map((stage, index) => {
+                const { hotPercent, coldPercent, conversionRate } = calculateComposition(index)
+                const totalClients = stage.clientsHot + stage.clientsCold
 
-                  return (
-                    <div key={stage.id} className={`grid grid-cols-3 items-center gap-6 relative z-10 ${index === stages.length - 1 ? 'pb-6' : 'mb-0'}`}>
-                      
-                      {/* LÍNEA CONECTORA IZQUIERDA */}
-                      <div className="absolute left-[28%] top-1/2 w-[10%] border-t-2 border-dashed border-gray-200 -translate-y-1/2 z-0 hidden xl:block opacity-60" />
-
-                      {/* COLUMNA IZQUIERDA (Inputs) */}
-                      <div className="flex flex-col items-end pr-8 relative z-10">
-                        <div className="mb-1 flex w-full flex-col items-end group">
+                return (
+                  <div key={stage.id} className={`grid grid-cols-12 items-center relative z-10 group`}>
+                    
+                    {/* --- COLUMNA IZQUIERDA (INPUT REFERIDOS) --- */}
+                    <div className="col-span-3 flex justify-end pr-8 relative">
+                      <div className="flex items-center gap-3 transition-transform duration-300 group-hover:-translate-x-1">
+                        <div className="text-right">
                           <input
                             type="number"
                             min="0"
                             value={stage.clientsHot}
                             onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                            className="w-24 rounded border-b-2 border-transparent bg-transparent text-right text-2xl font-bold text-gray-800 outline-none transition-all hover:bg-gray-50 focus:border-teal-500 focus:bg-gray-50"
+                            className="w-16 text-right text-xl font-bold text-slate-700 bg-transparent border-b-2 border-transparent hover:border-slate-200 focus:border-blue-500 focus:outline-none transition-colors p-0"
                           />
-                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mt-1">Referidos</span>
                         </div>
-                        <div className={`mt-2 text-xs font-bold px-3 py-1 rounded-full transition-colors flex items-center gap-1 ${totalClients > 0 ? 'bg-teal-50 text-teal-700' : 'bg-gray-100 text-gray-400'}`}>
-                           <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-                          {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
-                        </div>
+                        {/* Indicador visual tipo 'tag' */}
+                        <div className="h-2 w-2 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.6)]"></div>
                       </div>
+                    </div>
 
-                      {/* COLUMNA CENTRAL (Embudo Geométrico + Barra) */}
-                      <div className="flex flex-col items-center relative group perspective-1000">
+                    {/* --- COLUMNA CENTRAL (EMBUDO) --- */}
+                    <div className="col-span-6 flex flex-col items-center relative">
+                      <div 
+                        className={`relative ${stage.width} transition-all duration-500 ease-out -mb-5`} 
+                        style={{ 
+                          zIndex: 30 - index,
+                          filter: 'drop-shadow(0px 10px 15px rgba(0,0,0,0.15))'
+                        }} 
+                      >
                         <div 
-                          className={`relative ${stage.width} transition-transform duration-500 hover:scale-[1.02] drop-shadow-2xl -mb-7`} 
-                          style={{ 
-                            zIndex: 20 - index,
-                            opacity: mounted ? 1 : 0,
-                            transform: mounted ? 'translateY(0)' : 'translateY(20px)',
-                            transitionDelay: `${index * 100}ms`
-                          }} 
+                          className={`${stage.tailwindColor} relative overflow-hidden`}
+                          style={{
+                              clipPath: 'polygon(0 0, 100% 0, 92% 100%, 8% 100%)', // Trapecio más estilizado
+                              height: '88px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              alignItems: 'center'
+                          }}
                         >
-                          <div 
-                            className={`${stage.tailwindColor} shadow-inner transition-all overflow-hidden rounded-none relative`}
-                            style={{
-                                clipPath: 'polygon(0 0, 100% 0, 90% 100%, 10% 100%)',
-                                height: '90px', // Un poco más alto para acomodar la barra
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}
-                          >
-                            {/* BRILLO SUPERIOR (GLASS EFFECT) */}
-                            <div className="absolute top-0 inset-x-0 h-[1px] bg-white/60 z-20"></div>
-                            <div className="absolute top-0 inset-x-0 h-8 bg-gradient-to-b from-white/20 to-transparent z-10"></div>
+                          {/* Efecto de Brillo Superior (Glassmorphism) */}
+                          <div className="absolute top-0 inset-x-0 h-[1px] bg-white/50 z-20"></div>
+                          <div className="absolute top-0 inset-x-0 h-12 bg-gradient-to-b from-white/10 to-transparent z-10 pointer-events-none"></div>
 
-                            {/* CONTENIDO TEXTO */}
-                            <div className="px-4 text-center z-30 mb-1">
-                              <p className="font-extrabold text-white text-xl tracking-wide drop-shadow-md">
-                                {stage.label}
-                              </p>
-                              <p className="text-center text-xs text-white/90 font-medium mt-0.5">
-                                {totalClients} clientes
-                              </p>
+                          {/* TEXTO DE LA ETAPA */}
+                          <div className="relative z-30 text-center w-full px-4">
+                            <h3 className="text-white font-extrabold text-lg tracking-wide drop-shadow-md mb-1">
+                              {stage.label}
+                            </h3>
+                            
+                            {/* DATOS CENTRALIZADOS (CANTIDAD + PORCENTAJE) */}
+                            <div className="flex items-center justify-center gap-2 text-white/95 text-sm font-medium bg-black/10 backdrop-blur-sm py-1 px-3 rounded-full inline-flex border border-white/10 shadow-inner">
+                              <span className="flex items-center gap-1">
+                                <UserIcon />
+                                {totalClients}
+                              </span>
+                              <span className="w-px h-3 bg-white/30 mx-1"></span>
+                              <span className="flex items-center gap-1 font-bold text-white">
+                                <ChartIcon />
+                                {conversionRate}%
+                              </span>
                             </div>
-
-                            {/* BARRA DE PROGRESO (RESTAURADA) */}
-                            {totalClients > 0 && (
-                              <div className="w-2/3 h-1.5 bg-black/30 rounded-full flex overflow-hidden backdrop-blur-sm z-30 mt-1 shadow-inner">
-                                {/* Parte Hot (Referidos) - Blanco Puro para resaltar */}
-                                <div 
-                                  className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all duration-700 ease-out" 
-                                  style={{ width: `${hotPercent}%` }} 
-                                />
-                                {/* Parte Cold (Frios) - Transparente (se ve el fondo oscuro) */}
-                                <div 
-                                  className="h-full bg-transparent transition-all duration-700 ease-out" 
-                                  style={{ width: `${coldPercent}%` }} 
-                                />
-                              </div>
-                            )}
                           </div>
+
+                          {/* BARRA DE PROGRESO INFERIOR (DARK MODE) */}
+                          {totalClients > 0 && (
+                            <div className="absolute bottom-3 w-[70%] h-1.5 bg-slate-900/40 rounded-full overflow-hidden backdrop-blur-md z-20 shadow-inner border border-white/5">
+                              {/* Hot clients (Color Claro) */}
+                              <div 
+                                className="h-full bg-white/90 shadow-[0_0_10px_white] float-left transition-all duration-700"
+                                style={{ width: `${hotPercent}%` }}
+                              />
+                              {/* Cold clients (Color Oscuro/Transparente) */}
+                              <div 
+                                className="h-full bg-slate-800/50 float-left transition-all duration-700"
+                                style={{ width: `${coldPercent}%` }}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
+                    </div>
 
-                      {/* LÍNEA CONECTORA DERECHA */}
-                      <div className="absolute right-[28%] top-1/2 w-[10%] border-t-2 border-dashed border-gray-200 -translate-y-1/2 z-0 hidden xl:block opacity-60" />
-
-                      {/* COLUMNA DERECHA (Inputs) */}
-                      <div className="flex flex-col items-start pl-8 relative z-10">
-                        <div className="mb-1 flex w-full flex-col items-start group">
+                    {/* --- COLUMNA DERECHA (INPUT FRIOS) --- */}
+                    <div className="col-span-3 flex justify-start pl-8 relative">
+                      <div className="flex items-center gap-3 transition-transform duration-300 group-hover:translate-x-1">
+                        {/* Indicador visual tipo 'tag' */}
+                        <div className="h-2 w-2 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.6)]"></div>
+                        <div className="text-left">
                           <input
                             type="number"
                             min="0"
                             value={stage.clientsCold}
                             onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                            className="w-24 rounded border-b-2 border-transparent bg-transparent text-left text-2xl font-bold text-gray-800 outline-none transition-all hover:bg-gray-50 focus:border-indigo-500 focus:bg-gray-50"
+                            className="w-16 text-left text-xl font-bold text-slate-700 bg-transparent border-b-2 border-transparent hover:border-slate-200 focus:border-indigo-500 focus:outline-none transition-colors p-0"
                           />
-                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mt-1">Bases frías</span>
-                        </div>
-                        <div className={`mt-2 text-xs font-bold px-3 py-1 rounded-full transition-colors flex items-center gap-1 ${totalClients > 0 ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-400'}`}>
-                           <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                          {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
                         </div>
                       </div>
                     </div>
-                  )
-                })}
-              </div>
 
-              {/* --- TABLET LAYOUT --- */}
-              <div className="hidden md:block lg:hidden">
-                {stages.map((stage, index) => {
-                  const { hotPercent, coldPercent } = calculateComposition(index)
-                  const totalClients = stage.clientsHot + stage.clientsCold
-
-                  return (
-                    <div key={stage.id} className="mb-4 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 p-4 hover:shadow-md transition-shadow">
-                      <div className="flex flex-col items-center gap-2">
-                        <input
-                          type="number"
-                          min="0"
-                          value={stage.clientsHot}
-                          onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                          className="w-16 bg-transparent text-center text-lg font-bold text-teal-600 outline-none border-b border-transparent focus:border-teal-500"
-                        />
-                        <span className="text-[10px] uppercase text-gray-400 font-bold">Referidos</span>
-                        <span className="text-xs font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">
-                          {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
-                        </span>
-                      </div>
-
-                      <div className={`${stage.width} flex-1 px-4`}>
-                        <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-lg p-3`}>
-                          <div className="text-center mb-2">
-                            <p className="font-bold text-white text-sm">{stage.label}</p>
-                            <p className="text-xs text-white/90">{totalClients} clientes</p>
-                          </div>
-                          {/* Barra interna */}
-                          <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-black/20">
-                            <div className="bg-white shadow-[0_0_5px_white]" style={{ width: `${hotPercent}%` }} />
-                            <div className="bg-transparent" style={{ width: `${coldPercent}%` }} />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col items-center gap-2">
-                        <input
-                          type="number"
-                          min="0"
-                          value={stage.clientsCold}
-                          onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                          className="w-16 bg-transparent text-center text-lg font-bold text-indigo-600 outline-none border-b border-transparent focus:border-indigo-500"
-                        />
-                        <span className="text-[10px] uppercase text-gray-400 font-bold">Bases Frías</span>
-                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
-                          {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* --- MOBILE LAYOUT --- */}
-              <div className="space-y-4 md:hidden">
-                {stages.map((stage, index) => {
-                  const { hotPercent, coldPercent } = calculateComposition(index)
-                  const totalClients = stage.clientsHot + stage.clientsCold
-
-                  return (
-                    <div key={stage.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                      <div className="mb-4 flex justify-center">
-                        <div className={`w-full ${stage.width}`}>
-                          <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-md p-3`}>
-                            <div className="text-center mb-2">
-                              <p className="font-bold text-white text-sm">{stage.label}</p>
-                              <p className="text-xs text-white/90">{totalClients} clientes</p>
-                            </div>
-                            <div className="flex h-2 w-full rounded-full overflow-hidden bg-black/20">
-                              <div className="bg-white" style={{ width: `${hotPercent}%` }} />
-                              <div className="bg-transparent" style={{ width: `${coldPercent}%` }} />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-lg bg-gray-50 p-3 text-center">
-                          <label className="text-[10px] font-bold uppercase text-gray-400">Referidos</label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={stage.clientsHot}
-                            onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                            className="mt-1 w-full bg-transparent text-center text-xl font-bold text-teal-600 outline-none"
-                          />
-                          <div className="mt-1 text-xs font-bold text-teal-600">
-                            {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
-                          </div>
-                        </div>
-
-                        <div className="rounded-lg bg-gray-50 p-3 text-center">
-                          <label className="text-[10px] font-bold uppercase text-gray-400">Bases Frías</label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={stage.clientsCold}
-                            onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                            className="mt-1 w-full bg-transparent text-center text-xl font-bold text-indigo-600 outline-none"
-                          />
-                          <div className="mt-1 text-xs font-bold text-indigo-600">
-                            {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* FOOTER STATS */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-              {stages.map((stage) => (
-                <div key={stage.id} className="rounded-lg border border-gray-100 bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-all group">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide group-hover:text-blue-600 transition-colors">{stage.label}</p>
-                  <p className="mt-1 text-2xl font-extrabold text-gray-900">
-                    {stage.clientsHot + stage.clientsCold}
-                  </p>
-                  <div className="mt-2 flex gap-1 text-[10px] sm:gap-2 font-medium">
-                    <span className="inline-block rounded-full bg-teal-50 px-2 py-0.5 text-teal-700 truncate border border-teal-100">
-                      {stage.clientsHot} Ref
-                    </span>
-                    <span className="inline-block rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 truncate border border-indigo-100">
-                      {stage.clientsCold} Frío
-                    </span>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
+
+            {/* LEYENDA / FOOTER */}
+            <div className="mt-16 pt-8 border-t border-slate-100 flex justify-center gap-8 text-sm text-slate-500">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.8)]"></div>
+                <span>Clientes Referidos (Barra Blanca)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.8)]"></div>
+                <span>Bases Frías (Barra Oscura)</span>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
