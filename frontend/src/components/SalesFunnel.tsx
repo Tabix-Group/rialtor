@@ -74,7 +74,6 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       setIsSaving(false)
     }
   }
-  }
 
   // Load funnel data on mount
   useEffect(() => {
