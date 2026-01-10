@@ -120,16 +120,16 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
           <div className="rounded-b-2xl border border-t-0 border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <div className="space-y-8">
               
-              {/* --- DESKTOP LAYOUT MEJORADO --- */}
+              {/* --- DESKTOP LAYOUT MEJORADO PARA PARECERSE A LA REFERENCIA --- */}
               <div className="hidden lg:block pt-4">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
                   const totalClients = stage.clientsHot + stage.clientsCold
 
                   return (
-                    // Reduje el margen inferior (mb-2) para que las columnas laterales estén alineadas
-                    // pero el embudo central se maneja con márgenes negativos.
-                    <div key={stage.id} className="grid grid-cols-3 items-center gap-6 mb-1 relative z-10">
+                    // Se elimina el margen inferior ('mb-0') para permitir la superposición.
+                    // Se añade 'pb-6' solo al último elemento para compensar el espacio.
+                    <div key={stage.id} className={`grid grid-cols-3 items-center gap-6 relative z-10 ${index === stages.length - 1 ? 'pb-6' : 'mb-0'}`}>
                       
                       {/* Columna Izquierda: Datos Calientes */}
                       <div className="flex flex-col items-end pr-4">
@@ -149,28 +149,28 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                       </div>
 
                       {/* Columna Central: EL EMBUDO GEOMÉTRICO */}
-                      <div className="flex flex-col items-center">
+                      <div className="flex flex-col items-center relative">
                         {/* Ajustes visuales clave:
-                           1. zIndex decreciente: El de arriba tapa al de abajo.
-                           2. drop-shadow: La sombra se aplica al contorno del trapecio.
-                           3. -mb-3: Margen negativo para solapar las piezas.
+                           1. drop-shadow-xl: Sombra más pronunciada que sigue la forma.
+                           2. -mb-6: Margen negativo aumentado para una mayor superposición.
                         */}
                         <div 
-                          className={`relative ${stage.width} transition-all duration-300 drop-shadow-lg -mb-4`}
+                          className={`relative ${stage.width} transition-all duration-300 drop-shadow-xl -mb-6`}
                           style={{ zIndex: 20 - index }} 
                         >
                           <div 
-                            className={`${stage.tailwindColor} transition-all overflow-hidden`}
+                            // rounded-none: Asegura que no haya bordes redondeados.
+                            className={`${stage.tailwindColor} transition-all overflow-hidden rounded-none`}
                             style={{
-                                // Aquí está la magia geométrica:
-                                clipPath: 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
-                                height: '70px', // Altura fija para consistencia geométrica
+                                // clipPath más pronunciado para un trapecio evidente.
+                                clipPath: 'polygon(0 0, 100% 0, 90% 100%, 10% 100%)',
+                                height: '80px', // Altura aumentada para mejor visualización.
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center'
                             }}
                           >
-                            {/* Barra de progreso visual interna (Hot/Cold distribution) */}
+                            {/* Barra de progreso visual interna */}
                             <div className="absolute top-0 left-0 w-full flex h-1.5 opacity-50">
                               <div
                                 className="bg-white transition-all duration-300"
@@ -215,7 +215,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                 })}
               </div>
 
-              {/* Tablet Layout (Mantenido estilo tarjeta para legibilidad en pantallas medianas) */}
+              {/* Tablet Layout (Mantenido estilo tarjeta) */}
               <div className="hidden md:block lg:hidden">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
