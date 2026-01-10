@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { authenticatedFetch } from "@/utils/api"
 import Link from "next/link"
 import EconomicIndicators from "@/components/EconomicIndicators"
+import SalesFunnel from "@/components/SalesFunnel"
 import {
   Calculator,
   FileText,
@@ -123,6 +124,7 @@ export default function DashboardPage() {
   const [calendarExpanded, setCalendarExpanded] = useState(false)
   const [calendarConnected, setCalendarConnected] = useState(false)
   const [indicatorsExpanded, setIndicatorsExpanded] = useState(false)
+  const [proyeccionesExpanded, setProyeccionesExpanded] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -832,6 +834,40 @@ export default function DashboardPage() {
                 </div>
               </div>
 
+              {/* Sales Projections Card */}
+              <div
+                onClick={() => setProyeccionesExpanded(true)}
+                className="bg-card rounded-2xl border border-border p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/50 group cursor-pointer"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                    <BarChart3 className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-accent/50 rounded-full">
+                    <TrendingUp className="w-3.5 h-3.5 text-accent-foreground" />
+                    <span className="text-xs font-bold text-accent-foreground">5 etapas</span>
+                  </div>
+                </div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Mis Proyecciones</p>
+                <p className="text-3xl font-bold text-foreground mb-3">Pipeline</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                    <span className="truncate">Prospectos</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="truncate">Captaciones</span>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-border">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground">Ver análisis</span>
+                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300" />
+                  </div>
+                </div>
+              </div>
+
               {/* Economic Indicators Card */}
               <div
                 onClick={() => setIndicatorsExpanded(true)}
@@ -902,6 +938,43 @@ export default function DashboardPage() {
 
             <div className="max-h-[600px] overflow-y-auto">
               <EconomicIndicators />
+            </div>
+          </div>
+        )}
+
+        {/* Sales Projections Expanded */}
+        {proyeccionesExpanded && (
+          <div className="bg-card rounded-2xl border border-border p-6 mb-8 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Mis Proyecciones</h3>
+                  <p className="text-sm text-muted-foreground">Visualiza y gestiona tu pipeline de ventas en tiempo real</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setProyeccionesExpanded(false)}
+                  className="inline-flex items-center gap-2 bg-muted text-foreground px-4 py-2 rounded-xl hover:bg-muted/80 transition-all duration-200 font-semibold text-sm"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Minimizar
+                </button>
+                <Link
+                  href="/mis-proyecciones"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl hover:bg-primary/90 transition-all duration-200 font-semibold text-sm"
+                >
+                  Ver página completa
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="max-h-[600px] overflow-y-auto">
+              <SalesFunnel />
             </div>
           </div>
         )}

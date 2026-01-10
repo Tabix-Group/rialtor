@@ -91,34 +91,33 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
   return (
     <div className="w-full">
-      <div className="mb-0 rounded-none bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-            <div>
-              <div className="mb-4 inline-block rounded-full bg-blue-800/50 px-4 py-2 backdrop-blur">
-                <p className="text-sm font-semibold text-blue-200">📊 Centro de Análisis</p>
-              </div>
-              <h1 className="text-4xl font-bold text-white sm:text-5xl">
-                Mis <span className="text-cyan-400">Proyecciones</span>
-              </h1>
-              <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg">
-                Visualiza y gestiona tu pipeline de ventas en tiempo real.
-              </p>
+      <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16 rounded-t-2xl">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
+          <div>
+            <div className="mb-4 inline-block rounded-full bg-blue-700/50 px-4 py-2 backdrop-blur">
+              <p className="text-sm font-semibold text-blue-100">📊 Centro de Análisis</p>
             </div>
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 disabled:opacity-50 sm:w-auto"
-            >
-              {isSaving ? 'Guardando...' : '💾 Guardar'}
-            </button>
+            <h1 className="text-4xl font-bold text-white sm:text-5xl">
+              Mis <span className="text-cyan-400">Proyecciones</span>
+            </h1>
+            <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg">
+              Visualiza y gestiona tu pipeline de ventas en tiempo real.
+            </p>
           </div>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 disabled:opacity-50 sm:w-auto flex items-center justify-center gap-2"
+          >
+            <span>💾</span>
+            {isSaving ? 'Guardando...' : 'Guardar'}
+          </button>
         </div>
       </div>
 
       <div className="bg-gray-50 py-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
+          <div className="rounded-b-2xl border border-t-0 border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <div className="space-y-8">
               {/* Desktop Layout */}
               <div className="hidden lg:block">
@@ -314,28 +313,27 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="bg-gray-50 pb-6">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-            {stages.map((stage) => (
-              <div key={stage.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
-                <p className="text-xs font-semibold text-gray-600">{stage.label}</p>
-                <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">
-                  {stage.clientsHot + stage.clientsCold}
-                </p>
-                <div className="mt-2 flex gap-1 text-xs sm:gap-2">
-                  <span className="inline-block rounded bg-teal-100 px-2 py-1 text-teal-700 truncate">
-                    {stage.clientsHot} ref.
-                  </span>
-                  <span className="inline-block rounded bg-indigo-100 px-2 py-1 text-indigo-700 truncate">
-                    {stage.clientsCold} f.
-                  </span>
+          {/* Stats Summary */}
+          <div className="mt-8 pt-8 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+              {stages.map((stage) => (
+                <div key={stage.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                  <p className="text-xs font-semibold text-gray-600">{stage.label}</p>
+                  <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">
+                    {stage.clientsHot + stage.clientsCold}
+                  </p>
+                  <div className="mt-2 flex gap-1 text-xs sm:gap-2">
+                    <span className="inline-block rounded bg-teal-100 px-2 py-1 text-teal-700 truncate">
+                      {stage.clientsHot} ref.
+                    </span>
+                    <span className="inline-block rounded bg-indigo-100 px-2 py-1 text-indigo-700 truncate">
+                      {stage.clientsCold} f.
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
