@@ -920,6 +920,115 @@ const calculateRent = async (req, res) => {
   }
 };
 
+const calculateCAC = async (req, res) => {
+  try {
+    const { amount, date, months } = req.body;
+
+    // Validaciones
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'El monto debe ser mayor a 0'
+      });
+    }
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Debe proporcionar una fecha de inicio'
+      });
+    }
+
+    if (!months || months <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'La cantidad de meses debe ser mayor a 0'
+      });
+    }
+
+    // Validar formato de fecha
+    const startDate = new Date(date);
+    if (isNaN(startDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Formato de fecha inválido. Use YYYY-MM-DD'
+      });
+    }
+
+    // Preparar datos para la API externa (siempre con rate='cac')
+    const requestData = {
+      amount: parseFloat(amount),
+      date: startDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+      months: parseInt(months),
+      rate: 'cac'
+    };
+
+    // Llamar a la API externa de ARquiler
+    const response = await fetch('https://arquilerapi1.p.rapidapi.com/calculate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || 'TU_API_KEY_AQUI',
+        'X-RapidAPI-Host': process.env.RAPIDAPI_HOST || 'arquilerapi1.p.rapidapi.com'
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error en la API externa: ${response.status} ${response.statusText}`);
+    }
+
+    const apiResult = await response.json();
+
+    if (!apiResult.success) {
+      throw new Error('La API externa no pudo procesar la solicitud');
+    }
+
+    // Procesar y formatear la respuesta
+    const result = {
+      inputs: {
+        amount: requestData.amount,
+        date: requestData.date,
+        months: requestData.months,
+        rate: requestData.rate
+      },
+      projections: apiResult.data.map(item => ({
+        date: item.date,
+        value: item.value,
+        estimated: item.estimated,
+        difference: item.dif,
+        amount: item.amount,
+        details: item.details || []
+      }))
+    };
+
+    // Guardar en historial si hay usuario logueado
+    if (req.user) {
+      await prisma.calculatorHistory.create({
+        data: {
+          type: 'CAC',
+          inputs: JSON.stringify(requestData),
+          result: JSON.stringify(result),
+          userId: req.user.id
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('Error calculating CAC:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al calcular CAC',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getCalculatorConfigs,
   getProvincias,
@@ -932,5 +1041,6 @@ module.exports = {
   calculateMortgage,
   calculateDays,
   calculateDueDate,
-  calculateRent
+  calculateRent,
+  calculateCAC
 };

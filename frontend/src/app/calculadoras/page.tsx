@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { Calculator, ShieldCheck, Home, CalendarDays, TrendingUp } from 'lucide-react'
+import { Calculator, ShieldCheck, Home, CalendarDays, TrendingUp, Building2 } from 'lucide-react'
 
 export default function CalculadorasPage() {
 
@@ -12,6 +12,13 @@ export default function CalculadorasPage() {
       description: 'Calculá proyecciones de aumentos de alquiler basados en índices económicos como IPC, ICL, UVA y más.',
       color: 'bg-orange-50',
       icon: TrendingUp,
+    },
+    {
+      name: 'Calculadora CAC',
+      href: '/calculadoracac',
+      description: 'Proyectá valores basados en el índice CAC de la Cámara Argentina de la Construcción. Ideal para contratos de obras.',
+      color: 'bg-teal-50',
+      icon: Building2,
     },
     {
       name: 'Calculadora de gastos inmobiliarios',

@@ -119,6 +119,11 @@ function Navigation() {
           description: "Calcula ajustes por IPC y acuerdos",
         },
         {
+          name: "Calculadora CAC",
+          href: "/calculadoracac",
+          description: "Proyecta valores según índice CAC",
+        },
+        {
           name: "Calculadora de gastos inmobiliarios",
           href: "/calcescritura",
           description: "Calcula costos de escrituración",

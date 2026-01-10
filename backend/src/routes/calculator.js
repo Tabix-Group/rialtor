@@ -22,6 +22,7 @@ router.post('/mortgage', calculatorController.calculateMortgage);
 router.post('/days', calculatorController.calculateDays);
 router.post('/due-date', calculatorController.calculateDueDate);
 router.post('/rent', calculatorController.calculateRent);
+router.post('/cac', calculatorController.calculateCAC);
 
 // Historial
 router.get('/history', calculatorController.getCalculatorHistory);
