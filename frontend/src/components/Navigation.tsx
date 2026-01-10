@@ -30,7 +30,7 @@ import {
   MessageCircle,
   HelpCircle,
   Mail,
-  Funnel,
+  BarChart3,
 } from "lucide-react"
 
 function Navigation() {
@@ -99,7 +99,7 @@ function Navigation() {
     {
       name: "Mis Proyecciones",
       href: "/mis-proyecciones",
-      icon: Funnel,
+      icon: BarChart3,
       description: "Visualiza tu pipeline de ventas",
     },
     {
