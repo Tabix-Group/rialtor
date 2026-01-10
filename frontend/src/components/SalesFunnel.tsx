@@ -340,30 +340,28 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         </div>
       </div>
 
-          </div>
-        </div>
-      </div>
-
       {/* Stats Summary */}
       <div className="bg-gray-50 pb-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-        {stages.map((stage) => (
-          <div key={stage.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
-            <p className="text-xs font-semibold text-gray-600">{stage.label}</p>
-            <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">
-              {stage.clientsHot + stage.clientsCold}
-            </p>
-            <div className="mt-2 flex gap-1 text-xs sm:gap-2">
-              <span className="inline-block rounded bg-teal-100 px-2 py-1 text-teal-700 truncate">
-                {stage.clientsHot} ref.
-              </span>
-              <span className="inline-block rounded bg-indigo-100 px-2 py-1 text-indigo-700 truncate">
-                {stage.clientsCold} f.
-              </span>
-            </div>
+            {stages.map((stage) => (
+              <div key={stage.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                <p className="text-xs font-semibold text-gray-600">{stage.label}</p>
+                <p className="mt-2 text-xl font-bold text-gray-900 sm:text-2xl">
+                  {stage.clientsHot + stage.clientsCold}
+                </p>
+                <div className="mt-2 flex gap-1 text-xs sm:gap-2">
+                  <span className="inline-block rounded bg-teal-100 px-2 py-1 text-teal-700 truncate">
+                    {stage.clientsHot} ref.
+                  </span>
+                  <span className="inline-block rounded bg-indigo-100 px-2 py-1 text-indigo-700 truncate">
+                    {stage.clientsCold} f.
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   )
