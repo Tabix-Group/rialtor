@@ -32,6 +32,7 @@ model User {
   propertyPlaques     PropertyPlaque[]
   prospects           Prospect[]
   roleAssignments     RoleAssignment[]
+  salesFunnel         SalesFunnel?
 
   @@map("users")
 }
@@ -404,4 +405,15 @@ model Newsletter {
   user       User     @relation(fields: [userId], references: [id])
 
   @@map("newsletters")
+}
+
+model SalesFunnel {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  data       String // JSON array with funnel stages data
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("sales_funnels")
 }

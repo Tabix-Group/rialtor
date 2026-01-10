@@ -96,6 +96,12 @@ function Navigation() {
       description: "Gestión financiera personal",
     },
     {
+      name: "Mis Proyecciones",
+      href: "/mis-proyecciones",
+      icon: TrendingUp,
+      description: "Visualiza tu pipeline de ventas",
+    },
+    {
       name: "Mis Prospectos",
       href: "/prospectos",
       icon: User2,

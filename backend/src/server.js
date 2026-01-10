@@ -29,6 +29,7 @@ const prospectsRoutes = require('./routes/prospects');
 const favoritesRoutes = require('./routes/favorites');
 const indicatorsRoutes = require('./routes/indicators');
 const newslettersRoutes = require('./routes/newsletters');
+const salesFunnelRoutes = require('./routes/sales-funnel');
 
 const app = express();
 // Confía en el primer proxy (Railway/Nginx)
@@ -216,6 +217,7 @@ app.use('/api/prospects', prospectsRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/indicators', indicatorsRoutes);
 app.use('/api/newsletters', newslettersRoutes);
+app.use('/api/sales-funnel', salesFunnelRoutes);
 app.use('/api/calendar', require('./routes/calendar'));
 
 // Error handling middleware
