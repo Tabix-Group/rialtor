@@ -119,16 +119,21 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-b-2xl border border-t-0 border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <div className="space-y-8">
-              {/* Desktop Layout */}
-              <div className="hidden lg:block">
+              
+              {/* --- DESKTOP LAYOUT MEJORADO --- */}
+              <div className="hidden lg:block pt-4">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
                   const totalClients = stage.clientsHot + stage.clientsCold
 
                   return (
-                    <div key={stage.id} className="mb-8 grid grid-cols-3 items-center gap-6">
+                    // Reduje el margen inferior (mb-2) para que las columnas laterales estén alineadas
+                    // pero el embudo central se maneja con márgenes negativos.
+                    <div key={stage.id} className="grid grid-cols-3 items-center gap-6 mb-1 relative z-10">
+                      
+                      {/* Columna Izquierda: Datos Calientes */}
                       <div className="flex flex-col items-end pr-4">
-                        <div className="mb-2 flex w-full flex-col items-end">
+                        <div className="mb-1 flex w-full flex-col items-end">
                           <input
                             type="number"
                             min="0"
@@ -136,29 +141,52 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                             onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
                             className="w-20 rounded border-0 bg-transparent text-right text-lg font-semibold text-gray-900 outline-none transition-all focus:bg-gray-100 focus:ring-2 focus:ring-teal-500"
                           />
-                          <span className="text-xs text-gray-500">Clientes referidos</span>
+                          <span className="text-xs text-gray-500 uppercase tracking-wide">Referidos</span>
                         </div>
-                        <div className="text-sm font-bold text-teal-600">
+                        <div className="text-sm font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">
                           {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center gap-3">
-                        <div className={`relative ${stage.width} transition-all duration-300`}>
-                          <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-md transition-all`}>
-                            <div className="flex h-2 w-full">
+                      {/* Columna Central: EL EMBUDO GEOMÉTRICO */}
+                      <div className="flex flex-col items-center">
+                        {/* Ajustes visuales clave:
+                           1. zIndex decreciente: El de arriba tapa al de abajo.
+                           2. drop-shadow: La sombra se aplica al contorno del trapecio.
+                           3. -mb-3: Margen negativo para solapar las piezas.
+                        */}
+                        <div 
+                          className={`relative ${stage.width} transition-all duration-300 drop-shadow-lg -mb-4`}
+                          style={{ zIndex: 20 - index }} 
+                        >
+                          <div 
+                            className={`${stage.tailwindColor} transition-all overflow-hidden`}
+                            style={{
+                                // Aquí está la magia geométrica:
+                                clipPath: 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
+                                height: '70px', // Altura fija para consistencia geométrica
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center'
+                            }}
+                          >
+                            {/* Barra de progreso visual interna (Hot/Cold distribution) */}
+                            <div className="absolute top-0 left-0 w-full flex h-1.5 opacity-50">
                               <div
-                                className="bg-white/40 transition-all duration-300"
+                                className="bg-white transition-all duration-300"
                                 style={{ width: `${hotPercent}%` }}
                               />
                               <div
-                                className="bg-blue-900/20 transition-all duration-300"
+                                className="bg-black/20 transition-all duration-300"
                                 style={{ width: `${coldPercent}%` }}
                               />
                             </div>
-                            <div className="px-4 py-4">
-                              <p className="text-center font-semibold text-white">{stage.label}</p>
-                              <p className="text-center text-sm text-white/80">
+
+                            <div className="px-4 text-center z-10">
+                              <p className="font-bold text-white text-lg leading-tight shadow-black drop-shadow-md">
+                                {stage.label}
+                              </p>
+                              <p className="text-center text-sm text-white/90 font-medium">
                                 {totalClients} clientes
                               </p>
                             </div>
@@ -166,8 +194,9 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                         </div>
                       </div>
 
+                      {/* Columna Derecha: Datos Fríos */}
                       <div className="flex flex-col items-start pl-4">
-                        <div className="mb-2 flex w-full flex-col items-start">
+                        <div className="mb-1 flex w-full flex-col items-start">
                           <input
                             type="number"
                             min="0"
@@ -175,9 +204,9 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                             onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
                             className="w-20 rounded border-0 bg-transparent text-left text-lg font-semibold text-gray-900 outline-none transition-all focus:bg-gray-100 focus:ring-2 focus:ring-indigo-500"
                           />
-                          <span className="text-xs text-gray-500">Bases frías</span>
+                          <span className="text-xs text-gray-500 uppercase tracking-wide">Bases frías</span>
                         </div>
-                        <div className="text-sm font-bold text-indigo-600">
+                        <div className="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
                           {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
                         </div>
                       </div>
@@ -186,7 +215,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                 })}
               </div>
 
-              {/* Tablet Layout */}
+              {/* Tablet Layout (Mantenido estilo tarjeta para legibilidad en pantallas medianas) */}
               <div className="hidden md:block lg:hidden">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
@@ -247,7 +276,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                 })}
               </div>
 
-              {/* Mobile Layout */}
+              {/* Mobile Layout (Mantenido estilo tarjeta vertical) */}
               <div className="space-y-4 md:hidden">
                 {stages.map((stage, index) => {
                   const { hotPercent, coldPercent } = calculateComposition(index)
