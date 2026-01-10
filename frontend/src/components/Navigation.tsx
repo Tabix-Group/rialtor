@@ -115,7 +115,7 @@ function Navigation() {
       dropdown: [
         {
           name: "Calculadora de ajustes de alquiler",
-          href: "/ajustes",
+          href: "/calculadoraalquiler",
           description: "Calcula ajustes por IPC y acuerdos",
         },
         {
