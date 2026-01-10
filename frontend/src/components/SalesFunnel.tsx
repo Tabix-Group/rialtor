@@ -27,15 +27,19 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
   const [isSaving, setIsSaving] = useState(false)
 
-  // Calculate conversion percentage
-  const calculatePercentage = (currentIndex: number) => {
-    if (currentIndex === 0) return 100
+  // Calculate percentages within each stage (referidos vs frios)
+  const calculateComposition = (stageIndex: number) => {
+    const stage = stages[stageIndex]
+    const total = stage.clientsHot + stage.clientsCold
 
-    const currentStageTotal = stages[currentIndex].clientsHot + stages[currentIndex].clientsCold
-    const previousStageTotal = stages[currentIndex - 1].clientsHot + stages[currentIndex - 1].clientsCold
+    if (total === 0) {
+      return { hotPercent: 0, coldPercent: 0 }
+    }
 
-    if (previousStageTotal === 0) return 0
-    return Math.round((currentStageTotal / previousStageTotal) * 100)
+    const hotPercent = (stage.clientsHot / total) * 100
+    const coldPercent = (stage.clientsCold / total) * 100
+
+    return { hotPercent, coldPercent }
   }
 
   // Handle input change
@@ -93,19 +97,28 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
   return (
     <div className="w-full">
-      {/* Header */}
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Embudo de Ventas</h2>
-          <p className="mt-1 text-sm text-gray-500">Gestiona tu pipeline de proyectos</p>
+      {/* Hero Header - Match Mis Finanzas / Indicadores style */}
+      <div className="mb-8 rounded-2xl bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <div className="mb-4 inline-block rounded-full bg-blue-800/50 px-4 py-2 backdrop-blur">
+              <p className="text-sm font-semibold text-blue-200">📊 Centro de Análisis</p>
+            </div>
+            <h1 className="text-4xl font-bold text-white sm:text-5xl">
+              Mis <span className="text-cyan-400">Proyecciones</span>
+            </h1>
+            <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg">
+              Visualiza y gestiona tu pipeline de ventas en tiempo real. Analiza la conversión de clientes entre etapas.
+            </p>
+          </div>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 disabled:opacity-50 sm:w-auto"
+          >
+            {isSaving ? 'Guardando...' : '💾 Guardar'}
+          </button>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="w-full rounded-lg bg-blue-600 px-6 py-2 font-semibold text-white shadow-md transition-all hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
-        >
-          {isSaving ? 'Guardando...' : 'Guardar'}
-        </button>
       </div>
 
       {/* Main Funnel Layout */}
@@ -114,154 +127,214 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         <div className="space-y-8">
           {/* Desktop: 3-Column Layout */}
           <div className="hidden lg:block">
-            {stages.map((stage, index) => (
-              <div key={stage.id} className="mb-6 grid grid-cols-3 items-center gap-6">
-                {/* Left Column: Calientes */}
-                <div className="flex flex-col items-end pr-4">
-                  <div className="mb-2 flex w-full flex-col items-end">
-                    <input
-                      type="number"
-                      min="0"
-                      value={stage.clientsHot}
-                      onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                      className="w-20 rounded border-0 bg-transparent text-right text-lg font-semibold text-gray-900 outline-none transition-all focus:bg-gray-100 focus:ring-2 focus:ring-teal-500"
-                    />
-                    <span className="text-xs text-gray-500">Clientes referidos</span>
-                  </div>
-                  <div className="text-sm font-bold text-teal-600">
-                    {index === 0 ? '100%' : `${calculatePercentage(index)}%`}
-                  </div>
-                </div>
+            {stages.map((stage, index) => {
+              const { hotPercent, coldPercent } = calculateComposition(index)
+              const totalClients = stage.clientsHot + stage.clientsCold
 
-                {/* Center Column: Funnel */}
-                <div className="flex flex-col items-center">
-                  <div className={`relative ${stage.width} transition-all duration-300`}>
-                    <div className={`${stage.tailwindColor} rounded-lg py-4 px-4 shadow-md transition-all`}>
-                      <p className="text-center font-semibold text-white">{stage.label}</p>
-                      <p className="text-center text-sm text-white/80">
-                        {stage.clientsHot + stage.clientsCold} clientes
-                      </p>
+              return (
+                <div key={stage.id} className="mb-8 grid grid-cols-3 items-center gap-6">
+                  {/* Left Column: Calientes */}
+                  <div className="flex flex-col items-end pr-4">
+                    <div className="mb-2 flex w-full flex-col items-end">
+                      <input
+                        type="number"
+                        min="0"
+                        value={stage.clientsHot}
+                        onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
+                        className="w-20 rounded border-0 bg-transparent text-right text-lg font-semibold text-gray-900 outline-none transition-all focus:bg-gray-100 focus:ring-2 focus:ring-teal-500"
+                      />
+                      <span className="text-xs text-gray-500">Clientes referidos</span>
+                    </div>
+                    <div className="text-sm font-bold text-teal-600">
+                      {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
+                    </div>
+                  </div>
+
+                  {/* Center Column: Funnel with Composition Bar */}
+                  <div className="flex flex-col items-center gap-3">
+                    {/* Composition Bar */}
+                    <div className={`relative ${stage.width} h-2 w-full overflow-hidden rounded-full bg-gray-200 transition-all duration-300`}>
+                      <div className="flex h-full w-full">
+                        {/* Hot clients portion */}
+                        <div
+                          className="bg-teal-500 transition-all duration-300"
+                          style={{ width: `${hotPercent}%` }}
+                        />
+                        {/* Cold clients portion */}
+                        <div
+                          className="bg-indigo-500 transition-all duration-300"
+                          style={{ width: `${coldPercent}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Stage Label Bar */}
+                    <div className={`relative ${stage.width} transition-all duration-300`}>
+                      <div className={`${stage.tailwindColor} rounded-lg py-4 px-4 shadow-md transition-all`}>
+                        <p className="text-center font-semibold text-white">{stage.label}</p>
+                        <p className="text-center text-sm text-white/80">
+                          {totalClients} clientes
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Fríos */}
+                  <div className="flex flex-col items-start pl-4">
+                    <div className="mb-2 flex w-full flex-col items-start">
+                      <input
+                        type="number"
+                        min="0"
+                        value={stage.clientsCold}
+                        onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
+                        className="w-20 rounded border-0 bg-transparent text-left text-lg font-semibold text-gray-900 outline-none transition-all focus:bg-gray-100 focus:ring-2 focus:ring-indigo-500"
+                      />
+                      <span className="text-xs text-gray-500">Bases frías</span>
+                    </div>
+                    <div className="text-sm font-bold text-indigo-600">
+                      {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
                     </div>
                   </div>
                 </div>
-
-                {/* Right Column: Fríos */}
-                <div className="flex flex-col items-start pl-4">
-                  <div className="mb-2 flex w-full flex-col items-start">
-                    <input
-                      type="number"
-                      min="0"
-                      value={stage.clientsCold}
-                      onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                      className="w-20 rounded border-0 bg-transparent text-left text-lg font-semibold text-gray-900 outline-none transition-all focus:bg-gray-100 focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <span className="text-xs text-gray-500">Bases frías</span>
-                  </div>
-                  <div className="text-sm font-bold text-indigo-600">
-                    {index === 0 ? '100%' : `${calculatePercentage(index)}%`}
-                  </div>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* Tablet: 2-Column Compact Layout */}
           <div className="hidden md:block lg:hidden">
-            {stages.map((stage, index) => (
-              <div key={stage.id} className="mb-4 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 p-4">
-                {/* Left: Calientes Input */}
-                <div className="flex flex-col items-center gap-2">
-                  <input
-                    type="number"
-                    min="0"
-                    value={stage.clientsHot}
-                    onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                    className="w-16 rounded border-0 bg-transparent text-center text-lg font-bold text-teal-600 outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                  <span className="text-xs text-gray-500">Referidos</span>
-                  <span className="text-xs font-bold text-teal-600">
-                    {index === 0 ? '100%' : `${calculatePercentage(index)}%`}
-                  </span>
-                </div>
+            {stages.map((stage, index) => {
+              const { hotPercent, coldPercent } = calculateComposition(index)
+              const totalClients = stage.clientsHot + stage.clientsCold
 
-                {/* Center: Funnel bar */}
-                <div className={`${stage.width} flex-1 px-2`}>
-                  <div className={`${stage.tailwindColor} rounded-lg py-3 px-3 text-center shadow-md`}>
-                    <p className="font-semibold text-white text-sm">{stage.label}</p>
-                    <p className="text-xs text-white/80">
-                      {stage.clientsHot + stage.clientsCold} clientes
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right: Fríos Input */}
-                <div className="flex flex-col items-center gap-2">
-                  <input
-                    type="number"
-                    min="0"
-                    value={stage.clientsCold}
-                    onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                    className="w-16 rounded border-0 bg-transparent text-center text-lg font-bold text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <span className="text-xs text-gray-500">Bases Frías</span>
-                  <span className="text-xs font-bold text-indigo-600">
-                    {index === 0 ? '100%' : `${calculatePercentage(index)}%`}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile: Stack Layout */}
-          <div className="space-y-4 md:hidden">
-            {stages.map((stage, index) => (
-              <div key={stage.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
-                {/* Funnel bar */}
-                <div className="mb-4 flex justify-center">
-                  <div className={`w-full ${stage.width}`}>
-                    <div className={`${stage.tailwindColor} rounded-lg py-3 px-4 text-center shadow-md`}>
-                      <p className="font-semibold text-white text-sm">{stage.label}</p>
-                      <p className="text-xs text-white/80">
-                        {stage.clientsHot + stage.clientsCold} clientes
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Two-column inputs */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Calientes */}
-                  <div className="rounded-lg bg-white p-3">
-                    <label className="text-xs font-semibold text-gray-600">Referidos</label>
+              return (
+                <div key={stage.id} className="mb-4 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  {/* Left: Calientes Input */}
+                  <div className="flex flex-col items-center gap-2">
                     <input
                       type="number"
                       min="0"
                       value={stage.clientsHot}
                       onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                      className="mt-1 w-full rounded border-0 bg-transparent text-center text-lg font-bold text-teal-600 outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-16 rounded border-0 bg-transparent text-center text-lg font-bold text-teal-600 outline-none focus:ring-2 focus:ring-teal-500"
                     />
-                    <div className="mt-2 text-center text-xs font-bold text-teal-600">
-                      {index === 0 ? '100%' : `${calculatePercentage(index)}%`}
+                    <span className="text-xs text-gray-500">Referidos</span>
+                    <span className="text-xs font-bold text-teal-600">
+                      {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
+                    </span>
+                  </div>
+
+                  {/* Center: Funnel bar with composition */}
+                  <div className={`${stage.width} flex-1 px-2`}>
+                    {/* Composition Bar */}
+                    <div className="relative mb-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                      <div className="flex h-full w-full">
+                        <div
+                          className="bg-teal-500 transition-all duration-300"
+                          style={{ width: `${hotPercent}%` }}
+                        />
+                        <div
+                          className="bg-indigo-500 transition-all duration-300"
+                          style={{ width: `${coldPercent}%` }}
+                        />
+                      </div>
+                    </div>
+                    {/* Stage Label */}
+                    <div className={`${stage.tailwindColor} rounded-lg py-3 px-3 text-center shadow-md`}>
+                      <p className="font-semibold text-white text-sm">{stage.label}</p>
+                      <p className="text-xs text-white/80">
+                        {totalClients} clientes
+                      </p>
                     </div>
                   </div>
 
-                  {/* Fríos */}
-                  <div className="rounded-lg bg-white p-3">
-                    <label className="text-xs font-semibold text-gray-600">Bases Frías</label>
+                  {/* Right: Fríos Input */}
+                  <div className="flex flex-col items-center gap-2">
                     <input
                       type="number"
                       min="0"
                       value={stage.clientsCold}
                       onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                      className="mt-1 w-full rounded border-0 bg-transparent text-center text-lg font-bold text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-16 rounded border-0 bg-transparent text-center text-lg font-bold text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-500"
                     />
-                    <div className="mt-2 text-center text-xs font-bold text-indigo-600">
-                      {index === 0 ? '100%' : `${calculatePercentage(index)}%`}
+                    <span className="text-xs text-gray-500">Bases Frías</span>
+                    <span className="text-xs font-bold text-indigo-600">
+                      {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Mobile: Stack Layout */}
+          <div className="space-y-4 md:hidden">
+            {stages.map((stage, index) => {
+              const { hotPercent, coldPercent } = calculateComposition(index)
+              const totalClients = stage.clientsHot + stage.clientsCold
+
+              return (
+                <div key={stage.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
+                  {/* Composition Bar */}
+                  <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div className="flex h-full w-full">
+                      <div
+                        className="bg-teal-500 transition-all duration-300"
+                        style={{ width: `${hotPercent}%` }}
+                      />
+                      <div
+                        className="bg-indigo-500 transition-all duration-300"
+                        style={{ width: `${coldPercent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Funnel bar */}
+                  <div className="mb-4 flex justify-center">
+                    <div className={`w-full ${stage.width}`}>
+                      <div className={`${stage.tailwindColor} rounded-lg py-3 px-4 text-center shadow-md`}>
+                        <p className="font-semibold text-white text-sm">{stage.label}</p>
+                        <p className="text-xs text-white/80">
+                          {totalClients} clientes
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Two-column inputs */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Calientes */}
+                    <div className="rounded-lg bg-white p-3">
+                      <label className="text-xs font-semibold text-gray-600">Referidos</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={stage.clientsHot}
+                        onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
+                        className="mt-1 w-full rounded border-0 bg-transparent text-center text-lg font-bold text-teal-600 outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <div className="mt-2 text-center text-xs font-bold text-teal-600">
+                        {totalClients === 0 ? '—' : `${Math.round(hotPercent)}%`}
+                      </div>
+                    </div>
+
+                    {/* Fríos */}
+                    <div className="rounded-lg bg-white p-3">
+                      <label className="text-xs font-semibold text-gray-600">Bases Frías</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={stage.clientsCold}
+                        onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
+                        className="mt-1 w-full rounded border-0 bg-transparent text-center text-lg font-bold text-indigo-600 outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                      <div className="mt-2 text-center text-xs font-bold text-indigo-600">
+                        {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

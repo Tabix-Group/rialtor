@@ -30,6 +30,7 @@ import {
   MessageCircle,
   HelpCircle,
   Mail,
+  Funnel,
 } from "lucide-react"
 
 function Navigation() {
@@ -98,7 +99,7 @@ function Navigation() {
     {
       name: "Mis Proyecciones",
       href: "/mis-proyecciones",
-      icon: TrendingUp,
+      icon: Funnel,
       description: "Visualiza tu pipeline de ventas",
     },
     {
