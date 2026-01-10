@@ -98,31 +98,35 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
   return (
     <div className="w-full">
       {/* Hero Header - Match Mis Finanzas / Indicadores style */}
-      <div className="mb-8 rounded-2xl bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16">
-        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-4 inline-block rounded-full bg-blue-800/50 px-4 py-2 backdrop-blur">
-              <p className="text-sm font-semibold text-blue-200">📊 Centro de Análisis</p>
+      <div className="mb-0 rounded-none bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 px-6 py-12 sm:px-8 sm:py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+            <div>
+              <div className="mb-4 inline-block rounded-full bg-blue-800/50 px-4 py-2 backdrop-blur">
+                <p className="text-sm font-semibold text-blue-200">📊 Centro de Análisis</p>
+              </div>
+              <h1 className="text-4xl font-bold text-white sm:text-5xl">
+                Mis <span className="text-cyan-400">Proyecciones</span>
+              </h1>
+              <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg">
+                Visualiza y gestiona tu pipeline de ventas en tiempo real. Analiza la composición de clientes.
+              </p>
             </div>
-            <h1 className="text-4xl font-bold text-white sm:text-5xl">
-              Mis <span className="text-cyan-400">Proyecciones</span>
-            </h1>
-            <p className="mt-3 max-w-2xl text-base text-blue-100 sm:text-lg">
-              Visualiza y gestiona tu pipeline de ventas en tiempo real. Analiza la conversión de clientes entre etapas.
-            </p>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 disabled:opacity-50 sm:w-auto"
+            >
+              {isSaving ? 'Guardando...' : '💾 Guardar'}
+            </button>
           </div>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="w-full rounded-xl bg-white px-6 py-3 font-semibold text-blue-900 shadow-lg transition-all hover:bg-blue-50 disabled:opacity-50 sm:w-auto"
-          >
-            {isSaving ? 'Guardando...' : '💾 Guardar'}
-          </button>
         </div>
       </div>
 
       {/* Main Funnel Layout */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
+      <div className="bg-gray-50 py-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
         {/* Responsive Container */}
         <div className="space-y-8">
           {/* Desktop: 3-Column Layout */}
@@ -150,31 +154,28 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                     </div>
                   </div>
 
-                  {/* Center Column: Funnel with Composition Bar */}
+                  {/* Center Column: Funnel with Composition Bar INSIDE */}
                   <div className="flex flex-col items-center gap-3">
-                    {/* Composition Bar */}
-                    <div className={`relative ${stage.width} h-2 w-full overflow-hidden rounded-full bg-gray-200 transition-all duration-300`}>
-                      <div className="flex h-full w-full">
-                        {/* Hot clients portion */}
-                        <div
-                          className="bg-teal-500 transition-all duration-300"
-                          style={{ width: `${hotPercent}%` }}
-                        />
-                        {/* Cold clients portion */}
-                        <div
-                          className="bg-indigo-500 transition-all duration-300"
-                          style={{ width: `${coldPercent}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Stage Label Bar */}
                     <div className={`relative ${stage.width} transition-all duration-300`}>
-                      <div className={`${stage.tailwindColor} rounded-lg py-4 px-4 shadow-md transition-all`}>
-                        <p className="text-center font-semibold text-white">{stage.label}</p>
-                        <p className="text-center text-sm text-white/80">
-                          {totalClients} clientes
-                        </p>
+                      <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-md transition-all`}>
+                        {/* Composition bar inside the stage bar */}
+                        <div className="flex h-2 w-full">
+                          <div
+                            className="bg-white/40 transition-all duration-300"
+                            style={{ width: `${hotPercent}%` }}
+                          />
+                          <div
+                            className="bg-blue-900/20 transition-all duration-300"
+                            style={{ width: `${coldPercent}%` }}
+                          />
+                        </div>
+                        {/* Stage content */}
+                        <div className="px-4 py-4">
+                          <p className="text-center font-semibold text-white">{stage.label}</p>
+                          <p className="text-center text-sm text-white/80">
+                            {totalClients} clientes
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -223,27 +224,27 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                     </span>
                   </div>
 
-                  {/* Center: Funnel bar with composition */}
+                  {/* Center: Funnel bar with composition INSIDE */}
                   <div className={`${stage.width} flex-1 px-2`}>
-                    {/* Composition Bar */}
-                    <div className="relative mb-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
-                      <div className="flex h-full w-full">
+                    <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-md`}>
+                      {/* Composition bar inside */}
+                      <div className="flex h-1.5 w-full">
                         <div
-                          className="bg-teal-500 transition-all duration-300"
+                          className="bg-white/40 transition-all duration-300"
                           style={{ width: `${hotPercent}%` }}
                         />
                         <div
-                          className="bg-indigo-500 transition-all duration-300"
+                          className="bg-blue-900/20 transition-all duration-300"
                           style={{ width: `${coldPercent}%` }}
                         />
                       </div>
-                    </div>
-                    {/* Stage Label */}
-                    <div className={`${stage.tailwindColor} rounded-lg py-3 px-3 text-center shadow-md`}>
-                      <p className="font-semibold text-white text-sm">{stage.label}</p>
-                      <p className="text-xs text-white/80">
-                        {totalClients} clientes
-                      </p>
+                      {/* Stage Label */}
+                      <div className="px-3 py-3 text-center">
+                        <p className="font-semibold text-white text-sm">{stage.label}</p>
+                        <p className="text-xs text-white/80">
+                          {totalClients} clientes
+                        </p>
+                      </div>
                     </div>
                   </div>
 
@@ -274,28 +275,28 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
               return (
                 <div key={stage.id} className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4">
-                  {/* Composition Bar */}
-                  <div className="mb-3 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-                    <div className="flex h-full w-full">
-                      <div
-                        className="bg-teal-500 transition-all duration-300"
-                        style={{ width: `${hotPercent}%` }}
-                      />
-                      <div
-                        className="bg-indigo-500 transition-all duration-300"
-                        style={{ width: `${coldPercent}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Funnel bar */}
+                  {/* Funnel bar with composition INSIDE */}
                   <div className="mb-4 flex justify-center">
                     <div className={`w-full ${stage.width}`}>
-                      <div className={`${stage.tailwindColor} rounded-lg py-3 px-4 text-center shadow-md`}>
-                        <p className="font-semibold text-white text-sm">{stage.label}</p>
-                        <p className="text-xs text-white/80">
-                          {totalClients} clientes
-                        </p>
+                      <div className={`${stage.tailwindColor} rounded-lg overflow-hidden shadow-md`}>
+                        {/* Composition bar inside */}
+                        <div className="flex h-2 w-full">
+                          <div
+                            className="bg-white/40 transition-all duration-300"
+                            style={{ width: `${hotPercent}%` }}
+                          />
+                          <div
+                            className="bg-blue-900/20 transition-all duration-300"
+                            style={{ width: `${coldPercent}%` }}
+                          />
+                        </div>
+                        {/* Stage content */}
+                        <div className="px-4 py-3 text-center">
+                          <p className="font-semibold text-white text-sm">{stage.label}</p>
+                          <p className="text-xs text-white/80">
+                            {totalClients} clientes
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -339,8 +340,14 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         </div>
       </div>
 
+          </div>
+        </div>
+      </div>
+
       {/* Stats Summary */}
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+      <div className="bg-gray-50 pb-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
         {stages.map((stage) => (
           <div key={stage.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3 sm:p-4">
             <p className="text-xs font-semibold text-gray-600">{stage.label}</p>
