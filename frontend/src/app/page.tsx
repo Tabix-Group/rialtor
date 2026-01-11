@@ -180,6 +180,14 @@ export default function Home() {
       isSpecial: true,
     },
     {
+      name: "Proyecciones y Tasaciones",
+      description:
+        "Modelos de proyección y tasación para el mercado argentino: simulá escenarios, proyectá ingresos y evaluá viabilidad financiera.",
+      icon: TrendingUp,
+      href: "/proyecciones",
+      requiresAuth: true,
+    },
+    {
       name: "Consultor Inmobiliario IA",
       description:
         "Tu asesor 24/7 especializado en Argentina: negocia mejor, tasá propiedades con precisión y resolví dudas complejas al instante.",
@@ -217,6 +225,14 @@ export default function Home() {
         "Creá placas profesionales con IA que venden más. Subí fotos y obtené imágenes optimizadas para redes sociales y portales argentinos.",
       icon: ShieldCheck,
       href: "https://www.rialtor.app/placas",
+      requiresAuth: true,
+    },
+    {
+      name: "Prospectos",
+      description:
+        "Gestioná leads y oportunidades: seguí prospectos, segmentá por interés, programá seguimientos y convertí más clientes.",
+      icon: UserPlus,
+      href: "/prospectos",
       requiresAuth: true,
     },
     {
@@ -835,6 +851,7 @@ export default function Home() {
                 {[
                   { name: "Centro de Noticias", href: "/news", requiresAuth: false },
                   { name: "Consultor IA", href: "/chat", requiresAuth: true },
+                  { name: "Proyecciones", href: "/proyecciones", requiresAuth: true },
                   { name: "Calculadoras", href: "/calculadoras", requiresAuth: true },
                   { name: "Documentos", href: "/documents", requiresAuth: true },
                   { name: "Créditos Hipotecarios", href: "/hipotecarios", requiresAuth: true },
