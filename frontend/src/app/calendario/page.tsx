@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useAuth } from "../auth/authContext"
 import { authenticatedFetch } from "@/utils/api"
@@ -10,247 +9,6 @@ import { format, parse, startOfWeek, getDay, addHours } from "date-fns"
 import { es } from "date-fns/locale"
 import { zonedTimeToUtc, utcToZonedTime, format as formatTz } from "date-fns-tz"
 import "react-big-calendar/lib/css/react-big-calendar.css"
-
-// Custom styles for calendar
-const calendarStyles = `
-  .custom-calendar .rbc-calendar {
-    font-family: inherit;
-  }
-
-  .custom-calendar .rbc-header {
-    padding: 10px 6px;
-    font-weight: 600;
-    color: hsl(var(--foreground));
-    background-color: hsl(var(--muted));
-    border-bottom: 1px solid hsl(var(--border));
-    font-size: 13px;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-header {
-      padding: 12px 8px;
-      font-size: 14px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-header {
-      padding: 14px 10px;
-      font-size: 15px;
-    }
-  }
-
-  .custom-calendar .rbc-month-view {
-    border-radius: 12px;
-  }
-
-  .custom-calendar .rbc-month-row {
-    min-height: 60px;
-    overflow: hidden;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-month-row {
-      min-height: 70px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-month-row {
-      min-height: 90px;
-    }
-  }
-
-  .custom-calendar .rbc-day-bg {
-    padding: 0;
-  }
-
-  .custom-calendar .rbc-date-cell {
-    padding: 4px 6px;
-    font-size: 12px;
-    text-align: right;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-date-cell {
-      padding: 5px 7px;
-      font-size: 13px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-date-cell {
-      padding: 6px 8px;
-      font-size: 14px;
-    }
-  }
-
-  .custom-calendar .rbc-event {
-    padding: 2px 4px;
-    font-size: 11px;
-    margin: 1px 0;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-event {
-      padding: 3px 5px;
-      font-size: 12px;
-      margin: 2px 0;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-event {
-      padding: 3px 6px;
-      font-size: 13px;
-    }
-  }
-
-  .custom-calendar .rbc-event-content {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .custom-calendar .rbc-show-more {
-    font-size: 10px;
-    padding: 2px 4px;
-    margin: 1px 2px;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-show-more {
-      font-size: 11px;
-      padding: 2px 5px;
-    }
-  }
-
-  .custom-calendar .rbc-week-view,
-  .custom-calendar .rbc-day-view {
-    border-radius: 12px;
-  }
-
-  .custom-calendar .rbc-time-view .rbc-time-gutter {
-    font-size: 11px;
-    color: hsl(var(--muted-foreground));
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-time-view .rbc-time-gutter {
-      font-size: 12px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-time-view .rbc-time-gutter {
-      font-size: 13px;
-    }
-  }
-
-  .custom-calendar .rbc-time-view .rbc-time-slot {
-    border-top: 1px solid hsl(var(--border));
-  }
-
-  .custom-calendar .rbc-time-view .rbc-current-time-indicator {
-    background-color: hsl(var(--primary));
-  }
-
-  .custom-calendar .rbc-today {
-    background-color: hsl(var(--primary) / 0.05);
-  }
-
-  .custom-calendar .rbc-toolbar {
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 14px;
-    padding: 10px;
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-radius: 12px;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-toolbar {
-      gap: 8px;
-      margin-bottom: 18px;
-      padding: 14px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-toolbar {
-      gap: 10px;
-      margin-bottom: 24px;
-      padding: 16px;
-    }
-  }
-
-  .custom-calendar .rbc-toolbar button {
-    color: hsl(var(--foreground));
-    border: 1px solid hsl(var(--border));
-    background-color: hsl(var(--background));
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.2s;
-    font-size: 12px;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-toolbar button {
-      padding: 9px 14px;
-      font-size: 13px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-toolbar button {
-      padding: 10px 16px;
-      font-size: 14px;
-    }
-  }
-
-  .custom-calendar .rbc-toolbar button:hover {
-    background-color: hsl(var(--muted));
-    border-color: hsl(var(--primary));
-  }
-
-  .custom-calendar .rbc-toolbar button.rbc-active {
-    background-color: hsl(var(--primary));
-    border-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-  }
-
-  .custom-calendar .rbc-toolbar-label {
-    font-size: 15px;
-    font-weight: 700;
-    color: hsl(var(--foreground));
-    margin: 0 10px;
-  }
-
-  @media (min-width: 640px) {
-    .custom-calendar .rbc-toolbar-label {
-      font-size: 17px;
-      margin: 0 14px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .custom-calendar .rbc-toolbar-label {
-      font-size: 19px;
-      margin: 0 16px;
-    }
-  }
-`
-
-// Inject styles
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement("style")
-  styleSheet.type = "text/css"
-  styleSheet.innerText = calendarStyles
-  document.head.appendChild(styleSheet)
-}
-
 import {
   Calendar,
   Plus,
@@ -261,7 +19,170 @@ import {
   ArrowUpRight,
   Clock,
   Video,
+  MoreVertical,
+  Trash2,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react"
+
+// --- ESTILOS PERSONALIZADOS DEL CALENDARIO (CSS INYECTADO) ---
+// Se han ajustado para usar colores Slate/Blue consistentes con el resto de la app
+const calendarStyles = `
+  .custom-calendar {
+    font-family: inherit;
+  }
+  
+  .custom-calendar .rbc-calendar {
+    border: none;
+  }
+
+  /* Header de la semana/mes */
+  .custom-calendar .rbc-header {
+    padding: 12px 0;
+    font-weight: 600;
+    color: #64748b; /* slate-500 */
+    background-color: #f8fafc; /* slate-50 */
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Celdas del mes */
+  .custom-calendar .rbc-month-view {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+  }
+
+  .custom-calendar .rbc-month-row {
+    border-bottom: 1px solid #e2e8f0;
+    min-height: 100px; /* Celdas más altas */
+  }
+
+  .custom-calendar .rbc-day-bg {
+    border-left: 1px solid #e2e8f0;
+  }
+  
+  .custom-calendar .rbc-off-range-bg {
+    background-color: #f8fafc; /* slate-50 */
+  }
+
+  .custom-calendar .rbc-date-cell {
+    padding: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #475569;
+  }
+
+  /* Eventos */
+  .custom-calendar .rbc-event {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 4px;
+  }
+  
+  /* Vista Semanal / Tiempo */
+  .custom-calendar .rbc-time-view {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+  }
+  
+  .custom-calendar .rbc-time-content {
+    border-top: 1px solid #e2e8f0;
+  }
+  
+  .custom-calendar .rbc-time-header-content {
+    border-left: 1px solid #e2e8f0;
+  }
+  
+  .custom-calendar .rbc-timeslot-group {
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .custom-calendar .rbc-day-slot .rbc-time-slot {
+    border-top: 1px solid #f8fafc;
+  }
+
+  .custom-calendar .rbc-time-gutter .rbc-timeslot-group {
+    border-bottom: 1px solid #f1f5f9;
+    color: #94a3b8;
+    font-size: 0.75rem;
+  }
+
+  .custom-calendar .rbc-current-time-indicator {
+    background-color: #3b82f6; /* blue-500 */
+    height: 2px;
+  }
+
+  .custom-calendar .rbc-today {
+    background-color: #eff6ff; /* blue-50 */
+  }
+
+  /* Toolbar (Botones de navegación) */
+  .custom-calendar .rbc-toolbar {
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .custom-calendar .rbc-toolbar-label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b; /* slate-800 */
+  }
+
+  .custom-calendar .rbc-btn-group {
+    display: inline-flex;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+
+  .custom-calendar .rbc-toolbar button {
+    border: none;
+    border-right: 1px solid #e2e8f0;
+    background: white;
+    color: #64748b;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  
+  .custom-calendar .rbc-toolbar button:last-child {
+    border-right: none;
+  }
+
+  .custom-calendar .rbc-toolbar button:hover {
+    background-color: #f8fafc;
+    color: #3b82f6;
+  }
+
+  .custom-calendar .rbc-toolbar button.rbc-active {
+    background-color: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  }
+`
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style")
+  styleSheet.type = "text/css"
+  styleSheet.innerText = calendarStyles
+  document.head.appendChild(styleSheet)
+}
 
 const localizer = dateFnsLocalizer({
   format,
@@ -286,26 +207,16 @@ interface CalendarEvent {
   meetLink?: string | null
 }
 
+// Componente de Evento Personalizado (Estilo Pastilla)
 const CustomEvent = ({ event }: { event: CalendarEvent }) => {
+  // Determinamos colores basados en si es Google Meet o no para variedad visual
+  const isMeet = !!event.meetLink
+  const bgClass = isMeet ? "bg-blue-100 text-blue-700 border-blue-200" : "bg-indigo-100 text-indigo-700 border-indigo-200"
+  
   return (
-    <div className="relative group cursor-pointer">
-      <div className="bg-primary text-primary-foreground px-2 py-1 rounded-lg text-xs font-medium truncate hover:shadow-lg transition-all duration-200 flex items-center gap-1">
-        {event.meetLink && <Video className="w-3 h-3 flex-shrink-0" />}
-        <span className="truncate">{event.title}</span>
-      </div>
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-popover text-popover-foreground text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 pointer-events-none border border-border shadow-xl min-w-max">
-        <div className="font-semibold">{event.title}</div>
-        {event.description && <div className="text-muted-foreground mt-1">{event.description}</div>}
-        <div className="text-muted-foreground mt-1">
-          {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
-        </div>
-        {event.meetLink && (
-          <div className="flex items-center gap-1 mt-1 text-primary">
-            <Video className="w-3 h-3" />
-            <span>Google Meet disponible</span>
-          </div>
-        )}
-      </div>
+    <div className={`h-full w-full px-2 py-0.5 rounded-md border text-xs font-semibold truncate hover:shadow-md transition-all duration-200 flex items-center gap-1.5 ${bgClass}`}>
+      {event.meetLink && <Video className="w-3 h-3 flex-shrink-0" />}
+      <span className="truncate">{event.title}</span>
     </div>
   )
 }
@@ -337,7 +248,6 @@ export default function CalendarioPage() {
 
       if (res.ok) {
         const data = await res.json()
-        // Validar que data.events existe y es un array
         const eventsArray = Array.isArray(data.events) ? data.events : (Array.isArray(data) ? data : [])
         setCalendarEvents(
           eventsArray.map((event: any) => ({
@@ -397,7 +307,6 @@ export default function CalendarioPage() {
     if (!newEvent.title || !newEvent.start || !newEvent.end) return
 
     try {
-      // Mapear campos del frontend al formato del backend de Google Calendar
       const eventData = {
         summary: newEvent.title,
         description: newEvent.description,
@@ -464,9 +373,11 @@ export default function CalendarioPage() {
   const handleEventClick = (event: CalendarEvent, e: React.SyntheticEvent) => {
     e.preventDefault()
     const rect = (e.target as HTMLElement).getBoundingClientRect()
+    // Ajuste para evitar que el menú se salga de pantalla a la derecha
+    const x = Math.min(rect.left + rect.width / 2, window.innerWidth - 150)
     setContextMenu({
-      x: rect.left + rect.width / 2,
-      y: rect.top,
+      x,
+      y: rect.top + window.scrollY,
       event,
     })
   }
@@ -508,13 +419,16 @@ export default function CalendarioPage() {
     return calendarEvents
       .filter((event) => event.start > now)
       .sort((a, b) => a.start.getTime() - b.start.getTime())
-      .slice(0, 3)
+      .slice(0, 4) // Mostrar 4 próximos
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
-      {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+    <div className="min-h-screen bg-slate-50 font-sans">
+      
+      {/* ================================================================================= */}
+      {/* CABECERA ORIGINAL (NO TOCAR) */}
+      {/* ================================================================================= */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 pb-20">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
 
         <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
@@ -555,58 +469,59 @@ export default function CalendarioPage() {
           </div>
         </div>
       </div>
+      {/* ================================================================================= */}
+      {/* FIN CABECERA */}
+      {/* ================================================================================= */}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10 pb-20">
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between">
+        {/* Stats Cards - Dashboard Style */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Eventos</p>
-                <p className="text-3xl font-bold text-foreground mt-1">{calendarEvents.length}</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Eventos</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1">{calendarEvents.length}</p>
               </div>
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-primary" />
+              <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                <Calendar className="w-5 h-5" />
               </div>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Próximos Eventos</p>
-                <p className="text-3xl font-bold text-foreground mt-1">{getUpcomingEvents().length}</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Próximos</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1">{getUpcomingEvents().length}</p>
               </div>
-              <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-accent-foreground" />
+              <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
+                <Clock className="w-5 h-5" />
               </div>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Estado</p>
-                <p className="text-lg font-bold text-foreground mt-1">
-                  {calendarConnected ? "Conectado" : "Sin conectar"}
-                </p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sincronización</p>
+                <div className="flex items-center gap-2 mt-1">
+                    <p className={`text-lg font-bold ${calendarConnected ? "text-emerald-600" : "text-slate-500"}`}>
+                    {calendarConnected ? "Activa" : "Inactiva"}
+                    </p>
+                </div>
               </div>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                calendarConnected ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-              }`}>
-                <div className={`w-3 h-3 rounded-full ${
-                  calendarConnected ? "bg-green-600" : "bg-red-600"
-                }`} />
+              <div className={`p-2 rounded-lg ${calendarConnected ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"}`}>
+                {calendarConnected ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
               </div>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Esta Semana</p>
-                <p className="text-3xl font-bold text-foreground mt-1">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Esta Semana</p>
+                <p className="text-2xl font-bold text-slate-800 mt-1">
                   {calendarEvents.filter(event => {
                     const now = new Date()
                     const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
@@ -614,337 +529,272 @@ export default function CalendarioPage() {
                   }).length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6" />
+              <div className="p-2 bg-orange-50 rounded-lg text-orange-600">
+                <TrendingUp className="w-5 h-5" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Calendar */}
-        <div className="bg-card rounded-2xl border border-border p-3 sm:p-4 lg:p-6 shadow-lg">
-          {calendarLoading ? (
-            <div className="flex items-center justify-center py-12 sm:py-16 lg:py-20">
-              <div className="text-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-border border-t-primary rounded-full animate-spin mx-auto"></div>
-                <p className="mt-3 sm:mt-4 text-muted-foreground font-semibold text-xs sm:text-sm">Cargando calendario...</p>
-              </div>
-            </div>
-          ) : (
-            <div className="h-[600px] sm:h-[650px] lg:h-[750px]">
-              <BigCalendar
-                localizer={localizer}
-                events={calendarEvents}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: "100%" }}
-                views={["month", "week", "day"]}
-                defaultView="week"
-                min={new Date(2024, 0, 1, 7, 0, 0)} // 7 AM
-                max={new Date(2024, 0, 1, 23, 0, 0)} // 11 PM
-                step={30}
-                timeslots={2}
-                messages={{
-                  next: "Siguiente",
-                  previous: "Anterior",
-                  today: "Hoy",
-                  month: "Mes",
-                  week: "Semana",
-                  day: "Día",
-                  agenda: "Agenda",
-                  date: "Fecha",
-                  time: "Hora",
-                  event: "Evento",
-                  noEventsInRange: "No hay eventos en este rango.",
-                  showMore: (total) => `+ Ver ${total} más`,
-                }}
-                formats={{
-                  dayHeaderFormat: (date) => {
-                    // Mobile: 1-2 letras, Tablet: 3 letras, Desktop: completo
-                    if (typeof window !== 'undefined') {
-                      if (window.innerWidth < 640) {
-                        return format(date, "EEEEE", { locale: es }) // 1 letra
-                      } else if (window.innerWidth < 1024) {
-                        return format(date, "EEE", { locale: es }) // 3 letras
-                      }
-                    }
-                    return format(date, "EEEE", { locale: es }) // Completo
-                  },
-                  dayRangeHeaderFormat: ({ start, end }) =>
-                    `${format(start, "d MMM", { locale: es })} - ${format(end, "d MMM", { locale: es })}`,
-                  monthHeaderFormat: (date) => {
-                    if (typeof window !== 'undefined' && window.innerWidth < 640) {
-                      return format(date, "MMM yyyy", { locale: es })
-                    }
-                    return format(date, "MMMM yyyy", { locale: es })
-                  },
-                  dayFormat: (date) => format(date, "d", { locale: es }),
-                  timeGutterFormat: (date) => format(date, "HH:mm", { locale: es }),
-                }}
-                onSelectSlot={({ start, end }) => {
-                  // Convertir a zona horaria de Argentina
-                  const argStart = utcToZonedTime(start, TIMEZONE)
-                  const argEnd = utcToZonedTime(end, TIMEZONE)
-
-                  setNewEvent({
-                    ...newEvent,
-                    start: format(argStart, "yyyy-MM-dd'T'HH:mm"),
-                    end: format(argEnd, "yyyy-MM-dd'T'HH:mm"),
-                  })
-                  setShowModal(true)
-                }}
-                onSelectEvent={handleEventClick}
-                selectable
-                popup
-                components={{
-                  event: CustomEvent,
-                }}
-                className="custom-calendar"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Upcoming Events */}
-        {getUpcomingEvents().length > 0 && (
-          <div className="mt-6 sm:mt-8 bg-card rounded-2xl border border-border p-4 sm:p-5 lg:p-6">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5 lg:mb-6">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-foreground">Próximos Eventos</h3>
-            </div>
-
-            <div className="space-y-2 sm:space-y-3">
-              {getUpcomingEvents().map((event, index) => (
-                <div key={index} className="flex items-start sm:items-center justify-between p-3 sm:p-4 bg-muted/50 rounded-xl border border-border hover:bg-muted/70 transition-all gap-2">
-                  <div className="flex items-start sm:items-center gap-2 sm:gap-3 lg:gap-4 flex-1 min-w-0">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Main Calendar Area */}
+            <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden p-6">
+                {calendarLoading ? (
+                    <div className="flex flex-col items-center justify-center h-[600px]">
+                    <div className="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
+                    <p className="mt-4 text-slate-500 font-medium">Sincronizando agenda...</p>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 sm:gap-2">
-                        <h4 className="font-semibold text-sm sm:text-base text-foreground truncate">{event.title}</h4>
-                        {event.meetLink && (
-                          <Video className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                        {format(event.start, "EEEE, d 'de' MMMM 'a las' HH:mm", { locale: es })}
-                      </p>
-                      {event.description && (
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate hidden sm:block">{event.description}</p>
-                      )}
-                      {event.meetLink && (
-                        <button
-                          onClick={() => window.open(event.meetLink!, '_blank')}
-                          className="text-xs text-primary hover:underline mt-1 sm:mt-1.5 flex items-center gap-1"
-                        >
-                          <Video className="w-3 h-3" />
-                          Unirse a Meet
-                        </button>
-                      )}
+                ) : (
+                    <div className="h-[700px] custom-calendar">
+                    <BigCalendar
+                        localizer={localizer}
+                        events={calendarEvents}
+                        startAccessor="start"
+                        endAccessor="end"
+                        style={{ height: "100%" }}
+                        views={["month", "week", "day"]}
+                        defaultView="week"
+                        min={new Date(2024, 0, 1, 7, 0, 0)} // 7 AM
+                        max={new Date(2024, 0, 1, 23, 0, 0)} // 11 PM
+                        step={30}
+                        timeslots={2}
+                        messages={{
+                            next: "Sig",
+                            previous: "Ant",
+                            today: "Hoy",
+                            month: "Mes",
+                            week: "Semana",
+                            day: "Día",
+                            agenda: "Agenda",
+                            date: "Fecha",
+                            time: "Hora",
+                            event: "Evento",
+                            noEventsInRange: "Sin eventos.",
+                            showMore: (total) => `+${total} más`,
+                        }}
+                        onSelectSlot={({ start, end }) => {
+                            const argStart = utcToZonedTime(start, TIMEZONE)
+                            const argEnd = utcToZonedTime(end, TIMEZONE)
+                            setNewEvent({
+                                ...newEvent,
+                                start: format(argStart, "yyyy-MM-dd'T'HH:mm"),
+                                end: format(argEnd, "yyyy-MM-dd'T'HH:mm"),
+                            })
+                            setShowModal(true)
+                        }}
+                        onSelectEvent={handleEventClick}
+                        selectable
+                        popup
+                        components={{
+                            event: CustomEvent,
+                        }}
+                    />
                     </div>
-                  </div>
-                  <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground flex-shrink-0" />
+                )}
+            </div>
+
+            {/* Sidebar / Upcoming Events Feed */}
+            <div className="lg:col-span-1 space-y-6">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-5">
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                            <ArrowUpRight className="w-5 h-5 text-blue-600" />
+                            Agenda Próxima
+                        </h3>
+                    </div>
+
+                    {getUpcomingEvents().length === 0 ? (
+                        <div className="text-center py-8 text-slate-400 text-sm">
+                            <p>No tienes eventos próximos.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {getUpcomingEvents().map((event, index) => (
+                                <div key={index} className="group p-3 rounded-lg border border-slate-100 bg-slate-50 hover:bg-white hover:border-blue-200 hover:shadow-md transition-all">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold text-slate-600 text-center min-w-[50px]">
+                                            {format(event.start, "d MMM", { locale: es })}
+                                        </div>
+                                        {event.meetLink && <Video className="w-4 h-4 text-blue-500" />}
+                                    </div>
+                                    
+                                    <h4 className="font-bold text-slate-800 text-sm mb-1 line-clamp-2 group-hover:text-blue-700">{event.title}</h4>
+                                    
+                                    <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2">
+                                        <Clock className="w-3 h-3" />
+                                        <span>
+                                            {format(event.start, "HH:mm", { locale: es })} - {format(event.end, "HH:mm", { locale: es })}
+                                        </span>
+                                    </div>
+
+                                    {event.meetLink && (
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); window.open(event.meetLink!, '_blank') }}
+                                            className="w-full mt-2 py-1.5 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors"
+                                        >
+                                            Unirse a Meet
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    
+                    <button 
+                        onClick={() => setShowModal(true)}
+                        className="w-full mt-4 py-2.5 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 font-semibold text-sm hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
+                    >
+                        <Plus className="w-4 h-4" /> Agregar Rápido
+                    </button>
                 </div>
-              ))}
             </div>
-          </div>
-        )}
+        </div>
 
-        {/* Context Menu */}
+        {/* Context Menu (Click Derecho / Click Evento) */}
         {contextMenu && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
             <div
-              className="fixed z-50 bg-popover rounded-xl shadow-2xl border border-border py-1 min-w-48"
+              className="fixed z-50 bg-white rounded-lg shadow-xl border border-slate-200 py-1 min-w-[200px] animate-in fade-in zoom-in-95 duration-100 origin-top-left"
               style={{
                 left: contextMenu.x,
                 top: contextMenu.y,
-                transform: "translate(-50%, -100%)",
               }}
             >
+              <div className="px-4 py-2 border-b border-slate-100 mb-1">
+                 <p className="text-xs font-bold text-slate-400 uppercase">Opciones</p>
+              </div>
               {contextMenu.event.meetLink && (
                 <button
                   onClick={() => {
                     window.open(contextMenu.event.meetLink!, '_blank')
                     setContextMenu(null)
                   }}
-                  className="w-full px-4 py-2.5 text-left hover:bg-primary/10 transition-colors flex items-center gap-3 text-primary font-medium text-sm"
+                  className="w-full px-4 py-2 text-left hover:bg-blue-50 transition-colors flex items-center gap-2 text-blue-600 font-medium text-sm"
                 >
                   <Video className="w-4 h-4" />
-                  Abrir Google Meet
+                  Ir a la reunión
                 </button>
               )}
               <button
                 onClick={handleEditEvent}
-                className="w-full px-4 py-2.5 text-left hover:bg-muted transition-colors flex items-center gap-3 text-foreground font-medium text-sm"
+                className="w-full px-4 py-2 text-left hover:bg-slate-50 transition-colors flex items-center gap-2 text-slate-700 font-medium text-sm"
               >
-                <Edit className="w-4 h-4" />
-                Editar evento
+                <Edit className="w-4 h-4 text-slate-400" />
+                Editar detalles
               </button>
               <button
                 onClick={handleDeleteEvent}
-                className="w-full px-4 py-2.5 text-left hover:bg-destructive/10 transition-colors flex items-center gap-3 text-destructive font-medium text-sm"
+                className="w-full px-4 py-2 text-left hover:bg-red-50 transition-colors flex items-center gap-2 text-red-600 font-medium text-sm"
               >
-                <X className="w-4 h-4" />
-                Eliminar evento
+                <Trash2 className="w-4 h-4" />
+                Eliminar
               </button>
             </div>
           </>
         )}
 
-        {/* Event Modal */}
+        {/* Modal: Crear / Editar Evento */}
         {showModal && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-start sm:items-center justify-center z-50 p-0 sm:p-4 overflow-y-auto">
-            <div className="bg-card rounded-t-2xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 max-w-lg w-full sm:mx-4 shadow-2xl border-t sm:border border-border my-auto sm:my-4 max-h-screen sm:max-h-[90vh] overflow-y-auto">
-              <div className="flex items-start sm:items-center justify-between mb-5 sm:mb-6 lg:mb-8 gap-3 sticky top-0 bg-card z-10 pb-4 sm:pb-0 sm:static">
-                <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-xl sm:text-2xl lg:text-2xl font-bold text-foreground">
-                      {editingEvent ? "Editar Evento" : "Nuevo Evento"}
-                    </h3>
-                    <p className="text-sm sm:text-sm text-muted-foreground mt-1 sm:mt-1 hidden sm:block">
-                      {editingEvent ? "Modifica los detalles del evento" : "Crea un nuevo evento en tu calendario"}
-                    </p>
-                  </div>
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white border border-slate-200 rounded-lg shadow-sm">
+                        {editingEvent ? <Edit className="w-5 h-5 text-blue-600" /> : <Plus className="w-5 h-5 text-blue-600" />}
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-800">
+                        {editingEvent ? "Editar Evento" : "Nuevo Evento"}
+                        </h3>
+                        <p className="text-xs text-slate-500">Completa los detalles de la agenda</p>
+                    </div>
                 </div>
                 <button
-                  onClick={() => {
-                    setShowModal(false)
-                    setEditingEvent(null)
-                    setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false })
-                  }}
-                  className="w-10 h-10 sm:w-10 sm:h-10 bg-muted rounded-xl flex items-center justify-center hover:bg-muted/80 transition-colors flex-shrink-0"
+                  onClick={() => { setShowModal(false); setEditingEvent(null); setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false }) }}
+                  className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  <X className="w-5 h-5 sm:w-5 sm:h-5 text-foreground" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }} className="space-y-5 sm:space-y-5 lg:space-y-6">
-                <div className="space-y-4 sm:space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); handleAddEvent(); }} className="p-6 space-y-5">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Título</label>
+                  <input
+                    type="text"
+                    value={newEvent.title}
+                    onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium placeholder-slate-400"
+                    placeholder="Ej: Visita propiedad Av. Libertador..."
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
-                      <Calendar className="w-4 h-4 sm:w-4 sm:h-4" />
-                      Título del Evento
-                    </label>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Inicio</label>
                     <input
-                      type="text"
-                      value={newEvent.title}
-                      onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                      className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base sm:text-base text-foreground placeholder:text-muted-foreground"
-                      placeholder="Ej: Reunión con cliente, Cita médica..."
+                      type="datetime-local"
+                      value={newEvent.start}
+                      onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-slate-700"
                       required
                     />
                   </div>
-
                   <div>
-                    <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
-                      <Edit className="w-4 h-4 sm:w-4 sm:h-4" />
-                      Descripción (Opcional)
-                    </label>
-                    <textarea
-                      value={newEvent.description}
-                      onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                      className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none text-base sm:text-base text-foreground placeholder:text-muted-foreground"
-                      rows={3}
-                      placeholder="Agrega detalles adicionales sobre el evento..."
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Fin</label>
+                    <input
+                      type="datetime-local"
+                      value={newEvent.end}
+                      onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
+                      className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-slate-700"
+                      required
                     />
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-4">
-                    <div>
-                      <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
-                        <Clock className="w-4 h-4 sm:w-4 sm:h-4" />
-                        Fecha y Hora de Inicio
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={newEvent.start}
-                        onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                        className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base sm:text-base text-foreground"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="flex items-center gap-2 text-sm sm:text-sm font-semibold text-foreground mb-3 sm:mb-3">
-                        <Clock className="w-4 h-4 sm:w-4 sm:h-4" />
-                        Fecha y Hora de Fin
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={newEvent.end}
-                        onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                        className="w-full px-4 sm:px-4 py-3 sm:py-3 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-base sm:text-base text-foreground"
-                        required
-                      />
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Descripción</label>
+                  <textarea
+                    value={newEvent.description}
+                    onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-slate-700 resize-none placeholder-slate-400"
+                    rows={3}
+                    placeholder="Notas adicionales..."
+                  />
+                </div>
 
-                  {/* Google Meet Option */}
-                  <div className="bg-muted/30 rounded-xl p-4 sm:p-4 border border-border">
-                    <label className="flex items-start sm:items-center gap-3 cursor-pointer">
-                      <input
+                {/* Google Meet Toggle */}
+                <div className="flex items-center p-4 border border-blue-100 bg-blue-50/50 rounded-xl">
+                    <input
+                        id="meet-toggle"
                         type="checkbox"
                         checked={newEvent.addMeet}
                         onChange={(e) => setNewEvent({ ...newEvent, addMeet: e.target.checked })}
-                        className="w-5 h-5 sm:w-5 sm:h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 flex-shrink-0 mt-0.5 sm:mt-0"
-                      />
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Video className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span className="text-sm sm:text-sm font-semibold text-foreground">
-                          Agregar enlace de Google Meet
-                        </span>
-                      </div>
+                        className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="meet-toggle" className="ml-3 flex-1 cursor-pointer">
+                        <span className="block text-sm font-bold text-slate-800">Videollamada Google Meet</span>
+                        <span className="block text-xs text-slate-500">Se generará un enlace automáticamente</span>
                     </label>
-                    <p className="text-xs text-muted-foreground ml-8 sm:ml-8 mt-1">
-                      Se generará automáticamente un enlace para videollamada
-                    </p>
-                  </div>
-
-                  {/* Preview */}
-                  {newEvent.title && newEvent.start && (
-                    <div className="bg-muted/50 rounded-xl p-4 sm:p-4 border border-border">
-                      <h4 className="text-sm sm:text-sm font-semibold text-foreground mb-2">Vista Previa</h4>
-                      <div className="flex items-center gap-3 sm:gap-3">
-                        <div className="w-8 h-8 sm:w-8 sm:h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Calendar className="w-4 h-4 sm:w-4 sm:h-4 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-base sm:text-base text-foreground truncate">{newEvent.title}</p>
-                          <p className="text-sm sm:text-sm text-muted-foreground">
-                            {newEvent.start && format(new Date(newEvent.start), "EEEE, d 'de' MMMM 'a las' HH:mm", { locale: es })}
-                            {newEvent.end && ` - ${format(new Date(newEvent.end), "HH:mm", { locale: es })}`}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    <Video className="w-5 h-5 text-blue-400" />
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3 pt-4 sm:pt-4 border-t border-border">
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowModal(false)
-                      setEditingEvent(null)
-                      setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false })
-                    }}
-                    className="flex-1 px-5 sm:px-6 py-3 sm:py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold text-sm sm:text-sm"
+                    onClick={() => { setShowModal(false); setEditingEvent(null); setNewEvent({ title: "", description: "", start: "", end: "", addMeet: false }) }}
+                    className="flex-1 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-bold text-sm transition-colors"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={!newEvent.title || !newEvent.start || !newEvent.end}
-                    className="flex-1 px-5 sm:px-6 py-3 sm:py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold text-sm sm:text-sm flex items-center justify-center gap-2 sm:gap-2"
+                    className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-sm shadow-md shadow-blue-500/20 transition-all"
                   >
-                    <Plus className="w-4 h-4 sm:w-4 sm:h-4" />
-                    <span>{editingEvent ? "Actualizar Evento" : "Crear Evento"}</span>
+                    {editingEvent ? "Guardar Cambios" : "Crear Evento"}
                   </button>
                 </div>
               </form>
