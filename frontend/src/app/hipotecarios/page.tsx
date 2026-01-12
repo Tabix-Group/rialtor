@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Calculator, TrendingUp, DollarSign, Calendar, Banknote, Building, Wallet, Percent } from 'lucide-react'
+import { Calculator, TrendingUp, DollarSign, Calendar, Banknote, Building, Wallet, Percent, Home, AlertCircle } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 import { useAuth } from '../auth/authContext'
 
@@ -50,11 +50,8 @@ export default function HipotecariosPage() {
     useEffect(() => {
         const fetchBankRates = async () => {
             try {
-                console.log('Fetching bank rates for mortgage calculator from /api/admin/rates (primary)...');
                 const res = await authenticatedFetch('/api/admin/rates');
-                console.log('Mortgage primary response status:', res.status);
                 const data = await res.json();
-                console.log('Mortgage primary response body:', data);
                 if (data && data.success) {
                     setBankRates(data.data);
                     return;
@@ -66,9 +63,7 @@ export default function HipotecariosPage() {
             // Fallback to test endpoint
             try {
                 const res2 = await authenticatedFetch('/api/admin/rates-test');
-                console.log('Mortgage test response status:', res2.status);
                 const data2 = await res2.json();
-                console.log('Mortgage test response body:', data2);
                 if (data2 && data2.success) setBankRates(data2.data);
             } catch (err2) {
                 console.error('rates-test also failed for mortgage:', err2);
@@ -99,10 +94,7 @@ export default function HipotecariosPage() {
                 setError('Por favor complete todos los campos')
                 return
             }
-            // For salary-based calculation, we'll use a simplified approach
-            // In a real implementation, this would calculate the maximum loan amount based on salary
-            // For now, we'll use a placeholder calculation
-            const maxLoanBasedOnSalary = (parseFloat(salary) * 12 * 0.3) / 12 // Simplified calculation
+            const maxLoanBasedOnSalary = (parseFloat(salary) * 12 * 0.3) / 12
             finalLoanAmount = maxLoanBasedOnSalary.toString()
         }
 
@@ -142,336 +134,316 @@ export default function HipotecariosPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-8 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Créditos Hipotecarios</h1>
-                    <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                        Calculá las cuotas de tu crédito hipotecario en Argentina usando el sistema de amortización francés
-                    </p>
-                </div>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
+            {/* Header */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
 
-                {/* Main Tabs */}
-                <div className="flex mb-8 bg-gray-100 rounded-lg p-1 max-w-md mx-auto">
-                    <button
-                        onClick={() => setActiveTab('calculator')}
-                        className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${activeTab === 'calculator'
-                            ? 'bg-white text-blue-600 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
+                <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+                    <div className="flex-1 w-full">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
+                            <Home className="w-3 h-3 sm:w-4 sm:h-4 text-blue-300" />
+                            <span className="text-xs sm:text-sm font-semibold text-white">Créditos UVA</span>
+                        </div>
+
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
+                            Simulador <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Hipotecario</span>
+                        </h1>
+
+                        <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
+                            Calculá las cuotas de tu crédito hipotecario en Argentina usando el sistema de amortización francés y compará tasas bancarias.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                
+                {/* Selector de Herramienta */}
+                <div className="flex justify-center mb-12">
+                     <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-200 inline-flex">
+                        <button
+                            onClick={() => setActiveTab('calculator')}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                                activeTab === 'calculator'
+                                    ? 'bg-blue-600 text-white shadow-sm'
+                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                             }`}
-                    >
-                        Calculadora
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('rates')}
-                        className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${activeTab === 'rates'
-                            ? 'bg-white text-blue-600 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
+                        >
+                            <Calculator className="w-4 h-4" />
+                            Calculadora
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('rates')}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                                activeTab === 'rates'
+                                    ? 'bg-blue-600 text-white shadow-sm'
+                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                             }`}
-                    >
-                        Tasas
-                    </button>
+                        >
+                            <Percent className="w-4 h-4" />
+                            Tasas Vigentes
+                        </button>
+                    </div>
                 </div>
 
                 {activeTab === 'calculator' ? (
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    {/* Header with Bank Selector */}
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Calculator className="w-8 h-8 text-white" />
-                                <h2 className="text-2xl font-bold text-white">Calculadora de Créditos UVA</h2>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-blue-100 text-sm">Seleccioná el banco</p>
-                                <select
-                                    value={selectedBank}
-                                    onChange={(e) => handleBankChange(e.target.value)}
-                                    className="mt-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50"
-                                >
-                                    <option value="" className="text-gray-900">Seleccionar banco</option>
-                                    {bankRates.map((bank) => (
-                                        <option key={bank.id} value={bank.bankName} className="text-gray-900">
-                                            {bank.bankName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Columna Izquierda: Parámetros */}
+                        <div className="lg:col-span-1">
+                            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <Calculator className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-gray-900">Parámetros</h2>
+                                </div>
 
-                    <div className="p-8">
-                        {/* Calculation Mode Tabs */}
-                        <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
-                            <button
-                                onClick={() => setCalculationMode('salary')}
-                                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${calculationMode === 'salary'
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
-                                    }`}
-                            >
-                                En base a tu sueldo
-                            </button>
-                            <button
-                                onClick={() => setCalculationMode('property')}
-                                className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${calculationMode === 'property'
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
-                                    }`}
-                            >
-                                En base a la propiedad
-                            </button>
-                        </div>
-
-                        {/* Form */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                            {calculationMode === 'property' ? (
-                                <>
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Valor de la propiedad (USD)
+                                <div className="space-y-6">
+                                    {/* Bank Selector */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Banco
                                         </label>
-                                        <div className="relative">
-                                            <Building className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                            <input
-                                                type="number"
-                                                value={propertyValue}
-                                                onChange={(e) => setPropertyValue(e.target.value)}
-                                                placeholder="Ej: 100000"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
+                                        <select
+                                            value={selectedBank}
+                                            onChange={(e) => handleBankChange(e.target.value)}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        >
+                                            <option value="">Seleccionar banco...</option>
+                                            {bankRates.map((bank) => (
+                                                <option key={bank.id} value={bank.bankName}>
+                                                    {bank.bankName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {/* Mode Selector */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Cálculo basado en</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <button
+                                                onClick={() => setCalculationMode('property')}
+                                                className={`px-3 py-2 text-sm font-medium rounded-lg border ${
+                                                    calculationMode === 'property' 
+                                                    ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                                                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                Propiedad
+                                            </button>
+                                            <button
+                                                onClick={() => setCalculationMode('salary')}
+                                                className={`px-3 py-2 text-sm font-medium rounded-lg border ${
+                                                    calculationMode === 'salary' 
+                                                    ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                                                    : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                                                }`}
+                                            >
+                                                Sueldo
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Monto total a pedir prestado (USD)
-                                        </label>
-                                        <div className="relative">
-                                            <DollarSign className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                            <input
-                                                type="number"
-                                                value={loanAmount}
-                                                onChange={(e) => setLoanAmount(e.target.value)}
-                                                placeholder="Ej: 80000"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
+                                    {/* Inputs Dynamic */}
+                                    {calculationMode === 'property' ? (
+                                        <>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Valor Propiedad (USD)</label>
+                                                <div className="relative">
+                                                    <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                    <input
+                                                        type="number"
+                                                        value={propertyValue}
+                                                        onChange={(e) => setPropertyValue(e.target.value)}
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        placeholder="100000"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Monto Préstamo (USD)</label>
+                                                <div className="relative">
+                                                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                    <input
+                                                        type="number"
+                                                        value={loanAmount}
+                                                        onChange={(e) => setLoanAmount(e.target.value)}
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        placeholder="80000"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Ingreso Neto (ARS)</label>
+                                                <div className="relative">
+                                                    <Wallet className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                    <input
+                                                        type="number"
+                                                        value={salary}
+                                                        onChange={(e) => setSalary(e.target.value)}
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Ahorros (USD)</label>
+                                                <div className="relative">
+                                                    <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                    <input
+                                                        type="number"
+                                                        value={savings}
+                                                        onChange={(e) => setSavings(e.target.value)}
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
 
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Plazo del préstamo (años)
-                                        </label>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (Años)</label>
                                         <div className="relative">
-                                            <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                                             <input
                                                 type="number"
                                                 value={termYears}
                                                 onChange={(e) => setTermYears(e.target.value)}
-                                                placeholder="Ej: 20"
-                                                min="1"
-                                                max="50"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                placeholder="20"
                                             />
                                         </div>
                                     </div>
-                                </>
+
+                                    <button
+                                        onClick={calculateMortgage}
+                                        disabled={loading}
+                                        className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                                    >
+                                        {loading ? 'Calculando...' : 'Calcular Cuotas'}
+                                    </button>
+
+                                    {error && (
+                                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                                            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                                            <p className="text-red-700 text-sm">{error}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Columna Derecha: Resultados */}
+                        <div className="lg:col-span-2">
+                            {result ? (
+                                <div className="space-y-6">
+                                    <div className="bg-white rounded-xl shadow-lg p-6">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                                <TrendingUp className="w-5 h-5 text-green-600" />
+                                            </div>
+                                            <h2 className="text-xl font-bold text-gray-900">Proyección del Crédito</h2>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                            <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                                                <p className="text-sm font-medium text-blue-800 mb-1">Valor Primera Cuota</p>
+                                                <p className="text-3xl font-bold text-blue-700">{formatCurrency(result.monthlyPayment)}</p>
+                                            </div>
+                                            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                                                <p className="text-sm font-medium text-gray-600 mb-1">Monto Total a Pagar</p>
+                                                <p className="text-3xl font-bold text-gray-900">{formatCurrency(result.totalPayment)}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                                            <div className="p-3 bg-white border border-gray-200 rounded-lg text-center">
+                                                <p className="text-xs text-gray-500 uppercase tracking-wide">Plazo</p>
+                                                <p className="text-lg font-bold text-gray-800">{result.termYears} años</p>
+                                            </div>
+                                            <div className="p-3 bg-white border border-gray-200 rounded-lg text-center">
+                                                <p className="text-xs text-gray-500 uppercase tracking-wide">Tasa TNA</p>
+                                                <p className="text-lg font-bold text-gray-800">{result.interestRate}%</p>
+                                            </div>
+                                            <div className="p-3 bg-white border border-gray-200 rounded-lg text-center col-span-2 sm:col-span-1">
+                                                <p className="text-xs text-gray-500 uppercase tracking-wide">Intereses</p>
+                                                <p className="text-lg font-bold text-red-600">{formatCurrency(result.totalInterest)}</p>
+                                            </div>
+                                        </div>
+
+                                        {calculationMode === 'property' && propertyValue && loanAmount && (
+                                            <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 flex items-center gap-3">
+                                                <Wallet className="w-8 h-8 text-orange-500" />
+                                                <div>
+                                                    <p className="text-sm text-orange-800 font-medium">Ahorro inicial necesario</p>
+                                                    <p className="text-xl font-bold text-orange-700">
+                                                        {formatCurrency(parseFloat(propertyValue) - parseFloat(loanAmount))} USD
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="bg-white rounded-xl shadow-lg p-6">
+                                        <h3 className="font-bold text-gray-900 mb-4">Nota Importante</h3>
+                                        <p className="text-sm text-gray-600 leading-relaxed">
+                                            Los montos calculados son estimativos y corresponden a la primera cuota. 
+                                            En los créditos UVA, el capital adeudado se ajusta mensualmente por inflación (CER), 
+                                            por lo que el valor de la cuota en pesos variará a lo largo del tiempo.
+                                        </p>
+                                    </div>
+                                </div>
                             ) : (
-                                <>
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Ingreso neto mensual (ARS)
-                                        </label>
-                                        <div className="relative">
-                                            <Wallet className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                            <input
-                                                type="number"
-                                                value={salary}
-                                                onChange={(e) => setSalary(e.target.value)}
-                                                placeholder="Ej: 150000"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Ahorro disponible (USD)
-                                        </label>
-                                        <div className="relative">
-                                            <Banknote className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                            <input
-                                                type="number"
-                                                value={savings}
-                                                onChange={(e) => setSavings(e.target.value)}
-                                                placeholder="Ej: 20000"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Plazo del préstamo (años)
-                                        </label>
-                                        <div className="relative">
-                                            <Calendar className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                            <input
-                                                type="number"
-                                                value={termYears}
-                                                onChange={(e) => setTermYears(e.target.value)}
-                                                placeholder="Ej: 20"
-                                                min="1"
-                                                max="50"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                <p className="text-red-600 text-sm">{error}</p>
-                            </div>
-                        )}
-
-                        <div className="text-center">
-                            <button
-                                onClick={calculateMortgage}
-                                disabled={loading}
-                                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
-                            >
-                                {loading ? 'Calculando...' : 'Calcular Cuotas'}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Results */}
-                    {result && (
-                        <div className="bg-gradient-to-r from-gray-50 to-blue-50 px-8 py-8 border-t border-gray-200">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Condiciones del crédito al que podrías acceder</h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <DollarSign className="w-6 h-6 text-green-600" />
-                                        <span className="text-sm font-medium text-gray-600">Valor de la primera cuota</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-green-600">{formatCurrency(result.monthlyPayment)}</p>
-                                </div>
-
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <Banknote className="w-6 h-6 text-blue-600" />
-                                        <span className="text-sm font-medium text-gray-600">Total a pagar</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-blue-600">{formatCurrency(result.totalPayment)}</p>
-                                </div>
-
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <TrendingUp className="w-6 h-6 text-red-600" />
-                                        <span className="text-sm font-medium text-gray-600">Intereses totales</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-red-600">{formatCurrency(result.totalInterest)}</p>
-                                </div>
-
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <Calendar className="w-6 h-6 text-purple-600" />
-                                        <span className="text-sm font-medium text-gray-600">Plazo</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-purple-600">{result.termYears} años</p>
-                                </div>
-                            </div>
-
-                            {calculationMode === 'property' && propertyValue && loanAmount && (
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <Wallet className="w-6 h-6 text-orange-600" />
-                                        <span className="text-sm font-medium text-gray-600">Ahorro necesario</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-orange-600">
-                                        {formatCurrency(parseFloat(propertyValue) - parseFloat(loanAmount))} USD
+                                <div className="bg-white rounded-xl shadow-lg p-12 text-center h-full flex flex-col items-center justify-center">
+                                    <Home className="w-20 h-20 text-gray-400 mb-6" />
+                                    <h3 className="text-2xl font-bold text-gray-600 mb-4">Simulador Hipotecario</h3>
+                                    <p className="text-gray-500 text-lg max-w-md mx-auto">
+                                        Selecciona un banco y completa los datos de la propiedad o tus ingresos para calcular tu crédito.
                                     </p>
                                 </div>
                             )}
-
-                            <div className="text-center">
-                                <button className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200">
-                                    Encontrá propiedades por ese valor
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-                ) : (
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-                        <div className="flex items-center gap-3">
-                            <Percent className="w-8 h-8 text-white" />
-                            <h2 className="text-2xl font-bold text-white">Tasas Bancarias</h2>
                         </div>
                     </div>
-
-                    <div className="p-8">
-                        <div className="mb-6">
-                            <p className="text-gray-600 text-center">
-                                Consulta las tasas de interés actuales para créditos hipotecarios en Argentina
-                            </p>
+                ) : (
+                    /* Rates Tab */
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                            <h3 className="font-bold text-gray-900">Tasas de Referencia</h3>
+                            <span className="text-xs text-gray-500">Actualizado recientemente</span>
                         </div>
-
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Banco
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tasa de Interés
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Plazo (meses)
-                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Banco</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tasa (TNA)</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plazo Máx.</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {bankRates.map((rate) => (
-                                        <tr key={rate.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">{rate.bankName}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-500">{rate.interestRate}%</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-500">{rate.termMonths ? `${rate.termMonths} meses` : 'N/A'}</div>
+                                    {bankRates.map((rate, idx) => (
+                                        <tr key={rate.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                            <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{rate.bankName}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-blue-600 font-bold">{rate.interestRate}%</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-gray-500">
+                                                {rate.termMonths ? `${(rate.termMonths / 12).toFixed(0)} años` : 'N/A'}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+                            {bankRates.length === 0 && (
+                                <div className="p-8 text-center text-gray-500">
+                                    No se encontraron tasas disponibles en este momento.
+                                </div>
+                            )}
                         </div>
-
-                        {bankRates.length === 0 && (
-                            <div className="text-center py-8 text-gray-500">
-                                No hay tasas disponibles en este momento
-                            </div>
-                        )}
                     </div>
-                </div>
                 )}
-
-                <div className="mt-8 text-sm text-gray-500 text-center">
-                    <p>
-                        <strong>Nota:</strong> Los montos son estimativos. Consultar con el banco correspondiente los valores y
-                        condiciones finales del crédito hipotecario.
-                    </p>
-                </div>
             </div>
         </div>
     )
