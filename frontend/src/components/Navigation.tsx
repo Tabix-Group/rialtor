@@ -66,7 +66,15 @@ function Navigation() {
     setIsMobileOpen(false)
   }, [pathname])
 
+  // LÓGICA DE REORDENAMIENTO APLICADA:
+  // 1. Gestión Diaria (Panel, IA, Calendario)
+  // 2. Negocio/CRM (Prospectos, Proyecciones, Finanzas) -> CRÍTICO subir esto
+  // 3. Herramientas (Calculadoras, Docs)
+  // 4. Marketing (Placas, Newsletter)
+  // 5. Info Mercado (Indicadores, Noticias, Descargas)
+
   const navConfig = [
+    // --- GESTIÓN DIARIA ---
     {
       name: "Mi Panel",
       href: user ? "/dashboard" : "/",
@@ -79,22 +87,19 @@ function Navigation() {
       description: "Consultor inmobiliario con inteligencia artificial",
     },
     {
-      name: "Indicadores",
-      href: "/indicadores",
-      icon: TrendingUp,
-      description: "Indicadores económicos e inmobiliarios en tiempo real",
-    },
-    {
       name: "Mi Calendario",
       href: "/calendario",
       icon: Calendar,
       description: "Gestiona tu agenda y eventos",
     },
+    
+    // --- NEGOCIO (CRM & VENTAS) ---
+    // Movido hacia arriba porque es el núcleo del trabajo
     {
-      name: "Mis Finanzas",
-      href: "/finanzas",
-      icon: DollarSign,
-      description: "Gestión financiera personal",
+      name: "Mis Prospectos",
+      href: "/prospectos",
+      icon: User2,
+      description: "Gestión de prospectos y conversiones",
     },
     {
       name: "Mis Proyecciones",
@@ -103,13 +108,15 @@ function Navigation() {
       description: "Visualiza tu pipeline de ventas",
     },
     {
-      name: "Mis Prospectos",
-      href: "/prospectos",
-      icon: User2,
-      description: "Gestión de prospectos y conversiones",
+      name: "Mis Finanzas",
+      href: "/finanzas",
+      icon: DollarSign,
+      description: "Gestión financiera personal",
     },
+
+    // --- HERRAMIENTAS OPERATIVAS ---
     {
-      name: "Calculadoras",
+      name: "Mis Calculadoras",
       href: "/calculadoras",
       icon: Calculator,
       dropdown: [
@@ -138,7 +145,7 @@ function Navigation() {
       ],
     },
     {
-      name: "Documentos",
+      name: "Mis Documentos",
       href: "/documents",
       icon: FileText,
       dropdown: [
@@ -150,17 +157,27 @@ function Navigation() {
         },
       ],
     },
+
+    // --- MARKETING ---
     {
-      name: "Placas",
+      name: "Mis Placas",
       href: "/placas",
       icon: ImageIcon,
       description: "Genera placas profesionales",
     },
     {
-      name: "Newsletter",
+      name: "Mis Newsletters",
       href: "/newsletter",
       icon: Mail,
       description: "Crea newsletters de marketing",
+    },
+
+    // --- INFORMACIÓN DE MERCADO ---
+    {
+      name: "Indicadores",
+      href: "/indicadores",
+      icon: TrendingUp,
+      description: "Indicadores económicos e inmobiliarios en tiempo real",
     },
     {
       name: "Noticias",
@@ -169,7 +186,7 @@ function Navigation() {
       description: "Últimas noticias del mercado inmobiliario",
     },
     {
-      name: "Descargas",
+      name: "Mis Descargas",
       href: "/descargas",
       icon: Download,
       description: "Archivos y contenido descargable",
@@ -258,14 +275,11 @@ function Navigation() {
                     href={item.href}
                     data-dropdown-button
                     onClick={(e) => {
-                      // If clicking on the chevron area or with modifier keys, toggle dropdown
-                      // Otherwise, allow navigation
                       const target = e.target as HTMLElement
                       const isChevronClick = target.closest('svg') || target.tagName === 'svg'
                       const hasModifier = e.ctrlKey || e.metaKey || e.shiftKey
 
                       if (isCollapsed) {
-                        // When collapsed, expand sidebar and open dropdown
                         e.preventDefault()
                         setIsCollapsed(false)
                         setTimeout(() => {
@@ -378,7 +392,6 @@ function Navigation() {
             {/* User Actions */}
             {!isCollapsed && isUserMenuOpen && (
               <div className="ml-8 space-y-1 animate-in slide-in-from-left-2 duration-200" data-user-menu>
-                {/* Admin Panel */}
                 {isAdmin && (
                   <Link
                     href="/admin"
@@ -389,7 +402,6 @@ function Navigation() {
                   </Link>
                 )}
 
-                {/* Dashboard */}
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-3 px-3 py-2 text-sm text-gray-900 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
@@ -398,7 +410,6 @@ function Navigation() {
                   <span>Dashboard</span>
                 </Link>
 
-                {/* Ayuda */}
                 <Link
                   href="/ayuda"
                   className="flex items-center gap-3 px-3 py-2 text-sm text-gray-900 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-foreground lg:hover:bg-muted"
@@ -407,7 +418,6 @@ function Navigation() {
                   <span>Ayuda</span>
                 </Link>
 
-                {/* Logout */}
                 <button
                   onClick={logout}
                   className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-900 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors lg:text-muted-foreground lg:hover:text-destructive lg:hover:bg-destructive/10"
@@ -442,7 +452,6 @@ function Navigation() {
 
   return (
     <>
-      {/* Desktop Sidebar */}
       <aside
         className={`fixed left-0 top-0 z-40 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out hidden lg:flex flex-col shadow-lg ${
           isCollapsed ? "w-16" : "w-64"
@@ -451,7 +460,6 @@ function Navigation() {
         {renderSidebarContent()}
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
       {isMobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
@@ -459,7 +467,6 @@ function Navigation() {
         />
       )}
 
-      {/* Mobile Sidebar */}
       <aside
         className={`fixed left-0 top-0 z-50 h-screen bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:hidden w-64 shadow-2xl ${
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
@@ -468,7 +475,6 @@ function Navigation() {
         {renderSidebarContent()}
       </aside>
 
-      {/* Mobile Menu Button */}
       <button
         onClick={toggleMobileSidebar}
         className="fixed top-4 left-4 z-50 lg:hidden p-2 bg-white border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 text-gray-900 hover:text-gray-900"
