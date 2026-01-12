@@ -11,7 +11,10 @@ import {
     Calculator,
     FileText,
     Home,
-    Building
+    Building,
+    Bot,
+    User,
+    ChevronRight
 } from 'lucide-react'
 import { useAssistantChat } from '../../hooks/useAssistantChat'
 import MessageContent from '../../components/MessageContent'
@@ -59,10 +62,21 @@ export default function ChatPage() {
         inputRef.current?.focus()
     }
 
+    // Sugerencias rápidas para mostrar cuando el chat está vacío o para inspirar
+    const quickSuggestions = [
+        { icon: <Calculator className="w-4 h-4" />, text: "Calcular rentabilidad de alquiler" },
+        { icon: <FileText className="w-4 h-4" />, text: "Redactar cláusula de ajuste IPC" },
+        { icon: <Home className="w-4 h-4" />, text: "Tasación de departamento en Palermo" },
+        { icon: <Building className="w-4 h-4" />, text: "Requisitos para garantía propietaria" },
+    ]
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
-            {/* Header */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        <div className="min-h-screen bg-slate-50 font-sans">
+            
+            {/* ================================================================================= */}
+            {/* CABECERA ORIGINAL (NO TOCAR) */}
+            {/* ================================================================================= */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 pb-20">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
 
                 <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
@@ -93,81 +107,126 @@ export default function ChatPage() {
 
                         <button
                             onClick={clearChat}
-                            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-lg transition-colors border border-white/20"
+                            className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-lg transition-colors border border-white/20 hover:shadow-lg active:scale-95 duration-200"
                         >
                             <RefreshCw className="w-4 h-4" />
-                            <span className="text-sm hidden sm:inline">Nuevo chat</span>
+                            <span className="text-sm hidden sm:inline font-medium">Nuevo chat</span>
                         </button>
                     </div>
                 </div>
             </div>
+            {/* ================================================================================= */}
+            {/* FIN CABECERA */}
+            {/* ================================================================================= */}
 
-            {/* Main Chat Area */}
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+            {/* Main Chat Area - Elevado sobre el header */}
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10 pb-8">
+                <div className="bg-white rounded-2xl shadow-2xl shadow-slate-200/50 border border-slate-200 overflow-hidden flex flex-col h-[75vh]">
+                    
                     {/* Messages Container */}
-                    <div className="h-[600px] overflow-y-auto p-6 space-y-6 bg-gradient-to-b from-gray-50/50 to-white">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8 bg-slate-50/50 scroll-smooth">
                         {messages.length === 0 ? (
-                            <div className="text-center py-12">
-                                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                                    <MessageCircle className="w-8 h-8 text-white" />
+                            <div className="h-full flex flex-col items-center justify-center text-center px-4 animate-in fade-in duration-700">
+                                <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-6 shadow-sm ring-4 ring-white">
+                                    <Bot className="w-10 h-10 text-blue-600" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-gray-900 mb-2">¡Bienvenido a RIALTOR!</h3>
-                                <p className="text-gray-600 max-w-md mx-auto">
-                                    Soy tu asistente especializado en el sector inmobiliario argentino.
-                                    ¿En qué puedo ayudarte hoy?
+                                <h3 className="text-2xl font-bold text-slate-900 mb-3">¡Hola! Soy Rialtor Assistant</h3>
+                                <p className="text-slate-500 max-w-lg mx-auto mb-8 text-lg leading-relaxed">
+                                    Estoy entrenado para ayudarte con cálculos inmobiliarios, redacción legal, análisis de mercado y más.
                                 </p>
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
+                                    {quickSuggestions.map((suggestion, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => handleQuickSuggestion(suggestion.text)}
+                                            className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-400 hover:shadow-md transition-all duration-200 text-left group"
+                                        >
+                                            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                {suggestion.icon}
+                                            </div>
+                                            <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">{suggestion.text}</span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         ) : (
-                            messages.map((message, index) => (
-                                <motion.div
-                                    key={message.id}
-                                    className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                >
-                                    <div
-                                        className={`max-w-[80%] p-4 rounded-2xl ${
-                                            message.isUser
-                                                ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
-                                                : 'bg-white border border-gray-200 text-gray-900 shadow-sm'
-                                        }`}
+                            <>
+                                {messages.map((message, index) => (
+                                    <motion.div
+                                        key={message.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className={`flex w-full ${message.isUser ? 'justify-end' : 'justify-start'}`}
                                     >
-                                        <MessageContent
-                                            content={message.content}
-                                            isUser={message.isUser}
-                                            sources={message.sources}
-                                            calculation={message.calculation}
-                                        />
+                                        <div className={`flex max-w-[85%] md:max-w-[75%] gap-4 ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+                                            
+                                            {/* Avatar */}
+                                            <div className="flex-shrink-0 mt-1">
+                                                {message.isUser ? (
+                                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center border-2 border-white shadow-sm">
+                                                        <User className="w-5 h-5 text-slate-500" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center border-2 border-white shadow-md shadow-blue-200">
+                                                        <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                        <p className={`text-xs mt-2 ${message.isUser ? 'text-blue-100' : 'text-gray-500'}`}>
-                                            {new Date(message.timestamp).toLocaleTimeString([], {
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </p>
-                                    </div>
-                                </motion.div>
-                            ))
+                                            {/* Bubble */}
+                                            <div className="flex flex-col gap-1 min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className={`text-xs font-bold ${message.isUser ? 'text-slate-400 text-right w-full' : 'text-blue-600'}`}>
+                                                        {message.isUser ? 'Tú' : 'Rialtor AI'}
+                                                    </span>
+                                                </div>
+
+                                                <div
+                                                    className={`p-4 sm:p-5 rounded-2xl shadow-sm text-sm sm:text-base leading-relaxed ${
+                                                        message.isUser
+                                                            ? 'bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-tr-none'
+                                                            : 'bg-white border border-slate-100 text-slate-800 rounded-tl-none'
+                                                    }`}
+                                                >
+                                                    <MessageContent
+                                                        content={message.content}
+                                                        isUser={message.isUser}
+                                                        sources={message.sources}
+                                                        calculation={message.calculation}
+                                                    />
+                                                </div>
+                                                
+                                                <span className={`text-[10px] text-slate-400 mt-1 ${message.isUser ? 'text-right' : 'text-left'}`}>
+                                                    {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </>
                         )}
 
                         {/* Loading indicator */}
                         {isLoading && (
                             <motion.div
-                                className="flex justify-start"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex justify-start w-full"
                             >
-                                <div className="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-                                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                                <div className="flex max-w-[85%] gap-4">
+                                     <div className="flex-shrink-0 mt-1">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center border-2 border-white shadow-md">
+                                            <Loader2 className="w-5 h-5 text-white animate-spin" />
                                         </div>
+                                    </div>
+                                    <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-3">
+                                        <span className="text-sm font-medium text-slate-500">Analizando...</span>
                                         <div className="flex space-x-1">
-                                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }}></div>
+                                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }}></div>
                                         </div>
                                     </div>
                                 </div>
@@ -178,52 +237,66 @@ export default function ChatPage() {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-6 bg-white border-t border-gray-200">
-
-                        <div className="flex items-end space-x-4">
-                            <div className="flex-1 relative">
-                                <textarea
-                                    ref={inputRef as any}
-                                    value={inputValue}
-                                    onChange={(e) => setInputValue(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    placeholder="Escribe tu consulta inmobiliaria..."
-                                    disabled={isLoading}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm placeholder-gray-400 transition-all resize-none min-h-[44px] max-h-32"
-                                    rows={1}
-                                    style={{ height: 'auto', minHeight: '44px' }}
-                                    onInput={(e) => {
-                                        const target = e.target as HTMLTextAreaElement;
-                                        target.style.height = 'auto';
-                                        target.style.height = Math.min(target.scrollHeight, 128) + 'px';
-                                    }}
-                                />
+                    <div className="p-4 sm:p-6 bg-white border-t border-slate-100">
+                        {/* Quick Chips (Visible only if messages exist to save space) */}
+                        {messages.length > 0 && !isLoading && (
+                            <div className="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
+                                {quickSuggestions.slice(0, 3).map((s, i) => (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => handleQuickSuggestion(s.text)}
+                                        className="whitespace-nowrap px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors flex items-center gap-1.5"
+                                    >
+                                        {s.icon} {s.text}
+                                    </button>
+                                ))}
                             </div>
+                        )}
+
+                        <div className="relative flex items-end gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all shadow-inner">
+                            <textarea
+                                ref={inputRef as any}
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={handleKeyPress}
+                                placeholder="Escribe tu consulta inmobiliaria aquí..."
+                                disabled={isLoading}
+                                className="w-full px-4 py-3 bg-transparent border-none focus:ring-0 text-slate-700 text-sm sm:text-base placeholder-slate-400 resize-none min-h-[50px] max-h-32"
+                                rows={1}
+                                style={{ height: 'auto' }}
+                                onInput={(e) => {
+                                    const target = e.target as HTMLTextAreaElement;
+                                    target.style.height = 'auto';
+                                    target.style.height = Math.min(target.scrollHeight, 128) + 'px';
+                                }}
+                            />
 
                             {/* Botón de enviar */}
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleSendMessage}
-                                disabled={!inputValue.trim() || isLoading}
-                                className="p-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center"
-                            >
-                                {isLoading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <Send className="w-5 h-5" />
-                                )}
-                            </motion.button>
+                            <div className="pb-1 pr-1">
+                                <button
+                                    onClick={handleSendMessage}
+                                    disabled={!inputValue.trim() || isLoading}
+                                    className="p-3 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-300 text-white rounded-xl transition-all duration-200 shadow-md hover:shadow-lg disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center group"
+                                >
+                                    {isLoading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <Send className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
+                        <p className="text-center text-xs text-slate-400 mt-3">
+                            La IA puede cometer errores. Verifica la información legal importante.
+                        </p>
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className="text-center mt-8">
-                    <div className="flex items-center justify-center space-x-2 text-gray-500 text-sm">
-                        <Sparkles className="w-4 h-4" />
-                        <span>Potenciado por IA avanzada • Especializado en bienes raíces argentinos</span>
-                    </div>
+                {/* Footer Brand */}
+                <div className="text-center mt-6 flex items-center justify-center gap-2 opacity-60">
+                     <div className="h-px w-8 bg-slate-300"></div>
+                     <span className="text-xs font-medium text-slate-500 uppercase tracking-widest">Rialtor Engine v2.0</span>
+                     <div className="h-px w-8 bg-slate-300"></div>
                 </div>
             </div>
         </div>
