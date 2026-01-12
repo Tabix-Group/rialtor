@@ -8,10 +8,6 @@ import {
     Loader2,
     RefreshCw,
     Sparkles,
-    Calculator,
-    FileText,
-    Home,
-    Building,
     Bot,
     User,
     ChevronRight
@@ -127,20 +123,7 @@ export default function ChatPage() {
                                     Estoy entrenado para ayudarte con cálculos inmobiliarios, redacción legal, análisis de mercado y más.
                                 </p>
                                 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
-                                    {quickSuggestions.map((suggestion, idx) => (
-                                        <button
-                                            key={idx}
-                                            onClick={() => handleQuickSuggestion(suggestion.text)}
-                                            className="flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-400 hover:shadow-md transition-all duration-200 text-left group"
-                                        >
-                                            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                                {suggestion.icon}
-                                            </div>
-                                            <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">{suggestion.text}</span>
-                                        </button>
-                                    ))}
-                                </div>
+
                             </div>
                         ) : (
                             <>
@@ -231,19 +214,7 @@ export default function ChatPage() {
                     {/* Input Area */}
                     <div className="p-4 sm:p-6 bg-white border-t border-slate-100">
                         {/* Quick Chips (Visible only if messages exist to save space) */}
-                        {messages.length > 0 && !isLoading && (
-                            <div className="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
-                                {quickSuggestions.slice(0, 3).map((s, i) => (
-                                    <button 
-                                        key={i} 
-                                        onClick={() => handleQuickSuggestion(s.text)}
-                                        className="whitespace-nowrap px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-medium text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors flex items-center gap-1.5"
-                                    >
-                                        {s.icon} {s.text}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+
 
                         <div className="relative flex items-end gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all shadow-inner">
                             <textarea
