@@ -551,6 +551,7 @@ export default function CalendarioPage() {
                         events={calendarEvents}
                         startAccessor="start"
                         endAccessor="end"
+                        culture="es"
                         style={{ height: "100%" }}
                         views={["month", "week", "day"]}
                         defaultView="week"
@@ -571,6 +572,26 @@ export default function CalendarioPage() {
                             event: "Evento",
                             noEventsInRange: "Sin eventos.",
                             showMore: (total) => `+${total} más`,
+                        }}
+                        formats={{
+                            dayHeaderFormat: (date) => {
+                                // Ajuste responsivo para el encabezado del día
+                                if (typeof window !== 'undefined') {
+                                    if (window.innerWidth < 640) {
+                                        return format(date, "EEEEE", { locale: es }) // 1 letra
+                                    } else if (window.innerWidth < 1024) {
+                                        return format(date, "EEE", { locale: es }) // 3 letras
+                                    }
+                                }
+                                return format(date, "EEEE", { locale: es }) // Completo
+                            },
+                            dayRangeHeaderFormat: ({ start, end }) =>
+                                `${format(start, "d MMM", { locale: es })} - ${format(end, "d MMM", { locale: es })}`,
+                            monthHeaderFormat: (date) => {
+                                return format(date, "MMMM yyyy", { locale: es })
+                            },
+                            dayFormat: (date) => format(date, "d", { locale: es }),
+                            timeGutterFormat: (date) => format(date, "HH:mm", { locale: es }),
                         }}
                         onSelectSlot={({ start, end }) => {
                             const argStart = utcToZonedTime(start, TIMEZONE)

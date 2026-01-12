@@ -62,14 +62,6 @@ export default function ChatPage() {
         inputRef.current?.focus()
     }
 
-    // Sugerencias rápidas para mostrar cuando el chat está vacío o para inspirar
-    const quickSuggestions = [
-        { icon: <Calculator className="w-4 h-4" />, text: "Calcular rentabilidad de alquiler" },
-        { icon: <FileText className="w-4 h-4" />, text: "Redactar cláusula de ajuste IPC" },
-        { icon: <Home className="w-4 h-4" />, text: "Tasación de departamento en Palermo" },
-        { icon: <Building className="w-4 h-4" />, text: "Requisitos para garantía propietaria" },
-    ]
-
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
             
