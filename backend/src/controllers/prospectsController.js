@@ -142,7 +142,7 @@ const getStats = async (req, res, next) => {
     }
 
     const total = await prisma.prospect.count({ where });
-    const wonWhere = { ...where, status: 'WON' };
+    const wonWhere = { ...where, status: 'CIERRES' };
     const wonCount = await prisma.prospect.count({ where: wonWhere });
 
     const avgSaleRaw = await prisma.prospect.aggregate({

@@ -6,11 +6,11 @@ import type { Prospect, ProspectFormData } from '../../types/prospect'
 
 export default function ProspectForm({ initial, onCancel, onSave }: { initial?: Prospect; onCancel: ()=>void; onSave: (data: ProspectFormData) => void | Promise<void> }) {
   const [form, setForm] = useState<ProspectFormData>({
-    title: '', note: '', estimatedValue: '', estimatedCommission: '', clientsProspected: 0, probability: '', status: 'TENTATIVE', closedValue: '', closeDate: ''
+    title: '', note: '', estimatedValue: '', estimatedCommission: '', clientsProspected: 0, probability: '', status: 'PROSPECTOS', closedValue: '', closeDate: ''
   })
 
   useEffect(()=>{ if (initial) setForm({
-    title: initial.title||'', note: initial.note||'', estimatedValue: initial.estimatedValue||'', estimatedCommission: initial.estimatedCommission||'', clientsProspected: initial.clientsProspected||0, probability: initial.probability||'', status: initial.status||'TENTATIVE', closedValue: initial.closedValue||'', closeDate: initial.closeDate ? new Date(initial.closeDate).toISOString().slice(0,10) : ''
+    title: initial.title||'', note: initial.note||'', estimatedValue: initial.estimatedValue||'', estimatedCommission: initial.estimatedCommission||'', clientsProspected: initial.clientsProspected||0, probability: initial.probability||'', status: initial.status||'PROSPECTOS', closedValue: initial.closedValue||'', closeDate: initial.closeDate ? new Date(initial.closeDate).toISOString().slice(0,10) : ''
   }) },[initial])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -31,11 +31,11 @@ export default function ProspectForm({ initial, onCancel, onSave }: { initial?: 
         <div>
           <label className="text-sm font-medium">Estado</label>
           <select name="status" value={form.status} onChange={handleChange} className="mt-1 w-full rounded-md border-gray-200">
-            <option value="TENTATIVE">Tentativo</option>
-            <option value="CONTACTED">Contactado</option>
-            <option value="QUALIFIED">Calificado</option>
-            <option value="WON">Concretado (WON)</option>
-            <option value="LOST">Perdido (LOST)</option>
+            <option value="PROSPECTOS">Prospectos</option>
+            <option value="TASACIONES">Tasaciones</option>
+            <option value="CAPTACIONES">Captaciones</option>
+            <option value="RESERVAS">Reservas</option>
+            <option value="CIERRES">Cierres</option>
           </select>
         </div>
       </div>

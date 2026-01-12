@@ -336,11 +336,11 @@ model FinanceTransaction {
 
 // Prospects model: personal prospecting records for each user
 enum ProspectStatus {
-  TENTATIVE
-  CONTACTED
-  QUALIFIED
-  WON
-  LOST
+  PROSPECTOS
+  TASACIONES
+  CAPTACIONES
+  RESERVAS
+  CIERRES
 }
 
 model Prospect {
@@ -351,7 +351,7 @@ model Prospect {
   estimatedCommission Float? // Suggested commission estimate
   clientsProspected   Int?           @default(0)
   probability         Int? // 0-100
-  status              ProspectStatus @default(TENTATIVE)
+  status              ProspectStatus @default(PROSPECTOS)
   closedValue         Float?
   closeDate           DateTime?
   createdAt           DateTime       @default(now())
