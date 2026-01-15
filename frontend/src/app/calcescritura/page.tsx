@@ -74,7 +74,7 @@ export default function CalceEscrituraPage() {
       notaryFees = numericTransactionPrice * 0.02
       notaryFeesIVA = notaryFees * ivaRate
       const stampRate = location === 'CABA' ? 0.027 : 0.02
-      const exemptionThreshold = 205000000
+      const exemptionThreshold = 226100000
       if (stampExemption && location === 'CABA') {
         if (arsWritingPrice <= exemptionThreshold) {
           stamps = 0
@@ -92,7 +92,7 @@ export default function CalceEscrituraPage() {
       realEstateFee = numericTransactionPrice * 0.03
       realEstateFeeIVA = realEstateFee * ivaRate
       const stampRate = location === 'CABA' ? 0.027 : 0.02
-      const exemptionThreshold = 205000000
+      const exemptionThreshold = 226100000
       if (stampExemption && location === 'CABA') {
         if (arsWritingPrice <= exemptionThreshold) {
           stamps = 0
@@ -112,7 +112,7 @@ export default function CalceEscrituraPage() {
       notaryFees = numericTransactionPrice * 0.035
       notaryFeesIVA = notaryFees * ivaRate
       const stampRate = location === 'CABA' ? 0.027 : 0.02
-      const exemptionThreshold = 205000000
+      const exemptionThreshold = 226100000
       if (arsWritingPrice <= exemptionThreshold) {
         stamps = 0
       } else {

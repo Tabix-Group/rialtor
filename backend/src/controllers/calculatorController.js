@@ -225,7 +225,7 @@ const calculateCommission = async (req, res) => {
 
     // Sellos sobre el valor de la operación (solo si la alícuota es > 0)
     let stamps = 0;
-    let exencionCabaPesos = 205332000; // Tope de exención en pesos
+    let exencionCabaPesos = 226100000; // Tope de exención en pesos
     let exencionCabaUsd = null;
     if (province === 'caba') {
       if (buyerType === 'juridica' || sellerType === 'juridica') {
