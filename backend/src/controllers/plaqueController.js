@@ -54,7 +54,7 @@ const createPropertyPlaque = async (req, res, next) => {
       title,
       description,
       propertyData,
-      modelType = 'standard' // Tipos: standard, premium, vip
+      modelType = 'standard' // Tipos: standard, premium, vip, model4, model5
     } = req.body;
 
     console.log('[PLACAS] Usuario ID:', userId);
@@ -723,6 +723,8 @@ function escapeForSvg(s) {
     // Función factorizada para generar el string SVG del overlay.
 function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, modelType = 'standard') {
   try {
+    const isModel4 = modelType === 'model4';
+    const isModel5 = modelType === 'model5';
     const precio = String(propertyInfo.precio || 'Consultar').replace(/[^\d]/g, '');
     const moneda = propertyInfo.moneda || 'USD';
     const tipo = propertyInfo.tipo || (imageAnalysis && imageAnalysis.tipo) || 'Propiedad';
@@ -738,7 +740,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const corredores = propertyInfo.corredores || null; // Ahora obligatorio
     const antiguedad = propertyInfo.antiguedad || null;
     const geometricPattern = propertyInfo.geometricPattern || 'none'; // Nuevo campo para patrones geométricos
-    const brand = propertyInfo.brand || null; // Nuevo campo para marca    // Calcular cantidad de campos con información para diseño adaptativo
+    const brand = propertyInfo.brand || null; // Nuevo campo para marca
+    const sidebarColor = propertyInfo.sidebarColor || 'rgba(84, 74, 63, 0.7)'; // Color por defecto para Modelo 4
+    // Calcular cantidad de campos con información para diseño adaptativo
     let fieldCount = 0;
     if (tipo) fieldCount++;
     if (antiguedad) fieldCount++;
@@ -996,6 +1000,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     
     // Lógica para modelo premium
     const isPremium = modelType === 'premium';
+
     let priceBoxFill, priceTextColor, corredoresBoxFill, corredoresTextColor;
     
     // Aplicar transparencia reducida a 0.71 para ambos modelos (standard y premium)
@@ -1056,6 +1061,110 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#000000" stroke-width="2" fill="none"/><polyline points="12,6 12,12 16,14" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
       descripcion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" stroke="#000000" stroke-width="2" fill="none"/><path d="M12 9v4" stroke="#000000" stroke-width="2" stroke-linecap="round"/><path d="m12 17.02.01 0" stroke="#000000" stroke-width="2" stroke-linecap="round"/></svg>`
     };
+
+    // --- LÓGICA ESPECÍFICA PARA MODELO 4 ---
+    if (isModel4) {
+      const sidebarWidth = Math.floor(width * 0.42);
+      const iconSize = 40;
+      const marginX = 50;
+      const startY = height * 0.15;
+      const spacingY = 75;
+      
+      let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+      
+      // Sidebar traslúcido
+      svg += `  <rect x="0" y="0" width="${sidebarWidth}" height="${height}" fill="${sidebarColor}" />\n`;
+      
+      // Íconos e información
+      let currentY = startY;
+      const infoLines = [];
+      if (ambientes) infoLines.push({ icon: 'ambientes', text: `${ambientes} Ambientes` });
+      if (banos) infoLines.push({ icon: 'banos', text: `${banos} Baño${banos !== '1' ? 's' : ''}` });
+      if (m2_totales) infoLines.push({ icon: 'm2_totales', text: `${m2_totales} m² totales` });
+      if (m2_cubiertos) infoLines.push({ icon: 'm2_cubiertos', text: `${m2_cubiertos} m² cubiertos` });
+      if (antiguedad) infoLines.push({ icon: 'antiguedad', text: `${antiguedad} años` });
+      
+      infoLines.forEach(ln => {
+        let iconSvg = svgIconsAlt[ln.icon] || svgIconsAlt['ambientes'];
+        // Ajustar tamaño y color de íconos para el sidebar
+        iconSvg = iconSvg.replace(/width="\d+" height="\d+"/, `width="${iconSize}" height="${iconSize}"`)
+                       .replace(/fill="[^"]*"/g, `fill="#FFFFFF"`)
+                       .replace(/stroke="[^"]*"/g, `stroke="#FFFFFF"`);
+        
+        svg += `  <g transform="translate(${marginX}, ${currentY})">\n`;
+        svg += `    ${iconSvg}\n`;
+        svg += `    <text x="${iconSize + 20}" y="${iconSize/2 + 8}" style="font-family: Arial, sans-serif; font-size: 38px; font-weight: 600; fill: #FFFFFF;">${escapeForSvg(ln.text)}</text>\n`;
+        svg += `  </g>\n`;
+        currentY += spacingY;
+      });
+      
+      // Caja de precio
+      const priceBoxW = sidebarWidth - (marginX * 2);
+      const priceBoxH = 110;
+      const priceBoxY = height * 0.72;
+      svg += `  <rect x="${marginX}" y="${priceBoxY}" width="${priceBoxW}" height="${priceBoxH}" fill="#FFFFFF" rx="4" />\n`;
+      svg += `  <text x="${marginX + priceBoxW/2}" y="${priceBoxY + 70}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 800; fill: #544a3f;">${moneda} ${formatPrice(precio)}</text>\n`;
+      
+      // Logo (Brand)
+      if (brand) {
+        svg += `  <text x="${marginX}" y="${height - 120}" style="font-family: Arial Black, sans-serif; font-size: 52px; font-weight: 900; fill: #FFFFFF; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+        svg += `  <text x="${marginX}" y="${height - 70}" style="font-family: Arial, sans-serif; font-size: 24px; font-weight: 600; fill: #FFFFFF; text-transform: uppercase; letter-spacing: 2px;">UNIDOS</text>\n`;
+      }
+      
+      // Texto vertical a la derecha
+      if (corredores) {
+        svg += `  <text x="${width - 30}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 30}, ${height/2})" style="font-family: Arial, sans-serif; font-size: 18px; fill: rgba(255,255,255,0.7); letter-spacing: 1px;">${escapeForSvg(corredores)}</text>\n`;
+      }
+      
+      svg += `</svg>`;
+      return svg;
+    }
+    
+    // --- LÓGICA ESPECÍFICA PARA MODELO 5 ---
+    if (isModel5) {
+      let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+      
+      // Borde exterior
+      const borderMargin = 40;
+      svg += `  <rect x="${borderMargin}" y="${borderMargin}" width="${width - borderMargin*2}" height="${height - borderMargin*2}" fill="none" stroke="#FFFFFF" stroke-width="2" />\n`;
+      
+      // Caja de Título (Arriba)
+      const titleBoxW = width * 0.65;
+      const titleBoxH = 90;
+      const titleBoxX = (width - titleBoxW) / 2;
+      const titleBoxY = height * 0.15;
+      svg += `  <rect x="${titleBoxX}" y="${titleBoxY}" width="${titleBoxW}" height="${titleBoxH}" rx="15" fill="rgba(0,0,0,0.3)" stroke="#FFFFFF" stroke-width="1.5" />\n`;
+      svg += `  <text x="${width/2}" y="${titleBoxY + 60}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 38px; font-weight: 700; fill: #FFFFFF;">${escapeForSvg(tipo)} - ${ambientes} Ambientes</text>\n`;
+      
+      // Caja de Precio (Medio)
+      const priceText = `${moneda} ${formatPrice(precio)}`;
+      const priceBoxW = 320;
+      const priceBoxH = 80;
+      const priceBoxX = (width - priceBoxW) / 2;
+      const priceBoxY = (height - priceBoxH) / 2;
+      svg += `  <rect x="${priceBoxX}" y="${priceBoxY}" width="${priceBoxW}" height="${priceBoxH}" rx="40" fill="rgba(0,0,0,0.1)" stroke="#FFFFFF" stroke-width="1.5" />\n`;
+      svg += `  <text x="${width/2}" y="${priceBoxY + 52}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 36px; font-weight: 700; fill: #FFFFFF;">${escapeForSvg(priceText)}</text>\n`;
+      
+      // Caja de info (Abajo)
+      const infoText = `${direccion || ''} - Apto Credito - Balcón -`;
+      svg += `  <text x="${width/2}" y="${height * 0.82}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 32px; font-weight: 700; fill: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${escapeForSvg(infoText)}</text>\n`;
+      
+      // Logo (Brand)
+      if (brand) {
+        svg += `  <text x="${width - 150}" y="${height - 120}" style="font-family: Arial Black, sans-serif; font-size: 42px; font-weight: 900; fill: #E31837; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+        svg += `  <text x="${width - 150}" y="${height - 85}" style="font-family: Arial, sans-serif; font-size: 18px; font-weight: 600; fill: #003DA5; text-transform: uppercase;">UNIDOS</text>\n`;
+      }
+      
+      // Texto vertical a la derecha
+      if (corredores) {
+        svg += `  <text x="${width - 25}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 25}, ${height/2})" style="font-family: Arial, sans-serif; font-size: 16px; fill: rgba(255,255,255,0.7); letter-spacing: 1px;">${escapeForSvg(corredores)}</text>\n`;
+      }
+      
+      svg += `</svg>`;
+      return svg;
+    }
 
     // Función para obtener el icono según el tipo de propiedad
     const getTipoIcon = (tipo) => {

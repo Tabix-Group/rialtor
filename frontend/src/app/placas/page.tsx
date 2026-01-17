@@ -50,6 +50,8 @@ interface PropertyData {
   agency?: string; // Nuevo: agencia
   agentContact?: string; // Nuevo: contacto del agente
   url?: string; // URL personalizada para la placa
+  sidebarColor?: string; // Color para Modelo 4
+  brand?: string; // Marca para placas
 }
 
 interface PropertyPlaque {
@@ -64,7 +66,7 @@ interface PropertyPlaque {
   updatedAt: string;
 }
 
-const PLAQUE_MODEL_SUMMARY: { key: 'standard' | 'premium' | 'vip'; title: string; description: string }[] = [
+const PLAQUE_MODEL_SUMMARY: { key: 'standard' | 'premium' | 'vip' | 'model4' | 'model5'; title: string; description: string }[] = [
   {
     key: 'standard',
     title: 'Estándar',
@@ -79,6 +81,16 @@ const PLAQUE_MODEL_SUMMARY: { key: 'standard' | 'premium' | 'vip'; title: string
     key: 'vip',
     title: 'VIP',
     description: 'Template exclusivo con composición de fotos, QR dinámico y estética editorial.'
+  },
+  {
+    key: 'model4',
+    title: 'Modelo 4 (Lateral)',
+    description: 'Diseño moderno con barra lateral traslúcida, iconos blancos y estética minimalista.'
+  },
+  {
+    key: 'model5',
+    title: 'Modelo 5 (Enmarcado)',
+    description: 'Diseño con marco perimetral y cajas de información centradas para alto impacto visual.'
   }
 ];
 
@@ -115,9 +127,11 @@ export default function PlacasPage() {
     agentName: '',
     agency: '',
     agentContact: '',
-    url: 'www.rialtor.app'
+    url: 'www.rialtor.app',
+    sidebarColor: 'rgba(84, 74, 63, 0.7)',
+    brand: 'RE/MAX'
   });
-  const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip'>('standard');
+  const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip' | 'model4' | 'model5'>('standard');
   const [creating, setCreating] = useState(false);
   const [selectedPlaque, setSelectedPlaque] = useState<PropertyPlaque | null>(null);
   const [agentImageFile, setAgentImageFile] = useState<File | null>(null);
@@ -313,7 +327,9 @@ export default function PlacasPage() {
           agentImage: '',
           agentName: '',
           agency: '',
-          agentContact: ''
+          agentContact: '',
+          sidebarColor: 'rgba(84, 74, 63, 0.7)',
+          brand: 'RE/MAX'
         });
         setModelType('standard');
         setAgentImageFile(null);
@@ -657,12 +673,14 @@ export default function PlacasPage() {
                     </label>
                     <select
                       value={modelType}
-                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium' | 'vip')}
+                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium' | 'vip' | 'model4' | 'model5')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="standard">Estándar</option>
                       <option value="premium">Premium (con zócalo del agente)</option>
                       <option value="vip">VIP (con template personalizado)</option>
+                      <option value="model4">Modelo 4 (Barra Lateral)</option>
+                      <option value="model5">Modelo 5 (Enmarcado)</option>
                     </select>
                   </div>
 
@@ -995,10 +1013,38 @@ export default function PlacasPage() {
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Corredores (nombre y matrícula) *
-                    </label>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Marca / Agencia
+                      </label>
+                      <input
+                        type="text"
+                        value={propertyData.brand}
+                        onChange={(e) => setPropertyData(prev => ({ ...prev, brand: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ej: RE/MAX"
+                      />
+                    </div>
+
+                    {modelType === 'model4' && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Color de barra lateral (Modelo 4)
+                        </label>
+                        <input
+                          type="text"
+                          value={propertyData.sidebarColor}
+                          onChange={(e) => setPropertyData(prev => ({ ...prev, sidebarColor: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Ej: rgba(84, 74, 63, 0.7)"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Corredores (nombre y matrícula) *
+                      </label>
                     <textarea
                       required
                       value={propertyData.corredores}
