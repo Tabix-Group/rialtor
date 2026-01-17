@@ -1025,17 +1025,17 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const mainBoxFill = selectedScheme.mainBoxFill;
     const mainTextColor = selectedScheme.mainTextColor;
 
-    // Two icon palettes: main (colored) for the top-right box, alt (contrast) for the overlay/corredores box
+    // Two icon palettes: main (colored) for the top-right box, alt (contrast/white) for sidebars/overlays
     const svgIconsAlt = {
-      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l9 8h-3v7h-4v-5H10v5H6v-7H3l9-8z" fill="${textColor}"/></svg>`,
-      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${textColor}" stroke-width="1.5" fill="none"/></svg>`,
-      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14z" stroke="${textColor}" stroke-width="1.5" fill="none"/><path d="M7 7h10v10H7V7z" fill="${textColor}" opacity="0.3"/></svg>`,
-      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="${textColor}" stroke-width="1.5" fill="none"/><path d="M8 12h8" stroke="${textColor}" stroke-width="1.5"/><path d="M12 8v8" stroke="${textColor}" stroke-width="1.5"/><path d="M15 9v6" stroke="${textColor}" stroke-width="1"/><path d="M9 9v6" stroke="${textColor}" stroke-width="1"/></svg>`,
-      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="${textColor}" stroke-width="1.2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="${textColor}"/></svg>`,
-      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M7 10l5 4 5-4" stroke="${textColor}" stroke-width="1.2" fill="none"/></svg>`,
-      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="${textColor}" stroke-width="1.2" fill="none"/><path d="M3 7l9 6 9-6" stroke="${textColor}" stroke-width="1.2" fill="none"/></svg>`,
-      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V19h6v-2.5C23 14.17 18.33 13 16 13z" fill="${textColor}"/></svg>`,
-      antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="${textColor}" stroke-width="1.5" fill="none"/><polyline points="12,6 12,12 16,14" stroke="${textColor}" stroke-width="1.5" fill="none"/></svg>`
+      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="currentColor" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="currentColor" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="currentColor" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="currentColor" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="currentColor" stroke-width="2"/></svg>`,
+      antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="currentColor"/></svg>`,
+      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="16" x="2" y="4" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="m22 21-3.5-3.5" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="3" stroke="currentColor" stroke-width="2" fill="none"/></svg>`
     };
     const svgIconsMain = {
       precio: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
@@ -1087,10 +1087,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       
       infoLines.forEach(ln => {
         let iconSvg = svgIconsAlt[ln.icon] || svgIconsAlt['ambientes'];
-        // Ajustar tamaño y color de íconos para el sidebar
-        iconSvg = iconSvg.replace(/width="\d+" height="\d+"/, `width="${iconSize}" height="${iconSize}"`)
-                       .replace(/fill="[^"]*"/g, `fill="#FFFFFF"`)
-                       .replace(/stroke="[^"]*"/g, `stroke="#FFFFFF"`);
+        // Ajustar tamaño y color de íconos para el sidebar usando el nuevo formato
+        iconSvg = iconSvg.replace(/width="18" height="18"/, `width="${iconSize}" height="${iconSize}"`)
+                       .replace(/currentColor/g, "#FFFFFF");
         
         svg += `  <g transform="translate(${marginX}, ${currentY})">\n`;
         svg += `    ${iconSvg}\n`;
@@ -1102,14 +1101,13 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       // Caja de precio
       const priceBoxW = sidebarWidth - (marginX * 2);
       const priceBoxH = 110;
-      const priceBoxY = height * 0.72;
+      const priceBoxY = height * 0.65; // Subido de 0.72 para evitar solapamiento
       svg += `  <rect x="${marginX}" y="${priceBoxY}" width="${priceBoxW}" height="${priceBoxH}" fill="#FFFFFF" rx="4" />\n`;
       svg += `  <text x="${marginX + priceBoxW/2}" y="${priceBoxY + 70}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 800; fill: #544a3f;">${moneda} ${formatPrice(precio)}</text>\n`;
       
       // Logo (Brand)
       if (brand) {
-        svg += `  <text x="${marginX}" y="${height - 120}" style="font-family: Arial Black, sans-serif; font-size: 52px; font-weight: 900; fill: #FFFFFF; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
-        svg += `  <text x="${marginX}" y="${height - 70}" style="font-family: Arial, sans-serif; font-size: 24px; font-weight: 600; fill: #FFFFFF; text-transform: uppercase; letter-spacing: 2px;">UNIDOS</text>\n`;
+        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: 52px; font-weight: 900; fill: #FFFFFF; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
       }
       
       // Texto vertical a la derecha
@@ -1148,13 +1146,19 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       svg += `  <text x="${width/2}" y="${priceBoxY + 52}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 36px; font-weight: 700; fill: #FFFFFF;">${escapeForSvg(priceText)}</text>\n`;
       
       // Caja de info (Abajo)
-      const infoText = `${direccion || ''} - Apto Credito - Balcón -`;
-      svg += `  <text x="${width/2}" y="${height * 0.82}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 32px; font-weight: 700; fill: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${escapeForSvg(infoText)}</text>\n`;
+      const infoTextParts = [];
+      if (direccion) infoTextParts.push(direccion);
+      if (m2_totales) infoTextParts.push(`${m2_totales} m²`);
+      const infoText = infoTextParts.join(' - ');
+
+      if (infoText) {
+        svg += `  <text x="${width/2}" y="${height * 0.82}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 32px; font-weight: 700; fill: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${escapeForSvg(infoText)}</text>\n`;
+      }
       
       // Logo (Brand)
       if (brand) {
-        svg += `  <text x="${width - 150}" y="${height - 120}" style="font-family: Arial Black, sans-serif; font-size: 42px; font-weight: 900; fill: #E31837; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
-        svg += `  <text x="${width - 150}" y="${height - 85}" style="font-family: Arial, sans-serif; font-size: 18px; font-weight: 600; fill: #003DA5; text-transform: uppercase;">UNIDOS</text>\n`;
+        const brandFontSize = brand.length > 15 ? 32 : 42;
+        svg += `  <text x="${width - 60}" y="${height - 80}" text-anchor="end" style="font-family: Arial Black, sans-serif; font-size: ${brandFontSize}px; font-weight: 900; fill: #E31837; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
       }
       
       // Texto vertical a la derecha
