@@ -1073,8 +1073,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
       
-      // Sidebar traslúcido
-      svg += `  <rect x="0" y="0" width="${sidebarWidth}" height="${height}" fill="${sidebarColor}" />\n`;
+      // Sidebar traslúcido (Ahora forzamos la opacidad independientemente del color seleccionado)
+      svg += `  <rect x="0" y="0" width="${sidebarWidth}" height="${height}" fill="${sidebarColor}" fill-opacity="0.7" />\n`;
       
       // Íconos e información
       let currentY = startY;
