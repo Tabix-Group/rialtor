@@ -226,7 +226,7 @@ export default function DocumentSummaryPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Hasta 10MB por archivo</span>
+                  <span>Hasta 20MB por archivo</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -320,7 +320,7 @@ export default function DocumentSummaryPage() {
                         {fileRef.current?.files?.[0] ? fileRef.current.files[0].name : 'Haz clic para seleccionar un archivo'}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        PDF, DOC, DOCX o TXT (máx. 10MB)
+                        PDF, DOC, DOCX o TXT (máx. 20MB)
                       </p>
                     </>
                   )}
