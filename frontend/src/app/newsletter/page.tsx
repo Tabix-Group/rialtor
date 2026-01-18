@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { usePermission } from '../../hooks/usePermission'
 import { authenticatedFetchJson } from '@/utils/api'
 import dynamic from 'next/dynamic'
+import NewsletterHeader from '@/components/NewsletterHeader'
 import {
   Upload,
   Mail,
@@ -520,7 +521,7 @@ export default function NewsletterPage() {
       const templateConfig = AVAILABLE_TEMPLATES.find(t => t.id === newsletter.template) || AVAILABLE_TEMPLATES[0];
       const styles = templateConfig.preview;
 
-      // Crear contenedor principal con estilos mejorados
+      // Crear contenedor principal con estilos optimizados para PDF
       const tempDiv = document.createElement('div');
       tempDiv.style.width = '210mm'; // A4 width
       tempDiv.style.maxWidth = '210mm';
@@ -532,6 +533,7 @@ export default function NewsletterPage() {
       tempDiv.style.lineHeight = styles.lineHeight || '1.6';
       tempDiv.style.overflowWrap = 'break-word';
       tempDiv.style.wordBreak = 'break-word';
+      tempDiv.style.boxSizing = 'border-box';
 
       // Generar HTML con diseño profesional optimizado para PDF
       const headerBackground = styles.headerGradient || styles.headerBg || styles.background;
@@ -580,11 +582,11 @@ export default function NewsletterPage() {
 
           <!-- News Section -->
           ${newsletter.news && newsletter.news.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: auto;">
+            <div style="margin-bottom: 40px; page-break-inside: avoid; margin-top: 20px; padding-top: 20px; page-break-before: always;">
               <h3 style="
                 color: ${styles.textColor};
                 font-size: 12pt;
-                margin: 30px 0 20px 0;
+                margin: 0 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
                 page-break-inside: avoid;
@@ -617,11 +619,11 @@ export default function NewsletterPage() {
 
           <!-- Properties Section -->
           ${newsletter.properties && newsletter.properties.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: auto;">
+            <div style="margin-bottom: 40px; page-break-inside: avoid; margin-top: 40px; padding-top: 20px; page-break-before: always;">
               <h3 style="
                 color: ${styles.textColor};
                 font-size: 12pt;
-                margin: 30px 0 20px 0;
+                margin: 0 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
                 page-break-inside: avoid;
@@ -629,7 +631,7 @@ export default function NewsletterPage() {
                 orphans: 5;
                 widows: 5;
               ">Propiedades Destacadas</h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; orphans: 2; widows: 2;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; orphans: 2; widows: 2; page-break-inside: avoid;">
                 ${newsletter.properties.map((propertyId: string) => {
                   const property = availableProperties.find(p => p.id === propertyId);
                   return property ? `
@@ -664,11 +666,11 @@ export default function NewsletterPage() {
 
           <!-- Additional Images Section (antes del agente) -->
           ${newsletter.images && newsletter.images.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; page-break-before: auto;">
+            <div style="margin-bottom: 40px; page-break-inside: avoid; margin-top: 40px; padding-top: 20px; page-break-before: always;">
               <h3 style="
                 color: ${styles.textColor};
                 font-size: 12pt;
-                margin: 30px 0 20px 0;
+                margin: 0 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
                 page-break-inside: avoid;
@@ -701,6 +703,7 @@ export default function NewsletterPage() {
               margin-top: 40px;
               orphans: 3;
               widows: 3;
+              page-break-before: always;
             ">
               <h3 style="
                 color: ${styles.textColor};
@@ -878,46 +881,17 @@ export default function NewsletterPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header Profesional */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="py-8 lg:py-12">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-900 text-white">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <span className="text-xs font-semibold tracking-wider text-slate-500 uppercase">Centro de Marketing</span>
-                </div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
-                  Newsletters
-                </h1>
-                <p className="mt-2 text-base text-slate-600 max-w-xl">
-                  Crea y gestiona newsletters profesionales para mantener a tus clientes informados
-                </p>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setShowTemplatesModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-all"
-                >
-                  <Palette className="w-4 h-4" />
-                  Ver Plantillas
-                </button>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-all shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  Nueva Newsletter
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Header Premium */}
+      <NewsletterHeader
+        totalNewsletters={totalNewsletters}
+        onCreateClick={() => setShowCreateModal(true)}
+        onTemplatesClick={() => setShowTemplatesModal(true)}
+        stats={{
+          drafts: newsletters.filter(n => n.status === 'DRAFT').length,
+          published: newsletters.filter(n => n.status === 'PUBLISHED').length,
+          sent: newsletters.filter(n => n.status === 'SENT').length
+        }}
+      />
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
         {/* Sección de Plantillas Disponibles */}
