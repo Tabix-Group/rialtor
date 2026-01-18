@@ -1,8 +1,6 @@
 'use client'
 
-import React from "react"
-
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../auth/authContext'
 import { useRouter } from 'next/navigation'
 import { usePermission } from '../../hooks/usePermission'
@@ -19,27 +17,18 @@ import {
   Plus,
   Edit,
   Send,
-  FileText,
   ImageIcon,
   Newspaper,
   Home,
   CheckCircle,
-  XCircle,
   Clock,
   User,
-  Building,
   MapPin,
   Phone,
-  Globe,
   Check,
   X,
-  Sparkles,
   ArrowRight,
   Palette,
-  Zap,
-  Crown,
-  Star,
-  Layout,
 } from 'lucide-react'
 
 // Importar ReactQuill dinámicamente para evitar SSR issues
@@ -165,9 +154,16 @@ interface Newsletter {
   title: string;
   content: string;
   images: string[];
-  properties?: any;
-  news?: any;
-  agentInfo?: any;
+  properties?: string[];
+  news?: string[];
+  agentInfo?: {
+    name: string;
+    email?: string;
+    phone?: string;
+    agency?: string;
+    bio?: string;
+    photo?: string;
+  };
   template: string;
   status: 'DRAFT' | 'PUBLISHED' | 'SENT';
   createdAt: string;
@@ -187,10 +183,18 @@ interface NewsItem {
   };
 }
 
+interface PropertyData {
+  direccion?: string;
+  tipo?: string;
+  moneda?: string;
+  precio?: string;
+  [key: string]: any;
+}
+
 interface PropertyPlaque {
   id: string;
   title: string;
-  propertyData: any;
+  propertyData: PropertyData;
   generatedImages: string[];
 }
 
@@ -240,22 +244,7 @@ export default function NewsletterPage() {
     }
   }, [user, loading, hasPermission, router]);
 
-  // Cargar newsletters
-  useEffect(() => {
-    if (user && hasPermission) {
-      fetchNewsletters();
-    }
-  }, [user, hasPermission]);
-
-  // Cargar noticias y propiedades disponibles cuando se abre el modal
-  useEffect(() => {
-    if (showCreateModal) {
-      fetchAvailableNews();
-      fetchAvailableProperties();
-    }
-  }, [showCreateModal, showInternationalNews]);
-
-  const fetchNewsletters = async (page = 1, limit = 10) => {
+  const fetchNewsletters = useCallback(async (page = 1, limit = 10) => {
     try {
       const data = await authenticatedFetchJson(`/api/newsletters?page=${page}&limit=${limit}`);
       setNewsletters(data.newsletters || []);
@@ -267,9 +256,9 @@ export default function NewsletterPage() {
     } finally {
       setLoadingNewsletters(false);
     }
-  };
+  }, []);
 
-  const fetchAvailableNews = async () => {
+  const fetchAvailableNews = useCallback(async () => {
     setLoadingNews(true);
     try {
       const data = await authenticatedFetchJson('/api/news?limit=100');
@@ -284,9 +273,9 @@ export default function NewsletterPage() {
     } finally {
       setLoadingNews(false);
     }
-  };
+  }, [showInternationalNews]);
 
-  const fetchAvailableProperties = async () => {
+  const fetchAvailableProperties = useCallback(async () => {
     setLoadingProperties(true);
     try {
       const data = await authenticatedFetchJson('/api/placas?page=1&limit=50');
@@ -296,7 +285,22 @@ export default function NewsletterPage() {
     } finally {
       setLoadingProperties(false);
     }
-  };
+  }, []);
+
+  // Cargar newsletters
+  useEffect(() => {
+    if (user && hasPermission) {
+      fetchNewsletters();
+    }
+  }, [user, hasPermission, fetchNewsletters]);
+
+  // Cargar noticias y propiedades disponibles cuando se abre el modal
+  useEffect(() => {
+    if (showCreateModal) {
+      fetchAvailableNews();
+      fetchAvailableProperties();
+    }
+  }, [showCreateModal, showInternationalNews, fetchAvailableNews, fetchAvailableProperties]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -539,6 +543,18 @@ export default function NewsletterPage() {
       const headerBackground = styles.headerGradient || styles.headerBg || styles.background;
       const isGradientHeader = headerBackground.includes('gradient');
 
+      // Procesar el contenido de Quill para evitar cortes en medio de párrafos
+      const contentTempDiv = document.createElement('div');
+      contentTempDiv.innerHTML = newsletter.content;
+      const contentBlocks = Array.from(contentTempDiv.childNodes)
+        .map(node => {
+          if (node.nodeType === 3 && !node.textContent?.trim()) return '';
+          const wrap = document.createElement('div');
+          wrap.className = 'pdf-block';
+          wrap.appendChild(node.cloneNode(true));
+          return wrap.outerHTML;
+        }).join('');
+
       tempDiv.innerHTML = `
         <div style="padding: 20mm; box-sizing: border-box; width: 100%; margin: 0; padding: 15mm 20mm;">
           <!-- Header Section -->
@@ -549,8 +565,7 @@ export default function NewsletterPage() {
             text-align: center;
             ${styles.headerBorder || ''}
             ${styles.accentLine ? `border-bottom: ${styles.accentLine};` : ''}
-            page-break-inside: avoid;
-          ">
+          " class="pdf-block">
             <h1 style="
               color: ${isGradientHeader ? '#ffffff' : styles.textColor};
               font-size: 28pt;
@@ -573,27 +588,20 @@ export default function NewsletterPage() {
             line-height: ${styles.lineHeight || '1.8'};
             color: ${styles.textColor};
             font-size: 11pt;
-            page-break-inside: avoid;
-            orphans: 3;
-            widows: 3;
           ">
-            ${newsletter.content}
+            ${contentBlocks}
           </div>
 
           <!-- News Section -->
           ${newsletter.news && newsletter.news.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; margin-top: 20px; padding-top: 20px; page-break-before: always;">
+            <div style="margin-bottom: 40px; margin-top: 20px; padding-top: 20px;">
               <h3 style="
                 color: ${styles.textColor};
                 font-size: 12pt;
                 margin: 0 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
-                page-break-inside: avoid;
-                page-break-after: avoid;
-                orphans: 5;
-                widows: 5;
-              ">Últimas Noticias</h3>
+              " class="pdf-block">Últimas Noticias</h3>
               ${newsletter.news.map((newsId: string) => {
                 const news = availableNews.find(n => n.id === newsId);
                 return news ? `
@@ -603,11 +611,7 @@ export default function NewsletterPage() {
                     border-radius: 8px;
                     margin-bottom: 20px;
                     border: ${styles.cardBorder};
-                    page-break-inside: avoid;
-                    orphans: 3;
-                    widows: 3;
-                    min-height: 80px;
-                  ">
+                  " class="pdf-block">
                     <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 10px 0; font-weight: 600; line-height: 1.3;">${news.title}</h4>
                     <p style="color: ${styles.textColor}; margin: 0 0 10px 0; line-height: 1.6; font-size: 10pt;">${news.synopsis}</p>
                     <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
@@ -619,19 +623,15 @@ export default function NewsletterPage() {
 
           <!-- Properties Section -->
           ${newsletter.properties && newsletter.properties.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; margin-top: 40px; padding-top: 20px; page-break-before: always;">
+            <div style="margin-bottom: 40px; margin-top: 40px; padding-top: 20px;">
               <h3 style="
                 color: ${styles.textColor};
                 font-size: 12pt;
                 margin: 0 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
-                page-break-inside: avoid;
-                page-break-after: avoid;
-                orphans: 5;
-                widows: 5;
-              ">Propiedades Destacadas</h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; orphans: 2; widows: 2; page-break-inside: avoid;">
+              " class="pdf-block">Propiedades Destacadas</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 ${newsletter.properties.map((propertyId: string) => {
                   const property = availableProperties.find(p => p.id === propertyId);
                   return property ? `
@@ -640,10 +640,8 @@ export default function NewsletterPage() {
                       padding: 15px;
                       border-radius: 8px;
                       border: ${styles.cardBorder};
-                      page-break-inside: avoid;
-                      min-height: 100px;
                       margin-bottom: 10px;
-                    ">
+                    " class="pdf-block">
                       ${property.generatedImages.length > 0 ? `
                         <img src="${property.generatedImages[0]}" 
                              alt="${property.title}" 
@@ -666,21 +664,17 @@ export default function NewsletterPage() {
 
           <!-- Additional Images Section (antes del agente) -->
           ${newsletter.images && newsletter.images.length > 0 ? `
-            <div style="margin-bottom: 40px; page-break-inside: avoid; margin-top: 40px; padding-top: 20px; page-break-before: always;">
+            <div style="margin-bottom: 40px; margin-top: 40px; padding-top: 20px;">
               <h3 style="
                 color: ${styles.textColor};
                 font-size: 12pt;
                 margin: 0 0 20px 0;
                 font-weight: 700;
                 ${styles.accentGold ? `border-bottom: 3px solid ${styles.accentGold}; padding-bottom: 12px;` : 'border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'}
-                page-break-inside: avoid;
-                page-break-after: avoid;
-                orphans: 5;
-                widows: 5;
-              ">Imágenes Adicionales</h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; orphans: 2; widows: 2; page-break-inside: avoid;">
+              " class="pdf-block">Imágenes Adicionales</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                 ${newsletter.images.map((imageUrl: string) => `
-                  <div style="page-break-inside: avoid;">
+                  <div class="pdf-block">
                     <img src="${imageUrl}" 
                          alt="Imagen adicional" 
                          style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
@@ -699,12 +693,8 @@ export default function NewsletterPage() {
               margin-bottom: 30px;
               border: ${styles.cardBorder};
               ${styles.cardShadow ? `box-shadow: ${styles.cardShadow};` : ''}
-              page-break-inside: avoid;
               margin-top: 40px;
-              orphans: 3;
-              widows: 3;
-              page-break-before: always;
-            ">
+            " class="pdf-block">
               <h3 style="
                 color: ${styles.textColor};
                 font-size: 16pt;
@@ -775,8 +765,7 @@ export default function NewsletterPage() {
             border-top: 1px solid ${styles.accentColor};
             padding-top: 15px;
             margin-top: 40px;
-            page-break-inside: avoid;
-          ">
+          " class="pdf-block">
             <p style="margin: 0;">Newsletter creada con RIALTOR • www.rialtor.app</p>
           </div>
         </div>
@@ -814,48 +803,74 @@ export default function NewsletterPage() {
       const effectivePageHeight = pageHeight - (margins * 2);
       
       const imgWidth = pageWidth - (margins * 2);
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Calcular páginas necesarias sin repetición
-      const totalPagesCount = Math.ceil(imgHeight / effectivePageHeight);
       
       // Calcular la relación de píxeles por milímetro
       const pixelsPerMM = canvas.width / imgWidth; // píxeles por mm
       const pageHeightInPixels = Math.round(effectivePageHeight * pixelsPerMM);
       
-      for (let pageNum = 0; pageNum < totalPagesCount; pageNum++) {
-        if (pageNum > 0) {
+      // -- INICIO LOGICA DE CORTE INTELIGENTE --
+      // Obtener posiciones de todos los bloques que no deben cortarse
+      const blocks = Array.from(tempDiv.querySelectorAll('.pdf-block')) as HTMLElement[];
+      const blockPositions = blocks.map(b => ({
+        top: b.offsetTop * (canvas.width / tempDiv.offsetWidth),
+        bottom: (b.offsetTop + b.offsetHeight) * (canvas.width / tempDiv.offsetWidth)
+      }));
+
+      let currentSrcY = 0;
+      while (currentSrcY < canvas.height) {
+        if (currentSrcY > 0) {
           pdf.addPage();
         }
+
+        // Determinar altura ideal para esta página
+        let targetHeight = pageHeightInPixels;
+        let potentialBreakY = currentSrcY + targetHeight;
+
+        // Si no es la última parte, intentar ajustar el corte
+        if (potentialBreakY < canvas.height) {
+          // Buscar si algún bloque cruza la línea de corte
+          const cuttingBlock = blockPositions.find(b => b.top < potentialBreakY && b.bottom > potentialBreakY);
+          
+          if (cuttingBlock) {
+            // Si el bloque no es más alto que una página entera, cortar antes del bloque
+            if ((cuttingBlock.bottom - cuttingBlock.top) <= pageHeightInPixels) {
+              potentialBreakY = cuttingBlock.top;
+              targetHeight = potentialBreakY - currentSrcY;
+            }
+          }
+        }
+
+        // Asegurarnos de no capturar más de lo que queda
+        const finalHeight = Math.min(targetHeight, canvas.height - currentSrcY);
         
-        // Calcular la posición exacta de corte en píxeles del canvas
-        const srcX = 0;
-        const srcY = pageNum * pageHeightInPixels;
-        const srcW = canvas.width;
-        const srcH = Math.min(pageHeightInPixels, canvas.height - srcY);
-        
-        // Crear canvas temporal para esta página
+        // Capturar y añadir al PDF
         const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = srcW;
-        pageCanvas.height = srcH;
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = finalHeight;
         
         const ctx = pageCanvas.getContext('2d');
         if (ctx) {
-          ctx.drawImage(canvas, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+          ctx.drawImage(canvas, 0, currentSrcY, canvas.width, finalHeight, 0, 0, canvas.width, finalHeight);
           const pageImgData = pageCanvas.toDataURL('image/png', 1);
           
-          // Agregar imagen sin repetición
           pdf.addImage(
             pageImgData, 
             'PNG', 
             margins, 
             margins, 
             imgWidth, 
-            (srcH / pixelsPerMM) // Ajustar altura según lo que realmente se capturó
+            finalHeight / pixelsPerMM
           );
         }
-      }
 
+        currentSrcY += finalHeight;
+        // Si finalHeight es muy pequeño (evitar bucle infinito), forzar avance
+        if (finalHeight <= 0) break;
+      }
+      // -- FIN LOGICA DE CORTE INTELIGENTE --
+
+      document.body.removeChild(tempDiv);
+      
       const fileName = `newsletter_${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().getTime()}.pdf`;
       pdf.save(fileName);
       
