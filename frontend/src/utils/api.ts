@@ -184,6 +184,29 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
     return response;
 }
 
+// Helper to safely parse JSON bodies without throwing when body is empty or invalid JSON
+export async function safeJson(response: Response) {
+    const text = await response.text();
+    try {
+        return text ? JSON.parse(text) : null;
+    } catch {
+        return null;
+    }
+}
+
+// Convenience wrapper that performs authenticated fetch and parses JSON, throwing on non-ok responses
+export async function authenticatedFetchJson<T = any>(url: string, options: RequestInit = {}): Promise<T> {
+    const response = await authenticatedFetch(url, options);
+    const data = await safeJson(response);
+
+    if (!response.ok) {
+        const message = (data && (data.message || data.error)) || `HTTP ${response.status}: ${response.statusText}`;
+        throw new Error(message);
+    }
+
+    return data as T;
+}
+
 // Public fetch wrapper for routes that don't require authentication
 export async function publicFetch(url: string, options: RequestInit = {}): Promise<Response> {
     const headers: Record<string, string> = {
