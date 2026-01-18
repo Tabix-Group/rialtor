@@ -519,17 +519,25 @@ export default function NewsletterPage() {
     }
   };
 
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
   const downloadNewsletterAsPDF = async (newsletter: Newsletter) => {
+    if (isGeneratingPDF) return;
+    setIsGeneratingPDF(true);
+    
+    // Crear contenedor principal con estilos optimizados para PDF
+    const tempDiv = document.createElement('div');
+
     try {
       // Obtener configuración de plantilla
       const templateConfig = AVAILABLE_TEMPLATES.find(t => t.id === newsletter.template) || AVAILABLE_TEMPLATES[0];
       const styles = templateConfig.preview;
 
-      // Crear contenedor principal con estilos optimizados para PDF
-      const tempDiv = document.createElement('div');
+      tempDiv.id = `pdf-temp-${new Date().getTime()}`;
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
       tempDiv.style.width = '210mm'; // A4 width
-      tempDiv.style.maxWidth = '210mm';
-      tempDiv.style.margin = '0 auto';
       tempDiv.style.background = '#ffffff';
       tempDiv.style.fontFamily = styles.fontFamily || "'Helvetica Neue', Arial, sans-serif";
       tempDiv.style.color = styles.textColor;
@@ -642,7 +650,7 @@ export default function NewsletterPage() {
                       border: ${styles.cardBorder};
                       margin-bottom: 10px;
                     " class="pdf-block">
-                      ${property.generatedImages.length > 0 ? `
+                      ${property.generatedImages && property.generatedImages.length > 0 ? `
                         <img src="${property.generatedImages[0]}" 
                              alt="${property.title}" 
                              style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; display: block;" />
@@ -782,12 +790,8 @@ export default function NewsletterPage() {
         width: tempDiv.scrollWidth,
         windowWidth: 794, // A4 width in pixels at 96 DPI
         logging: false,
-        // Agregar padding para evitar cortes en los bordes
-        imageTimeout: 5000
+        imageTimeout: 10000
       });
-
-      document.body.removeChild(tempDiv);
-
 
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -801,14 +805,11 @@ export default function NewsletterPage() {
       const pageHeight = 297; // A4 height in mm
       const margins = 10; // mm - márgenes
       const effectivePageHeight = pageHeight - (margins * 2);
-      
       const imgWidth = pageWidth - (margins * 2);
       
-      // Calcular la relación de píxeles por milímetro
-      const pixelsPerMM = canvas.width / imgWidth; // píxeles por mm
+      const pixelsPerMM = canvas.width / imgWidth;
       const pageHeightInPixels = Math.round(effectivePageHeight * pixelsPerMM);
       
-      // -- INICIO LOGICA DE CORTE INTELIGENTE --
       // Obtener posiciones de todos los bloques que no deben cortarse
       const blocks = Array.from(tempDiv.querySelectorAll('.pdf-block')) as HTMLElement[];
       const blockPositions = blocks.map(b => ({
@@ -822,28 +823,24 @@ export default function NewsletterPage() {
           pdf.addPage();
         }
 
-        // Determinar altura ideal para esta página
         let targetHeight = pageHeightInPixels;
         let potentialBreakY = currentSrcY + targetHeight;
 
-        // Si no es la última parte, intentar ajustar el corte
         if (potentialBreakY < canvas.height) {
-          // Buscar si algún bloque cruza la línea de corte
           const cuttingBlock = blockPositions.find(b => b.top < potentialBreakY && b.bottom > potentialBreakY);
           
           if (cuttingBlock) {
-            // Si el bloque no es más alto que una página entera, cortar antes del bloque
-            if ((cuttingBlock.bottom - cuttingBlock.top) <= pageHeightInPixels) {
+            // Si el bloque no comenzó antes de esta página y se puede mover a la siguiente
+            if (cuttingBlock.top > currentSrcY && (cuttingBlock.bottom - cuttingBlock.top) <= pageHeightInPixels) {
               potentialBreakY = cuttingBlock.top;
               targetHeight = potentialBreakY - currentSrcY;
             }
           }
         }
 
-        // Asegurarnos de no capturar más de lo que queda
         const finalHeight = Math.min(targetHeight, canvas.height - currentSrcY);
+        if (finalHeight <= 0) break;
         
-        // Capturar y añadir al PDF
         const pageCanvas = document.createElement('canvas');
         pageCanvas.width = canvas.width;
         pageCanvas.height = finalHeight;
@@ -851,7 +848,7 @@ export default function NewsletterPage() {
         const ctx = pageCanvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(canvas, 0, currentSrcY, canvas.width, finalHeight, 0, 0, canvas.width, finalHeight);
-          const pageImgData = pageCanvas.toDataURL('image/png', 1);
+          const pageImgData = pageCanvas.toDataURL('image/png', 0.8);
           
           pdf.addImage(
             pageImgData, 
@@ -864,20 +861,19 @@ export default function NewsletterPage() {
         }
 
         currentSrcY += finalHeight;
-        // Si finalHeight es muy pequeño (evitar bucle infinito), forzar avance
-        if (finalHeight <= 0) break;
       }
-      // -- FIN LOGICA DE CORTE INTELIGENTE --
 
-      document.body.removeChild(tempDiv);
-      
       const fileName = `newsletter_${newsletter.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${new Date().getTime()}.pdf`;
       pdf.save(fileName);
-      
       alert('PDF generado exitosamente');
     } catch (error) {
       console.error('Error generando PDF:', error);
       alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
+    } finally {
+      if (tempDiv && tempDiv.parentNode === document.body) {
+        document.body.removeChild(tempDiv);
+      }
+      setIsGeneratingPDF(false);
     }
   };
 
