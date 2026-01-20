@@ -225,16 +225,23 @@ const calculateCommission = async (req, res) => {
 
     // Sellos sobre el valor de la operación (solo si la alícuota es > 0)
     let stamps = 0;
-    let exencionCabaPesos = 226100000; // Tope de exención en pesos
+    const EXENCION_CABA_PESOS = 226100000;
     let exencionCabaUsd = null;
+    
+    // Calcular monto en pesos para determinar alícuota en CABA
+    const cotizacionNumerica = (!isNaN(Number(cotizacionUsdOficial)) && Number(cotizacionUsdOficial) > 0) ? Number(cotizacionUsdOficial) : 0;
+    const arsAmount = amount * cotizacionNumerica;
+
     if (province === 'caba') {
       if (buyerType === 'juridica' || sellerType === 'juridica') {
         stampsRate = 3.5;
       } else {
-        stampsRate = 1.5;
+        // Personas físicas en CABA: 2.7% hasta el tope, 3.5% si supera
+        stampsRate = (arsAmount > EXENCION_CABA_PESOS) ? 3.5 : 2.7;
+        
         // Exención por única vivienda en CABA
-        if (isOnlyHome && cotizacionUsdOficial && !isNaN(Number(cotizacionUsdOficial))) {
-          exencionCabaUsd = exencionCabaPesos / Number(cotizacionUsdOficial);
+        if (isOnlyHome && cotizacionNumerica > 0) {
+          exencionCabaUsd = EXENCION_CABA_PESOS / cotizacionNumerica;
         }
       }
     } else if (province === 'buenos_aires') {

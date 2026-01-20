@@ -73,8 +73,10 @@ export default function CalceEscrituraPage() {
       realEstateFeeIVA = realEstateFee * ivaRate
       notaryFees = numericTransactionPrice * 0.02
       notaryFeesIVA = notaryFees * ivaRate
-      const stampRate = location === 'CABA' ? 0.027 : 0.02
+      
       const exemptionThreshold = 226100000
+      const stampRate = (location === 'CABA' && arsWritingPrice > exemptionThreshold) ? 0.035 : (location === 'CABA' ? 0.027 : 0.02)
+      
       if (stampExemption && location === 'CABA') {
         if (arsWritingPrice <= exemptionThreshold) {
           stamps = 0
@@ -91,8 +93,10 @@ export default function CalceEscrituraPage() {
     } else if (activeTab === 'vendedor') {
       realEstateFee = numericTransactionPrice * 0.03
       realEstateFeeIVA = realEstateFee * ivaRate
-      const stampRate = location === 'CABA' ? 0.027 : 0.02
+      
       const exemptionThreshold = 226100000
+      const stampRate = (location === 'CABA' && arsWritingPrice > exemptionThreshold) ? 0.035 : (location === 'CABA' ? 0.027 : 0.02)
+      
       if (stampExemption && location === 'CABA') {
         if (arsWritingPrice <= exemptionThreshold) {
           stamps = 0
@@ -111,8 +115,10 @@ export default function CalceEscrituraPage() {
       realEstateFeeIVA = realEstateFee * ivaRate
       notaryFees = numericTransactionPrice * 0.035
       notaryFeesIVA = notaryFees * ivaRate
-      const stampRate = location === 'CABA' ? 0.027 : 0.02
+      
       const exemptionThreshold = 226100000
+      const stampRate = (location === 'CABA' && arsWritingPrice > exemptionThreshold) ? 0.035 : (location === 'CABA' ? 0.027 : 0.02)
+      
       if (arsWritingPrice <= exemptionThreshold) {
         stamps = 0
       } else {
