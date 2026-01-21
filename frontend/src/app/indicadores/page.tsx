@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { TrendingUp, TrendingDown, DollarSign, Building2, FileText, RefreshCw, Info, BarChart3 } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, RefreshCw, Info, BarChart3 } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 interface DolarRate {
@@ -217,10 +217,6 @@ export default function IndicadoresPage() {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }).format(value)
-  }
-
-  const formatNumber = (value: number) => {
-    return new Intl.NumberFormat("es-AR").format(value)
   }
 
   const getVariationColor = (variation: number) => {
@@ -568,172 +564,6 @@ export default function IndicadoresPage() {
             </div>
           </section>
         )}
-
-        {/* Precio por m2 */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold">Precio por Metro Cuadrado</h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* CABA */}
-            <div className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold">Ciudad de Buenos Aires</h3>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.mercadoInmobiliario.precioM2.caba.variacion)}`}>
-                  <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.mercadoInmobiliario.precioM2.caba.variacion)}`}>
-                    {getVariationIcon(data.mercadoInmobiliario.precioM2.caba.variacion)}
-                    {formatCurrency(Math.abs(data.mercadoInmobiliario.precioM2.caba.variacion), 1)}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Venta promedio</div>
-                  <div className="text-2xl font-bold">USD ${formatNumber(data.mercadoInmobiliario.precioM2.caba.venta)}</div>
-                  <div className="text-xs text-muted-foreground mt-1">por m²</div>
-                </div>
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Alquiler promedio</div>
-                  <div className="text-2xl font-bold">USD ${formatCurrency(data.mercadoInmobiliario.precioM2.caba.alquiler)}</div>
-                  <div className="text-xs text-muted-foreground mt-1">por m²</div>
-                </div>
-              </div>
-
-              {/* Zonas CABA */}
-              {data.mercadoInmobiliario.precioM2.caba.zonas && data.mercadoInmobiliario.precioM2.caba.zonas.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Por zona</h4>
-                  <div className="space-y-2">
-                    {data.mercadoInmobiliario.precioM2.caba.zonas.map((zona) => (
-                      <div key={zona.nombre} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                        <span className="text-sm font-medium">{zona.nombre}</span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold">USD ${formatNumber(zona.precio)}</span>
-                          <div className={`flex items-center gap-1 text-xs ${getVariationColor(zona.variacion)}`}>
-                            {getVariationIcon(zona.variacion)}
-                            <span>{formatCurrency(Math.abs(zona.variacion), 1)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Provincia de Buenos Aires */}
-            <div className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold">Provincia de Buenos Aires</h3>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.mercadoInmobiliario.precioM2.buenosAires.variacion)}`}>
-                  <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.mercadoInmobiliario.precioM2.buenosAires.variacion)}`}>
-                    {getVariationIcon(data.mercadoInmobiliario.precioM2.buenosAires.variacion)}
-                    {formatCurrency(Math.abs(data.mercadoInmobiliario.precioM2.buenosAires.variacion), 1)}%
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Venta promedio</div>
-                  <div className="text-2xl font-bold">USD ${formatNumber(data.mercadoInmobiliario.precioM2.buenosAires.venta)}</div>
-                  <div className="text-xs text-muted-foreground mt-1">por m²</div>
-                </div>
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Alquiler promedio</div>
-                  <div className="text-2xl font-bold">USD ${formatCurrency(data.mercadoInmobiliario.precioM2.buenosAires.alquiler)}</div>
-                  <div className="text-xs text-muted-foreground mt-1">por m²</div>
-                </div>
-              </div>
-
-              {/* Zonas Buenos Aires */}
-              {data.mercadoInmobiliario.precioM2.buenosAires.zonas && data.mercadoInmobiliario.precioM2.buenosAires.zonas.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Por zona</h4>
-                  <div className="space-y-2">
-                    {data.mercadoInmobiliario.precioM2.buenosAires.zonas.map((zona) => (
-                      <div key={zona.nombre} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                        <span className="text-sm font-medium">{zona.nombre}</span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold">USD ${formatNumber(zona.precio)}</span>
-                          <div className={`flex items-center gap-1 text-xs ${getVariationColor(zona.variacion)}`}>
-                            {getVariationIcon(zona.variacion)}
-                            <span>{formatCurrency(Math.abs(zona.variacion), 1)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Escrituraciones */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold">Escrituraciones del Mes</h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* CABA */}
-            <div className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg">
-              <h3 className="text-xl font-semibold mb-6">Ciudad de Buenos Aires</h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Cantidad</div>
-                  <div className="text-3xl font-bold">{formatNumber(data.mercadoInmobiliario.escrituraciones.caba.cantidad)}</div>
-                  <div className={`flex items-center gap-1 text-sm mt-2 ${getVariationColor(data.mercadoInmobiliario.escrituraciones.caba.variacionMensual)}`}>
-                    {getVariationIcon(data.mercadoInmobiliario.escrituraciones.caba.variacionMensual)}
-                    <span>{formatCurrency(Math.abs(data.mercadoInmobiliario.escrituraciones.caba.variacionMensual), 1)}% mensual</span>
-                  </div>
-                </div>
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Promedio</div>
-                  <div className="text-2xl font-bold">USD ${formatNumber(data.mercadoInmobiliario.escrituraciones.caba.promedioOperacion)}</div>
-                  <div className={`flex items-center gap-1 text-sm mt-2 ${getVariationColor(data.mercadoInmobiliario.escrituraciones.caba.variacionAnual)}`}>
-                    {getVariationIcon(data.mercadoInmobiliario.escrituraciones.caba.variacionAnual)}
-                    <span>{formatCurrency(Math.abs(data.mercadoInmobiliario.escrituraciones.caba.variacionAnual), 1)}% anual</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Buenos Aires */}
-            <div className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg">
-              <h3 className="text-xl font-semibold mb-6">Provincia de Buenos Aires</h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Cantidad</div>
-                  <div className="text-3xl font-bold">{formatNumber(data.mercadoInmobiliario.escrituraciones.buenosAires.cantidad)}</div>
-                  <div className={`flex items-center gap-1 text-sm mt-2 ${getVariationColor(data.mercadoInmobiliario.escrituraciones.buenosAires.variacionMensual)}`}>
-                    {getVariationIcon(data.mercadoInmobiliario.escrituraciones.buenosAires.variacionMensual)}
-                    <span>{formatCurrency(Math.abs(data.mercadoInmobiliario.escrituraciones.buenosAires.variacionMensual), 1)}% mensual</span>
-                  </div>
-                </div>
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="text-sm text-muted-foreground mb-1">Promedio</div>
-                  <div className="text-2xl font-bold">USD ${formatNumber(data.mercadoInmobiliario.escrituraciones.buenosAires.promedioOperacion)}</div>
-                  <div className={`flex items-center gap-1 text-sm mt-2 ${getVariationColor(data.mercadoInmobiliario.escrituraciones.buenosAires.variacionAnual)}`}>
-                    {getVariationIcon(data.mercadoInmobiliario.escrituraciones.buenosAires.variacionAnual)}
-                    <span>{formatCurrency(Math.abs(data.mercadoInmobiliario.escrituraciones.buenosAires.variacionAnual), 1)}% anual</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Índices Económicos */}
         {economicIndexes && (

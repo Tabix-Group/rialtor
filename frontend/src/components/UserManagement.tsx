@@ -83,7 +83,7 @@ export default function UserManagement({ token }: { token: string }) {
     const url = modalType === 'create'
       ? '/api/users'
       : `/api/users?id=${selectedUser.id}`;
-    let payload: any = { ...form };
+    const payload: any = { ...form };
     if (!form.password) delete payload.password;
     try {
       // Guardar usuario (sin roles)

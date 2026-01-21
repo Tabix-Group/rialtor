@@ -127,7 +127,7 @@ export default function DocumentGeneratorPage() {
                     mimeType = 'application/rtf';
                     fileName += '.rtf';
                     // Convertir texto plano a RTF con formato básico
-                    let rtfContent = generatedDocument
+                    const rtfContent = generatedDocument
                         .replace(/\n/g, '\\par\n')
                         .replace(/RESERVA Y OFERTA DE COMPRA/g, '{\\b\\fs28 RESERVA Y OFERTA DE COMPRA}')
                         .replace(/MONTO DE LA RESERVA:/g, '{\\b MONTO DE LA RESERVA:}')

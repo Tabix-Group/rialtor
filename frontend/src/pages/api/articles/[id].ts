@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { method, headers, body, query } = req;
   const { id } = query;
   
-  let url = `${backendUrl}/articles/${id}`;
+  const url = `${backendUrl}/articles/${id}`;
 
   // Build fetch options
   const headersProxy: Record<string, string> = {};
