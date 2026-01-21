@@ -418,8 +418,8 @@ class EconomicIndicatorsService {
   async getEconomicIndexes() {
     try {
       // Verificar cache
-      if (this.cache.economicIndexesData && 
-          this.cache.lastUpdate.economicIndexes && 
+      if (this.cache.economicIndexesData &&
+          this.cache.lastUpdate.economicIndexes &&
           Date.now() - this.cache.lastUpdate.economicIndexes < this.CACHE_DURATION) {
         return this.cache.economicIndexesData;
       }
