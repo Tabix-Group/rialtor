@@ -98,8 +98,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     { 
       id: 1, 
       label: 'Prospectos', 
-      clientsHot: 100, 
-      clientsCold: 0, 
+      clientsHot: 100,  // Default: 100 referidos
+      clientsCold: 100, // Default: 100 bases frías
       color: 'teal', 
       gradientClasses: 'bg-gradient-to-r from-teal-400 to-teal-600', 
       shadowColor: 'shadow-teal-500/20',
@@ -109,7 +109,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       id: 2, 
       label: 'Tasaciones', 
       clientsHot: 59, 
-      clientsCold: 0, 
+      clientsCold: 14, 
       color: 'indigo', 
       gradientClasses: 'bg-gradient-to-r from-indigo-500 to-indigo-700', 
       shadowColor: 'shadow-indigo-500/20',
@@ -119,7 +119,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       id: 3, 
       label: 'Captaciones', 
       clientsHot: 35, 
-      clientsCold: 0, 
+      clientsCold: 4, 
       color: 'rose', 
       gradientClasses: 'bg-gradient-to-r from-rose-500 to-rose-700', 
       shadowColor: 'shadow-rose-500/20',
@@ -129,7 +129,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       id: 4, 
       label: 'Reservas', 
       clientsHot: 16, 
-      clientsCold: 0, 
+      clientsCold: 2, 
       color: 'emerald', 
       gradientClasses: 'bg-gradient-to-r from-emerald-500 to-emerald-700', 
       shadowColor: 'shadow-emerald-500/20',
@@ -139,7 +139,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       id: 5, 
       label: 'Cierres', 
       clientsHot: 10, 
-      clientsCold: 0, 
+      clientsCold: 1, 
       color: 'amber', 
       gradientClasses: 'bg-gradient-to-r from-amber-400 to-amber-600', 
       shadowColor: 'shadow-amber-500/20',
@@ -216,12 +216,15 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       const response = await fetch('/api/sales-funnel')
       if (response.ok) {
         const result = await response.json()
+        // Solo cargar datos si existen datos válidos del servidor
         if (result.data && Array.isArray(result.data) && result.data.length > 0) {
           setStages(result.data)
         }
+        // Si no hay datos, mantiene los valores por default (100, 100)
       }
     } catch (error) {
       console.error('Error loading sales funnel:', error)
+      // Si hay error, mantiene los valores por default
     }
   }
 
