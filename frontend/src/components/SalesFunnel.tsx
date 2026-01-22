@@ -9,7 +9,8 @@ import {
   ArrowRight,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Award
 } from 'lucide-react'
 
 // --- DEFINICIÓN DE TIPOS ---
@@ -24,17 +25,49 @@ interface FunnelStage {
   width: string
 }
 
+type AgentLevel = 'inicial' | 'intermedio' | 'experto'
+
+interface ConversionRates {
+  tasaciones: number
+  captaciones: number
+  reservas: number
+  cierres: number
+}
+
 interface SalesFunnelProps {
   onSave?: (data: FunnelStage[]) => void
 }
 
 export default function SalesFunnel({ onSave }: SalesFunnelProps) {
+  // --- TASAS DE CONVERSIÓN POR NIVEL ---
+  const conversionRatesByLevel: Record<AgentLevel, ConversionRates> = {
+    inicial: {
+      tasaciones: 59,
+      captaciones: 60,
+      reservas: 45,
+      cierres: 65
+    },
+    intermedio: {
+      tasaciones: 65,
+      captaciones: 70,
+      reservas: 50,
+      cierres: 80
+    },
+    experto: {
+      tasaciones: 70,
+      captaciones: 70,
+      reservas: 65,
+      cierres: 90
+    }
+  }
+
   // --- ESTADO INICIAL ---
+  const [agentLevel, setAgentLevel] = useState<AgentLevel>('inicial')
   const [stages, setStages] = useState<FunnelStage[]>([
     { 
       id: 1, 
       label: 'Prospectos', 
-      clientsHot: 20, 
+      clientsHot: 100, 
       clientsCold: 0, 
       color: 'teal', 
       gradientClasses: 'bg-gradient-to-r from-teal-400 to-teal-600', 
@@ -44,7 +77,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     { 
       id: 2, 
       label: 'Tasaciones', 
-      clientsHot: 13, 
+      clientsHot: 59, 
       clientsCold: 0, 
       color: 'indigo', 
       gradientClasses: 'bg-gradient-to-r from-indigo-500 to-indigo-700', 
@@ -54,8 +87,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     { 
       id: 3, 
       label: 'Captaciones', 
-      clientsHot: 9, 
-      clientsCold: 1, 
+      clientsHot: 35, 
+      clientsCold: 0, 
       color: 'rose', 
       gradientClasses: 'bg-gradient-to-r from-rose-500 to-rose-700', 
       shadowColor: 'shadow-rose-500/20',
@@ -64,8 +97,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     { 
       id: 4, 
       label: 'Reservas', 
-      clientsHot: 4, 
-      clientsCold: 2, 
+      clientsHot: 16, 
+      clientsCold: 0, 
       color: 'emerald', 
       gradientClasses: 'bg-gradient-to-r from-emerald-500 to-emerald-700', 
       shadowColor: 'shadow-emerald-500/20',
@@ -74,8 +107,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     { 
       id: 5, 
       label: 'Cierres', 
-      clientsHot: 3, 
-      clientsCold: 2, 
+      clientsHot: 10, 
+      clientsCold: 0, 
       color: 'amber', 
       gradientClasses: 'bg-gradient-to-r from-amber-400 to-amber-600', 
       shadowColor: 'shadow-amber-500/20',
@@ -90,6 +123,55 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     setMounted(true)
     loadData()
   }, [])
+
+  // --- FUNCIÓN PARA RECALCULAR VALORES SEGÚN NIVEL ---
+  const recalculateStages = (prospectsCount: number, referidosCount: number, friasCount: number, level: AgentLevel) => {
+    const rates = conversionRatesByLevel[level]
+    
+    // Calcular valores automáticamente basados en porcentajes
+    const tasaciones = Math.round((prospectsCount * rates.tasaciones) / 100)
+    const captaciones = Math.round((tasaciones * rates.captaciones) / 100)
+    const reservas = Math.round((captaciones * rates.reservas) / 100)
+    const cierres = Math.round((reservas * rates.cierres) / 100)
+
+    return [
+      { 
+        ...stages[0],
+        clientsHot: prospectsCount,
+        clientsCold: friasCount
+      },
+      { 
+        ...stages[1],
+        clientsHot: tasaciones,
+        clientsCold: 0
+      },
+      { 
+        ...stages[2],
+        clientsHot: captaciones,
+        clientsCold: 0
+      },
+      { 
+        ...stages[3],
+        clientsHot: reservas,
+        clientsCold: 0
+      },
+      { 
+        ...stages[4],
+        clientsHot: cierres,
+        clientsCold: referidosCount
+      },
+    ]
+  }
+
+  // Cuando cambia el nivel, recalcular
+  const handleAgentLevelChange = (newLevel: AgentLevel) => {
+    setAgentLevel(newLevel)
+    const prospectsCount = stages[0].clientsHot
+    const referidosCount = stages[4].clientsCold
+    const friasCount = stages[0].clientsCold
+    const newStages = recalculateStages(prospectsCount, referidosCount, friasCount, newLevel)
+    setStages(newStages)
+  }
 
   const loadData = async () => {
     try {
@@ -127,13 +209,32 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     return { hotPercent, coldPercent, conversionRate }
   }
 
+  // --- HANDLE INPUT CHANGE (SOLO EDITAR: Prospectos, Referidos, Bases Frías) ---
   const handleInputChange = (stageId: number, field: 'clientsHot' | 'clientsCold', value: string) => {
     const numValue = value === '' ? 0 : Math.max(0, parseInt(value) || 0)
-    setStages(prev =>
-      prev.map(stage =>
-        stage.id === stageId ? { ...stage, [field]: numValue } : stage
-      )
-    )
+    
+    // Solo permitir edición en:
+    // - Stage 1 (Prospectos): clientsHot y clientsCold (Prospectos y Bases Frías)
+    // - Stage 5 (Cierres): clientsCold (Referidos)
+    const isEditable = 
+      (stageId === 1 && (field === 'clientsHot' || field === 'clientsCold')) ||
+      (stageId === 5 && field === 'clientsCold')
+
+    if (!isEditable) return
+
+    const updatedStages = stages.map(stage => {
+      if (stage.id === stageId && (field === 'clientsHot' || field === 'clientsCold')) {
+        return { ...stage, [field]: numValue }
+      }
+      return stage
+    })
+
+    // Recalcular automáticamente los demás valores
+    const prospectsCount = updatedStages[0].clientsHot
+    const referidosCount = updatedStages[4].clientsCold
+    const friasCount = updatedStages[0].clientsCold
+    const newStages = recalculateStages(prospectsCount, referidosCount, friasCount, agentLevel)
+    setStages(newStages)
   }
 
   const handleSave = async () => {
@@ -172,7 +273,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8">
             
-            {/* Títulos y Botón */}
+            {/* Títulos, Selector de Nivel y Botón */}
             <div className="flex-1 w-full lg:w-auto">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
                 <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400" />
@@ -186,6 +287,27 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
               <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
                 Visualiza el rendimiento de tu pipeline, analiza tasas de conversión y gestiona tus referidos en tiempo real.
               </p>
+
+              {/* Selector de Nivel */}
+              <div className="mb-6 p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
+                <label className="block text-xs sm:text-sm font-semibold text-slate-300 mb-3">Selecciona tu nivel de Agente:</label>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {(['inicial', 'intermedio', 'experto'] as const).map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => handleAgentLevelChange(level)}
+                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+                        agentLevel === level
+                          ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50 ring-2 ring-blue-300'
+                          : 'bg-white/10 text-slate-300 hover:bg-white/20 border border-white/20'
+                      }`}
+                    >
+                      <Award className="w-4 h-4" />
+                      {level.charAt(0).toUpperCase() + level.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <button
                 onClick={handleSave}
@@ -268,7 +390,12 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                           min="0"
                           value={stage.clientsHot}
                           onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                          className="w-24 text-right text-3xl font-bold text-slate-700 bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 hover:text-cyan-600 transition-colors"
+                          disabled={!(index === 0 || (index === 4 && stage.id === 5))}
+                          className={`w-24 text-right text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors ${
+                            index === 0 || (index === 4 && stage.id === 5)
+                              ? 'text-slate-700 hover:text-cyan-600 cursor-text'
+                              : 'text-slate-400 cursor-not-allowed opacity-60'
+                          }`}
                         />
                         {/* Dot Indicador */}
                         <div className="absolute top-1/2 -right-6 w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)] ring-4 ring-white"></div>
@@ -353,7 +480,12 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                           min="0"
                           value={stage.clientsCold}
                           onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                          className="w-24 text-left text-3xl font-bold text-slate-700 bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 hover:text-indigo-600 transition-colors"
+                          disabled={index !== 0}
+                          className={`w-24 text-left text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors ${
+                            index === 0
+                              ? 'text-slate-700 hover:text-indigo-600 cursor-text'
+                              : 'text-slate-400 cursor-not-allowed opacity-60'
+                          }`}
                         />
                       </div>
                       <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded mt-1">
