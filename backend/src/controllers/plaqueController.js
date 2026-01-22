@@ -1064,11 +1064,22 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     // --- LÓGICA ESPECÍFICA PARA MODELO 4 ---
     if (isModel4) {
-      const sidebarWidth = Math.floor(width * 0.42);
-      const iconSize = 40;
-      const marginX = 50;
+      // Reducción del 25% en todos los elementos (0.75 escala) + escalado adaptativo a tamaño de imagen
+      const sidebarWidth = Math.floor(width * 0.315);      // 0.42 * 0.75
+      const baseIconSize = 30;                              // 40 * 0.75
+      const baseMarginX = 37;                               // 50 * 0.75
+      const baseTextSize = 28;                              // 38 * 0.75
       const startY = height * 0.15;
-      const spacingY = 75;
+      const baseSpacingY = 56;                              // 75 * 0.75
+      
+      // Aplicar escalado proporcional al tamaño de la imagen
+      const iconSize = Math.floor(baseIconSize * finalScaleFactor);
+      const marginX = Math.floor(baseMarginX * finalScaleFactor);
+      const textSize = Math.floor(baseTextSize * finalScaleFactor);
+      const spacingY = Math.floor(baseSpacingY * finalScaleFactor);
+      const priceSize = Math.floor(36 * finalScaleFactor);  // 48 * 0.75
+      const brandSize = Math.floor(39 * finalScaleFactor);  // 52 * 0.75
+      const correSize = Math.floor(13 * finalScaleFactor);  // 18 * 0.75
       
       let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
@@ -1093,26 +1104,26 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         
         svg += `  <g transform="translate(${marginX}, ${currentY})">\n`;
         svg += `    ${iconSvg}\n`;
-        svg += `    <text x="${iconSize + 20}" y="${iconSize/2 + 8}" style="font-family: Arial, sans-serif; font-size: 38px; font-weight: 600; fill: #FFFFFF;">${escapeForSvg(ln.text)}</text>\n`;
+        svg += `    <text x="${iconSize + Math.floor(15 * finalScaleFactor)}" y="${iconSize/2 + Math.floor(6 * finalScaleFactor)}" style="font-family: Arial, sans-serif; font-size: ${textSize}px; font-weight: 600; fill: #FFFFFF;">${escapeForSvg(ln.text)}</text>\n`;
         svg += `  </g>\n`;
         currentY += spacingY;
       });
       
-      // Caja de precio
+      // Caja de precio (reducida 25% + escalada adaptativamente)
       const priceBoxW = sidebarWidth - (marginX * 2);
-      const priceBoxH = 110;
+      const priceBoxH = Math.floor(82 * finalScaleFactor);  // 110 * 0.75
       const priceBoxY = height * 0.65; // Subido de 0.72 para evitar solapamiento
       svg += `  <rect x="${marginX}" y="${priceBoxY}" width="${priceBoxW}" height="${priceBoxH}" fill="#FFFFFF" rx="4" />\n`;
-      svg += `  <text x="${marginX + priceBoxW/2}" y="${priceBoxY + 70}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 48px; font-weight: 800; fill: #544a3f;">${moneda} ${formatPrice(precio)}</text>\n`;
+      svg += `  <text x="${marginX + priceBoxW/2}" y="${priceBoxY + Math.floor(52 * finalScaleFactor)}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: ${priceSize}px; font-weight: 800; fill: #544a3f;">${moneda} ${formatPrice(precio)}</text>\n`;
       
-      // Logo (Brand)
+      // Logo (Brand) - reducido 25% + escalado adaptativamente
       if (brand) {
-        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: 52px; font-weight: 900; fill: #FFFFFF; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: ${brandSize}px; font-weight: 900; fill: #FFFFFF; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
       }
       
-      // Texto vertical a la derecha
+      // Texto vertical a la derecha - reducido 25% + escalado adaptativamente
       if (corredores) {
-        svg += `  <text x="${width - 30}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 30}, ${height/2})" style="font-family: Arial, sans-serif; font-size: 18px; fill: rgba(255,255,255,0.7); letter-spacing: 1px;">${escapeForSvg(corredores)}</text>\n`;
+        svg += `  <text x="${width - 30}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 30}, ${height/2})" style="font-family: Arial, sans-serif; font-size: ${correSize}px; fill: rgba(255,255,255,0.7); letter-spacing: 1px;">${escapeForSvg(corredores)}</text>\n`;
       }
       
       svg += `</svg>`;
@@ -2274,13 +2285,13 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         letter-spacing: 0px;
       }
       
-      /* Dirección - tono celeste oscuro */
+      /* Dirección - misma tipografía que el tipo de propiedad */
       .vip-direccion { 
-        font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 15px; 
-        font-weight: 500; 
-        fill: #5a6f82; 
-        letter-spacing: 0.1px;
+        font-family: 'Playfair Display', Georgia, serif; 
+        font-size: 30px; 
+        font-weight: 700; 
+        fill: #2d4458; 
+        letter-spacing: 0px;
       }
       
       /* Valores de características - azul grisáceo */
