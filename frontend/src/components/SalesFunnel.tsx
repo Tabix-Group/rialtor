@@ -83,11 +83,11 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         reservas: 65,        // 65% de captaciones a reservas
         cierres: 90          // 90% de reservas a cierres
       },
-      cold: { // Bases Frías (no proporcionadas, asumimos iguales a hot para experto)
-        tasaciones: 70,
-        captaciones: 70,
-        reservas: 65,
-        cierres: 90
+      cold: { // Bases Frías (Inhabilitadas para experto - Solo trabaja con referidos)
+        tasaciones: 0,
+        captaciones: 0,
+        reservas: 0,
+        cierres: 0
       }
     }
   }
@@ -160,6 +160,9 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     const ratesHot = conversionRatesByLevel[level].hot
     const ratesCold = conversionRatesByLevel[level].cold
     
+    // Si es experto, las bases frías siempre son 0
+    const actualFriasCount = level === 'experto' ? 0 : friasCount;
+
     // Calcular valores automáticamente para REFERIDOS (hot)
     const tasacionesHot = Math.round((prospectsCount * ratesHot.tasaciones) / 100)
     const captacionesHot = Math.round((tasacionesHot * ratesHot.captaciones) / 100)
@@ -167,7 +170,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     const cierresHot = Math.round((reservasHot * ratesHot.cierres) / 100)
 
     // Calcular valores automáticamente para BASES FRÍAS (cold)
-    const tasacionesCold = Math.round((friasCount * ratesCold.tasaciones) / 100)
+    const tasacionesCold = Math.round((actualFriasCount * ratesCold.tasaciones) / 100)
     const captacionesCold = Math.round((tasacionesCold * ratesCold.captaciones) / 100)
     const reservasCold = Math.round((captacionesCold * ratesCold.reservas) / 100)
     const cierresCold = Math.round((reservasCold * ratesCold.cierres) / 100)
@@ -176,7 +179,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       { 
         ...stages[0],
         clientsHot: prospectsCount,
-        clientsCold: friasCount
+        clientsCold: actualFriasCount
       },
       { 
         ...stages[1],
@@ -252,6 +255,9 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
   // --- HANDLE INPUT CHANGE (SOLO EDITAR: Prospectos - Stage 1) ---
   const handleInputChange = (stageId: number, field: 'clientsHot' | 'clientsCold', value: string) => {
+    // Si es experto, no se pueden editar bases frías
+    if (agentLevel === 'experto' && field === 'clientsCold') return;
+
     const numValue = value === '' ? 0 : Math.max(0, parseInt(value) || 0)
     
     // Solo permitir edición en Stage 1 (Prospectos) para ambos campos
@@ -514,22 +520,22 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                   <div className="col-span-3 flex justify-start pl-8 relative">
                     <div className="flex flex-col items-start group-hover:translate-x-2 transition-transform duration-300">
                       <div className="relative">
-                        <div className="absolute top-1/2 -left-6 w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.6)] ring-4 ring-white"></div>
+                        <div className={`absolute top-1/2 -left-6 w-2.5 h-2.5 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.6)] ring-4 ring-white ${agentLevel === 'experto' ? 'bg-slate-300' : 'bg-indigo-500'}`}></div>
                         <input
                           type="number"
                           min="0"
                           value={stage.clientsCold}
                           onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                          disabled={index !== 0}
+                          disabled={index !== 0 || agentLevel === 'experto'}
                           className={`w-24 text-left text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors ${
-                            index === 0
+                            index === 0 && agentLevel !== 'experto'
                               ? 'text-slate-700 hover:text-indigo-600 cursor-text'
                               : 'text-slate-400 cursor-not-allowed opacity-60'
                           }`}
                         />
                       </div>
-                      <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded mt-1">
-                        {totalClients === 0 ? '—' : `${Math.round(coldPercent)}%`}
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded mt-1 ${agentLevel === 'experto' ? 'text-slate-400 bg-slate-50' : 'text-indigo-600 bg-indigo-50'}`}>
+                        {totalClients === 0 || agentLevel === 'experto' ? '0%' : `${Math.round(coldPercent)}%`}
                       </span>
                     </div>
                   </div>
@@ -545,9 +551,9 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
               <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]"></div>
               <span>Referidos (Barra Blanca)</span>
             </div>
-            <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
-              <div className="w-3 h-3 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
-              <span>Bases Frías (Fondo Oscuro)</span>
+            <div className={`flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 ${agentLevel === 'experto' ? 'opacity-50 grayscale' : ''}`}>
+              <div className={`w-3 h-3 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.8)] ${agentLevel === 'experto' ? 'bg-slate-400 shadow-none' : 'bg-indigo-500'}`}></div>
+              <span>Bases Frías {agentLevel === 'experto' && '(Inhabilitado)'}</span>
             </div>
           </div>
 
