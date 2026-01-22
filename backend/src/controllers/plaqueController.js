@@ -2434,6 +2434,11 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    
+    <!-- ClipPath para proteger la dirección del desbordamiento -->
+    <clipPath id="direccionClipPath">
+      <rect x="0" y="${contentY + 20}" width="${width - 100}" height="50" />
+    </clipPath>
   </defs>
   
   <!-- === ÁREA DE CONTENIDO PRINCIPAL === -->
@@ -2457,28 +2462,31 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   if (direccion) {
     // Calcular ancho aproximado del tipo (Playfair Display 30px, bold, serif)
-    // Usar cálculo muy generoso para evitar superposición
     const tipoWidth = tipo.length * 21; // Ajustado a 21px por carácter
     const separatorX = infoStartX + tipoWidth + 30; // Margen de 30px
     
-    // Calcular espacio disponible para la dirección (desde separador hasta el borde derecho con margen)
-    const maxDireccionWidth = width - separatorX - 60; // 60px de margen final
+    // Espacio disponible para la dirección - MÁS RESTRICTIVO
+    // Dejar margen de 80px desde el borde derecho para evitar que se salga
+    const maxDireccionX = width - 100; // Margen final de 100px
+    const maxDireccionWidth = maxDireccionX - separatorX - 35; // 35px de espacio antes de la dirección
     
     // Calcular tamaño de fuente dinámico basado en la longitud de la dirección
-    // Tamaño base: 30px, pero reducir si el texto es muy largo
+    // Usar ratio más conservador: 0.55 (tipografía serif es más ancha)
     let direccionFontSize = 30;
-    const estimatedDireccionWidth = direccion.length * (30 * 0.6); // 0.6 es ratio ancho/altura aproximado
+    const charWidthRatio = 0.55; // Ratio ancho/altura para Playfair Display
+    const estimatedDireccionWidth = direccion.length * (30 * charWidthRatio);
     
     if (estimatedDireccionWidth > maxDireccionWidth) {
-      // Si no cabe, calcular tamaño proporcional
-      direccionFontSize = Math.max(16, Math.floor((maxDireccionWidth / direccion.length) / 0.6));
+      // Si no cabe, calcular tamaño proporcional de forma más conservadora
+      direccionFontSize = Math.max(14, Math.floor((maxDireccionWidth / direccion.length) / charWidthRatio * 0.9)); // 0.9 para dejar margen extra
     }
     
     // Separador vertical entre tipo y dirección
     svg += `  <line x1="${separatorX}" y1="${currentY - 20}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
     
     // Dirección a la derecha del separador con tamaño adaptativo
-    svg += `  <text x="${separatorX + 30}" y="${currentY}" class="vip-direccion" style="font-size: ${direccionFontSize}px;">${direccion}</text>\n`;
+    // Usar text-anchor="start" para mejor control y añadir clip-path si es necesario
+    svg += `  <text x="${separatorX + 35}" y="${currentY}" class="vip-direccion" style="font-size: ${direccionFontSize}px; overflow: hidden;" clip-path="url(#direccionClipPath)">${direccion}</text>\n`;
   }
   
   currentY += 28;
