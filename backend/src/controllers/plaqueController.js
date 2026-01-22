@@ -2461,11 +2461,24 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
     const tipoWidth = tipo.length * 21; // Ajustado a 21px por carácter
     const separatorX = infoStartX + tipoWidth + 30; // Margen de 30px
     
+    // Calcular espacio disponible para la dirección (desde separador hasta el borde derecho con margen)
+    const maxDireccionWidth = width - separatorX - 60; // 60px de margen final
+    
+    // Calcular tamaño de fuente dinámico basado en la longitud de la dirección
+    // Tamaño base: 30px, pero reducir si el texto es muy largo
+    let direccionFontSize = 30;
+    const estimatedDireccionWidth = direccion.length * (30 * 0.6); // 0.6 es ratio ancho/altura aproximado
+    
+    if (estimatedDireccionWidth > maxDireccionWidth) {
+      // Si no cabe, calcular tamaño proporcional
+      direccionFontSize = Math.max(16, Math.floor((maxDireccionWidth / direccion.length) / 0.6));
+    }
+    
     // Separador vertical entre tipo y dirección
     svg += `  <line x1="${separatorX}" y1="${currentY - 20}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
     
-    // Dirección a la derecha del separador
-    svg += `  <text x="${separatorX + 30}" y="${currentY}" class="vip-direccion">${direccion}</text>\n`;
+    // Dirección a la derecha del separador con tamaño adaptativo
+    svg += `  <text x="${separatorX + 30}" y="${currentY}" class="vip-direccion" style="font-size: ${direccionFontSize}px;">${direccion}</text>\n`;
   }
   
   currentY += 28;
