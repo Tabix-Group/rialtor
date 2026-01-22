@@ -26,6 +26,7 @@ interface FunnelStage {
 }
 
 type AgentLevel = 'inicial' | 'intermedio' | 'experto'
+type ClientType = 'hot' | 'cold' // referidos vs bases frías
 
 interface ConversionRates {
   tasaciones: number
@@ -34,30 +35,59 @@ interface ConversionRates {
   cierres: number
 }
 
+interface ConversionRatesByType {
+  hot: ConversionRates // Referidos
+  cold: ConversionRates // Bases Frías
+}
+
 interface SalesFunnelProps {
   onSave?: (data: FunnelStage[]) => void
 }
 
 export default function SalesFunnel({ onSave }: SalesFunnelProps) {
-  // --- TASAS DE CONVERSIÓN POR NIVEL ---
-  const conversionRatesByLevel: Record<AgentLevel, ConversionRates> = {
+  // --- TASAS DE CONVERSIÓN POR NIVEL Y TIPO DE CLIENTE ---
+  const conversionRatesByLevel: Record<AgentLevel, ConversionRatesByType> = {
     inicial: {
-      tasaciones: 59,
-      captaciones: 60,
-      reservas: 45,
-      cierres: 65
+      hot: { // Referidos - tasas más altas
+        tasaciones: 59,
+        captaciones: 60,
+        reservas: 45,
+        cierres: 65
+      },
+      cold: { // Bases Frías - tasas más bajas
+        tasaciones: 29,
+        captaciones: 83,
+        reservas: 43,
+        cierres: 65
+      }
     },
     intermedio: {
-      tasaciones: 65,
-      captaciones: 70,
-      reservas: 50,
-      cierres: 80
+      hot: {
+        tasaciones: 65,
+        captaciones: 70,
+        reservas: 50,
+        cierres: 80
+      },
+      cold: {
+        tasaciones: 35,
+        captaciones: 50,
+        reservas: 40,
+        cierres: 80
+      }
     },
     experto: {
-      tasaciones: 70,
-      captaciones: 70,
-      reservas: 65,
-      cierres: 90
+      hot: {
+        tasaciones: 70,
+        captaciones: 70,
+        reservas: 65,
+        cierres: 90
+      },
+      cold: {
+        tasaciones: 70,
+        captaciones: 70,
+        reservas: 65,
+        cierres: 90
+      }
     }
   }
 
@@ -126,13 +156,20 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
   // --- FUNCIÓN PARA RECALCULAR VALORES SEGÚN NIVEL ---
   const recalculateStages = (prospectsCount: number, referidosCount: number, friasCount: number, level: AgentLevel) => {
-    const rates = conversionRatesByLevel[level]
+    const ratesHot = conversionRatesByLevel[level].hot
+    const ratesCold = conversionRatesByLevel[level].cold
     
-    // Calcular valores automáticamente basados en porcentajes
-    const tasaciones = Math.round((prospectsCount * rates.tasaciones) / 100)
-    const captaciones = Math.round((tasaciones * rates.captaciones) / 100)
-    const reservas = Math.round((captaciones * rates.reservas) / 100)
-    const cierres = Math.round((reservas * rates.cierres) / 100)
+    // Calcular valores automáticamente para REFERIDOS (hot)
+    const tasacionesHot = Math.round((prospectsCount * ratesHot.tasaciones) / 100)
+    const captacionesHot = Math.round((tasacionesHot * ratesHot.captaciones) / 100)
+    const reservasHot = Math.round((captacionesHot * ratesHot.reservas) / 100)
+    const cierresHot = Math.round((reservasHot * ratesHot.cierres) / 100)
+
+    // Calcular valores automáticamente para BASES FRÍAS (cold)
+    const tasacionesCold = Math.round((friasCount * ratesCold.tasaciones) / 100)
+    const captacionesCold = Math.round((tasacionesCold * ratesCold.captaciones) / 100)
+    const reservasCold = Math.round((captacionesCold * ratesCold.reservas) / 100)
+    const cierresCold = Math.round((reservasCold * ratesCold.cierres) / 100)
 
     return [
       { 
@@ -142,23 +179,23 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
       },
       { 
         ...stages[1],
-        clientsHot: tasaciones,
-        clientsCold: 0
+        clientsHot: tasacionesHot,
+        clientsCold: tasacionesCold
       },
       { 
         ...stages[2],
-        clientsHot: captaciones,
-        clientsCold: 0
+        clientsHot: captacionesHot,
+        clientsCold: captacionesCold
       },
       { 
         ...stages[3],
-        clientsHot: reservas,
-        clientsCold: 0
+        clientsHot: reservasHot,
+        clientsCold: reservasCold
       },
       { 
         ...stages[4],
-        clientsHot: cierres,
-        clientsCold: referidosCount
+        clientsHot: cierresHot,
+        clientsCold: cierresCold
       },
     ]
   }
@@ -209,16 +246,12 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     return { hotPercent, coldPercent, conversionRate }
   }
 
-  // --- HANDLE INPUT CHANGE (SOLO EDITAR: Prospectos, Referidos, Bases Frías) ---
+  // --- HANDLE INPUT CHANGE (SOLO EDITAR: Prospectos - Stage 1) ---
   const handleInputChange = (stageId: number, field: 'clientsHot' | 'clientsCold', value: string) => {
     const numValue = value === '' ? 0 : Math.max(0, parseInt(value) || 0)
     
-    // Solo permitir edición en:
-    // - Stage 1 (Prospectos): clientsHot y clientsCold (Prospectos y Bases Frías)
-    // - Stage 5 (Cierres): clientsCold (Referidos)
-    const isEditable = 
-      (stageId === 1 && (field === 'clientsHot' || field === 'clientsCold')) ||
-      (stageId === 5 && field === 'clientsCold')
+    // Solo permitir edición en Stage 1 (Prospectos) para ambos campos
+    const isEditable = stageId === 1
 
     if (!isEditable) return
 
@@ -231,9 +264,8 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
     // Recalcular automáticamente los demás valores
     const prospectsCount = updatedStages[0].clientsHot
-    const referidosCount = updatedStages[4].clientsCold
     const friasCount = updatedStages[0].clientsCold
-    const newStages = recalculateStages(prospectsCount, referidosCount, friasCount, agentLevel)
+    const newStages = recalculateStages(prospectsCount, 0, friasCount, agentLevel)
     setStages(newStages)
   }
 
@@ -288,27 +320,6 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                 Visualiza el rendimiento de tu pipeline, analiza tasas de conversión y gestiona tus referidos en tiempo real.
               </p>
 
-              {/* Selector de Nivel */}
-              <div className="mb-6 p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-300 mb-3">Selecciona tu nivel de Agente:</label>
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                  {(['inicial', 'intermedio', 'experto'] as const).map((level) => (
-                    <button
-                      key={level}
-                      onClick={() => handleAgentLevelChange(level)}
-                      className={`px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
-                        agentLevel === level
-                          ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50 ring-2 ring-blue-300'
-                          : 'bg-white/10 text-slate-300 hover:bg-white/20 border border-white/20'
-                      }`}
-                    >
-                      <Award className="w-4 h-4" />
-                      {level.charAt(0).toUpperCase() + level.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <button
                 onClick={handleSave}
                 disabled={isSaving}
@@ -357,6 +368,31 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
         </div>
       </div>
 
+      {/* --- SELECTOR DE NIVEL (Entre Header y Embudo) --- */}
+      <div className="relative bg-gradient-to-b from-slate-50 via-blue-50/20 to-indigo-50/10">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200/60 p-6 sm:p-8">
+            <label className="block text-sm sm:text-base font-semibold text-slate-700 mb-4">Selecciona tu nivel de Agente:</label>
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              {(['inicial', 'intermedio', 'experto'] as const).map((level) => (
+                <button
+                  key={level}
+                  onClick={() => handleAgentLevelChange(level)}
+                  className={`px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 ${
+                    agentLevel === level
+                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50 ring-2 ring-blue-300'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
+                  }`}
+                >
+                  <Award className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {level.charAt(0).toUpperCase() + level.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* --- CUERPO PRINCIPAL --- */}
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
         {/* Tarjeta Blanca del Embudo */}
@@ -390,9 +426,9 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
                           min="0"
                           value={stage.clientsHot}
                           onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                          disabled={!(index === 0 || (index === 4 && stage.id === 5))}
+                          disabled={index !== 0}
                           className={`w-24 text-right text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors ${
-                            index === 0 || (index === 4 && stage.id === 5)
+                            index === 0
                               ? 'text-slate-700 hover:text-cyan-600 cursor-text'
                               : 'text-slate-400 cursor-not-allowed opacity-60'
                           }`}
