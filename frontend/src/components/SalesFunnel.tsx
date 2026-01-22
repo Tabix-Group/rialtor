@@ -46,43 +46,44 @@ interface SalesFunnelProps {
 
 export default function SalesFunnel({ onSave }: SalesFunnelProps) {
   // --- TASAS DE CONVERSIÓN POR NIVEL Y TIPO DE CLIENTE ---
+  // Estos porcentajes representan la conversión de una etapa a la siguiente
   const conversionRatesByLevel: Record<AgentLevel, ConversionRatesByType> = {
     inicial: {
-      hot: { // Referidos - tasas más altas
-        tasaciones: 59,
-        captaciones: 60,
-        reservas: 45,
-        cierres: 65
+      hot: { // Referidos
+        tasaciones: 59,      // 59% de prospectos a tasaciones
+        captaciones: 60,     // 60% de tasaciones a captaciones
+        reservas: 45,        // 45% de captaciones a reservas
+        cierres: 65          // 65% de reservas a cierres
       },
-      cold: { // Bases Frías - tasas más bajas
-        tasaciones: 29,
-        captaciones: 83,
-        reservas: 43,
-        cierres: 65
+      cold: { // Bases Frías
+        tasaciones: 14,      // 14% de prospectos a tasaciones
+        captaciones: 29,     // 29% de tasaciones a captaciones
+        reservas: 43,        // 43% de captaciones a reservas
+        cierres: 63          // 63% de reservas a cierres
       }
     },
     intermedio: {
-      hot: {
-        tasaciones: 65,
-        captaciones: 70,
-        reservas: 50,
-        cierres: 80
+      hot: { // Referidos
+        tasaciones: 65,      // 65% de prospectos a tasaciones
+        captaciones: 70,     // 70% de tasaciones a captaciones
+        reservas: 50,        // 50% de captaciones a reservas
+        cierres: 80          // 80% de reservas a cierres
       },
-      cold: {
-        tasaciones: 35,
-        captaciones: 50,
-        reservas: 40,
-        cierres: 80
+      cold: { // Bases Frías
+        tasaciones: 17,      // 17% de prospectos a tasaciones
+        captaciones: 35,     // 35% de tasaciones a captaciones
+        reservas: 40,        // 40% de captaciones a reservas
+        cierres: 80          // 80% de reservas a cierres
       }
     },
     experto: {
-      hot: {
-        tasaciones: 70,
-        captaciones: 70,
-        reservas: 65,
-        cierres: 90
+      hot: { // Referidos
+        tasaciones: 70,      // 70% de prospectos a tasaciones
+        captaciones: 70,     // 70% de tasaciones a captaciones
+        reservas: 65,        // 65% de captaciones a reservas
+        cierres: 90          // 90% de reservas a cierres
       },
-      cold: {
+      cold: { // Bases Frías (no proporcionadas, asumimos iguales a hot para experto)
         tasaciones: 70,
         captaciones: 70,
         reservas: 65,
