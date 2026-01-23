@@ -104,14 +104,14 @@ const commissionsData: CommissionSection[] = [
       {
         name: "Locador",
         description: "Comisión a cargo del dueño",
-        seller: { min: 5.0, max: 5.0 },
+        seller: { min: 3.0, max: 5.0 },
         buyer: { min: 0, max: 0 },
       },
       {
         name: "Locatario",
         description: "Comisión a cargo del inquilino",
         seller: { min: 0, max: 0 },
-        buyer: { min: 3.0, max: 5.0 },
+        buyer: { min: 5.0, max: 5.0 },
         notes: "Opcional, 1 Mes",
       },
     ],
@@ -123,7 +123,7 @@ const commissionsData: CommissionSection[] = [
       {
         name: "Locador",
         description: "Comisión a cargo del dueño",
-        seller: { min: 4.0, max: 4.0 },
+        seller: { min: 2.0, max: 4.0 },
         buyer: { min: 0, max: 0 },
       },
       {
@@ -142,14 +142,14 @@ const commissionsData: CommissionSection[] = [
       {
         name: "Locador",
         description: "Comisión a cargo del dueño",
-        seller: { min: 10.0, max: 10.0 },
+        seller: { min: 5.0, max: 10.0 },
         buyer: { min: 0, max: 0 },
       },
       {
         name: "Locatario",
         description: "Comisión a cargo del inquilino",
         seller: { min: 0, max: 0 },
-        buyer: { min: 20.0, max: 20.0 },
+        buyer: { min: 10.0, max: 20.0 },
         notes: "10.00 %",
       },
     ],
