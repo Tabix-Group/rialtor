@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { TrendingUp, TrendingDown, DollarSign, RefreshCw, Info, BarChart3 } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import RealEstateCommissions from "@/components/RealEstateCommissions"
 
 interface DolarRate {
   compra: number
@@ -564,6 +565,9 @@ export default function IndicadoresPage() {
             </div>
           </section>
         )}
+
+        {/* Esquemas de Comisiones Inmobiliarias */}
+        <RealEstateCommissions />
 
         {/* Índices Económicos */}
         {economicIndexes && (
