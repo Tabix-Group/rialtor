@@ -330,7 +330,7 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
     }
     
     // 1. Subir imágenes originales a Cloudinary
-    console.log('[PLACAS VIP] Subiendo imágenes originales...');
+    console.log('[PLACAS VIP] Subiendo imágenes originales y convirtiendo...');
     const originalImageUrls = [];
     
     const interiorResult = await uploadImageToCloudinary(interiorImage.buffer, `placas/originales/${plaqueId}`);
@@ -339,11 +339,25 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
     const exteriorResult = await uploadImageToCloudinary(exteriorImage.buffer, `placas/originales/${plaqueId}`);
     originalImageUrls.push(exteriorResult.secure_url);
     
+    let agentResult = null;
     if (agentImage) {
-      const agentResult = await uploadImageToCloudinary(agentImage.buffer, `placas/originales/${plaqueId}`);
+      agentResult = await uploadImageToCloudinary(agentImage.buffer, `placas/originales/${plaqueId}`);
       originalImageUrls.push(agentResult.secure_url);
     }
     
+    // [FIX] Descargar buffers seguros (JPG) desde Cloudinary para evitar errores de formato (HEIC/HEIF)
+    console.log('[PLACAS VIP] Descargando versiones JPG sanitizadas...');
+    const fetchImageBuffer = async (url) => {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`Error descargando imagen saneada: ${url}`);
+      const arr = await resp.arrayBuffer();
+      return Buffer.from(arr);
+    };
+
+    const interiorBufferSafe = await fetchImageBuffer(interiorResult.secure_url);
+    const exteriorBufferSafe = await fetchImageBuffer(exteriorResult.secure_url);
+    const agentBufferSafe = agentResult ? await fetchImageBuffer(agentResult.secure_url) : null;
+
     console.log('[PLACAS VIP] Imágenes originales subidas:', originalImageUrls.length);
     
     // 2. Actualizar registro con URLs originales
@@ -396,9 +410,9 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
         const vipPlaqueBuffer = await createVIPPlaqueOverlayFromBuffer(
           templateBuffer,
           propertyInfo,
-          interiorImage.buffer,
-          exteriorImage.buffer,
-          agentImage ? agentImage.buffer : null
+          interiorBufferSafe,
+          exteriorBufferSafe,
+          agentBufferSafe
         );
         
         console.log('[PLACAS VIP] Placa VIP generada desde template descargado');
@@ -433,9 +447,9 @@ async function processVIPPlaque(plaqueId, files, propertyInfo) {
     const vipPlaqueBuffer = await createVIPPlaqueOverlay(
       templatePath,
       propertyInfo,
-      interiorImage.buffer,
-      exteriorImage.buffer,
-      agentImage ? agentImage.buffer : null
+      interiorBufferSafe,
+      exteriorBufferSafe,
+      agentBufferSafe
     );
     
     console.log('[PLACAS VIP] Placa VIP generada, tamaño:', vipPlaqueBuffer.length);
