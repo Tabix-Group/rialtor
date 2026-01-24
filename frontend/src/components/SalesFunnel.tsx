@@ -42,9 +42,11 @@ interface ConversionRatesByType {
 
 interface SalesFunnelProps {
   onSave?: (data: FunnelStage[]) => void
+  showHeader?: boolean
+  externalHandleSave?: (fn: () => Promise<void>) => void
 }
 
-export default function SalesFunnel({ onSave }: SalesFunnelProps) {
+export default function SalesFunnel({ onSave, showHeader = true, externalHandleSave }: SalesFunnelProps) {
   // --- TASAS DE CONVERSIÓN POR NIVEL Y TIPO DE CLIENTE ---
   // Estos porcentajes representan la conversión de una etapa a la siguiente
   const conversionRatesByLevel: Record<AgentLevel, ConversionRatesByType> = {
@@ -154,6 +156,12 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
     setMounted(true)
     loadData()
   }, [])
+
+  useEffect(() => {
+    if (externalHandleSave) {
+      externalHandleSave(handleSave)
+    }
+  }, [externalHandleSave, stages, agentLevel])
 
   // --- FUNCIÓN PARA RECALCULAR VALORES SEGÚN NIVEL ---
   const recalculateStages = (prospectsCount: number, referidosCount: number, friasCount: number, level: AgentLevel) => {
@@ -304,10 +312,11 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
 
   return (
     // CONTENEDOR PRINCIPAL: Usa slate-50 para que los bordes no sean blancos puros, igual que Finanzas
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10 font-sans">
+    <div className={`${showHeader ? 'min-h-screen' : ''} bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10 font-sans`}>
       
       {/* --- HEADER (Copiado estructura de Finanzas) --- */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+      {showHeader && (
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
         {/* Pattern de fondo (SVG) */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItaDJWMzZoLTJ6bTAtNHYyaDJWMzBoLTJ6bTAtNHYyaDJWMjZoLTJ6bTAtNHYyaDJWMjJoLTJ6bTAtNHYyaDJWMThoLTJ6bTAtNHYyaDJWMTRoLTJ6bTAtNHYyaDJWMTBoLTJ6bTAtNHYyaDJWNmgtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-40"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-900/20 to-slate-900/90"></div>
@@ -376,7 +385,7 @@ export default function SalesFunnel({ onSave }: SalesFunnelProps) {
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* --- SELECTOR DE NIVEL (Entre Header y Embudo) --- */}
       <div className="relative bg-gradient-to-b from-slate-50 via-blue-50/20 to-indigo-50/10">

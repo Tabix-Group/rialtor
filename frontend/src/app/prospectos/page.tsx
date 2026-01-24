@@ -1,15 +1,16 @@
 "use client"
 
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import ProspectSummary from '../../components/prospects/ProspectSummary'
 import ProspectCard from '../../components/prospects/ProspectCard'
 import ProspectForm from '../../components/prospects/ProspectForm'
+import SalesFunnel from '@/components/SalesFunnel'
 import { useAuth } from '../auth/authContext'
 import { authenticatedFetch } from '@/utils/api'
 
 import type { Prospect, ProspectFormData, ProspectStats } from '../../types/prospect'
 
-type Stats = ProspectStats
+type Stats = ProspectStats & { totalPipeline?: number }
 
 export default function ProspectosPage() {
   const { user } = useAuth()
@@ -18,6 +19,10 @@ export default function ProspectosPage() {
   const [loading, setLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editing, setEditing] = useState<Prospect | null>(null)
+  
+  // Referencia para la función de guardado del funnel
+  const saveFunnelFn = useRef<(() => Promise<void>) | null>(null)
+  const [isSavingFunnel, setIsSavingFunnel] = useState(false)
 
   const load = useCallback(async () => {
     if (!user) return
@@ -41,9 +46,7 @@ export default function ProspectosPage() {
 
   useEffect(()=>{ if (user) load() },[user, load])
 
-  // Esta función ahora se pasa al Header nuevo para que el botón funcione
   const handleCreate = () => { setEditing(null); setIsFormOpen(true) }
-  
   const handleEdit = (p: Prospect) => { setEditing(p); setIsFormOpen(true) }
   
   const handleDelete = async (id: string) => {
@@ -58,74 +61,99 @@ export default function ProspectosPage() {
     try {
       if (editing) {
         const r = await authenticatedFetch(`/api/prospects/${editing.id}`, { method: 'PUT', body: JSON.stringify(form) })
-        const data = await r.json()
         if (r.ok) {
           setIsFormOpen(false); setEditing(null); load()
-        } else {
-          console.error('Error updating prospect', data)
         }
       } else {
         const r = await authenticatedFetch('/api/prospects', { method: 'POST', body: JSON.stringify(form) })
-        const data = await r.json()
         if (r.ok) {
           setIsFormOpen(false); load()
-        } else {
-          console.error('Error creating prospect', data)
         }
       }
     } catch (e) { console.error('Error saving prospect', e) }
   }
 
+  const handleSaveFunnel = async () => {
+    if (saveFunnelFn.current) {
+      setIsSavingFunnel(true)
+      await saveFunnelFn.current()
+      setIsSavingFunnel(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pb-20">
       
-      {/* 1. EL ENCABEZADO AZUL NUEVO:
-        Lo colocamos aquí, FUERA del contenedor con padding. 
-        Así ocupa todo el ancho de la pantalla (full width).
-      */}
-      <ProspectSummary stats={stats} onCreateClick={handleCreate} />
+      {/* 1. ENCABEZADO UNIFICADO CON 6 KPIs */}
+      <ProspectSummary 
+        stats={stats} 
+        onCreateClick={handleCreate} 
+        onSaveFunnel={handleSaveFunnel}
+        isSavingFunnel={isSavingFunnel}
+      />
 
-      {/* 2. CONTENIDO PRINCIPAL (Formularios y Tarjetas):
-        Este sí lleva padding y max-width para que quede centrado y prolijo.
-      */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         
-        <div className="space-y-6">
-          {/* El Formulario se muestra aquí si está abierto */}
-          {isFormOpen && (
-            <div className="animate-in fade-in slide-in-from-top duration-300">
-               <ProspectForm 
-                 initial={editing || undefined} 
-                 onCancel={() => { setIsFormOpen(false); setEditing(null) }} 
-                 onSave={handleSave} 
-               />
+        <div className="space-y-16">
+          
+          {/* 2. SECCIÓN DEL FUNNEL (Nuevas Proyecciones) */}
+          <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="h-10 w-1 bg-blue-600 rounded-full"></div>
+              <h2 className="text-3xl font-bold text-slate-800">Embudo de Proyecciones</h2>
             </div>
-          )}
+            
+            <SalesFunnel 
+              showHeader={false} 
+              externalHandleSave={(fn) => { saveFunnelFn.current = fn }} 
+            />
+          </section>
 
-          {/* Grilla de Tarjetas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loading ? (
-              <div className="col-span-full py-20 text-center text-slate-500">
-                Cargando prospectos...
+          {/* 3. SECCIÓN DE PROSPECTOS (Lista) */}
+          <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-1 bg-cyan-500 rounded-full"></div>
+                <h2 className="text-3xl font-bold text-slate-800">Nuevos Prospectos</h2>
               </div>
-            ) : prospects.length === 0 ? (
-              <div className="col-span-full py-20 text-center bg-white rounded-2xl border border-dashed border-slate-300">
-                <p className="text-slate-500 mb-4">No tienes prospectos cargados aún.</p>
-                <button onClick={handleCreate} className="text-blue-600 font-semibold hover:underline">
-                  Crea tu primer prospecto
-                </button>
+            </div>
+
+            {/* El Formulario se muestra aquí si está abierto */}
+            {isFormOpen && (
+              <div className="mb-10 animate-in fade-in zoom-in-95 duration-300">
+                 <ProspectForm 
+                   initial={editing || undefined} 
+                   onCancel={() => { setIsFormOpen(false); setEditing(null) }} 
+                   onSave={handleSave} 
+                 />
               </div>
-            ) : (
-              prospects.map((p) => (
-                <ProspectCard 
-                  key={p.id} 
-                  prospect={p} 
-                  onEdit={handleEdit} 
-                  onDelete={handleDelete} 
-                />
-              ))
             )}
-          </div>
+
+            {/* Grilla de Tarjetas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {loading ? (
+                <div className="col-span-full py-20 text-center text-slate-500">
+                  Cargando prospectos...
+                </div>
+              ) : prospects.length === 0 ? (
+                <div className="col-span-full py-20 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+                  <p className="text-slate-500 mb-4">No tienes prospectos cargados aún.</p>
+                  <button onClick={handleCreate} className="text-blue-600 font-semibold hover:underline">
+                    Crea tu primer prospecto
+                  </button>
+                </div>
+              ) : (
+                prospects.map((p) => (
+                  <ProspectCard 
+                    key={p.id} 
+                    prospect={p} 
+                    onEdit={handleEdit} 
+                    onDelete={handleDelete} 
+                  />
+                ))
+              )}
+            </div>
+          </section>
         </div>
       </div>
     </div>

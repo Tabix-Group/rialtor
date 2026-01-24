@@ -96,16 +96,10 @@ function Navigation() {
     // --- NEGOCIO (CRM & VENTAS) ---
     // Movido hacia arriba porque es el núcleo del trabajo
     {
-      name: "Mis Prospectos",
+      name: "Gestión Comercial",
       href: "/prospectos",
       icon: User2,
-      description: "Gestión de prospectos y conversiones",
-    },
-    {
-      name: "Mis Proyecciones",
-      href: "/mis-proyecciones",
-      icon: BarChart3,
-      description: "Visualiza tu pipeline de ventas",
+      description: "Prospectos, proyecciones y funnel",
     },
     {
       name: "Mis Finanzas",

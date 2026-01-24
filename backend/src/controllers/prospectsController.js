@@ -156,13 +156,14 @@ const getStats = async (req, res, next) => {
     });
 
     const clientsSumRaw = await prisma.prospect.aggregate({
-      _sum: { clientsProspected: true },
+      _sum: { clientsProspected: true, estimatedValue: true },
       where
     });
 
     const avgSale = avgSaleRaw._avg.closedValue || 0;
     const avgCommission = avgCommissionRaw._avg.estimatedCommission || 0;
     const clientsProspected = clientsSumRaw._sum.clientsProspected || 0;
+    const totalPipeline = clientsSumRaw._sum.estimatedValue || 0;
     const conversionRate = total > 0 ? (wonCount / total) * 100 : 0;
 
     res.json({
@@ -172,6 +173,7 @@ const getStats = async (req, res, next) => {
         avgSale,
         avgCommission,
         clientsProspected,
+        totalPipeline,
         conversionRate
       }
     });
