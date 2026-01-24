@@ -53,7 +53,7 @@ const AVAILABLE_TEMPLATES = [
     preview: {
       background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
       headerBorder: 'none',
-      headerBg: '',
+      headerBg: '#ffffff',
       headerGradient: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
       textColor: '#0f172a',
       accentColor: '#64748b',
@@ -80,7 +80,7 @@ const AVAILABLE_TEMPLATES = [
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
       headerBorder: 'none',
       headerBg: 'rgba(255, 255, 255, 0.95)',
-      headerGradient: '',
+      headerGradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       textColor: '#1a202c',
       accentColor: '#667eea',
       cardBg: 'rgba(255, 255, 255, 0.95)',
@@ -106,7 +106,7 @@ const AVAILABLE_TEMPLATES = [
     preview: {
       background: 'linear-gradient(180deg, #fdfcfb 0%, #f6f3ed 100%)',
       headerBorder: '3px solid #d4af37',
-      headerBg: '',
+      headerBg: '#fdfcfb',
       headerGradient: 'linear-gradient(135deg, #8b7355 0%, #a0826d 100%)',
       textColor: '#5a4a3a',
       accentColor: '#d4af37',
@@ -133,7 +133,7 @@ const AVAILABLE_TEMPLATES = [
     preview: {
       background: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)',
       headerBorder: 'none',
-      headerBg: '',
+      headerBg: '#ffffff',
       headerGradient: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
       textColor: '#1e293b',
       accentColor: '#3b82f6',
@@ -521,6 +521,11 @@ export default function NewsletterPage() {
 
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
+  const cleanText = (text: string) => {
+    // Elimina "Leer más", "Read more" y puntos suspensivos al final
+    return text.replace(/\s*(Leer más|Read more|Continúa leyendo)\.*$/i, '').trim();
+  };
+
   const downloadNewsletterAsPDF = async (newsletter: Newsletter) => {
     if (isGeneratingPDF) return;
     setIsGeneratingPDF(true);
@@ -565,7 +570,6 @@ export default function NewsletterPage() {
 
       tempDiv.innerHTML = `
         <div style="padding: 20mm; box-sizing: border-box; width: 100%; margin: 0; padding: 15mm 20mm;">
-          <!-- Header Section -->
           <div style="
             ${isGradientHeader ? `background: ${headerBackground};` : `background-color: ${headerBackground};`}
             padding: ${styles.headerPadding || '40px'};
@@ -590,7 +594,6 @@ export default function NewsletterPage() {
             ">${new Date(newsletter.createdAt).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
 
-          <!-- Content Section -->
           <div style="
             margin-bottom: 30px;
             line-height: ${styles.lineHeight || '1.8'};
@@ -600,7 +603,6 @@ export default function NewsletterPage() {
             ${contentBlocks}
           </div>
 
-          <!-- News Section -->
           ${newsletter.news && newsletter.news.length > 0 ? `
             <div style="margin-bottom: 40px; margin-top: 20px; padding-top: 20px;">
               <h3 style="
@@ -621,7 +623,7 @@ export default function NewsletterPage() {
                     border: ${styles.cardBorder};
                   " class="pdf-block">
                     <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 10px 0; font-weight: 600; line-height: 1.3;">${news.title}</h4>
-                    <p style="color: ${styles.textColor}; margin: 0 0 10px 0; line-height: 1.6; font-size: 10pt;">${news.synopsis}</p>
+                    <p style="color: ${styles.textColor}; margin: 0 0 10px 0; line-height: 1.6; font-size: 10pt;">${cleanText(news.synopsis)}</p>
                     <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
                   </div>
                 ` : '';
@@ -629,7 +631,6 @@ export default function NewsletterPage() {
             </div>
           ` : ''}
 
-          <!-- Properties Section -->
           ${newsletter.properties && newsletter.properties.length > 0 ? `
             <div style="margin-bottom: 40px; margin-top: 40px; padding-top: 20px;">
               <h3 style="
@@ -651,9 +652,15 @@ export default function NewsletterPage() {
                       margin-bottom: 10px;
                     " class="pdf-block">
                       ${property.generatedImages && property.generatedImages.length > 0 ? `
-                        <img src="${property.generatedImages[0]}" 
-                             alt="${property.title}" 
-                             style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 12px; display: block;" />
+                        <div style="
+                          width: 100%;
+                          height: 120px;
+                          background-image: url('${property.generatedImages[0]}');
+                          background-size: cover;
+                          background-position: center;
+                          border-radius: 6px;
+                          margin-bottom: 12px;
+                        "></div>
                       ` : ''}
                       <h4 style="color: ${styles.textColor}; font-size: 11pt; margin: 0 0 10px 0; font-weight: 600; line-height: 1.3;">${property.title}</h4>
                       <div style="font-size: 9pt; color: ${styles.accentColor}; line-height: 1.6;">
@@ -670,7 +677,6 @@ export default function NewsletterPage() {
             </div>
           ` : ''}
 
-          <!-- Additional Images Section (antes del agente) -->
           ${newsletter.images && newsletter.images.length > 0 ? `
             <div style="margin-bottom: 40px; margin-top: 40px; padding-top: 20px;">
               <h3 style="
@@ -683,16 +689,21 @@ export default function NewsletterPage() {
               <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                 ${newsletter.images.map((imageUrl: string) => `
                   <div class="pdf-block">
-                    <img src="${imageUrl}" 
-                         alt="Imagen adicional" 
-                         style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />
+                    <div style="
+                      width: 100%;
+                      height: 150px;
+                      background-image: url('${imageUrl}');
+                      background-size: cover;
+                      background-position: center;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    "></div>
                   </div>
                 `).join('')}
               </div>
             </div>
           ` : ''}
 
-          <!-- Agent Info Section (al final) -->
           ${newsletter.agentInfo ? `
             <div style="
               background: ${styles.cardBg};
@@ -713,16 +724,16 @@ export default function NewsletterPage() {
               <div style="display: flex; align-items: flex-start; gap: 20px;">
                 ${newsletter.agentInfo.photo ? `
                   <div style="flex-shrink: 0;">
-                    <img src="${newsletter.agentInfo.photo}" 
-                         alt="${newsletter.agentInfo.name}"
-                         style="
-                           width: 80px;
-                           height: 80px;
-                           border-radius: 50%;
-                           object-fit: cover;
-                           border: 4px solid ${styles.accentColor};
-                           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                         " />
+                    <div style="
+                      width: 80px;
+                      height: 80px;
+                      border-radius: 50%;
+                      background-image: url('${newsletter.agentInfo.photo}');
+                      background-size: cover;
+                      background-position: center;
+                      border: 4px solid ${styles.accentColor};
+                      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    "></div>
                   </div>
                 ` : ''}
                 <div style="flex: 1;">
@@ -765,7 +776,6 @@ export default function NewsletterPage() {
             </div>
           ` : ''}
 
-          <!-- Footer -->
           <div style="
             text-align: center;
             color: ${styles.accentColor};
@@ -790,7 +800,7 @@ export default function NewsletterPage() {
         width: tempDiv.scrollWidth,
         windowWidth: 794, // A4 width in pixels at 96 DPI
         logging: false,
-        imageTimeout: 10000
+        imageTimeout: 15000 // Aumentado timeout para imágenes remotas
       });
 
       const pdf = new jsPDF({
@@ -847,6 +857,8 @@ export default function NewsletterPage() {
         
         const ctx = pageCanvas.getContext('2d');
         if (ctx) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
           ctx.drawImage(canvas, 0, currentSrcY, canvas.width, finalHeight, 0, 0, canvas.width, finalHeight);
           const pageImgData = pageCanvas.toDataURL('image/png', 0.8);
           
@@ -931,38 +943,53 @@ export default function NewsletterPage() {
                 }}
                 className="group relative bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-slate-300 hover:shadow-lg transition-all text-left"
               >
-                {/* Preview del template */}
+                {/* Preview del template - Diseño CSS Miniatura */}
                 <div 
-                  className="h-28 flex items-center justify-center relative"
+                  className="h-32 flex items-center justify-center relative overflow-hidden"
                   style={{
-                    background: template.preview.headerGradient || template.preview.background
+                    background: template.preview.background,
+                    padding: '20px'
                   }}
                 >
-                  <div className="text-center relative z-10">
-                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
-                      <Mail className="w-5 h-5" style={{ color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor }} />
+                  {/* Contenedor Miniatura */}
+                  <div className="w-full h-full bg-white shadow-sm flex flex-col scale-90 group-hover:scale-100 transition-transform origin-center border border-black/5">
+                    {/* Header Miniatura */}
+                    <div 
+                      className="h-8 w-full shrink-0"
+                      style={{
+                        background: template.preview.headerGradient || template.preview.headerBg || template.preview.background,
+                        borderBottom: template.preview.headerBorder
+                      }}
+                    />
+                    {/* Cuerpo Miniatura */}
+                    <div className="p-2 space-y-2" style={{ backgroundColor: template.preview.cardBg }}>
+                      <div className="h-2 w-3/4 rounded-sm opacity-20" style={{ backgroundColor: template.preview.textColor }} />
+                      <div className="h-2 w-full rounded-sm opacity-10" style={{ backgroundColor: template.preview.textColor }} />
+                      <div className="h-8 w-full rounded-sm opacity-5 mt-2" style={{ backgroundColor: template.preview.accentColor }} />
                     </div>
+                  </div>
+
+                  {/* Overlay con nombre en hover */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-end justify-center p-2">
+                    <div className="translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all bg-white/90 backdrop-blur px-2 py-1 rounded-full shadow-sm text-[10px] font-medium text-slate-900">
+                      Usar Plantilla
+                    </div>
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="p-4 bg-white relative z-10">
+                  <div className="flex items-center gap-2 mb-2">
                     <span 
-                      className="text-sm font-semibold"
-                      style={{ color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor }}
+                      className="text-sm font-bold"
+                      style={{ color: template.preview.headerGradient ? '#1e293b' : template.preview.textColor }}
                     >
                       {template.name}
                     </span>
                   </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-                </div>
-
-                {/* Info */}
-                <div className="p-4">
                   <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
                     {template.description}
                   </p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs font-medium text-slate-400">{template.features.length} características</span>
-                    <span className="text-xs font-medium text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1">
-                      Usar <ArrowRight className="w-3 h-3" />
-                    </span>
-                  </div>
                 </div>
               </button>
             ))}
@@ -1233,17 +1260,20 @@ export default function NewsletterPage() {
                       ))}
                     </select>
                     
-                    {/* Preview de plantilla seleccionada */}
-                    {(() => {
+                    {/* Preview de plantilla seleccionada en formulario */}
+                     {(() => {
                       const selectedTemplate = AVAILABLE_TEMPLATES.find(t => t.id === formData.template);
                       return selectedTemplate ? (
                         <div className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
                           <div className="flex items-start gap-3">
-                            <div 
-                              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                              style={{ background: selectedTemplate.preview.headerGradient || selectedTemplate.preview.background }}
+                            {/* Miniatura en select */}
+                             <div 
+                              className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 border border-slate-100"
+                              style={{ 
+                                background: selectedTemplate.preview.headerGradient || selectedTemplate.preview.background,
+                              }}
                             >
-                              <Mail className="w-5 h-5" style={{ color: selectedTemplate.preview.headerGradient ? '#ffffff' : selectedTemplate.preview.textColor }} />
+                               <div className="w-6 h-4 bg-white/20 rounded-sm" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <h4 className="text-sm font-semibold text-slate-900">{selectedTemplate.name}</h4>
@@ -1683,7 +1713,7 @@ export default function NewsletterPage() {
               </button>
             </div>
 
-            {/* Contenido */}
+            {/* Contenido Modal Plantillas */}
             <div className="flex-1 overflow-y-auto p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {AVAILABLE_TEMPLATES.map((template) => (
@@ -1691,32 +1721,48 @@ export default function NewsletterPage() {
                     key={template.id} 
                     className="group bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-slate-300 hover:shadow-lg transition-all"
                   >
-                    {/* Preview */}
+                    {/* Preview Grande en Modal de Plantillas - Diseño CSS Miniatura */}
                     <div 
-                      className="h-44 flex items-center justify-center relative"
+                      className="h-44 flex items-center justify-center relative overflow-hidden"
                       style={{
-                        background: template.preview.headerGradient || template.preview.background
+                        background: template.preview.background,
+                        padding: '24px'
                       }}
                     >
-                      <div className="text-center relative z-10 transform group-hover:scale-105 transition-transform">
-                        <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 border-2 border-white/30">
-                          <Mail className="w-7 h-7" style={{ color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor }} />
-                        </div>
-                        <h3 
-                          className="text-xl font-bold mb-1"
-                          style={{ color: template.preview.headerGradient ? '#ffffff' : template.preview.textColor }}
-                        >
-                          {template.name}
-                        </h3>
+                      {/* Contenedor Miniatura Más Grande */}
+                      <div className="w-full h-full bg-white shadow-md flex flex-col scale-95 group-hover:scale-100 transition-transform origin-center border border-black/5">
+                        {/* Header Miniatura */}
                         <div 
-                          className="h-1 w-16 mx-auto rounded-full"
-                          style={{ backgroundColor: template.preview.accentGold || template.preview.accentColor }}
+                          className="h-10 w-full shrink-0"
+                          style={{
+                            background: template.preview.headerGradient || template.preview.headerBg || template.preview.background,
+                            borderBottom: template.preview.headerBorder
+                          }}
                         />
+                        {/* Cuerpo Miniatura */}
+                        <div className="p-3 space-y-3" style={{ backgroundColor: template.preview.cardBg }}>
+                           <div className="h-2 w-2/3 rounded-sm opacity-30" style={{ backgroundColor: template.preview.textColor }} />
+                           <div className="space-y-1">
+                              <div className="h-1.5 w-full rounded-sm opacity-10" style={{ backgroundColor: template.preview.textColor }} />
+                              <div className="h-1.5 w-full rounded-sm opacity-10" style={{ backgroundColor: template.preview.textColor }} />
+                              <div className="h-1.5 w-5/6 rounded-sm opacity-10" style={{ backgroundColor: template.preview.textColor }} />
+                           </div>
+                           <div className="grid grid-cols-2 gap-2 mt-2">
+                              <div className="h-12 w-full rounded-sm opacity-5" style={{ backgroundColor: template.preview.accentColor }} />
+                              <div className="h-12 w-full rounded-sm opacity-5" style={{ backgroundColor: template.preview.accentColor }} />
+                           </div>
+                        </div>
                       </div>
                     </div>
 
                     {/* Info */}
                     <div className="p-5">
+                       <h3 
+                          className="text-xl font-bold mb-1"
+                          style={{ color: '#1e293b' }}
+                        >
+                          {template.name}
+                        </h3>
                       <p className="text-sm text-slate-600 mb-4 leading-relaxed">{template.description}</p>
                       
                       <div className="mb-5">
