@@ -466,31 +466,6 @@ export default function Home() {
                   </motion.div>
                 ))}
               </div>
-
-              {/* Floating indicator card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="absolute -bottom-8 -left-8 lg:-left-12"
-              >
-                <div className="p-4 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs font-medium text-zinc-400">LIVE</span>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between gap-8">
-                      <span className="text-xs text-zinc-500">Dólar Blue</span>
-                      <span className="text-sm font-semibold">$1,205</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-8">
-                      <span className="text-xs text-zinc-500">m² CABA</span>
-                      <span className="text-sm font-semibold">$2,450</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
             </motion.div>
           </div>
         </div>
