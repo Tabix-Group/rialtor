@@ -605,7 +605,7 @@ export default function Home() {
             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-zinc-900">
               <video
-                src="/docs/Videos/demo.mp4"
+                src="/docs/Videos/demo2.mp4"
                 title="Demo RIALTOR"
                 controls
                 className="w-full h-full object-cover"
