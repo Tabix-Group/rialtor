@@ -72,36 +72,47 @@ interface PropertyPlaque {
   updatedAt: string;
 }
 
-const PLAQUE_MODEL_SUMMARY: { key: 'standard' | 'premium' | 'vip' | 'model4' | 'model5'; title: string; description: string; features: string[] }[] = [
+const PLAQUE_MODEL_SUMMARY: { 
+  key: 'standard' | 'premium' | 'vip' | 'model4' | 'model5'; 
+  title: string; 
+  description: string; 
+  features: string[];
+  relevantFields: string[];
+}[] = [
   {
     key: 'standard',
     title: 'Modelo 1 (Esencial y Limpio)',
     description: 'Placa automática con diseño limpio y datos esenciales para publicar en minutos.',
-    features: ['Diseño minimalista', 'Fácil lectura', 'Generación instantánea']
+    features: ['Diseño minimalista', 'Fácil lectura', 'Generación instantánea'],
+    relevantFields: ['tipo', 'precio', 'moneda', 'direccion', 'ambientes', 'dormitorios', 'm2_totales', 'brand', 'corredores']
   },
   {
     key: 'premium',
     title: 'Modelo 2 (Profesional con Agente)',
     description: 'Incluye zócalo personalizado del agente, branding y mayor presencia de contacto.',
-    features: ['Branding personal', 'Foto del agente', 'Más datos de contacto']
+    features: ['Branding personal', 'Foto del agente', 'Más datos de contacto'],
+    relevantFields: ['tipo', 'precio', 'moneda', 'direccion', 'ambientes', 'dormitorios', 'm2_totales', 'brand', 'corredores', 'agentName', 'agentImage', 'agentContact', 'email']
   },
   {
     key: 'vip',
     title: 'Modelo 3 (Exclusivo Editorial VIP)',
     description: 'Template exclusivo con composición de tres fotos, QR dinámico y estética editorial.',
-    features: ['Composición triple', 'Estética premium', 'QR Dinámico']
+    features: ['Composición triple', 'Estética premium', 'QR Dinámico'],
+    relevantFields: ['tipo', 'precio', 'moneda', 'direccion', 'ambientes', 'dormitorios', 'banos', 'cocheras', 'm2_totales', 'm2_cubiertos', 'url', 'corredores']
   },
   {
     key: 'model4',
     title: 'Modelo 4 (Moderno Barra Lateral)',
     description: 'Diseño moderno con barra lateral traslúcida, iconos blancos y estética minimalista.',
-    features: ['Barra lateral elegante', 'Tipografía moderna', 'Iconografía blanca']
+    features: ['Barra lateral elegante', 'Tipografía moderna', 'Iconografía blanca'],
+    relevantFields: ['tipo', 'precio', 'moneda', 'direccion', 'ambientes', 'dormitorios', 'banos', 'm2_totales', 'brand', 'sidebarColor', 'corredores']
   },
   {
     key: 'model5',
     title: 'Modelo 5 (Impacto Visual Enmarcado)',
     description: 'Diseño con marco perimetral y cajas de información centradas para alto impacto visual.',
-    features: ['Marco envolvente', 'Cajas flotantes', 'Enfoque visual']
+    features: ['Marco envolvente', 'Cajas flotantes', 'Enfoque visual'],
+    relevantFields: ['tipo', 'precio', 'moneda', 'direccion', 'ambientes', 'dormitorios', 'm2_totales', 'brand', 'corredores']
   }
 ];
 
@@ -148,6 +159,12 @@ export default function PlacasPage() {
   const [agentImageFile, setAgentImageFile] = useState<File | null>(null);
   const [interiorImageFile, setInteriorImageFile] = useState<File | null>(null);
   const [exteriorImageFile, setExteriorImageFile] = useState<File | null>(null);
+
+  // Helper para visibilidad de campos
+  const isFieldVisible = (field: string) => {
+    const currentModel = PLAQUE_MODEL_SUMMARY.find(m => m.key === modelType);
+    return currentModel?.relevantFields.includes(field);
+  };
 
   // Proteger ruta
   useEffect(() => {
@@ -631,112 +648,154 @@ export default function PlacasPage() {
                 <h2 className="text-2xl font-bold mb-6">Nueva Placa de Propiedad</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Subida de imágenes (solo para standard y premium) */}
-                  {modelType !== 'vip' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Imágenes de la propiedad *
-                    </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                        className="hidden"
-                        id="image-upload"
-                      />
-                      <label
-                        htmlFor="image-upload"
-                        className="cursor-pointer flex flex-col items-center"
-                      >
-                        <Upload className="w-12 h-12 text-gray-400 mb-4" />
-                        <span className="text-sm text-gray-600">
-                          Haz clic para seleccionar imágenes o arrastra aquí
-                        </span>
-                        <span className="text-xs text-gray-500 mt-1">
-                          Máximo 10 imágenes
-                        </span>
-                      </label>
+                  {/* SUBIDA DE IMÁGENES (PASO 2) */}
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+                        <ImageIcon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">2. Fotos de la Propiedad</h3>
+                        <p className="text-sm text-slate-500">Carga las fotos que aparecerán en tu placa</p>
+                      </div>
                     </div>
 
-                    {/* Preview de imÃ¡genes seleccionadas */}
-                    {selectedImages.length > 0 && (
-                      <div className="mt-4 grid grid-cols-3 gap-2">
-                        {selectedImages.map((image, index) => (
-                          <div key={index} className="relative">
-                            <img
-                              src={URL.createObjectURL(image)}
-                              alt={`Preview ${index + 1}`}
-                              className="w-full h-24 object-cover rounded"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              className="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full p-1 hover:bg-gray-600"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
+                    {modelType === 'vip' ? (
+                      <div className="space-y-6">
+                        <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-xs text-indigo-700 leading-relaxed">
+                          <strong>Importante:</strong> El modelo VIP requiere exactamente 3 fotos específicas: Interior, Exterior y opcionalmente el Agente.
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Interior */}
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Imagen Interior *</label>
+                            <div className="relative group overflow-hidden rounded-xl border-2 border-dashed border-slate-200 aspect-square flex flex-col items-center justify-center bg-slate-50 hover:bg-white hover:border-indigo-400 transition-all cursor-pointer">
+                              <input type="file" accept="image/*" onChange={handleInteriorImageSelect} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                              {interiorImageFile ? (
+                                <img src={URL.createObjectURL(interiorImageFile)} className="w-full h-full object-cover" />
+                              ) : (
+                                <>
+                                  <Home className="w-8 h-8 text-slate-300 group-hover:text-indigo-400 transition-colors" />
+                                  <span className="text-[10px] text-slate-400 mt-2">Subir Foto</span>
+                                </>
+                              )}
+                              {interiorImageFile && (
+                                <button type="button" onClick={removeInteriorImage} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full shadow-lg z-20"><Trash2 className="w-4 h-4" /></button>
+                              )}
+                            </div>
                           </div>
-                        ))}
+                          {/* Exterior */}
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Imagen Exterior *</label>
+                            <div className="relative group overflow-hidden rounded-xl border-2 border-dashed border-slate-200 aspect-square flex flex-col items-center justify-center bg-slate-50 hover:bg-white hover:border-indigo-400 transition-all cursor-pointer">
+                              <input type="file" accept="image/*" onChange={handleExteriorImageSelect} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                              {exteriorImageFile ? (
+                                <img src={URL.createObjectURL(exteriorImageFile)} className="w-full h-full object-cover" />
+                              ) : (
+                                <>
+                                  <ImageIcon className="w-8 h-8 text-slate-300 group-hover:text-indigo-400 transition-colors" />
+                                  <span className="text-[10px] text-slate-400 mt-2">Subir Foto</span>
+                                </>
+                              )}
+                              {exteriorImageFile && (
+                                <button type="button" onClick={removeExteriorImage} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full shadow-lg z-20"><Trash2 className="w-4 h-4" /></button>
+                              )}
+                            </div>
+                          </div>
+                          {/* Agente */}
+                          <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Foto Agente</label>
+                            <div className="relative group overflow-hidden rounded-xl border-2 border-dashed border-slate-200 aspect-square flex flex-col items-center justify-center bg-slate-50 hover:bg-white hover:border-indigo-400 transition-all cursor-pointer">
+                              <input type="file" accept="image/*" onChange={handleAgentImageSelect} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                              {agentImageFile ? (
+                                <img src={URL.createObjectURL(agentImageFile)} className="w-full h-full object-cover" />
+                              ) : (
+                                <>
+                                  <User className="w-8 h-8 text-slate-300 group-hover:text-indigo-400 transition-colors" />
+                                  <span className="text-[10px] text-slate-400 mt-2">Opcional</span>
+                                </>
+                              )}
+                              {agentImageFile && (
+                                <button type="button" onClick={removeAgentImage} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full shadow-lg z-20"><Trash2 className="w-4 h-4" /></button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50 hover:bg-white hover:border-indigo-400 transition-all cursor-pointer relative group">
+                          <input type="file" multiple accept="image/*" onChange={handleImageSelect} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                          <Upload className="w-10 h-10 text-slate-300 mx-auto mb-4 group-hover:text-indigo-500 group-hover:scale-110 transition-all" />
+                          <p className="text-sm font-semibold text-slate-600">Haz clic o arrastra tus imágenes de propiedad</p>
+                          <p className="text-xs text-slate-400 mt-1">Máximo 10 imágenes (JPG, PNG)</p>
+                        </div>
+                        {selectedImages.length > 0 && (
+                          <div className="grid grid-cols-5 gap-3 mt-4">
+                            {selectedImages.map((image, index) => (
+                              <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
+                                <img src={URL.createObjectURL(image)} className="w-full h-full object-cover" />
+                                <button type="button" onClick={() => removeImage(index)} className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3" /></button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                  )}
 
-                  {/* Selector de modelo visual (sustituye al select anterior) */}
-                  <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Selecciona el diseño de placa
-                    </label>
+                  {/* Selector de modelo visual (PASO 1) */}
+                  <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 mb-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
+                        <Star className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">1. Selecciona el Diseño</h3>
+                        <p className="text-sm text-slate-500">Cada modelo tiene una estética y campos diferentes</p>
+                      </div>
+                    </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {PLAQUE_MODEL_SUMMARY.map((model) => (
                         <div
                           key={model.key}
                           onClick={() => setModelType(model.key)}
-                          className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 group ${
+                          className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 group ${
                             modelType === model.key
-                              ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-500/10 scale-[1.02]'
-                              : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                              ? 'border-blue-500 bg-white shadow-xl ring-4 ring-blue-50 scale-[1.02]'
+                              : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-white hover:shadow-md'
                           }`}
                         >
-                          {/* Checkmark indicando selección */}
-                          <div className={`absolute top-2 right-2 rounded-full p-1 transition-all ${
-                            modelType === model.key ? 'bg-blue-500 text-white' : 'bg-gray-100 text-transparent group-hover:bg-gray-200'
+                          <div className={`absolute top-3 right-3 rounded-full p-1.5 transition-all ${
+                            modelType === model.key ? 'bg-blue-500 text-white' : 'bg-slate-200 text-transparent'
                           }`}>
-                            <Check className="w-3.5 h-3.5" />
+                            <Check className="w-3 h-3" />
                           </div>
                           
                           <div className="flex items-start gap-4">
-                            {/* Icono representativo del modelo */}
-                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 border-2 transition-colors ${
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border-2 transition-all ${
                               modelType === model.key 
-                                ? 'bg-white border-blue-200 text-blue-600 shadow-sm' 
-                                : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:border-slate-200'
+                                ? 'bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-100' 
+                                : 'bg-white border-slate-100 text-slate-400 group-hover:text-slate-500'
                             }`}>
-                              {model.key === 'standard' && <Home className="w-7 h-7" />}
-                              {model.key === 'premium' && <User className="w-7 h-7" />}
-                              {model.key === 'vip' && <Star className="w-7 h-7" />}
-                              {model.key === 'model4' && <Layout className="w-7 h-7" />}
-                              {model.key === 'model5' && <Maximize className="w-7 h-7" />}
+                              {model.key === 'standard' && <Home className="w-6 h-6" />}
+                              {model.key === 'premium' && <User className="w-6 h-6" />}
+                              {model.key === 'vip' && <Star className="w-6 h-6" />}
+                              {model.key === 'model4' && <Layout className="w-6 h-6" />}
+                              {model.key === 'model5' && <Maximize className="w-6 h-6" />}
                             </div>
 
-                            <div className="flex-1 min-w-0 pr-4">
-                              <h4 className={`text-base font-bold transition-colors ${
-                                modelType === model.key ? 'text-blue-900' : 'text-slate-900'
+                            <div className="flex-1 min-w-0 pr-6">
+                              <h4 className={`text-sm font-bold transition-colors ${
+                                modelType === model.key ? 'text-blue-600' : 'text-slate-900'
                               }`}>
                                 {model.title}
                               </h4>
-                              <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                                {model.description}
-                              </p>
-                              
-                              <div className="mt-4 flex flex-wrap gap-2">
-                                {model.features.map((feature, idx) => (
-                                  <span key={idx} className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
-                                    modelType === model.key 
-                                      ? 'bg-blue-600 text-white' 
-                                      : 'bg-slate-100 text-slate-600'
+                              <div className="mt-3 flex flex-wrap gap-1.5">
+                                {model.features.slice(0, 2).map((feature, idx) => (
+                                  <span key={idx} className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                    modelType === model.key ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'
                                   }`}>
                                     {feature}
                                   </span>
@@ -883,374 +942,220 @@ export default function PlacasPage() {
 
                   {/* Datos de la propiedad */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Tipo de propiedad
-                      </label>
-                      <select
-                        value={propertyData.tipo}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, tipo: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="">Seleccionar</option>
-                        <option value="Casa">Casa</option>
-                        <option value="Departamento">Departamento</option>
-                        <option value="Local Comercial">Local Comercial</option>
-                        <option value="Oficina">Oficina</option>
-                        <option value="Terreno">Terreno</option>
-                        <option value="Galpón">Galpón</option>
-                      </select>
-                    </div>
+                  {/* Básico siempre visible */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tipo de Propiedad</label>
+                    <select
+                      value={propertyData.tipo}
+                      onChange={(e) => setPropertyData(prev => ({ ...prev, tipo: e.target.value }))}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 transition-all outline-none"
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="Casa">Casa</option>
+                      <option value="Departamento">Departamento</option>
+                      <option value="Local Comercial">Local Comercial</option>
+                      <option value="Oficina">Oficina</option>
+                      <option value="Terreno">Terreno</option>
+                      <option value="Galpón">Galpón</option>
+                    </select>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Moneda
-                      </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-1 space-y-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Moneda</label>
                       <select
                         value={propertyData.moneda}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, moneda: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 transition-all outline-none text-center font-bold"
                       >
-                        <option value="USD">USD</option>
-                        <option value="ARS">ARS</option>
-                        <option value="EUR">EUR</option>
+                        <option value="USD">U$D</option>
+                        <option value="ARS">$ AR</option>
+                        <option value="EUR">€ EUR</option>
                       </select>
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Precio *
-                      </label>
+                    <div className="col-span-2 space-y-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Precio *</label>
                       <input
                         type="number"
                         required
                         value={propertyData.precio}
                         onChange={(e) => setPropertyData(prev => ({ ...prev, precio: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 transition-all outline-none font-bold"
                         placeholder="Ej: 350000"
                       />
                     </div>
+                  </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ambientes
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.ambientes}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, ambientes: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 3"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Dormitorios
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.dormitorios}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, dormitorios: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 2"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Baños
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.banos}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, banos: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 2"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Cocheras
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.cocheras}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, cocheras: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 1"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        M2 Totales
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.m2_totales}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, m2_totales: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 120"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        M2 Cubiertos
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.m2_cubiertos}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, m2_cubiertos: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: 85"
-                      />
-                    </div>
-
-                    {modelType !== 'vip' && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          <Clock className="w-4 h-4 inline mr-1" />
-                          Antigüedad
-                        </label>
-                        <input
-                          type="text"
-                          value={propertyData.antiguedad}
-                          onChange={(e) => setPropertyData(prev => ({ ...prev, antiguedad: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="Ej: 5 años"
-                        />
+                  {/* Detalles Condicionales */}
+                  <div className="grid grid-cols-2 gap-4">
+                    {isFieldVisible('ambientes') && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ambientes</label>
+                        <input type="text" value={propertyData.ambientes} onChange={(e) => setPropertyData(prev => ({ ...prev, ambientes: e.target.value }))}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: 3" />
                       </div>
                     )}
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        <MapPin className="w-4 h-4 inline mr-1" />
-                        Dirección
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.direccion}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, direccion: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: Av. Libertador 1234, Palermo, CABA"
-                      />
-                    </div>
+                    {isFieldVisible('dormitorios') && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Dormitorios</label>
+                        <input type="text" value={propertyData.dormitorios} onChange={(e) => setPropertyData(prev => ({ ...prev, dormitorios: e.target.value }))}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: 2" />
+                      </div>
+                    )}
 
-                    {modelType !== 'vip' && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          <Mail className="w-4 h-4 inline mr-1" />
-                          Email de contacto
-                        </label>
-                        <input
-                          type="email"
-                          value={propertyData.email}
-                          onChange={(e) => setPropertyData(prev => ({ ...prev, email: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="agente@remax.com.ar"
-                        />
+                    {isFieldVisible('banos') && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Baños</label>
+                        <input type="text" value={propertyData.banos} onChange={(e) => setPropertyData(prev => ({ ...prev, banos: e.target.value }))}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: 2" />
+                      </div>
+                    )}
+
+                    {isFieldVisible('cocheras') && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Cocheras</label>
+                        <input type="text" value={propertyData.cocheras} onChange={(e) => setPropertyData(prev => ({ ...prev, cocheras: e.target.value }))}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: 1" />
                       </div>
                     )}
                   </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Marca / Agencia
-                      </label>
-                      <input
-                        type="text"
-                        value={propertyData.brand}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, brand: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Ej: RE/MAX"
-                      />
-                    </div>
-
-                    {modelType === 'model4' && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Color de barra lateral (Modelo 4)
-                        </label>
-                        <div className="flex gap-2">
-                          <input
-                            type="color"
-                            value={propertyData.sidebarColor?.startsWith('#') ? propertyData.sidebarColor : '#544a3f'}
-                            onChange={(e) => setPropertyData(prev => ({ ...prev, sidebarColor: e.target.value }))}
-                            className="h-10 w-12 p-1 border border-gray-300 rounded cursor-pointer"
-                          />
-                          <input
-                            type="text"
-                            value={propertyData.sidebarColor}
-                            onChange={(e) => setPropertyData(prev => ({ ...prev, sidebarColor: e.target.value }))}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Ej: #003DA5 o rgba(0,0,0,0.5)"
-                          />
-                        </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {isFieldVisible('m2_totales') && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Superficie Total (m²)</label>
+                        <input type="text" value={propertyData.m2_totales} onChange={(e) => setPropertyData(prev => ({ ...prev, m2_totales: e.target.value }))}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: 120" />
                       </div>
                     )}
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Corredores (nombre y matrícula) *
-                      </label>
-                    <textarea
-                      required
-                      value={propertyData.corredores}
-                      onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      rows={2}
-                      placeholder="Ej: Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341"
-                    />
+                    {isFieldVisible('m2_cubiertos') && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Superficie Cubierta (m²)</label>
+                        <input type="text" value={propertyData.m2_cubiertos} onChange={(e) => setPropertyData(prev => ({ ...prev, m2_cubiertos: e.target.value }))}
+                          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: 85" />
+                      </div>
+                    )}
                   </div>
 
-                  {modelType !== 'vip' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Descripción adicional
+                  {isFieldVisible('direccion') && (
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                        <MapPin className="w-3 h-3" /> Dirección / Ubicación
                       </label>
-                      <textarea
-                        value={propertyData.descripcion}
-                        onChange={(e) => setPropertyData(prev => ({ ...prev, descripcion: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        rows={3}
-                        placeholder="Información adicional sobre la propiedad..."
-                      />
+                      <input type="text" value={propertyData.direccion} onChange={(e) => setPropertyData(prev => ({ ...prev, direccion: e.target.value }))}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: Av. Libertador 1200, Belgrano, CABA" />
                     </div>
                   )}
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      URL personalizada
-                    </label>
-                    <input
-                      type="text"
-                      value={propertyData.url}
-                      onChange={(e) => setPropertyData(prev => ({ ...prev, url: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      placeholder="www.rialtor.app"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {modelType === 'vip' ? 'Esta URL se mostrará en el código QR de la placa VIP' : 'Esta URL aparecerá en el footer de la placa'}
-                    </p>
-                  </div>
-
-                  {/* Campos del agente (solo para premium) */}
-                  {modelType === 'premium' && (
-                    <div className="space-y-4 border-t pt-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Información del Agente</h3>
-                      
+                  {/* IDENTIDAD Y CONTACTO (PASO 4) */}
+                  <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center shadow-lg shadow-orange-200">
+                        <Phone className="w-5 h-5 text-white" />
+                      </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Imagen del agente
-                        </label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleAgentImageSelect}
-                            className="hidden"
-                            id="agent-image-upload"
-                          />
-                          <label
-                            htmlFor="agent-image-upload"
-                            className="cursor-pointer flex flex-col items-center"
-                          >
-                            <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                            <span className="text-sm text-gray-600">
-                              Haz clic para seleccionar imagen del agente
-                            </span>
-                            <span className="text-xs text-gray-500 mt-1">
-                              JPG, PNG, máximo 5MB
-                            </span>
-                          </label>
-                        </div>
+                        <h3 className="text-lg font-bold text-slate-900">4. Firma y Contacto</h3>
+                        <p className="text-sm text-slate-500">Configura quién firma esta placa</p>
+                      </div>
+                    </div>
 
-                        {/* Preview de imagen del agente */}
-                        {agentImageFile && (
-                          <div className="mt-3 relative inline-block">
-                            <img
-                              src={URL.createObjectURL(agentImageFile)}
-                              alt="Preview agente"
-                              className="w-20 h-20 object-cover rounded-lg border"
-                            />
-                            <button
-                              type="button"
-                              onClick={removeAgentImage}
-                              className="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full p-1 hover:bg-gray-600"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                        {isFieldVisible('brand') && (
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Marca / Franquicia</label>
+                            <input type="text" value={propertyData.brand} onChange={(e) => setPropertyData(prev => ({ ...prev, brand: e.target.value }))}
+                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: RE/MAX Premium" />
+                          </div>
+                        )}
+
+                        {isFieldVisible('url') && (
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Web / URL Personalizada</label>
+                            <input type="text" value={propertyData.url} onChange={(e) => setPropertyData(prev => ({ ...prev, url: e.target.value }))}
+                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="www.tuweb.com.ar" />
+                          </div>
+                        )}
+                        
+                        {isFieldVisible('sidebarColor') && (
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color Corporativo</label>
+                            <div className="flex gap-2">
+                              <input type="color" value={propertyData.sidebarColor?.startsWith('#') ? propertyData.sidebarColor : '#544a3f'} onChange={(e) => setPropertyData(prev => ({ ...prev, sidebarColor: e.target.value }))}
+                                className="h-10 w-12 p-1 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer" />
+                              <input type="text" value={propertyData.sidebarColor} onChange={(e) => setPropertyData(prev => ({ ...prev, sidebarColor: e.target.value }))}
+                                className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="#HEX o RGBA" />
+                            </div>
                           </div>
                         )}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Nombre del agente
-                          </label>
-                          <input
-                            type="text"
-                            value={propertyData.agentName}
-                            onChange={(e) => setPropertyData(prev => ({ ...prev, agentName: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Ej: Juan Pérez"
-                          />
+                      {/* Info del Agente (Solo si el modelo lo requiere) */}
+                      {(isFieldVisible('agentName') || isFieldVisible('agentImage')) && (
+                        <div className="pt-6 border-t border-slate-100 flex flex-col md:flex-row gap-6">
+                          {isFieldVisible('agentImage') && (
+                            <div className="flex-shrink-0">
+                               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">Foto Agente</label>
+                               <div className="relative group w-32 h-32 mx-auto rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 overflow-hidden hover:border-orange-400 transition-all">
+                                  <input type="file" accept="image/*" onChange={handleAgentImageSelect} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                                  {agentImageFile ? (
+                                    <img src={URL.createObjectURL(agentImageFile)} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <User className="w-10 h-10 text-slate-300 group-hover:text-orange-400" />
+                                  )}
+                                  {agentImageFile && <button type="button" onClick={removeAgentImage} className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-6 h-6 text-white" /></button>}
+                               </div>
+                            </div>
+                          )}
+                          <div className="flex-1 space-y-4">
+                            {isFieldVisible('agentName') && (
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nombre del Agente</label>
+                                <input type="text" value={propertyData.agentName} onChange={(e) => setPropertyData(prev => ({ ...prev, agentName: e.target.value }))}
+                                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Tu nombre completo" />
+                              </div>
+                            )}
+                            {isFieldVisible('agentContact') && (
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Contacto (Celular / Email)</label>
+                                <input type="text" value={propertyData.agentContact} onChange={(e) => setPropertyData(prev => ({ ...prev, agentContact: e.target.value }))}
+                                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: +54 9 11 1234-5678" />
+                              </div>
+                            )}
+                          </div>
                         </div>
+                      )}
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Agencia
-                          </label>
-                          <input
-                            type="text"
-                            value={propertyData.agency}
-                            onChange={(e) => setPropertyData(prev => ({ ...prev, agency: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Ej: RE/MAX Premium"
-                          />
-                        </div>
-
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Contacto del agente
-                          </label>
-                          <input
-                            type="text"
-                            value={propertyData.agentContact}
-                            onChange={(e) => setPropertyData(prev => ({ ...prev, agentContact: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Ej: +54 11 1234-5678 | juan@remax.com"
-                          />
-                        </div>
+                      <div className="space-y-1.5 pt-4 border-t border-slate-100">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Corredores Responsables (Legal) *</label>
+                        <textarea required value={propertyData.corredores} onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-orange-50 outline-none text-sm leading-relaxed" rows={2} placeholder="Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341" />
+                        <p className="text-[10px] text-slate-400 italic">Este texto aparecerá según normativa legal vigente.</p>
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Botones */}
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowCreateModal(false)}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                    >
+                  {/* ACCIONES FINALES */}
+                  <div className="flex flex-col-reverse md:flex-row gap-4 pt-6">
+                    <button type="button" onClick={() => setShowCreateModal(false)}
+                      className="flex-1 px-6 py-3 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-colors">
                       Cancelar
                     </button>
-                    <button
-                      type="submit"
-                      disabled={creating}
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
+                    <button type="submit" disabled={creating}
+                      className="flex-[2] bg-blue-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200 disabled:opacity-50 flex items-center justify-center gap-3">
                       {creating ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Procesando...
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Generando Placa...</span>
                         </>
                       ) : (
-                        'Crear Placa'
+                        <>
+                          <Check className="w-5 h-5" />
+                          <span>Generar Nueva Placa</span>
+                        </>
                       )}
                     </button>
                   </div>
