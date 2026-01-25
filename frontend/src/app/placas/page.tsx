@@ -26,7 +26,12 @@ import {
   Bed,
   Car,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Star,
+  Layout,
+  Maximize,
+  User,
+  Check
 } from 'lucide-react'
 
 interface PropertyData {
@@ -62,35 +67,41 @@ interface PropertyPlaque {
   originalImages: string[];
   generatedImages: string[];
   status: 'PROCESSING' | 'GENERATING' | 'COMPLETED' | 'ERROR';
+  modelType?: 'standard' | 'premium' | 'vip' | 'model4' | 'model5';
   createdAt: string;
   updatedAt: string;
 }
 
-const PLAQUE_MODEL_SUMMARY: { key: 'standard' | 'premium' | 'vip' | 'model4' | 'model5'; title: string; description: string }[] = [
+const PLAQUE_MODEL_SUMMARY: { key: 'standard' | 'premium' | 'vip' | 'model4' | 'model5'; title: string; description: string; features: string[] }[] = [
   {
     key: 'standard',
-    title: 'Estándar',
-    description: 'Placa automática con diseño limpio y datos esenciales para publicar en minutos.'
+    title: 'Modelo 1 (Esencial y Limpio)',
+    description: 'Placa automática con diseño limpio y datos esenciales para publicar en minutos.',
+    features: ['Diseño minimalista', 'Fácil lectura', 'Generación instantánea']
   },
   {
     key: 'premium',
-    title: 'Premium',
-    description: 'Incluye zócalo personalizado del agente, branding y mayor presencia de contacto.'
+    title: 'Modelo 2 (Profesional con Agente)',
+    description: 'Incluye zócalo personalizado del agente, branding y mayor presencia de contacto.',
+    features: ['Branding personal', 'Foto del agente', 'Más datos de contacto']
   },
   {
     key: 'vip',
-    title: 'VIP',
-    description: 'Template exclusivo con composición de fotos, QR dinámico y estética editorial.'
+    title: 'Modelo 3 (Exclusivo Editorial VIP)',
+    description: 'Template exclusivo con composición de tres fotos, QR dinámico y estética editorial.',
+    features: ['Composición triple', 'Estética premium', 'QR Dinámico']
   },
   {
     key: 'model4',
-    title: 'Modelo 4 (Lateral)',
-    description: 'Diseño moderno con barra lateral traslúcida, iconos blancos y estética minimalista.'
+    title: 'Modelo 4 (Moderno Barra Lateral)',
+    description: 'Diseño moderno con barra lateral traslúcida, iconos blancos y estética minimalista.',
+    features: ['Barra lateral elegante', 'Tipografía moderna', 'Iconografía blanca']
   },
   {
     key: 'model5',
-    title: 'Modelo 5 (Enmarcado)',
-    description: 'Diseño con marco perimetral y cajas de información centradas para alto impacto visual.'
+    title: 'Modelo 5 (Impacto Visual Enmarcado)',
+    description: 'Diseño con marco perimetral y cajas de información centradas para alto impacto visual.',
+    features: ['Marco envolvente', 'Cajas flotantes', 'Enfoque visual']
   }
 ];
 
@@ -498,9 +509,16 @@ export default function PlacasPage() {
 
                   {/* InformaciÃ³n */}
                   <div className="p-3">
-                    <h3 className="font-semibold text-gray-900 mb-2 text-sm truncate">
-                      {plaque.title}
-                    </h3>
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <h3 className="font-semibold text-gray-900 text-sm truncate flex-1">
+                        {plaque.title}
+                      </h3>
+                      {plaque.modelType && (
+                        <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-600 border border-blue-100 rounded font-bold uppercase tracking-tighter shrink-0">
+                          {PLAQUE_MODEL_SUMMARY.find(m => m.key === plaque.modelType)?.title.split(' (')[0] || plaque.modelType}
+                        </span>
+                      )}
+                    </div>
 
                     <div className="space-y-1 text-xs text-gray-600 mb-3">
                       <div className="flex items-center gap-1">
@@ -666,41 +684,66 @@ export default function PlacasPage() {
                   </div>
                   )}
 
-                  {/* Selector de modelo */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Modelo de placa
+                  {/* Selector de modelo visual (sustituye al select anterior) */}
+                  <div className="space-y-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Selecciona el diseño de placa
                     </label>
-                    <select
-                      value={modelType}
-                      onChange={(e) => setModelType(e.target.value as 'standard' | 'premium' | 'vip' | 'model4' | 'model5')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="standard">Estándar</option>
-                      <option value="premium">Premium (con zócalo del agente)</option>
-                      <option value="vip">VIP (con template personalizado)</option>
-                      <option value="model4">Modelo 4 (Barra Lateral)</option>
-                      <option value="model5">Modelo 5 (Enmarcado)</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {PLAQUE_MODEL_SUMMARY.map((model) => (
                         <div
                           key={model.key}
-                          className={`rounded-lg border px-3 py-3 h-full ${
+                          onClick={() => setModelType(model.key)}
+                          className={`relative cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 group ${
                             modelType === model.key
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 bg-gray-50'
+                              ? 'border-blue-500 bg-blue-50 shadow-md ring-2 ring-blue-500/10 scale-[1.02]'
+                              : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
                           }`}
                         >
-                          <p className="text-xs font-semibold uppercase tracking-wide text-gray-600">
-                            {model.title}
-                          </p>
-                          <p className="text-sm text-gray-700 leading-snug mt-1">
-                            {model.description}
-                          </p>
+                          {/* Checkmark indicando selección */}
+                          <div className={`absolute top-2 right-2 rounded-full p-1 transition-all ${
+                            modelType === model.key ? 'bg-blue-500 text-white' : 'bg-gray-100 text-transparent group-hover:bg-gray-200'
+                          }`}>
+                            <Check className="w-3.5 h-3.5" />
+                          </div>
+                          
+                          <div className="flex items-start gap-4">
+                            {/* Icono representativo del modelo */}
+                            <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 border-2 transition-colors ${
+                              modelType === model.key 
+                                ? 'bg-white border-blue-200 text-blue-600 shadow-sm' 
+                                : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:border-slate-200'
+                            }`}>
+                              {model.key === 'standard' && <Home className="w-7 h-7" />}
+                              {model.key === 'premium' && <User className="w-7 h-7" />}
+                              {model.key === 'vip' && <Star className="w-7 h-7" />}
+                              {model.key === 'model4' && <Layout className="w-7 h-7" />}
+                              {model.key === 'model5' && <Maximize className="w-7 h-7" />}
+                            </div>
+
+                            <div className="flex-1 min-w-0 pr-4">
+                              <h4 className={`text-base font-bold transition-colors ${
+                                modelType === model.key ? 'text-blue-900' : 'text-slate-900'
+                              }`}>
+                                {model.title}
+                              </h4>
+                              <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                                {model.description}
+                              </p>
+                              
+                              <div className="mt-4 flex flex-wrap gap-2">
+                                {model.features.map((feature, idx) => (
+                                  <span key={idx} className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
+                                    modelType === model.key 
+                                      ? 'bg-blue-600 text-white' 
+                                      : 'bg-slate-100 text-slate-600'
+                                  }`}>
+                                    {feature}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1289,7 +1332,14 @@ export default function PlacasPage() {
 
                 {/* Datos de la propiedad */}
                 <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-3">Datos de la Propiedad</h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold">Datos de la Propiedad</h3>
+                    {selectedPlaque.modelType && (
+                      <span className="px-3 py-1 bg-blue-600 text-white rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                        {PLAQUE_MODEL_SUMMARY.find(m => m.key === selectedPlaque.modelType)?.title.split(' (')[0] || selectedPlaque.modelType}
+                      </span>
+                    )}
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="font-medium">Tipo:</span> {selectedPlaque.propertyData.tipo}
