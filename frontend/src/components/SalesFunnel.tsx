@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   BarChart3, 
   Save, 
@@ -155,7 +155,7 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
     loadData()
   }, [])
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setIsSaving(true)
     try {
       const response = await fetch('/api/sales-funnel', {
@@ -176,13 +176,13 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
     } finally {
       setIsSaving(false)
     }
-  }
+  }, [stages, agentLevel, onSave])
 
   useEffect(() => {
     if (externalHandleSave) {
       externalHandleSave(handleSave)
     }
-  }, [externalHandleSave, stages, agentLevel])
+  }, [externalHandleSave, handleSave])
 
   const recalculateStages = (prospectsCount: number, _referidosCount: number, friasCount: number, level: AgentLevel) => {
     const ratesHot = conversionRatesByLevel[level].hot

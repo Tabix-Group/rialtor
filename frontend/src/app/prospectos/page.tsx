@@ -110,6 +110,9 @@ export default function ProspectosPage() {
         stats={stats} 
         funnelStages={funnelStages}
         agentLevel={agentLevel}
+        onCreateClick={handleCreate}
+        onSaveFunnel={handleSaveFunnel}
+        isSavingFunnel={isSavingFunnel}
       />
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

@@ -12,8 +12,15 @@ import {
 
 // Definimos la interfaz para recibir la función del botón
 interface ProspectSummaryProps {
-  stats: any
-  funnelStages?: any[]
+  stats: {
+    avgSale?: number;
+    avgCommission?: number;
+    clientsProspected?: number;
+  }
+  funnelStages?: {
+    clientsHot: number;
+    clientsCold: number;
+  }[]
   agentLevel?: string
   onCreateClick: () => void // Esta función activará el modal en el padre
   onSaveFunnel?: () => void
