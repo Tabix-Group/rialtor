@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { TrendingUp, TrendingDown, DollarSign, RefreshCw, Info, BarChart3 } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import RealEstateCommissions from "@/components/RealEstateCommissions"
+import NetworkNegotiationIndicators from "@/components/NetworkNegotiationIndicators"
 
 interface DolarRate {
   compra: number
@@ -565,6 +566,9 @@ export default function IndicadoresPage() {
             </div>
           </section>
         )}
+
+        {/* Negociación RED */}
+        <NetworkNegotiationIndicators />
 
         {/* Esquemas de Comisiones Inmobiliarias */}
         <RealEstateCommissions />

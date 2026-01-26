@@ -238,66 +238,72 @@ export default function RealEstateCommissions() {
             {/* Section Content */}
             {expandedSection === section.title && (
               <div className="p-4 space-y-4">
-                {section.types.map((type, typeIdx) => (
-                  <div
-                    key={typeIdx}
-                    className="bg-muted/50 rounded-lg p-4 border border-border/50"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h4 className="font-semibold text-sm">{type.name}</h4>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {type.description}
-                        </p>
+                {section.types.map((type, typeIdx) => {
+                  const isAlquiler = section.title.toLowerCase().includes("alquiler");
+                  const sellerLabel = isAlquiler ? "Locador" : "Vendedor";
+                  const buyerLabel = isAlquiler ? "Locatario" : "Comprador";
+
+                  return (
+                    <div
+                      key={typeIdx}
+                      className="bg-muted/50 rounded-lg p-4 border border-border/50"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold text-sm">{type.name}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {type.description}
+                          </p>
+                        </div>
                       </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        {type.seller.max > 0 && (
+                          <div className="bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                              {sellerLabel}
+                            </p>
+                            <p className="text-sm font-semibold">
+                              {type.seller.min === type.seller.max
+                                ? `${type.seller.min.toFixed(2)}%`
+                                : `${type.seller.min.toFixed(2)}% - ${type.seller.max.toFixed(2)}%`}
+                            </p>
+                          </div>
+                        )}
+
+                        {type.buyer.max > 0 && (
+                          <div className="bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                              {buyerLabel}
+                            </p>
+                            <p className="text-sm font-semibold">
+                              {type.buyer.min === type.buyer.max
+                                ? `${type.buyer.min.toFixed(2)}%`
+                                : `${type.buyer.min.toFixed(2)}% - ${type.buyer.max.toFixed(2)}%`}
+                            </p>
+                          </div>
+                        )}
+
+                        {type.seller.max === 0 && type.buyer.max === 0 && (
+                          <div className="col-span-2 bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">
+                              Comisión
+                            </p>
+                            <p className="text-sm font-semibold text-green-600">
+                              Sin comisión
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {type.notes && (
+                        <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/50 italic">
+                          📝 {type.notes}
+                        </p>
+                      )}
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      {type.seller.max > 0 && (
-                        <div className="bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">
-                            Vendedor/Locador
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {type.seller.min === type.seller.max
-                              ? `${type.seller.min.toFixed(2)}%`
-                              : `${type.seller.min.toFixed(2)}% - ${type.seller.max.toFixed(2)}%`}
-                          </p>
-                        </div>
-                      )}
-
-                      {type.buyer.max > 0 && (
-                        <div className="bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">
-                            Comprador/Locatario
-                          </p>
-                          <p className="text-sm font-semibold">
-                            {type.buyer.min === type.buyer.max
-                              ? `${type.buyer.min.toFixed(2)}%`
-                              : `${type.buyer.min.toFixed(2)}% - ${type.buyer.max.toFixed(2)}%`}
-                          </p>
-                        </div>
-                      )}
-
-                      {type.seller.max === 0 && type.buyer.max === 0 && (
-                        <div className="col-span-2 bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">
-                            Comisión
-                          </p>
-                          <p className="text-sm font-semibold text-green-600">
-                            Sin comisión
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {type.notes && (
-                      <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/50 italic">
-                        📝 {type.notes}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
