@@ -16,6 +16,8 @@ export default function ProspectosPage() {
   const { user } = useAuth()
   const [prospects, setProspects] = useState<Prospect[]>([])
   const [stats, setStats] = useState<Stats>({})
+  const [funnelStages, setFunnelStages] = useState<any[]>([])
+  const [agentLevel, setAgentLevel] = useState<string>('inicial')
   const [loading, setLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editing, setEditing] = useState<Prospect | null>(null)
@@ -40,6 +42,23 @@ export default function ProspectosPage() {
       setStats(data2.stats || {})
     } catch (e) {
       console.error('Error fetching prospect stats', e)
+    }
+    try {
+      const r3 = await authenticatedFetch('/api/sales-funnel')
+      const data3 = await r3.json()
+      if (data3.data) {
+        // Manejar tanto el formato antiguo (array) como el nuevo (objeto con stages)
+        if (Array.isArray(data3.data)) {
+          setFunnelStages(data3.data)
+        } else if (data3.data.stages) {
+          setFunnelStages(data3.data.stages)
+          if (data3.data.agentLevel) {
+            setAgentLevel(data3.data.agentLevel)
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching funnel data', e)
     }
     setLoading(false)
   }, [user])
@@ -78,18 +97,19 @@ export default function ProspectosPage() {
       setIsSavingFunnel(true)
       await saveFunnelFn.current()
       setIsSavingFunnel(false)
+      // Recargar para actualizar los KPIs en la cabecera después de guardar el funnel
+      load()
     }
   }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       
-      {/* 1. ENCABEZADO UNIFICADO CON 6 KPIs */}
+      {/* 1. ENCABEZADO UNIFICADO CON 5 KPIs ACTUALIZADOS */}
       <ProspectSummary 
         stats={stats} 
-        onCreateClick={handleCreate} 
-        onSaveFunnel={handleSaveFunnel}
-        isSavingFunnel={isSavingFunnel}
+        funnelStages={funnelStages}
+        agentLevel={agentLevel}
       />
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">

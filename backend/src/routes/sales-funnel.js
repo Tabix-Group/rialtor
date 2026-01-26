@@ -39,7 +39,12 @@ router.post('/', authenticateToken, async (req, res) => {
     const userId = req.user.id
     const { data } = req.body
 
-    if (!data || !Array.isArray(data)) {
+    if (!data) {
+      return res.status(400).json({ error: 'Invalid data format' })
+    }
+
+    // Aceptamos tanto un array (formato viejo) como un objeto (formato nuevo)
+    if (!Array.isArray(data) && typeof data !== 'object') {
       return res.status(400).json({ error: 'Invalid data format' })
     }
 

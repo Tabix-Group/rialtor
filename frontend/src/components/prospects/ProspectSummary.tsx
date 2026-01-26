@@ -13,19 +13,28 @@ import {
 // Definimos la interfaz para recibir la función del botón
 interface ProspectSummaryProps {
   stats: any
+  funnelStages?: any[]
+  agentLevel?: string
   onCreateClick: () => void // Esta función activará el modal en el padre
   onSaveFunnel?: () => void
   isSavingFunnel?: boolean
 }
 
-export default function ProspectSummary({ stats, onCreateClick, onSaveFunnel, isSavingFunnel }: ProspectSummaryProps) {
+export default function ProspectSummary({ stats, funnelStages = [], agentLevel = 'inicial', onCreateClick, onSaveFunnel, isSavingFunnel }: ProspectSummaryProps) {
   const { 
     avgSale = 0, 
     avgCommission = 0, 
     clientsProspected = 0, 
-    conversionRate = 0,
-    totalPipeline = 0
   } = stats || {}
+
+  // Cálculo de indicadores del pipeline (Simulación)
+  const totalProspectosFunnel = funnelStages.length > 0 ? (funnelStages[0].clientsHot + funnelStages[0].clientsCold) : 0
+  const totalCierresFunnel = funnelStages.length > 0 ? (funnelStages[funnelStages.length - 1].clientsHot + funnelStages[funnelStages.length - 1].clientsCold) : 0
+  const tasaCierrePipeline = totalProspectosFunnel > 0 ? (totalCierresFunnel / totalProspectosFunnel) * 100 : 0
+  
+  // Comisiones Totales Obtenidas (Simulado: Cierres * Ticket Promedio * % Comisión)
+  // Asumimos que avgCommission viene como número entero/decimal representando el porcentaje (ej: 4 para 4%)
+  const comisionesTotalesSimuladas = totalCierresFunnel * avgSale * (avgCommission / 100)
 
   const formatCurrency = (amount: number) => 
     new Intl.NumberFormat('es-AR', { 
@@ -84,52 +93,11 @@ export default function ProspectSummary({ stats, onCreateClick, onSaveFunnel, is
             </div>
           </div>
 
-          {/* DERECHA: KPIs (6 tarjetas) */}
+          {/* DERECHA: KPIs (5 tarjetas solicitadas) */}
           <div className="w-full xl:w-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
               
-              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <TrendingUp className="w-5 h-5 text-cyan-400" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Total Pipeline</p>
-                    <p className="text-lg font-bold text-white tabular-nums">
-                      {formatCurrency(totalPipeline)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Target className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Conv. Global</p>
-                    <p className="text-lg font-bold text-white tabular-nums">
-                      {conversionRate.toFixed(1)}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <DollarSign className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Ticket Promedio</p>
-                    <p className="text-lg font-bold text-white tabular-nums">
-                      {formatCurrency(avgSale)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
+              {/* 1. Prospectados */}
               <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -144,29 +112,61 @@ export default function ProspectSummary({ stats, onCreateClick, onSaveFunnel, is
                 </div>
               </div>
 
+              {/* 2. Ticket Promedio */}
               <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Briefcase className="w-5 h-5 text-purple-400" />
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <DollarSign className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Comisión Prom.</p>
+                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Ticket Promedio</p>
                     <p className="text-lg font-bold text-white tabular-nums">
-                      {formatCurrency(avgCommission)}
+                      {formatCurrency(avgSale)}
                     </p>
                   </div>
                 </div>
               </div>
 
+              {/* 3. Comisión Promedio (%) */}
+              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <TrendingUp className="w-5 h-5 text-indigo-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Comisión Promedio</p>
+                    <p className="text-lg font-bold text-white tabular-nums">
+                      {avgCommission.toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Tasa de Cierre (del Pipeline) */}
               <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-rose-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <TrendingUp className="w-5 h-5 text-rose-400" />
+                    <Target className="w-5 h-5 text-rose-400" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Tasa de Cierre</p>
+                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Tasa de cierre ({agentLevel.charAt(0).toUpperCase() + agentLevel.slice(1)})</p>
                     <p className="text-lg font-bold text-white tabular-nums">
-                      {conversionRate.toFixed(1)}%
+                      {tasaCierrePipeline.toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. Comisiones Totales Obtenidas */}
+              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group sm:col-span-2 lg:col-span-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Briefcase className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Comisiones Totales Obtenidas</p>
+                    <p className="text-xl font-extrabold text-white tabular-nums drop-shadow-sm">
+                      {formatCurrency(comisionesTotalesSimuladas)}
                     </p>
                   </div>
                 </div>

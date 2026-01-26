@@ -161,7 +161,12 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
       const response = await fetch('/api/sales-funnel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: stages }),
+        body: JSON.stringify({ 
+          data: {
+            stages,
+            agentLevel
+          } 
+        }),
       })
       if (!response.ok) throw new Error('Error saving funnel data')
       if (onSave) onSave(stages)
@@ -217,8 +222,16 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
       const response = await fetch('/api/sales-funnel')
       if (response.ok) {
         const result = await response.json()
-        if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-          setStages(result.data)
+        if (result && result.data) {
+          // Handle both old array format and new object format
+          if (Array.isArray(result.data)) {
+            setStages(result.data)
+          } else if (result.data.stages) {
+            setStages(result.data.stages)
+            if (result.data.agentLevel) {
+              setAgentLevel(result.data.agentLevel)
+            }
+          }
         }
       }
     } catch (error) {
