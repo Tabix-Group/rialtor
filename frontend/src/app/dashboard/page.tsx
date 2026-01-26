@@ -116,12 +116,27 @@ export default function DashboardPage() {
   const [calendarConnected, setCalendarConnected] = useState(false)
   const [indicatorsExpanded, setIndicatorsExpanded] = useState(false)
   const [proyeccionesExpanded, setProyeccionesExpanded] = useState(false)
+  const [marketData, setMarketData] = useState<any>(null)
 
   useEffect(() => {
     if (!loading && !user) {
       router.replace("/auth/login")
     }
   }, [user, loading, router])
+
+  const fetchMarketData = async () => {
+    try {
+      const response = await fetch("/api/indicators/all")
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success) {
+          setMarketData(result.data)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching market data:", error)
+    }
+  }
 
   const fetchStats = async () => {
     try {
@@ -142,6 +157,11 @@ export default function DashboardPage() {
       fetchDocuments()
       fetchStats()
       fetchCalendarEvents()
+      fetchMarketData()
+
+      // Actualizar datos de mercado cada 5 minutos
+      const interval = setInterval(fetchMarketData, 5 * 60 * 1000)
+      return () => clearInterval(interval)
     }
   }, [user])
 
@@ -675,14 +695,22 @@ export default function DashboardPage() {
                                     <DollarSign className="w-4 h-4 text-emerald-600" />
                                     <span className="text-sm font-medium text-slate-700">Dólar Blue</span>
                                 </div>
-                                <span className="font-bold text-slate-900">$1,120</span>
+                                <span className="font-bold text-slate-900">
+                                    {marketData?.dolar?.blue?.venta 
+                                        ? `$${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0 }).format(marketData.dolar.blue.venta)}`
+                                        : '$...'}
+                                </span>
                             </div>
                             <div className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
                                 <div className="flex items-center gap-2">
                                     <Building2 className="w-4 h-4 text-blue-600" />
                                     <span className="text-sm font-medium text-slate-700">M² CABA</span>
                                 </div>
-                                <span className="font-bold text-slate-900">USD 2,450</span>
+                                <span className="font-bold text-slate-900">
+                                    {marketData?.mercadoInmobiliario?.precioM2?.caba?.venta 
+                                        ? `USD ${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0 }).format(marketData.mercadoInmobiliario.precioM2.caba.venta)}`
+                                        : 'USD ...'}
+                                </span>
                             </div>
                         </div>
                     )}
