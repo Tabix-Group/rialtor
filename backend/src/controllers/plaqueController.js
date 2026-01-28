@@ -1737,11 +1737,12 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     console.log('[PLACAS VIP] Creando placa VIP premium con diseño editorial');
     
     // === SISTEMA DE PROPORCIÓN ÓPTIMA ===
-    const exteriorHeight = 588;        // Altura interna (sin borde inferior)
-    const contentHeight = 380;         // Más espacio para información
-    const footerHeight = 112;          // Footer más compacto
+    // Ajustado para footer más compacto: 15-20% menos de espacio vertical
+    const exteriorHeight = 672;        // Aumentado para que la imagen tome más lugar
+    const contentHeight = 300;         // Reducido para que la info sea más compacta
+    const footerHeight = 112;          // Footer proporcional
     
-    const contentY = exteriorHeight + 12; // +12px del borde superior
+    const contentY = exteriorHeight + borderSize; // Inicio del área de contenido
     const footerY = contentY + contentHeight;
     
     // 1. Imagen EXTERIOR con BORDE BLANCO SOLO ARRIBA Y LATERALES
@@ -2112,11 +2113,11 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     
     // Capa 6: Código QR con diseño limpio y profesional
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
-    const qrSize = 165; // Tamaño óptimo
-    const qrFrameSize = qrSize + 32; // Marco incluido
-    const qrX = width - qrSize - 70; // Posición desde el borde derecho
+    const qrSize = 145; // Tamaño optimizado para el nuevo layout compacto
+    const qrFrameSize = qrSize + 28; // Marco más ajustado
+    const qrX = width - qrSize - 65; // Posición horizontal balanceada
     // Alinear bottom del QR con el agente y características
-    const qrY = footerY - qrFrameSize - 25; // Alineado con agente
+    const qrY = footerY - qrFrameSize - 20; // Más cerca del footer para compactar
     
     try {
       // Generar código QR de alta calidad
@@ -2141,10 +2142,10 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
             </linearGradient>
             <!-- Sombra suave -->
             <filter id="qrShadow" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
-              <feOffset dx="0" dy="3" result="offsetblur"/>
+              <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+              <feOffset dx="0" dy="2" result="offsetblur"/>
               <feComponentTransfer>
-                <feFuncA type="linear" slope="0.18"/>
+                <feFuncA type="linear" slope="0.15"/>
               </feComponentTransfer>
               <feMerge>
                 <feMergeNode/>
@@ -2155,19 +2156,19 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
           
           <!-- Marco exterior -->
           <rect x="0" y="0" width="${qrFrameSize}" height="${qrFrameSize}" 
-                fill="url(#qrFrameGrad)" rx="10" filter="url(#qrShadow)"/>
+                fill="url(#qrFrameGrad)" rx="8" filter="url(#qrShadow)"/>
           
           <!-- Línea superior elegante -->
-          <line x1="16" y1="5" x2="${qrFrameSize - 16}" y2="5" 
-                stroke="rgba(255,255,255,0.2)" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="14" y1="4" x2="${qrFrameSize - 14}" y2="4" 
+                stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-linecap="round"/>
           
           <!-- Fondo blanco del QR -->
-          <rect x="8" y="8" width="${qrSize + 16}" height="${qrSize + 16}" 
-                fill="#ffffff" rx="6"/>
+          <rect x="7" y="7" width="${qrSize + 14}" height="${qrSize + 14}" 
+                fill="#ffffff" rx="5"/>
           
           <!-- Borde sutil -->
-          <rect x="8" y="8" width="${qrSize + 16}" height="${qrSize + 16}" 
-                fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="0.8" rx="6"/>
+          <rect x="7" y="7" width="${qrSize + 14}" height="${qrSize + 14}" 
+                fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="0.7" rx="5"/>
         </svg>`
       );
       
@@ -2188,8 +2189,8 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
         },
         {
           input: qrBuffer,
-          top: 16,
-          left: 16
+          top: 14,
+          left: 14
         }
       ])
       .png({ quality: 95 })
@@ -2198,8 +2199,8 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       // Agregar a composiciones
       composites.push({
         input: qrWithFrame,
-        top: Math.round(qrY - 16),
-        left: qrX - 16
+        top: Math.round(qrY - 14),
+        left: qrX - 14
       });
       
       console.log('[PLACAS VIP] Código QR generado para:', qrUrl);
@@ -2293,7 +2294,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       /* Tipo de propiedad - azul marino elegante */
       .vip-tipo { 
         font-family: 'Playfair Display', Georgia, serif; 
-        font-size: 30px; 
+        font-size: 26px; 
         font-weight: 700; 
         fill: #2d4458; 
         letter-spacing: 0px;
@@ -2302,7 +2303,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       /* Dirección - misma tipografía que el tipo de propiedad */
       .vip-direccion { 
         font-family: 'Playfair Display', Georgia, serif; 
-        font-size: 30px; 
+        font-size: 26px; 
         font-weight: 700; 
         fill: #2d4458; 
         letter-spacing: 0px;
@@ -2311,7 +2312,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       /* Valores de características - azul grisáceo */
       .vip-feature-value { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 24px; 
+        font-size: 21px; 
         font-weight: 700; 
         fill: #3d5166; 
       }
@@ -2319,7 +2320,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       /* Labels de características - celeste suave */
       .vip-feature-label { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 12px; 
+        font-size: 11px; 
         font-weight: 500; 
         fill: #8197ab; 
         letter-spacing: 0.1px;
@@ -2328,7 +2329,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
       /* Footer URL - azul marino */
       .vip-footer-url { 
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
-        font-size: 20px; 
+        font-size: 18px; 
         font-weight: 700; 
         fill: #3d5166; 
         letter-spacing: 0.2px;
@@ -2464,56 +2465,52 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   <!-- === SECCIÓN DE INFORMACIÓN DE PROPIEDAD === -->\n`;
   
-  // Posicionamiento vertical optimizado
-  let currentY = contentY + 38;
+  // Posicionamiento vertical optimizado para diseño compacto
+  let currentY = contentY + 30;
   
   // LABEL: "Propiedad"
   svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-label">PROPIEDAD</text>\n`;
-  currentY += 32;
+  currentY += 28;
   
   // TIPO de propiedad y DIRECCIÓN en la misma línea
   svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-tipo">${tipo}</text>\n`;
   
   if (direccion) {
     // Calcular ancho aproximado del tipo (Playfair Display 30px, bold, serif)
-    const tipoWidth = tipo.length * 21; // Ajustado a 21px por carácter
-    const separatorX = infoStartX + tipoWidth + 30; // Margen de 30px
+    const tipoWidth = tipo.length * 20; 
+    const separatorX = infoStartX + tipoWidth + 25; 
     
-    // Espacio disponible para la dirección - MÁS RESTRICTIVO
-    // Dejar margen de 80px desde el borde derecho para evitar que se salga
-    const maxDireccionX = width - 100; // Margen final de 100px
-    const maxDireccionWidth = maxDireccionX - separatorX - 35; // 35px de espacio antes de la dirección
+    // Espacio disponible para la dirección
+    const maxDireccionX = width - 100; 
+    const maxDireccionWidth = maxDireccionX - separatorX - 30; 
     
     // Calcular tamaño de fuente dinámico basado en la longitud de la dirección
-    // Usar ratio más conservador: 0.55 (tipografía serif es más ancha)
-    let direccionFontSize = 30;
-    const charWidthRatio = 0.55; // Ratio ancho/altura para Playfair Display
-    const estimatedDireccionWidth = direccion.length * (30 * charWidthRatio);
+    let direccionFontSize = 26;
+    const charWidthRatio = 0.55; 
+    const estimatedDireccionWidth = direccion.length * (26 * charWidthRatio);
     
     if (estimatedDireccionWidth > maxDireccionWidth) {
-      // Si no cabe, calcular tamaño proporcional de forma más conservadora
-      direccionFontSize = Math.max(14, Math.floor((maxDireccionWidth / direccion.length) / charWidthRatio * 0.9)); // 0.9 para dejar margen extra
+      direccionFontSize = Math.max(14, Math.floor((maxDireccionWidth / direccion.length) / charWidthRatio * 0.9));
     }
     
     // Separador vertical entre tipo y dirección
-    svg += `  <line x1="${separatorX}" y1="${currentY - 20}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
+    svg += `  <line x1="${separatorX}" y1="${currentY - 18}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
     
-    // Dirección a la derecha del separador con tamaño adaptativo
-    // Usar text-anchor="start" para mejor control y añadir clip-path si es necesario
-    svg += `  <text x="${separatorX + 35}" y="${currentY}" class="vip-direccion" style="font-size: ${direccionFontSize}px; overflow: hidden;" clip-path="url(#direccionClipPath)">${direccion}</text>\n`;
+    // Dirección a la derecha del separador
+    svg += `  <text x="${separatorX + 30}" y="${currentY}" class="vip-direccion" style="font-size: ${direccionFontSize}px; overflow: hidden;" clip-path="url(#direccionClipPath)">${direccion}</text>\n`;
   }
   
-  currentY += 28;
+  currentY += 24;
   
   // Separador minimalista celeste
-  svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 80}" y2="${currentY}" stroke="#a8c5dd" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />\n`;
-  currentY += 32;
+  svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 70}" y2="${currentY}" stroke="#a8c5dd" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />\n`;
+  currentY += 28;
   
-  // === CARACTERÍSTICAS - Grid 2x2 con ambientes, cochera, dormitorios, baños, etc. ===
-const ambientesCard = ambientes ? { icon: 'icon-descripcion', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' } : null;  const cocheraCard = cocheras ? { icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' } : null;
+  // === CARACTERÍSTICAS - Grid 2x2 ===
+  const ambientesCard = ambientes ? { icon: 'icon-descripcion', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' } : null;
+  const cocheraCard = cocheras ? { icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' } : null;
   
   const features = [];
-  // Construir el array de features en orden: ambientes, cochera, m2_totales, m2_cubiertos, dormitorios, baños
   if (ambientesCard) features.push(ambientesCard);
   if (cocheraCard) features.push(cocheraCard);
   if (m2_totales) features.push({ icon: 'icon-area', value: `${m2_totales}`, unit: 'm²', label: 'totales' });
@@ -2522,43 +2519,40 @@ const ambientesCard = ambientes ? { icon: 'icon-descripcion', value: ambientes, 
   if (banos) features.push({ icon: 'icon-bath', value: banos, unit: '', label: banos === '1' ? 'baño' : 'baños' });
   
   // Calcular posiciones de columnas para características
-  // Ajustar para que las tarjetas ocupen el mismo alto que el agente (265px)
-  const iconSize = 26;
+  const iconSize = 24;
   const featureColWidth = Math.min(210, (infoWidth - 25) / 2);
   
-  // Calcular altura disponible desde currentY hasta footerY - 25px (donde termina el agente)
-  const availableHeight = (footerY - 25) - currentY;
-  // Si tenemos features en 2 columnas, calcular spacing para distribuir uniformemente
+  // Calcular altura disponible
+  const availableHeight = (footerY - 20) - currentY;
   const numRows = Math.ceil(features.length / 2);
-  const featureRowHeight = numRows > 0 ? (availableHeight - 52) / numRows : 60; // 52px es la altura de cada card
+  const featureRowHeight = numRows > 0 ? (availableHeight - 46) / numRows : 50; 
   
   const col1X = infoStartX;
   const col2X = infoStartX + featureColWidth + 25;
   
   if (features.length > 0) {
-    svg += `\n  <!-- Grid de características (ambientes, cochera, metros, dormitorios, baños) -->\n`;
+    svg += `\n  <!-- Grid de características compacto -->\n`;
     
     features.forEach((feature, index) => {
-      if (index >= 6) return; // Máximo 6 características
+      if (index >= 6) return; 
       
       const col = index % 2;
       const row = Math.floor(index / 2);
       const featureX = col === 0 ? col1X : col2X;
       const featureY = currentY + (row * featureRowHeight);
       
-      // Verificar límites
-      if (featureY + 45 > footerY - 18) return;
+      if (featureY + 40 > footerY - 15) return;
       
-      // Contenedor con tono celeste suave
-      svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="52" rx="10" fill="#f5f9fc" opacity="0.8" />\n`;
-      svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="52" rx="10" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
+      // Contenedor más compacto
+      svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="46" rx="8" fill="#f5f9fc" opacity="0.8" />\n`;
+      svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="46" rx="8" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
       
       svg += `  <g style="color: #6b8299">\n`;
       svg += `    <svg x="${featureX}" y="${featureY}" width="${iconSize}" height="${iconSize}">\n`;
       svg += `      <use href="#${feature.icon}" />\n`;
       svg += `    </svg>\n`;
-      svg += `    <text x="${featureX + iconSize + 10}" y="${featureY + 18}" class="vip-feature-value">${feature.value}<tspan style="font-size: 15px; font-weight: 500; fill: #8197ab;"> ${feature.unit}</tspan></text>\n`;
-      svg += `    <text x="${featureX + iconSize + 10}" y="${featureY + 36}" class="vip-feature-label">${feature.label}</text>\n`;
+      svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 16}" class="vip-feature-value">${feature.value}<tspan style="font-size: 13px; font-weight: 500; fill: #8197ab;"> ${feature.unit}</tspan></text>\n`;
+      svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 32}" class="vip-feature-label">${feature.label}</text>\n`;
       svg += `  </g>\n`;
     });
   }
