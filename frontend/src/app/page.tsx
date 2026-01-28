@@ -217,7 +217,7 @@ export default function Home() {
     },
     {
       name: "Prospectos",
-      description: "Gestioná leads y oportunidades: seguí prospectos, segmentá por interés.",
+      description: "Gestioná leads y oportunidades: seguí prospectos, funnel de ventas y proyecciones de negocios.",
       icon: UserPlus,
       href: "/prospectos",
       requiresAuth: true,
@@ -960,7 +960,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-white/5 pt-8 text-center">
-            <p className="text-sm text-purple-300/40">© 2025 RIALTOR · Todos los derechos reservados</p>
+            <p className="text-sm text-purple-300/40">© 2026 RIALTOR · Todos los derechos reservados</p>
           </div>
         </div>
       </footer>

@@ -123,7 +123,7 @@ export default function ProspectosPage() {
           <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center gap-3 mb-8">
               <div className="h-10 w-1 bg-blue-600 rounded-full"></div>
-              <h2 className="text-3xl font-bold text-slate-800">Embudo de Proyecciones</h2>
+              <h2 className="text-3xl font-bold text-slate-800">Funnel de Proyecciones</h2>
             </div>
             
             <SalesFunnel 
