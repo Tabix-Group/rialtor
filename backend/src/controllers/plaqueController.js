@@ -1736,6 +1736,9 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     
     console.log('[PLACAS VIP] Creando placa VIP premium con diseño editorial');
     
+    // 1. Configuración de bordes
+    const borderSize = 12; // Borde blanco de 12px en top, left, right
+
     // === SISTEMA DE PROPORCIÓN ÓPTIMA ===
     // Ajustado para footer más compacto: 15-20% menos de espacio vertical
     const exteriorHeight = 672;        // Aumentado para que la imagen tome más lugar
@@ -1745,8 +1748,7 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     const contentY = exteriorHeight + borderSize; // Inicio del área de contenido
     const footerY = contentY + contentHeight;
     
-    // 1. Imagen EXTERIOR con BORDE BLANCO SOLO ARRIBA Y LATERALES
-    const borderSize = 12; // Borde blanco de 12px en top, left, right
+    // Imagen EXTERIOR con BORDE BLANCO SOLO ARRIBA Y LATERALES
     const exteriorInnerWidth = width - (borderSize * 2);
     const exteriorInnerHeight = exteriorHeight; // Sin restar borde inferior
     
@@ -2522,40 +2524,43 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   const iconSize = 24;
   const featureColWidth = Math.min(210, (infoWidth - 25) / 2);
   
-  // Calcular altura disponible
-  const availableHeight = (footerY - 20) - currentY;
-  const numRows = Math.ceil(features.length / 2);
-  const featureRowHeight = numRows > 0 ? (availableHeight - 46) / numRows : 50; 
-  
-  const col1X = infoStartX;
-  const col2X = infoStartX + featureColWidth + 25;
-  
-  if (features.length > 0) {
-    svg += `\n  <!-- Grid de características compacto -->\n`;
+    // Calcular altura disponible
+    const availableHeight = (footerY - 15) - currentY;
+    const numRows = Math.ceil(features.length / 2);
+    // Asegurar un mínimo de espacio entre filas, reduciendo el alto de la tarjeta si es necesario
+    const cardHeight = 42; 
+    const rowSpacing = 8;
+    const featureRowHeight = Math.max(cardHeight + rowSpacing, numRows > 1 ? (availableHeight / numRows) : cardHeight + rowSpacing);
     
-    features.forEach((feature, index) => {
-      if (index >= 6) return; 
+    const col1X = infoStartX;
+    const col2X = infoStartX + featureColWidth + 25;
+    
+    if (features.length > 0) {
+      svg += `\n  <!-- Grid de características compacto -->\n`;
       
-      const col = index % 2;
-      const row = Math.floor(index / 2);
-      const featureX = col === 0 ? col1X : col2X;
-      const featureY = currentY + (row * featureRowHeight);
-      
-      if (featureY + 40 > footerY - 15) return;
-      
-      // Contenedor más compacto
-      svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="46" rx="8" fill="#f5f9fc" opacity="0.8" />\n`;
-      svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="46" rx="8" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
-      
-      svg += `  <g style="color: #6b8299">\n`;
-      svg += `    <svg x="${featureX}" y="${featureY}" width="${iconSize}" height="${iconSize}">\n`;
-      svg += `      <use href="#${feature.icon}" />\n`;
-      svg += `    </svg>\n`;
-      svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 16}" class="vip-feature-value">${feature.value}<tspan style="font-size: 13px; font-weight: 500; fill: #8197ab;"> ${feature.unit}</tspan></text>\n`;
-      svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 32}" class="vip-feature-label">${feature.label}</text>\n`;
-      svg += `  </g>\n`;
-    });
-  }
+      features.forEach((feature, index) => {
+        if (index >= 6) return; 
+        
+        const col = index % 2;
+        const row = Math.floor(index / 2);
+        const featureX = col === 0 ? col1X : col2X;
+        const featureY = currentY + (row * featureRowHeight);
+        
+        if (featureY + cardHeight > footerY - 5) return;
+        
+        // Contenedor más compacto
+        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="#f5f9fc" opacity="0.8" />\n`;
+        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
+        
+        svg += `  <g style="color: #6b8299">\n`;
+        svg += `    <svg x="${featureX}" y="${featureY - 2}" width="${iconSize}" height="${iconSize}">\n`;
+        svg += `      <use href="#${feature.icon}" />\n`;
+        svg += `    </svg>\n`;
+        svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 12}" class="vip-feature-value" style="font-size: 19px;">${feature.value}<tspan style="font-size: 12px; font-weight: 500; fill: #8197ab;"> ${feature.unit}</tspan></text>\n`;
+        svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 28}" class="vip-feature-label" style="font-size: 10px;">${feature.label}</text>\n`;
+        svg += `  </g>\n`;
+      });
+    }
   
   // === FOOTER EDITORIAL PREMIUM ===
   svg += `\n  <!-- Footer Editorial Premium -->\n`;
