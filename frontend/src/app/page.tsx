@@ -328,9 +328,9 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#0f0627] via-[#1a0e3f] to-[#09090b] text-white">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-purple-500/10 bg-[#0f0627]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
@@ -338,15 +338,15 @@ export default function Home() {
                 RIALTOR
               </Link>
               <div className="hidden md:flex items-center gap-6">
-                <Link href="#features" className="text-sm text-zinc-400 hover:text-white transition-colors">
+                <Link href="#features" className="text-sm text-purple-300/70 hover:text-white transition-colors">
                   Herramientas
                 </Link>
-                <Link href="#pricing" className="text-sm text-zinc-400 hover:text-white transition-colors">
+                <Link href="#pricing" className="text-sm text-purple-300/70 hover:text-white transition-colors">
                   Precios
                 </Link>
                 <button
                   onClick={handleScrollToDemo}
-                  className="text-sm text-zinc-400 hover:text-white transition-colors"
+                  className="text-sm text-purple-300/70 hover:text-white transition-colors"
                 >
                   Demo
                 </button>
@@ -355,7 +355,7 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <Link
                 href="/auth/login"
-                className="text-sm text-zinc-400 hover:text-white transition-colors px-4 py-2"
+                className="text-sm text-purple-300/70 hover:text-white transition-colors px-4 py-2"
               >
                 Iniciar sesión
               </Link>
@@ -372,8 +372,8 @@ export default function Home() {
 
       {/* Hero Section - Split Layout */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-full blur-3xl opacity-50" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(139,92,246,0.25),rgba(255,255,255,0))]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-violet-500/15 via-purple-500/15 to-indigo-500/15 rounded-full blur-3xl opacity-60" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
@@ -385,8 +385,8 @@ export default function Home() {
               className="space-y-8"
             >
               <motion.div variants={fadeInUp}>
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-zinc-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-xs font-medium text-purple-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
                   Potenciado por IA
                 </span>
               </motion.div>
@@ -396,14 +396,14 @@ export default function Home() {
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
               >
                 La plataforma definitiva para{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-300 to-zinc-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-200 via-purple-300 to-violet-400">
                   agentes inmobiliarios
                 </span>
               </motion.h1>
 
               <motion.p
                 variants={fadeInUp}
-                className="text-lg lg:text-xl text-zinc-400 max-w-xl leading-relaxed"
+                className="text-lg lg:text-xl text-purple-200/70 max-w-xl leading-relaxed"
               >
                 Cerrá más operaciones con IA, herramientas especializadas y datos en tiempo real del mercado argentino.
               </motion.p>
@@ -429,10 +429,10 @@ export default function Home() {
 
               {/* Trust indicators */}
               <motion.div variants={fadeInUp} className="pt-8 border-t border-white/5">
-                <p className="text-xs text-zinc-500 mb-4 uppercase tracking-wider">Empresas que confían en nosotros</p>
+                <p className="text-xs text-purple-300/50 mb-4 uppercase tracking-wider">Empresas que confían en nosotros</p>
                 <div className="flex items-center gap-8 opacity-50">
                   {["CBRE", "RE/MAX", "Century21", "Coldwell"].map((brand) => (
-                    <span key={brand} className="text-sm font-semibold tracking-wider text-zinc-500">
+                    <span key={brand} className="text-sm font-semibold tracking-wider text-purple-300/40">
                       {brand}
                     </span>
                   ))}
@@ -461,7 +461,7 @@ export default function Home() {
                       <div className="text-3xl lg:text-4xl font-bold tracking-tight mb-1">
                         {stat.value}
                       </div>
-                      <div className="text-sm text-zinc-500">{stat.label}</div>
+                      <div className="text-sm text-purple-200/60">{stat.label}</div>
                     </div>
                   </motion.div>
                 ))}
@@ -473,7 +473,7 @@ export default function Home() {
 
       {/* Features Section - Bento Grid */}
       <section id="features" className="py-24 lg:py-32 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,rgba(120,119,198,0.08),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,rgba(139,92,246,0.08),rgba(255,255,255,0))]" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
@@ -483,7 +483,7 @@ export default function Home() {
             variants={staggerContainer}
             className="max-w-2xl mb-16 lg:mb-20"
           >
-            <motion.p variants={fadeInUp} className="text-sm font-medium text-zinc-500 mb-3 uppercase tracking-wider">
+            <motion.p variants={fadeInUp} className="text-sm font-medium text-purple-300/60 mb-3 uppercase tracking-wider">
               Herramientas
             </motion.p>
             <motion.h2
@@ -492,7 +492,7 @@ export default function Home() {
             >
               Todo lo que necesitás para vender más
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-lg text-zinc-400">
+            <motion.p variants={fadeInUp} className="text-lg text-purple-200/60">
               Herramientas profesionales para el mercado inmobiliario argentino en una sola plataforma.
             </motion.p>
           </motion.div>
@@ -521,10 +521,10 @@ export default function Home() {
                           isLarge ? "min-h-[200px]" : ""
                         }`}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                         <div className="relative w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-5 group-hover:bg-white/10 transition-colors">
-                          <feature.icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
+                          <feature.icon className="w-5 h-5 text-purple-300/60 group-hover:text-white transition-colors" />
                         </div>
 
                         <div className="relative space-y-2">
@@ -532,17 +532,17 @@ export default function Home() {
                             <h3 className="text-lg font-semibold group-hover:text-white transition-colors">
                               {feature.name}
                             </h3>
-                            <ArrowUpRight className="w-4 h-4 text-zinc-600 opacity-0 group-hover:opacity-100 group-hover:text-white transition-all" />
+                            <ArrowUpRight className="w-4 h-4 text-purple-400/40 opacity-0 group-hover:opacity-100 group-hover:text-purple-300 transition-all" />
                           </div>
-                          <p className="text-sm text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">
+                          <p className="text-sm text-purple-200/50 leading-relaxed group-hover:text-purple-200/70 transition-colors">
                             {feature.description}
                           </p>
                         </div>
 
                         {feature.isSpecial && (
                           <div className="absolute top-6 right-6 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-medium text-emerald-500">LIVE</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+                            <span className="text-[10px] font-medium text-violet-400">LIVE</span>
                           </div>
                         )}
                       </div>
@@ -550,13 +550,13 @@ export default function Home() {
                   ) : (
                     <div className="relative h-full p-6 lg:p-8 bg-white/[0.01] border border-white/5 rounded-2xl opacity-50">
                       <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-5">
-                        <feature.icon className="w-5 h-5 text-zinc-600" />
+                        <feature.icon className="w-5 h-5 text-purple-400/40" />
                       </div>
 
                       <div className="space-y-2">
-                        <h3 className="text-lg font-semibold text-zinc-500">{feature.name}</h3>
-                        <p className="text-sm text-zinc-600 leading-relaxed">{feature.description}</p>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 text-[10px] font-medium text-zinc-500 mt-3">
+                        <h3 className="text-lg font-semibold text-purple-300/50">{feature.name}</h3>
+                        <p className="text-sm text-purple-200/40 leading-relaxed">{feature.description}</p>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 text-[10px] font-medium text-purple-300/50 mt-3">
                           Requiere registro
                         </span>
                       </div>
@@ -571,7 +571,7 @@ export default function Home() {
 
       {/* Demo Video Section */}
       <section id="demo-video" className="py-24 lg:py-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/[0.03] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/[0.03] to-transparent" />
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
@@ -581,7 +581,7 @@ export default function Home() {
             variants={staggerContainer}
             className="text-center mb-12 lg:mb-16"
           >
-            <motion.p variants={fadeInUp} className="text-sm font-medium text-zinc-500 mb-3 uppercase tracking-wider">
+            <motion.p variants={fadeInUp} className="text-sm font-medium text-purple-300/60 mb-3 uppercase tracking-wider">
               Demo
             </motion.p>
             <motion.h2
@@ -590,7 +590,7 @@ export default function Home() {
             >
               Descubrí cómo funciona
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-lg text-zinc-400 max-w-2xl mx-auto">
+            <motion.p variants={fadeInUp} className="text-lg text-purple-200/60 max-w-2xl mx-auto">
               2 minutos para entender cómo RIALTOR transforma tu trabajo diario
             </motion.p>
           </motion.div>
@@ -620,7 +620,7 @@ export default function Home() {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-24 lg:py-32 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(120,119,198,0.08),rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(139,92,246,0.08),rgba(255,255,255,0))]" />
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div
@@ -630,11 +630,11 @@ export default function Home() {
             variants={staggerContainer}
           >
             <motion.div variants={fadeInUp} className="text-center mb-16 lg:mb-20">
-              <p className="text-sm font-medium text-zinc-500 mb-3 uppercase tracking-wider">Precios</p>
+              <p className="text-sm font-medium text-purple-300/60 mb-3 uppercase tracking-wider">Precios</p>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
                 Planes simples y transparentes
               </h2>
-              <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+              <p className="text-lg text-purple-200/60 max-w-2xl mx-auto">
                 Elegí el plan perfecto para potenciar tu negocio inmobiliario
               </p>
             </motion.div>
@@ -688,20 +688,20 @@ export default function Home() {
 
               {/* Annual Plan */}
               <motion.div variants={fadeInUp} className="relative group">
-                <div className="absolute -inset-px bg-gradient-to-b from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl" />
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-xs font-semibold z-10">
+                <div className="absolute -inset-px bg-gradient-to-b from-violet-500/20 via-purple-500/20 to-indigo-500/20 rounded-2xl" />
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-violet-500 text-white px-4 py-1 rounded-full text-xs font-semibold z-10">
                   Más popular
                 </div>
-                <div className="relative h-full p-8 lg:p-10 bg-zinc-900 border border-white/10 rounded-2xl">
+                <div className="relative h-full p-8 lg:p-10 bg-purple-950 border border-purple-500/20 rounded-2xl">
                   <div className="space-y-8">
                     <div className="space-y-2">
                       <h3 className="text-xl font-semibold">Anual</h3>
                       <div className="flex items-baseline gap-2 flex-wrap">
-                        <span className="text-lg text-zinc-600 line-through">$300</span>
+                        <span className="text-lg text-purple-400/50 line-through">$300</span>
                         <span className="text-5xl font-bold tracking-tight">$240</span>
-                        <span className="text-zinc-500">USD/año</span>
+                        <span className="text-purple-300/60">USD/año</span>
                       </div>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300 text-xs font-semibold">
                         Ahorrás 20%
                       </span>
                     </div>
@@ -729,10 +729,10 @@ export default function Home() {
                               idx >= 12 ? "bg-emerald-500/20" : "bg-white/5"
                             }`}
                           >
-                            <Check className={`w-3 h-3 ${idx >= 12 ? "text-emerald-400" : "text-zinc-400"}`} />
+                            <Check className={`w-3 h-3 ${idx >= 12 ? "text-violet-400" : "text-purple-300/60"}`} />
                           </div>
                           <span
-                            className={`text-sm ${idx >= 12 ? "text-white font-medium" : "text-zinc-400"}`}
+                            className={`text-sm ${idx >= 12 ? "text-white font-medium" : "text-purple-200/70"}`}
                           >
                             {item}
                           </span>
@@ -742,7 +742,7 @@ export default function Home() {
 
                     <Link
                       href="/auth/register"
-                      className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all duration-200"
+                      className="w-full inline-flex items-center justify-center px-6 py-3.5 bg-violet-500 text-white font-semibold rounded-full hover:bg-violet-600 transition-all duration-200"
                     >
                       Elegir plan anual
                     </Link>
@@ -752,7 +752,7 @@ export default function Home() {
             </div>
 
             <motion.div variants={fadeInUp} className="text-center mt-8">
-              <p className="text-sm text-zinc-500">Sin permanencia · Cancelá cuando quieras</p>
+              <p className="text-sm text-purple-300/50">Sin permanencia · Cancelá cuando quieras</p>
             </motion.div>
           </motion.div>
         </div>
@@ -768,12 +768,12 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 via-purple-500/20 to-indigo-500/20 rounded-3xl blur-xl" />
             <div className="relative p-12 lg:p-16 bg-white/[0.02] border border-white/5 rounded-3xl">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
                 Listo para transformar tu negocio?
               </h2>
-              <p className="text-lg text-zinc-400 max-w-xl mx-auto mb-8">
+              <p className="text-lg text-purple-200/60 max-w-xl mx-auto mb-8">
                 Únite a más de 500 agentes inmobiliarios que ya usan RIALTOR.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -797,12 +797,12 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 bg-[#09090b]">
+      <footer className="border-t border-white/5 bg-gradient-to-b from-[#1a0e3f] to-[#09090b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-10 lg:gap-12 mb-12">
             <div className="md:col-span-1 space-y-4">
               <span className="text-xl font-bold">RIALTOR</span>
-              <p className="text-sm text-zinc-500 leading-relaxed">
+              <p className="text-sm text-purple-200/50 leading-relaxed">
                 La plataforma definitiva para agentes inmobiliarios en Argentina.
               </p>
             </div>
@@ -825,12 +825,12 @@ export default function Home() {
                   { name: "Resumidor", href: "/documents/summary", requiresAuth: true },
                 ].map((tool) =>
                   tool.requiresAuth && !user ? (
-                    <li key={tool.name} className="text-zinc-600">
+                    <li key={tool.name} className="text-purple-400/40">
                       {tool.name}
                     </li>
                   ) : (
                     <li key={tool.name}>
-                      <Link href={tool.href} className="text-zinc-400 hover:text-white transition-colors">
+                      <Link href={tool.href} className="text-purple-300/70 hover:text-white transition-colors">
                         {tool.name}
                       </Link>
                     </li>
@@ -843,17 +843,17 @@ export default function Home() {
               <h3 className="font-semibold mb-4 text-sm">Soporte</h3>
               <ul className="space-y-2.5 text-sm">
                 <li>
-                  <Link href="/centro-ayuda" className="text-zinc-400 hover:text-white transition-colors">
+                  <Link href="/centro-ayuda" className="text-purple-300/70 hover:text-white transition-colors">
                     Centro de Ayuda
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contacto" className="text-zinc-400 hover:text-white transition-colors">
+                  <Link href="/contacto" className="text-purple-300/70 hover:text-white transition-colors">
                     Contacto
                   </Link>
                 </li>
                 <li>
-                  <a href="mailto:rialtor@rialtor.app" className="text-zinc-400 hover:text-white transition-colors">
+                  <a href="mailto:rialtor@rialtor.app" className="text-purple-300/70 hover:text-white transition-colors">
                     rialtor@rialtor.app
                   </a>
                 </li>
@@ -864,12 +864,12 @@ export default function Home() {
               <h3 className="font-semibold mb-4 text-sm">Legal</h3>
               <ul className="space-y-2.5 text-sm">
                 <li>
-                  <Link href="/terminos" className="text-zinc-400 hover:text-white transition-colors">
+                  <Link href="/terminos" className="text-purple-300/70 hover:text-white transition-colors">
                     Términos y Condiciones
                   </Link>
                 </li>
                 <li>
-                  <Link href="/politica-privacidad" className="text-zinc-400 hover:text-white transition-colors">
+                  <Link href="/politica-privacidad" className="text-purple-300/70 hover:text-white transition-colors">
                     Política de Privacidad
                   </Link>
                 </li>
@@ -878,7 +878,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-white/5 pt-8 text-center">
-            <p className="text-sm text-zinc-500">© 2025 RIALTOR · Todos los derechos reservados</p>
+            <p className="text-sm text-purple-300/40">© 2025 RIALTOR · Todos los derechos reservados</p>
           </div>
         </div>
       </footer>
