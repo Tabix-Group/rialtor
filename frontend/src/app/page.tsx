@@ -305,6 +305,52 @@ export default function Home() {
     }
   }
 
+  // Componente de fondo decorativo con líneas y elementos
+  const BackgroundElements = () => (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      {/* Líneas diagonales */}
+      <svg
+        className="absolute inset-0 w-full h-full opacity-30"
+        viewBox="0 0 1000 1000"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="lineGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#a78bfa', stopOpacity: 0.3 }} />
+            <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 0 }} />
+          </linearGradient>
+          <linearGradient id="lineGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.2 }} />
+            <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 0 }} />
+          </linearGradient>
+        </defs>
+
+        {/* Líneas principales */}
+        <line x1="0" y1="0" x2="1000" y2="1000" stroke="url(#lineGrad1)" strokeWidth="2" />
+        <line x1="1000" y1="0" x2="0" y2="1000" stroke="url(#lineGrad2)" strokeWidth="2" />
+        <line x1="500" y1="0" x2="500" y2="1000" stroke="url(#lineGrad1)" strokeWidth="1" opacity="0.5" />
+
+        {/* Triángulos decorativos */}
+        <polygon points="800,100 900,300 700,300" fill="none" stroke="#a78bfa" strokeWidth="1" opacity="0.4" />
+        <polygon points="100,600 200,750 0,750" fill="none" stroke="#c084fc" strokeWidth="1" opacity="0.3" />
+
+        {/* Puntos/Nodos */}
+        <circle cx="200" cy="200" r="3" fill="#a78bfa" opacity="0.5" />
+        <circle cx="800" cy="300" r="2" fill="#c084fc" opacity="0.4" />
+        <circle cx="400" cy="600" r="2.5" fill="#a78bfa" opacity="0.4" />
+        <circle cx="750" cy="700" r="2" fill="#7c3aed" opacity="0.3" />
+        <circle cx="100" cy="800" r="3" fill="#c084fc" opacity="0.3" />
+      </svg>
+
+      {/* Rectángulo decorativo en la esquina inferior derecha */}
+      <div className="absolute bottom-20 right-10 w-96 h-64 border border-violet-500/30 rounded-3xl opacity-40 transform rotate-12" />
+
+      {/* Pequeños elementos flotantes */}
+      <div className="absolute top-1/3 right-1/4 w-32 h-32 border border-purple-500/20 rounded-full opacity-30" />
+      <div className="absolute bottom-1/4 left-1/3 w-24 h-24 border border-violet-500/25 rounded-lg opacity-25 transform -rotate-45" />
+    </div>
+  )
+
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
@@ -328,7 +374,8 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0f0627] via-[#1a0e3f] to-[#09090b] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#0f0627] via-[#1a0e3f] to-[#09090b] text-white overflow-hidden">
+      <BackgroundElements />
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-purple-500/10 bg-[#0f0627]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -353,18 +400,29 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Link
-                href="/auth/login"
-                className="text-sm text-purple-300/70 hover:text-white transition-colors px-4 py-2"
-              >
-                Iniciar sesión
-              </Link>
-              <Link
-                href="/auth/register"
-                className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors"
-              >
-                Comenzar gratis
-              </Link>
+              {user ? (
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-medium bg-violet-500 text-white px-4 py-2 rounded-full hover:bg-violet-600 transition-colors"
+                >
+                  Ir al Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="text-sm text-purple-300/70 hover:text-white transition-colors px-4 py-2"
+                  >
+                    Iniciar sesión
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors"
+                  >
+                    Comenzar gratis
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -409,22 +467,34 @@ export default function Home() {
               </motion.p>
 
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/auth/register"
-                  className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all duration-200"
-                >
-                  Comenzar gratis
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <button
-                  onClick={handleScrollToDemo}
-                  className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/5 border border-white/10 font-medium rounded-full hover:bg-white/10 transition-all duration-200"
-                >
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                    <Play className="w-3 h-3 ml-0.5" />
-                  </div>
-                  Ver demo
-                </button>
+                {user ? (
+                  <Link
+                    href="/dashboard"
+                    className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-violet-500 text-white font-semibold rounded-full hover:bg-violet-600 transition-all duration-200"
+                  >
+                    Acceder al Dashboard
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/auth/register"
+                      className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all duration-200"
+                    >
+                      Comenzar gratis
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <button
+                      onClick={handleScrollToDemo}
+                      className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/5 border border-white/10 font-medium rounded-full hover:bg-white/10 transition-all duration-200"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                        <Play className="w-3 h-3 ml-0.5" />
+                      </div>
+                      Ver demo
+                    </button>
+                  </>
+                )}
               </motion.div>
 
               {/* Trust indicators */}
@@ -777,19 +847,31 @@ export default function Home() {
                 Únite a más de 500 agentes inmobiliarios que ya usan RIALTOR.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  href="/auth/register"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all duration-200"
-                >
-                  Comenzar gratis
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/contacto"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 font-medium rounded-full hover:bg-white/10 transition-all duration-200"
-                >
-                  Contactar ventas
-                </Link>
+                {user ? (
+                  <Link
+                    href="/dashboard"
+                    className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-violet-500 text-white font-semibold rounded-full hover:bg-violet-600 transition-all duration-200"
+                  >
+                    Ir al Dashboard
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/auth/register"
+                      className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all duration-200"
+                    >
+                      Comenzar gratis
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    <Link
+                      href="/contacto"
+                      className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 font-medium rounded-full hover:bg-white/10 transition-all duration-200"
+                    >
+                      Contactar ventas
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
