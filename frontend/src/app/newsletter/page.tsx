@@ -348,8 +348,8 @@ export default function NewsletterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.content) {
-      alert('Completa título y contenido');
+    if (!formData.title) {
+      alert('Completa el título');
       return;
     }
 
@@ -1289,7 +1289,7 @@ export default function NewsletterPage() {
                 {/* Contenido */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Contenido <span className="text-red-500">*</span>
+                    Contenido
                   </label>
                   <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
                     <ReactQuill

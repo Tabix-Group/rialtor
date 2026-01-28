@@ -1,7 +1,6 @@
 "use client"
 
 import { TrendingUp, Info } from "lucide-react"
-import { useState } from "react"
 
 interface CommissionRate {
   min: number
@@ -174,7 +173,24 @@ const commissionsData: CommissionSection[] = [
 ]
 
 export default function RealEstateCommissions() {
-  const [expandedSection, setExpandedSection] = useState<string | null>(null)
+  // Flattened list de todas las comisiones para vista de tabla
+  const allCommissions = commissionsData.flatMap((section) =>
+    section.types.map((type) => ({
+      operationType: section.title,
+      region: section.subtitle || "General",
+      party: type.name,
+      description: type.description,
+      rate: type.seller.max > 0 ? type.seller : type.buyer,
+      notes: type.notes,
+      isSeller: type.seller.max > 0,
+    }))
+  )
+
+  const formatRate = (min: number, max: number) => {
+    if (min === 0 && max === 0) return "Sin comisión"
+    if (min === max) return `${min.toFixed(2)}%`
+    return `${min.toFixed(2)}% - ${max.toFixed(2)}%`
+  }
 
   return (
     <section className="space-y-6">
@@ -200,124 +216,57 @@ export default function RealEstateCommissions() {
         </p>
       </div>
 
-      {/* Commissions Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {commissionsData.map((section, sectionIdx) => (
-          <div
-            key={sectionIdx}
-            className="bg-card border border-border rounded-xl overflow-hidden hover:border-foreground/20 transition-all hover:shadow-md"
-          >
-            {/* Section Header */}
-            <div
-              onClick={() =>
-                setExpandedSection(
-                  expandedSection === section.title ? null : section.title
-                )
-              }
-              className="p-4 cursor-pointer bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-border hover:from-slate-100 hover:to-slate-200 dark:hover:from-slate-800 dark:hover:to-slate-700 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{section.title}</h3>
-                  {section.subtitle && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {section.subtitle}
-                    </p>
+      {/* Commissions Table */}
+      <div className="overflow-x-auto rounded-xl border border-border">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-border">
+              <th className="px-6 py-4 text-left text-sm font-semibold">Tipo de Operación</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Zona</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Parte</th>
+              <th className="px-6 py-4 text-right text-sm font-semibold">Comisión</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Notas</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {allCommissions.map((commission, idx) => (
+              <tr
+                key={idx}
+                className="hover:bg-muted/50 transition-colors"
+              >
+                <td className="px-6 py-4">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm">{commission.operationType}</span>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    {commission.region}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="text-sm text-muted-foreground">{commission.party}</span>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <span className={`text-sm font-semibold ${
+                    commission.rate.max === 0 
+                      ? "text-green-600 dark:text-green-400" 
+                      : "text-slate-900 dark:text-slate-100"
+                  }`}>
+                    {formatRate(commission.rate.min, commission.rate.max)}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  {commission.notes && (
+                    <span className="text-xs text-muted-foreground italic">
+                      {commission.notes}
+                    </span>
                   )}
-                </div>
-                <div
-                  className={`w-5 h-5 text-muted-foreground transition-transform ${
-                    expandedSection === section.title ? "rotate-180" : ""
-                  }`}
-                >
-                  ▼
-                </div>
-              </div>
-            </div>
-
-            {/* Section Content */}
-            {expandedSection === section.title && (
-              <div className="p-4 space-y-4">
-                {section.types.map((type, typeIdx) => {
-                  const isAlquiler = section.title.toLowerCase().includes("alquiler");
-                  const sellerLabel = isAlquiler ? "Locador" : "Vendedor";
-                  const buyerLabel = isAlquiler ? "Locatario" : "Comprador";
-
-                  return (
-                    <div
-                      key={typeIdx}
-                      className="bg-muted/50 rounded-lg p-4 border border-border/50"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-sm">{type.name}</h4>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {type.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        {type.seller.max > 0 && (
-                          <div className="bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
-                            <p className="text-xs font-medium text-muted-foreground mb-1">
-                              {sellerLabel}
-                            </p>
-                            <p className="text-sm font-semibold">
-                              {type.seller.min === type.seller.max
-                                ? `${type.seller.min.toFixed(2)}%`
-                                : `${type.seller.min.toFixed(2)}% - ${type.seller.max.toFixed(2)}%`}
-                            </p>
-                          </div>
-                        )}
-
-                        {type.buyer.max > 0 && (
-                          <div className="bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
-                            <p className="text-xs font-medium text-muted-foreground mb-1">
-                              {buyerLabel}
-                            </p>
-                            <p className="text-sm font-semibold">
-                              {type.buyer.min === type.buyer.max
-                                ? `${type.buyer.min.toFixed(2)}%`
-                                : `${type.buyer.min.toFixed(2)}% - ${type.buyer.max.toFixed(2)}%`}
-                            </p>
-                          </div>
-                        )}
-
-                        {type.seller.max === 0 && type.buyer.max === 0 && (
-                          <div className="col-span-2 bg-white dark:bg-slate-950 rounded p-3 border border-border/50">
-                            <p className="text-xs font-medium text-muted-foreground mb-1">
-                              Comisión
-                            </p>
-                            <p className="text-sm font-semibold text-green-600">
-                              Sin comisión
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      {type.notes && (
-                        <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/50 italic">
-                          📝 {type.notes}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Summary when collapsed */}
-            {expandedSection !== section.title && (
-              <div className="p-4 flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  {section.types.length} tipo{section.types.length > 1 ? "s" : ""} de operación
-                </span>
-                <span className="text-xs text-slate-400">Click para expandir</span>
-              </div>
-            )}
-          </div>
-        ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Footer Note */}
