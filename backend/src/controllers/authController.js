@@ -53,6 +53,22 @@ const register = async (req, res, next) => {
       }
     });
 
+    // Asignar rol si se proporciona
+    if (role) {
+      const roleToAssign = await prisma.role.findUnique({
+        where: { name: role }
+      });
+
+      if (roleToAssign) {
+        await prisma.roleAssignment.create({
+          data: {
+            userId: user.id,
+            roleId: roleToAssign.id
+          }
+        });
+      }
+    }
+
     // Generar token
     const token = generateToken(user.id);
 
@@ -101,7 +117,7 @@ const login = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: 'Email or password is incorrect'
+        message: 'El email o contraseña es incorrecto'
       });
     }
 
@@ -109,7 +125,7 @@ const login = async (req, res, next) => {
     if (!user.isActive) {
       return res.status(401).json({
         error: 'Account deactivated',
-        message: 'Your account has been deactivated'
+        message: 'Su cuenta aun no ha sido habilitada'
       });
     }
 
@@ -119,7 +135,7 @@ const login = async (req, res, next) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: 'Email or password is incorrect'
+        message: 'El email o contraseña es incorrecto'
       });
     }
 

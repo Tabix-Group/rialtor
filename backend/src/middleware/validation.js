@@ -10,7 +10,7 @@ const validateRequest = (req, res, next) => {
     }, null, 2));
     return res.status(400).json({
       error: 'Validation failed',
-      message: 'Invalid input data',
+      message: 'Datos inválidos',
       details: errors.array().map(error => ({
         field: error.path,
         message: error.msg,
@@ -28,40 +28,39 @@ const validateAuth = {
     body('email')
       .isEmail()
       .normalizeEmail()
-      .withMessage('Please provide a valid email'),
+      .withMessage('Por favor proporciona un email válido'),
     body('password')
       .isLength({ min: 8 })
       .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/)
-      .withMessage('Password must be at least 8 characters with uppercase, lowercase and number'),
+      .withMessage('La contraseña debe tener al menos 8 caracteres, incluir mayúscula, minúscula y número'),
     body('name')
       .trim()
       .isLength({ min: 2, max: 50 })
-      .withMessage('Name must be between 2 and 50 characters'),
+      .withMessage('El nombre debe tener entre 2 y 50 caracteres'),
     body('phone')
       .optional()
       .isString()
       .isLength({ min: 6, max: 30 })
-      .withMessage('Phone must be between 6 and 30 characters'),
+      .withMessage('El teléfono debe tener entre 6 y 30 caracteres'),
     body('office')
       .optional()
       .isString()
       .isLength({ min: 2, max: 100 })
-      .withMessage('Office must be between 2 and 100 characters'),
+      .withMessage('La oficina debe tener entre 2 y 100 caracteres'),
     body('role')
       .optional()
-      .isString()
-      .isLength({ min: 2, max: 20 })
-      .withMessage('Role must be between 2 and 20 characters'),
+      .isIn(['USUARIO', 'AGENTE', 'BROKER', 'ADMIN'])
+      .withMessage('El rol debe ser uno de: USUARIO, AGENTE, BROKER o ADMIN'),
     validateRequest
   ],
   login: [
     body('email')
       .isEmail()
       .normalizeEmail()
-      .withMessage('Please provide a valid email'),
+      .withMessage('Por favor proporciona un email válido'),
     body('password')
       .notEmpty()
-      .withMessage('Password is required'),
+      .withMessage('La contraseña es requerida'),
     validateRequest
   ]
 };

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, EyeOff, Lock, Mail, ArrowRight, Building2 } from 'lucide-react'
+import { Eye, EyeOff, Lock, Mail, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -11,6 +11,52 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Componente de fondo decorativo con líneas y elementos (igual a la landing)
+  const BackgroundElements = () => (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      {/* Líneas diagonales */}
+      <svg
+        className="absolute inset-0 w-full h-full opacity-30"
+        viewBox="0 0 1000 1000"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="lineGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#a78bfa', stopOpacity: 0.3 }} />
+            <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 0 }} />
+          </linearGradient>
+          <linearGradient id="lineGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.2 }} />
+            <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 0 }} />
+          </linearGradient>
+        </defs>
+
+        {/* Líneas principales */}
+        <line x1="0" y1="0" x2="1000" y2="1000" stroke="url(#lineGrad1)" strokeWidth="2" />
+        <line x1="1000" y1="0" x2="0" y2="1000" stroke="url(#lineGrad2)" strokeWidth="2" />
+        <line x1="500" y1="0" x2="500" y2="1000" stroke="url(#lineGrad1)" strokeWidth="1" opacity="0.5" />
+
+        {/* Triángulos decorativos */}
+        <polygon points="800,100 900,300 700,300" fill="none" stroke="#a78bfa" strokeWidth="1" opacity="0.4" />
+        <polygon points="100,600 200,750 0,750" fill="none" stroke="#c084fc" strokeWidth="1" opacity="0.3" />
+
+        {/* Puntos/Nodos */}
+        <circle cx="200" cy="200" r="3" fill="#a78bfa" opacity="0.5" />
+        <circle cx="800" cy="300" r="2" fill="#c084fc" opacity="0.4" />
+        <circle cx="400" cy="600" r="2.5" fill="#a78bfa" opacity="0.4" />
+        <circle cx="750" cy="700" r="2" fill="#7c3aed" opacity="0.3" />
+        <circle cx="100" cy="800" r="3" fill="#c084fc" opacity="0.3" />
+      </svg>
+
+      {/* Rectángulo decorativo en la esquina inferior derecha */}
+      <div className="absolute bottom-20 right-10 w-96 h-64 border border-violet-500/30 rounded-3xl opacity-40 transform rotate-12" />
+
+      {/* Pequeños elementos flotantes */}
+      <div className="absolute top-1/3 right-1/4 w-32 h-32 border border-purple-500/20 rounded-full opacity-30" />
+      <div className="absolute bottom-1/4 left-1/3 w-24 h-24 border border-violet-500/25 rounded-lg opacity-25 transform -rotate-45" />
+    </div>
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,32 +101,41 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-gradient-to-b from-[#0f0627] via-[#1a0e3f] to-[#09090b] text-white overflow-hidden">
+      <BackgroundElements />
       {/* Lado Izquierdo - Formulario */}
-      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 animate-fade-in">
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 animate-fade-in relative z-10">
+        <div className="absolute top-6 left-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-purple-300/70 hover:text-white transition-colors"
+          >
+            ← Volver a Home
+          </Link>
+        </div>
         <div className="mx-auto w-full max-w-sm lg:w-96">
           <div className="flex flex-col items-center lg:items-start">
-            {/* Logo Placeholder o Icono */}
-            <div className="h-12 w-12 bg-remax-blue rounded-xl flex items-center justify-center shadow-lg mb-6">
-              <Building2 className="h-6 w-6 text-white" />
+            {/* Logo - Icono mejorado */}
+            <div className="h-14 w-14 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg mb-6 hover:shadow-xl transition-shadow">
+              <Sparkles className="h-7 w-7 text-white" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-              Bienvenido a Rialtor
+            <h2 className="text-4xl font-bold tracking-tight text-white">
+              Bienvenido
             </h2>
-            <p className="mt-2 text-sm text-gray-600 text-center lg:text-left">
-              Gestiona tus propiedades y clientes con inteligencia.
+            <p className="mt-2 text-sm text-purple-300/70 text-center lg:text-left">
+              Gestiona tus propiedades y clientes con inteligencia
             </p>
           </div>
 
           <div className="mt-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-purple-200">
                   Correo Electrónico
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-5 w-5 text-purple-400" />
                   </div>
                   <input
                     id="email"
@@ -90,19 +145,19 @@ export default function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-remax-blue focus:border-remax-blue sm:text-sm transition-colors"
+                    className="block w-full pl-10 pr-3 py-3 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 focus:ring-violet-500 focus:border-violet-500 focus:outline-none focus:ring-2 sm:text-sm transition-colors hover:bg-white/15"
                     placeholder="nombre@ejemplo.com"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-purple-200">
                   Contraseña
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                    <Lock className="h-5 w-5 text-purple-400" />
                   </div>
                   <input
                     id="password"
@@ -112,14 +167,14 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-remax-blue focus:border-remax-blue sm:text-sm transition-colors"
+                    className="block w-full pl-10 pr-10 py-3 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 focus:ring-violet-500 focus:border-violet-500 focus:outline-none focus:ring-2 sm:text-sm transition-colors hover:bg-white/15"
                     placeholder="••••••••"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                      className="text-purple-400 hover:text-purple-200 focus:outline-none transition-colors"
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5" />
@@ -137,25 +192,25 @@ export default function LoginPage() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-remax-blue focus:ring-remax-blue border-gray-300 rounded"
+                    className="h-4 w-4 text-violet-500 focus:ring-violet-500 border-purple-500/30 rounded bg-white/10"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-purple-200">
                     Recordarme
                   </label>
                 </div>
 
                 <div className="text-sm">
-                  <a href="#" className="font-medium text-remax-blue hover:text-remax-blue-dark transition-colors">
+                  <a href="#" className="font-medium text-violet-400 hover:text-violet-300 transition-colors">
                     ¿Olvidaste tu contraseña?
                   </a>
                 </div>
               </div>
 
               {error && (
-                <div className="rounded-md bg-red-50 p-4 border border-red-200 animate-pulse-subtle">
+                <div className="rounded-md bg-red-500/10 p-4 border border-red-500/30 animate-pulse-subtle">
                   <div className="flex">
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                      <h3 className="text-sm font-medium text-red-200 whitespace-pre-wrap">{error}</h3>
                     </div>
                   </div>
                 </div>
@@ -165,7 +220,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-remax-blue hover:bg-remax-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-remax-blue transition-all shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent rounded-lg text-white bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 focus:ring-offset-[#0f0627] transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <span className="flex items-center">
@@ -188,10 +243,10 @@ export default function LoginPage() {
             <div className="mt-8">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
+                  <div className="w-full border-t border-purple-500/20" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-background text-gray-500">
+                  <span className="px-2 bg-gradient-to-b from-[#0f0627] via-[#1a0e3f] to-[#09090b] text-purple-300/70">
                     ¿No tienes una cuenta?
                   </span>
                 </div>
@@ -200,7 +255,7 @@ export default function LoginPage() {
               <div className="mt-6">
                 <Link
                   href="/auth/register"
-                  className="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full flex justify-center py-3 px-4 border border-purple-500/30 rounded-lg shadow-sm bg-white/5 text-sm font-medium text-purple-200 hover:bg-white/10 hover:border-purple-500/50 transition-colors"
                 >
                   Registrarse ahora
                 </Link>
@@ -212,8 +267,7 @@ export default function LoginPage() {
 
       {/* Lado Derecho - Imagen Decorativa */}
       <div className="hidden lg:block relative w-0 flex-1 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-remax-blue/90 to-remax-blue-dark/90 mix-blend-multiply z-10" />
-        {/* NOTA: Puedes reemplazar el src con tu imagen 'REAL.png' o similar */}
+        <div className="absolute inset-0 bg-gradient-to-l from-violet-600/40 to-transparent z-10" />
         <Image
           className="absolute inset-0 h-full w-full object-cover"
           src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
@@ -228,7 +282,7 @@ export default function LoginPage() {
               <p className="text-lg font-medium">
                 &ldquo;Rialtor ha transformado la manera en que gestiono mis clientes. La automatización y los reportes son de otro nivel.&rdquo;
               </p>
-              <footer className="text-sm font-medium text-remax-orange-100">
+              <footer className="text-sm font-medium text-purple-200">
                 — Agente Top Producer
               </footer>
             </blockquote>
