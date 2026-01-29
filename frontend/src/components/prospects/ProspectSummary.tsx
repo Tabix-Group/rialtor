@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 interface ProspectSummaryProps {
-  stats: {
+  stats?: {
     avgSale?: number;
     avgCommission?: number;
     clientsProspected?: number;
