@@ -37,6 +37,7 @@ const register = async (req, res, next) => {
         name,
         phone,
         office,
+        isActive: false,  // Los nuevos usuarios se crean inactivos por defecto
         // role eliminado, ahora se asigna por roleAssignments
       },
       select: {
@@ -45,6 +46,7 @@ const register = async (req, res, next) => {
         name: true,
         phone: true,
         office: true,
+        isActive: true,
         // role eliminado
         avatar: true,
         createdAt: true

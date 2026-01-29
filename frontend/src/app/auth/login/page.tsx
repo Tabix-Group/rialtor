@@ -58,6 +58,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-6 left-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-500"
+        >
+          ← Volver a Home
+        </Link>
+      </div>
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="mx-auto h-20 w-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">

@@ -157,6 +157,23 @@ export default function UserManagement({ token }: { token: string }) {
     setSaving(false);
   };
 
+  const handleToggleActive = async (user: any) => {
+    setSaving(true);
+    try {
+      const res = await authenticatedFetch(`/api/users?id=${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !user.isActive })
+      });
+      if (!res.ok) throw new Error('Error');
+      const updatedUser = await res.json();
+      setUsers(users.map(u => u.id === user.id ? updatedUser.user : u));
+    } catch {
+      setError('Error al cambiar estado del usuario');
+    }
+    setSaving(false);
+  };
+
   return (
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
@@ -211,8 +228,17 @@ export default function UserManagement({ token }: { token: string }) {
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-500'}`}>{user.isActive ? 'Activo' : 'Inactivo'}</span>
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap flex gap-2">
-                    <button onClick={() => openEditModal(user)} className="text-blue-600 hover:text-blue-900"><Edit className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(user)} className="text-gray-600 hover:text-gray-900"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => openEditModal(user)} className="text-blue-600 hover:text-blue-900" title="Editar"><Edit className="w-4 h-4" /></button>
+                    {user.isActive ? (
+                      <button onClick={() => handleToggleActive(user)} className="text-orange-600 hover:text-orange-900" title="Desactivar">
+                        <X className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button onClick={() => handleToggleActive(user)} className="text-green-600 hover:text-green-900" title="Activar">
+                        <Check className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-900" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}
