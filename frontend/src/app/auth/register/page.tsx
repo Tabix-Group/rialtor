@@ -39,7 +39,16 @@ export default function RegisterPage() {
     }
 
     try {
-      // Integración directa con el backend
+      // Usar la misma lógica de configuración de API que el login
+      const getApiUrl = () => {
+        if (typeof window !== 'undefined') {
+          const hostname = window.location.hostname;
+          if (hostname === 'rialtor.app' || hostname === 'www.rialtor.app') {
+            return 'https://remax-be-production.up.railway.app';
+          }
+        }
+        return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003';
+      };
 
       // Unir firstName y lastName en name para el backend
       const payload = {
@@ -51,7 +60,7 @@ export default function RegisterPage() {
         role: formData.role
       };
 
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch(`${getApiUrl()}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -73,6 +82,14 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-6 left-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-500"
+        >
+          ← Volver a Home
+        </Link>
+      </div>
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="mx-auto h-20 w-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
