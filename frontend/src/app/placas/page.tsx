@@ -150,7 +150,7 @@ export default function PlacasPage() {
     agency: '',
     agentContact: '',
     url: 'www.rialtor.app',
-    sidebarColor: 'rgba(84, 74, 63, 0.7)',
+    sidebarColor: 'rgba(255, 182, 193, 0.7)',
     brand: 'RE/MAX'
   });
   const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip' | 'model4' | 'model5'>('standard');
@@ -356,7 +356,7 @@ export default function PlacasPage() {
           agentName: '',
           agency: '',
           agentContact: '',
-          sidebarColor: 'rgba(84, 74, 63, 0.7)',
+          sidebarColor: 'rgba(255, 182, 193, 0.7)',
           brand: 'RE/MAX'
         });
         setModelType('standard');
@@ -1085,14 +1085,14 @@ export default function PlacasPage() {
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color Corporativo</label>
                             <div className="grid grid-cols-4 gap-2">
                               {[
-                                { name: 'Crema Natural', value: 'rgba(244, 237, 227, 0.7)' },
-                                { name: 'Beige Suave', value: 'rgba(235, 225, 210, 0.7)' },
-                                { name: 'Marfil Claro', value: 'rgba(240, 232, 220, 0.7)' },
-                                { name: 'Arena Pastel', value: 'rgba(242, 229, 212, 0.7)' },
-                                { name: 'Café Claro', value: 'rgba(230, 215, 200, 0.7)' },
-                                { name: 'Tostado Suave', value: 'rgba(220, 205, 190, 0.7)' },
-                                { name: 'Marrón Pastel', value: 'rgba(210, 195, 180, 0.7)' },
-                                { name: 'Tierra Suave', value: 'rgba(200, 185, 170, 0.7)' },
+                                { name: 'Rosado Pastel', value: 'rgba(255, 182, 193, 0.7)' },
+                                { name: 'Melocotón Suave', value: 'rgba(255, 218, 185, 0.7)' },
+                                { name: 'Amarillo Pastel', value: 'rgba(255, 253, 208, 0.7)' },
+                                { name: 'Verde Menta', value: 'rgba(198, 239, 206, 0.7)' },
+                                { name: 'Celeste Pastel', value: 'rgba(176, 224, 230, 0.7)' },
+                                { name: 'Azul Cielo', value: 'rgba(173, 216, 230, 0.7)' },
+                                { name: 'Violeta Suave', value: 'rgba(221, 160, 221, 0.7)' },
+                                { name: 'Magenta Pastel', value: 'rgba(255, 192, 203, 0.7)' },
                               ].map((color) => (
                                 <button
                                   key={color.value}
