@@ -150,7 +150,7 @@ export default function PlacasPage() {
     agency: '',
     agentContact: '',
     url: 'www.rialtor.app',
-    sidebarColor: 'rgba(255, 182, 193, 0.7)',
+    sidebarColor: 'rgba(84, 74, 63, 0.7)',
     brand: 'RE/MAX'
   });
   const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip' | 'model4' | 'model5'>('standard');
@@ -356,7 +356,7 @@ export default function PlacasPage() {
           agentName: '',
           agency: '',
           agentContact: '',
-          sidebarColor: 'rgba(255, 182, 193, 0.7)',
+          sidebarColor: 'rgba(84, 74, 63, 0.7)',
           brand: 'RE/MAX'
         });
         setModelType('standard');
@@ -1085,6 +1085,7 @@ export default function PlacasPage() {
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color Corporativo</label>
                             <div className="grid grid-cols-4 gap-2">
                               {[
+                                { name: 'Recomendado', value: 'rgba(84, 74, 63, 0.7)' },
                                 { name: 'Rosado Pastel', value: 'rgba(255, 182, 193, 0.7)' },
                                 { name: 'Melocotón Suave', value: 'rgba(255, 218, 185, 0.7)' },
                                 { name: 'Amarillo Pastel', value: 'rgba(255, 253, 208, 0.7)' },
