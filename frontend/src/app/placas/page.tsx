@@ -1083,11 +1083,35 @@ export default function PlacasPage() {
                         {isFieldVisible('sidebarColor') && (
                           <div className="space-y-1.5">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color Corporativo</label>
-                            <div className="flex gap-2">
-                              <input type="color" value={propertyData.sidebarColor?.startsWith('#') ? propertyData.sidebarColor : '#544a3f'} onChange={(e) => setPropertyData(prev => ({ ...prev, sidebarColor: e.target.value }))}
-                                className="h-10 w-12 p-1 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer" />
-                              <input type="text" value={propertyData.sidebarColor} onChange={(e) => setPropertyData(prev => ({ ...prev, sidebarColor: e.target.value }))}
-                                className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm" placeholder="#HEX o RGBA" />
+                            <div className="grid grid-cols-4 gap-2">
+                              {[
+                                { name: 'Crema Natural', value: 'rgba(244, 237, 227, 0.7)' },
+                                { name: 'Beige Suave', value: 'rgba(235, 225, 210, 0.7)' },
+                                { name: 'Marfil Claro', value: 'rgba(240, 232, 220, 0.7)' },
+                                { name: 'Arena Pastel', value: 'rgba(242, 229, 212, 0.7)' },
+                                { name: 'Café Claro', value: 'rgba(230, 215, 200, 0.7)' },
+                                { name: 'Tostado Suave', value: 'rgba(220, 205, 190, 0.7)' },
+                                { name: 'Marrón Pastel', value: 'rgba(210, 195, 180, 0.7)' },
+                                { name: 'Tierra Suave', value: 'rgba(200, 185, 170, 0.7)' },
+                              ].map((color) => (
+                                <button
+                                  key={color.value}
+                                  onClick={() => setPropertyData(prev => ({ ...prev, sidebarColor: color.value }))}
+                                  className={`group relative h-12 rounded-lg border-2 transition-all ${
+                                    propertyData.sidebarColor === color.value
+                                      ? 'border-slate-400 shadow-md'
+                                      : 'border-slate-200 hover:border-slate-300'
+                                  }`}
+                                  style={{ backgroundColor: color.value }}
+                                  title={color.name}
+                                >
+                                  {propertyData.sidebarColor === color.value && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <Check className="w-4 h-4 text-slate-600" />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
                             </div>
                           </div>
                         )}
