@@ -4,9 +4,71 @@ import { useState } from 'react'
 import { Eye, EyeOff, User, Lock, Mail, Phone, Building, ArrowRight, CheckCircle, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import BackgroundElements from '@/components/BackgroundElements'
 
 export default function RegisterPage() {
+  // Componente de fondo decorativo con líneas y elementos (igual a la landing)
+  const BackgroundElements = () => (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      {/* Líneas diagonales */}
+      <svg
+        className="absolute inset-0 w-full h-full opacity-30"
+        viewBox="0 0 1000 1000"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="lineGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#a78bfa', stopOpacity: 0.3 }} />
+            <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 0 }} />
+          </linearGradient>
+          <linearGradient id="lineGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.2 }} />
+            <stop offset="100%" style={{ stopColor: '#7c3aed', stopOpacity: 0 }} />
+          </linearGradient>
+        </defs>
+        <line x1="0" y1="0" x2="1000" y2="1000" stroke="url(#lineGrad1)" strokeWidth="2" />
+        <line x1="1000" y1="0" x2="0" y2="1000" stroke="url(#lineGrad2)" strokeWidth="2" />
+      </svg>
+
+      {/* Triángulos decorativos */}
+      <svg className="absolute -top-20 -right-20 w-96 h-96 opacity-20" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="triangleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#a78bfa' }} />
+            <stop offset="100%" style={{ stopColor: '#7c3aed' }} />
+          </linearGradient>
+        </defs>
+        <polygon points="100,10 190,190 10,190" fill="url(#triangleGrad)" fillOpacity="0.3" />
+      </svg>
+
+      {/* Triángulo inferior izquierdo */}
+      <svg className="absolute -bottom-16 -left-20 w-80 h-80 opacity-15" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="triangleGrad2" x1="100%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" style={{ stopColor: '#c084fc' }} />
+            <stop offset="100%" style={{ stopColor: '#a78bfa' }} />
+          </linearGradient>
+        </defs>
+        <polygon points="100,10 190,190 10,190" fill="url(#triangleGrad2)" fillOpacity="0.4" />
+      </svg>
+
+      {/* Círculos/nodos decorativos */}
+      <svg className="absolute inset-0 w-full h-full opacity-20">
+        <defs>
+          <radialGradient id="nodeGrad1">
+            <stop offset="0%" style={{ stopColor: '#a78bfa', stopOpacity: 0.6 }} />
+            <stop offset="100%" style={{ stopColor: '#a78bfa', stopOpacity: 0 }} />
+          </radialGradient>
+          <radialGradient id="nodeGrad2">
+            <stop offset="0%" style={{ stopColor: '#c084fc', stopOpacity: 0.6 }} />
+            <stop offset="100%" style={{ stopColor: '#c084fc', stopOpacity: 0 }} />
+          </radialGradient>
+        </defs>
+        <circle cx="20%" cy="30%" r="100" fill="url(#nodeGrad1)" />
+        <circle cx="80%" cy="70%" r="80" fill="url(#nodeGrad2)" />
+        <circle cx="50%" cy="50%" r="60" fill="url(#nodeGrad1)" fillOpacity="0.5" />
+      </svg>
+    </div>
+  )
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
