@@ -12,6 +12,8 @@ import {
   AlertCircle,
   Award
 } from 'lucide-react'
+import { CONVERSION_RATES_BY_LEVEL } from '@/constants/conversionRates'
+import type { AgentLevel } from '@/constants/conversionRates'
 
 // --- DEFINICIÓN DE TIPOS ---
 interface FunnelStage {
@@ -24,8 +26,6 @@ interface FunnelStage {
   shadowColor: string
   width: string
 }
-
-type AgentLevel = 'inicial' | 'intermedio' | 'experto'
 
 interface ConversionRates {
   tasaciones: number
@@ -47,50 +47,8 @@ interface SalesFunnelProps {
 
 export default function SalesFunnel({ onSave, showHeader = true, externalHandleSave }: SalesFunnelProps) {
   // --- TASAS DE CONVERSIÓN POR NIVEL Y TIPO DE CLIENTE ---
-  const conversionRatesByLevel: Record<AgentLevel, ConversionRatesByType> = {
-    inicial: {
-      hot: {
-        tasaciones: 59,
-        captaciones: 60,
-        reservas: 45,
-        cierres: 65
-      },
-      cold: {
-        tasaciones: 14,
-        captaciones: 29,
-        reservas: 43,
-        cierres: 63
-      }
-    },
-    intermedio: {
-      hot: {
-        tasaciones: 65,
-        captaciones: 70,
-        reservas: 50,
-        cierres: 80
-      },
-      cold: {
-        tasaciones: 17,
-        captaciones: 35,
-        reservas: 40,
-        cierres: 80
-      }
-    },
-    experto: {
-      hot: {
-        tasaciones: 70,
-        captaciones: 70,
-        reservas: 65,
-        cierres: 90
-      },
-      cold: {
-        tasaciones: 0,
-        captaciones: 0,
-        reservas: 0,
-        cierres: 0
-      }
-    }
-  }
+  // Importada desde conversionRates.ts
+  const conversionRatesByLevel = CONVERSION_RATES_BY_LEVEL
 
   // --- ESTADO INICIAL ---
   const [agentLevel, setAgentLevel] = useState<AgentLevel>('inicial')

@@ -10,6 +10,8 @@ import {
   Save,
   Edit2
 } from 'lucide-react'
+import { getWeightedClosingRate } from '@/constants/conversionRates'
+import type { AgentLevel } from '@/constants/conversionRates'
 
 interface ProspectSummaryProps {
   stats?: {
@@ -40,13 +42,19 @@ export default function ProspectSummary({
     prospectadosFrios: 0,
     ticketPromedio: stats.avgSale || 0,
     comisionPorcentaje: stats.avgCommission || 3,
-    tasaCierrePorcentaje: 30,
-    tasaCierreNivel: 'inicial',
+    tasaCierreNivel: 'inicial' as AgentLevel,
   })
+
+  // Calcular tasa de cierre dinámica según origen y nivel
+  const tasaCierrePorcentaje = getWeightedClosingRate(
+    editedStats.prospectadosReferidos,
+    editedStats.prospectadosFrios,
+    editedStats.tasaCierreNivel
+  )
 
   // Cálculo de comisiones totales
   const totalProspectados = editedStats.prospectadosReferidos + editedStats.prospectadosFrios
-  const comisionesTotales = totalProspectados * editedStats.ticketPromedio * (editedStats.comisionPorcentaje / 100) * (editedStats.tasaCierrePorcentaje / 100)
+  const comisionesTotales = totalProspectados * editedStats.ticketPromedio * (editedStats.comisionPorcentaje / 100) * (tasaCierrePorcentaje / 100)
 
   const formatCurrency = (amount: number) => 
     new Intl.NumberFormat('es-AR', { 
@@ -213,29 +221,25 @@ export default function ProspectSummary({
                 )}
               </div>
 
-              {/* 4. Tasa de Cierre */}
+              {/* 4. Tasa de Cierre (Calculada Automáticamente) */}
               <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
                 {isEditingStats ? (
                   <div className="space-y-1">
-                    <label className="text-[9px] text-slate-300 font-bold uppercase">Nivel</label>
+                    <label className="text-[9px] text-slate-300 font-bold uppercase">Nivel de Agente</label>
                     <select
                       value={editedStats.tasaCierreNivel}
-                      onChange={(e) => setEditedStats({...editedStats, tasaCierreNivel: e.target.value})}
-                      className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-xs border border-slate-500 mb-1"
+                      onChange={(e) => setEditedStats({...editedStats, tasaCierreNivel: e.target.value as AgentLevel})}
+                      className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-xs border border-slate-500 mb-2"
                     >
                       <option value="inicial">Inicial</option>
                       <option value="intermedio">Intermedio</option>
                       <option value="experto">Experto</option>
                     </select>
-                    <label className="text-[9px] text-slate-300 font-bold uppercase">Tasa %</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={editedStats.tasaCierrePorcentaje}
-                      onChange={(e) => setEditedStats({...editedStats, tasaCierrePorcentaje: Math.min(100, Math.max(1, parseInt(e.target.value) || 1))})}
-                      className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
-                    />
+                    <p className="text-[9px] text-slate-400 italic">
+                      La tasa se calcula automáticamente según origen y nivel.
+                      {editedStats.prospectadosReferidos > 0 && ` Referidos: ${getWeightedClosingRate(editedStats.prospectadosReferidos, 0, editedStats.tasaCierreNivel)}%`}
+                      {editedStats.prospectadosFrios > 0 && ` | Bases Frías: ${getWeightedClosingRate(0, editedStats.prospectadosFrios, editedStats.tasaCierreNivel)}%`}
+                    </p>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
@@ -243,8 +247,11 @@ export default function ProspectSummary({
                       <Target className="w-5 h-5 text-rose-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Tasa de Cierre ({editedStats.tasaCierreNivel})</p>
-                      <p className="text-lg font-bold text-white tabular-nums">{editedStats.tasaCierrePorcentaje}%</p>
+                      <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Tasa de Cierre Ponderada ({editedStats.tasaCierreNivel})</p>
+                      <p className="text-lg font-bold text-white tabular-nums">{tasaCierrePorcentaje}%</p>
+                      {editedStats.prospectadosReferidos > 0 && editedStats.prospectadosFrios > 0 && (
+                        <p className="text-[10px] text-slate-400">Ref:{getWeightedClosingRate(editedStats.prospectadosReferidos, 0, editedStats.tasaCierreNivel)}% | Frías:{getWeightedClosingRate(0, editedStats.prospectadosFrios, editedStats.tasaCierreNivel)}%</p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -259,7 +266,7 @@ export default function ProspectSummary({
                   <div>
                     <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Comisiones Totales Proyectadas</p>
                     <p className="text-xl font-extrabold text-white tabular-nums drop-shadow-sm">{formatCurrency(comisionesTotales)}</p>
-                    <p className="text-[10px] text-slate-400">({totalProspectados} × {formatCurrency(editedStats.ticketPromedio)} × {editedStats.comisionPorcentaje}% × {editedStats.tasaCierrePorcentaje}%)</p>
+                    <p className="text-[10px] text-slate-400">({totalProspectados} × {formatCurrency(editedStats.ticketPromedio)} × {editedStats.comisionPorcentaje}% × {tasaCierrePorcentaje}%)</p>
                   </div>
                 </div>
               </div>
