@@ -231,10 +231,22 @@ export default function DashboardPage() {
   const handleEventClick = (event: CalendarEvent, e: React.SyntheticEvent) => {
     e.preventDefault()
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-    const x = Math.min(rect.left + rect.width / 2, window.innerWidth - 180)
+    
+    // Calcular posición X (centrada en el evento, pero dentro de la pantalla)
+    let x = rect.left + rect.width / 2 - 100 // Asumiendo menu de ~200px de ancho
+    x = Math.max(10, Math.min(x, window.innerWidth - 210)) // Mantener dentro de pantalla
+    
+    // Calcular posición Y (debajo del evento, pero dentro de la pantalla)
+    let y = rect.bottom + window.scrollY + 5
+    
+    // Si hay espacio abajo, poner debajo; si no, poner arriba
+    if (y + 150 > window.innerHeight + window.scrollY) {
+      y = rect.top + window.scrollY - 150
+    }
+    
     setContextMenu({
-      x: x,
-      y: rect.top + window.scrollY - 10,
+      x,
+      y,
       event,
     })
   }
@@ -726,7 +738,12 @@ export default function DashboardPage() {
       {contextMenu && (
           <>
             <div className="fixed inset-0 z-[110]" onClick={() => setContextMenu(null)} />
-            <div className="fixed z-[120] bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 min-w-[200px] animate-in slide-in-from-top-2 duration-200" style={{ left: contextMenu.x, top: contextMenu.y }}>
+            <div className="fixed z-[120] bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 min-w-[200px] max-w-xs animate-in slide-in-from-top-2 duration-200" style={{ 
+              left: `${contextMenu.x}px`, 
+              top: `${contextMenu.y}px`,
+              maxHeight: '90vh',
+              overflow: 'auto'
+            }}>
                 {contextMenu.event.meetLink && (
                     <button onClick={() => { window.open(contextMenu.event.meetLink!, '_blank'); setContextMenu(null) }} className="w-full px-5 py-3 text-left hover:bg-blue-50 text-blue-600 text-xs font-black uppercase tracking-tighter flex items-center gap-3"><Video className="w-4 h-4"/> Entrar a Video</button>
                 )}
