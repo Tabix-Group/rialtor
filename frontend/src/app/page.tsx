@@ -453,7 +453,7 @@ export default function Home() {
                 variants={fadeInUp}
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
               >
-                La plataforma definitiva para{" "}
+                La plataforma inteligente para{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-200 via-purple-300 to-violet-400">
                   agentes inmobiliarios
                 </span>
