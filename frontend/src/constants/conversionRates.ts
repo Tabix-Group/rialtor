@@ -4,9 +4,13 @@
  * Origen: 'referidos' (hot) | 'bases_frias' (cold)
  * Nivel: 'inicial' | 'intermedio' | 'experto'
  * 
- * Ejemplos del cliente:
+ * Tasas de Cierre Finales (en %):
+ * - Referidos/Inicial: 10%
+ * - Referidos/Intermedio: 18%
  * - Referidos/Experto: 29%
- * - Referidos/Inicial: 11%
+ * - Bases Frías/Inicial: 1%
+ * - Bases Frías/Intermedio: 2%
+ * - Bases Frías/Experto: N/A (no trabaja con bases frías)
  */
 
 export type AgentLevel = 'inicial' | 'intermedio' | 'experto'
@@ -30,13 +34,13 @@ export const CONVERSION_RATES_BY_LEVEL: Record<AgentLevel, ConversionRatesByType
       tasaciones: 59,
       captaciones: 60,
       reservas: 45,
-      cierres: 65 // Referidos/Inicial
+      cierres: 10 // Referidos/Inicial: 10%
     },
     cold: {
       tasaciones: 14,
       captaciones: 29,
       reservas: 43,
-      cierres: 63 // Bases Frías/Inicial
+      cierres: 1 // Bases Frías/Inicial: 1%
     }
   },
   intermedio: {
@@ -44,13 +48,13 @@ export const CONVERSION_RATES_BY_LEVEL: Record<AgentLevel, ConversionRatesByType
       tasaciones: 65,
       captaciones: 70,
       reservas: 50,
-      cierres: 80 // Referidos/Intermedio
+      cierres: 18 // Referidos/Intermedio: 18%
     },
     cold: {
       tasaciones: 17,
       captaciones: 35,
       reservas: 40,
-      cierres: 80 // Bases Frías/Intermedio
+      cierres: 2 // Bases Frías/Intermedio: 2%
     }
   },
   experto: {
@@ -58,13 +62,13 @@ export const CONVERSION_RATES_BY_LEVEL: Record<AgentLevel, ConversionRatesByType
       tasaciones: 70,
       captaciones: 70,
       reservas: 65,
-      cierres: 90 // Referidos/Experto
+      cierres: 29 // Referidos/Experto: 29%
     },
     cold: {
       tasaciones: 0,
       captaciones: 0,
       reservas: 0,
-      cierres: 0 // Bases Frías/Experto (no trabaja con bases frías)
+      cierres: 0 // Bases Frías/Experto: no trabaja con bases frías
     }
   }
 }
