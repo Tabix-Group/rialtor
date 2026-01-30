@@ -228,7 +228,7 @@ export default function CalendarioPage() {
   const [calendarConnected, setCalendarConnected] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; event: CalendarEvent } | null>(null)
+  const [selectedEventForView, setSelectedEventForView] = useState<CalendarEvent | null>(null)
   const [newEvent, setNewEvent] = useState({
     title: "",
     description: "",
@@ -370,48 +370,40 @@ export default function CalendarioPage() {
     }
   }
 
-  const handleEventClick = (event: CalendarEvent, e: React.SyntheticEvent) => {
-    e.preventDefault()
-    const rect = (e.target as HTMLElement).getBoundingClientRect()
-    // Ajuste para evitar que el menú se salga de pantalla a la derecha
-    const x = Math.min(rect.left + rect.width / 2, window.innerWidth - 150)
-    setContextMenu({
-      x,
-      y: rect.top + window.scrollY,
-      event,
-    })
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEventForView(event)
   }
 
   const handleEditEvent = () => {
-    if (contextMenu) {
-      setEditingEvent(contextMenu.event)
+    if (selectedEventForView) {
+      setEditingEvent(selectedEventForView)
       setNewEvent({
-        title: contextMenu.event.title,
-        description: contextMenu.event.description || "",
-        start: format(contextMenu.event.start, "yyyy-MM-dd'T'HH:mm"),
-        end: format(contextMenu.event.end, "yyyy-MM-dd'T'HH:mm"),
+        title: selectedEventForView.title,
+        description: selectedEventForView.description || "",
+        start: format(selectedEventForView.start, "yyyy-MM-dd'T'HH:mm"),
+        end: format(selectedEventForView.end, "yyyy-MM-dd'T'HH:mm"),
         addMeet: false,
       })
       setShowModal(true)
-      setContextMenu(null)
+      setSelectedEventForView(null)
     }
   }
 
   const handleDeleteEvent = async () => {
-    if (contextMenu && contextMenu.event.id) {
+    if (selectedEventForView && selectedEventForView.id) {
       try {
-        const res = await authenticatedFetch(`/api/calendar/events/${contextMenu.event.id}`, {
+        const res = await authenticatedFetch(`/api/calendar/events/${selectedEventForView.id}`, {
           method: "DELETE",
         })
 
         if (res.ok) {
-          setCalendarEvents(calendarEvents.filter((e) => e.id !== contextMenu.event.id))
+          setCalendarEvents(calendarEvents.filter((e) => e.id !== selectedEventForView.id))
         }
       } catch (error) {
         console.error("Error deleting event:", error)
       }
     }
-    setContextMenu(null)
+    setSelectedEventForView(null)
   }
 
   const getUpcomingEvents = () => {
@@ -603,7 +595,7 @@ export default function CalendarioPage() {
                             })
                             setShowModal(true)
                         }}
-                        onSelectEvent={handleEventClick}
+                        onSelectEvent={(event) => handleEventClick(event as CalendarEvent)}
                         selectable
                         popup
                         components={{
@@ -671,48 +663,52 @@ export default function CalendarioPage() {
             </div>
         </div>
 
-        {/* Context Menu (Click Derecho / Click Evento) */}
-        {contextMenu && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)} />
-            <div
-              className="fixed z-50 bg-white rounded-lg shadow-xl border border-slate-200 py-1 min-w-[200px] animate-in fade-in zoom-in-95 duration-100 origin-top-left"
-              style={{
-                left: contextMenu.x,
-                top: contextMenu.y,
-              }}
-            >
-              <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                 <p className="text-xs font-bold text-slate-400 uppercase">Opciones</p>
-              </div>
-              {contextMenu.event.meetLink && (
-                <button
-                  onClick={() => {
-                    window.open(contextMenu.event.meetLink!, '_blank')
-                    setContextMenu(null)
-                  }}
-                  className="w-full px-4 py-2 text-left hover:bg-blue-50 transition-colors flex items-center gap-2 text-blue-600 font-medium text-sm"
-                >
-                  <Video className="w-4 h-4" />
-                  Ir a la reunión
-                </button>
-              )}
-              <button
-                onClick={handleEditEvent}
-                className="w-full px-4 py-2 text-left hover:bg-slate-50 transition-colors flex items-center gap-2 text-slate-700 font-medium text-sm"
-              >
-                <Edit className="w-4 h-4 text-slate-400" />
-                Editar detalles
-              </button>
-              <button
-                onClick={handleDeleteEvent}
-                className="w-full px-4 py-2 text-left hover:bg-red-50 transition-colors flex items-center gap-2 text-red-600 font-medium text-sm"
-              >
-                <Trash2 className="w-4 h-4" />
-                Eliminar
-              </button>
+        {/* Modal: Ver Evento */}
+        {selectedEventForView && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+            <div className="bg-white rounded-3xl shadow-2xl border border-white/20 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+               <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100 bg-slate-50/50">
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Evento</h3>
+                  <button onClick={() => setSelectedEventForView(null)} className="p-2 text-slate-400 hover:text-slate-900 rounded-full hover:bg-slate-200 transition-colors"><X className="w-6 h-6"/></button>
+               </div>
+               <div className="p-8 space-y-6">
+                  <div>
+                      <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Asunto</label>
+                      <p className="text-lg font-bold text-slate-900">{selectedEventForView.title}</p>
+                  </div>
+                  {selectedEventForView.description && (
+                      <div>
+                          <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Descripción</label>
+                          <p className="text-sm text-slate-700">{selectedEventForView.description}</p>
+                      </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                      <div>
+                          <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Inicio</label>
+                          <p className="text-sm font-semibold text-slate-900">{selectedEventForView.start.toLocaleString('es-ES')}</p>
+                      </div>
+                      <div>
+                          <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Fin</label>
+                          <p className="text-sm font-semibold text-slate-900">{selectedEventForView.end.toLocaleString('es-ES')}</p>
+                      </div>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                      {selectedEventForView.meetLink && (
+                          <button onClick={() => { window.open(selectedEventForView.meetLink!, '_blank'); }} className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                              <Video className="w-4 h-4"/> Meet
+                          </button>
+                      )}
+                      <button onClick={handleEditEvent} className="flex-1 px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                          <Edit className="w-4 h-4"/> Editar
+                      </button>
+                      <button onClick={handleDeleteEvent} className="flex-1 px-6 py-3 bg-red-100 text-red-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                          <Trash2 className="w-4 h-4"/> Borrar
+                      </button>
+                  </div>
+                  <button onClick={() => setSelectedEventForView(null)} className="w-full px-6 py-3 border border-slate-200 rounded-xl text-slate-500 font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-colors">Cerrar</button>
+               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* Modal: Crear / Editar Evento */}
