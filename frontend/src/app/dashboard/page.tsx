@@ -36,7 +36,8 @@ import {
   Edit,
   Trash2,
   Percent,
-  TrendingDown
+  TrendingDown,
+  Send
 } from "lucide-react"
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
