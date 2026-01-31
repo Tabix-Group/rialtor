@@ -2,10 +2,30 @@ const Stripe = require('stripe');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
-});
+// Initialize Stripe only if credentials are configured
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  try {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-10-16',
+    });
+    console.log('[STRIPE] Stripe initialized successfully');
+  } catch (error) {
+    console.error('[STRIPE] Failed to initialize Stripe:', error.message);
+  }
+} else {
+  console.warn('[STRIPE] STRIPE_SECRET_KEY not configured - Stripe features will be unavailable');
+}
+
+// Middleware to check if Stripe is initialized
+const requireStripe = (req, res, next) => {
+  if (!stripe) {
+    return res.status(503).json({ 
+      error: 'Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.' 
+    });
+  }
+  next();
+};
 
 /**
  * Create a Stripe Checkout Session for new user subscription
@@ -523,4 +543,5 @@ module.exports = {
   cancelSubscription,
   processRefund,
   createPortalSession,
+  requireStripe, // Export middleware
 };
