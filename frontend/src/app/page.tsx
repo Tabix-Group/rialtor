@@ -282,7 +282,6 @@ export default function Home() {
   // Verificar si el usuario está inactivo y requiere pago
   useEffect(() => {
     if (!loading && user && !user.isActive && user.requiresSubscription) {
-      console.log('[LANDING] User is inactive and requires payment, redirecting to pricing')
       router.replace(`/pricing?userId=${user.id}`)
     }
   }, [user, loading, router])
@@ -308,7 +307,7 @@ export default function Home() {
         const video = el.querySelector("video") as HTMLVideoElement
         if (video) {
           video.play().catch((e) => {
-            console.log("Video autoplay failed:", e)
+            // Video autoplay failed, silently ignore
           })
         }
       }, 1000)

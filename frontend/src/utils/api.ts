@@ -14,8 +14,6 @@ const getApiUrl = () => {
 
 const API_BASE_URL = getApiUrl();
 
-console.log('🔗 API Base URL:', API_BASE_URL);
-
 class ApiClient {
     private baseURL: string;
 
@@ -155,16 +153,11 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
 
     // Build full URL if relative
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-    console.log('🌐 Making request to:', fullUrl);
-    console.log('📋 Request method:', options.method || 'GET');
-    console.log('📦 Body type:', isFormData ? 'FormData' : typeof options.body);
 
     const response = await fetch(fullUrl, {
         ...options,
         headers,
     });
-
-    console.log('📡 Response status:', response.status);
 
     if (response.status === 401) {
         // Don't redirect for calendar API errors - handle them gracefully
@@ -215,14 +208,11 @@ export async function publicFetch(url: string, options: RequestInit = {}): Promi
 
     // Build full URL if relative
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-    console.log('🌐 Making public request to:', fullUrl);
 
     const response = await fetch(fullUrl, {
         ...options,
         headers,
     });
-
-    console.log('📡 Response status:', response.status);
 
     return response;
 }
