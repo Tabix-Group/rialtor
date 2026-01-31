@@ -9,21 +9,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   
-  // Debug: verificar si user existe
-  console.log('[LayoutWithNav] User from useAuth:', user);
-  console.log('[LayoutWithNav] Loading from useAuth:', loading);
-  
-  // Debug: verificar campos específicos del usuario
-  if (user) {
-    console.log('[LayoutWithNav] user.isActive:', user.isActive);
-    console.log('[LayoutWithNav] user.requiresSubscription:', user.requiresSubscription);
-  }
-  
   // Rutas donde NO se debe mostrar la sidebar (incluso con usuario logueado)
   const noSidebarRoutes = ['/', '/pricing', '/subscription/success', '/auth/login', '/auth/register'];
   const shouldHideSidebar = pathname ? noSidebarRoutes.some(route => pathname.startsWith(route)) : false;
-  
-  console.log('[LayoutWithNav] shouldHideSidebar (route-based):', shouldHideSidebar);
   
   // Lógica de visibilidad de sidebar:
   // - Si está cargando, no mostrar
@@ -40,10 +28,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const isNewUser = user.isActive === true && user.requiresSubscription === true;
     const isUserActive = isLegacyUser || isNewUser;
     
-    console.log('[LayoutWithNav] isLegacyUser:', isLegacyUser);
-    console.log('[LayoutWithNav] isNewUser:', isNewUser);
-    console.log('[LayoutWithNav] isUserActive:', isUserActive);
-    
     if (isUserActive) {
       // Usuarios activos pueden ver la sidebar en todas las rutas
       showSidebar = true;
@@ -52,8 +36,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       showSidebar = true;
     }
   }
-  
-  console.log('[LayoutWithNav] Final showSidebar:', showSidebar);
 
   return (
     <div className="flex min-h-screen">
