@@ -24,6 +24,11 @@ const listUsers = async (req, res, next) => {
           avatar: true,
           isActive: true,
           updatedAt: true,
+          requiresSubscription: true,
+          subscriptionStatus: true,
+          subscriptionPlanType: true,
+          currentPeriodEnd: true,
+          cancelAtPeriodEnd: true,
           roleAssignments: {
             select: {
               role: {
@@ -60,6 +65,11 @@ const listUsers = async (req, res, next) => {
         isActive: true,
         createdAt: true,
         updatedAt: true,
+        requiresSubscription: true,
+        subscriptionStatus: true,
+        subscriptionPlanType: true,
+        currentPeriodEnd: true,
+        cancelAtPeriodEnd: true,
         roleAssignments: {
           select: {
             role: {
@@ -104,7 +114,8 @@ const createUser = async (req, res, next) => {
         name,
         phone,
         office,
-        isActive: true
+        isActive: true,
+        requiresSubscription: false // Usuarios creados por admin NO requieren suscripción
       }
     });
     // Asignar roles si se envían, si no, asignar rol USUARIO por defecto

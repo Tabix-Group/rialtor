@@ -37,6 +37,9 @@ const authenticateToken = async (req, res, next) => {
         // role eliminado
         isActive: true,
         avatar: true,
+        requiresSubscription: true,
+        subscriptionStatus: true,
+        currentPeriodEnd: true,
         roleAssignments: {
           select: {
             role: {
@@ -58,6 +61,34 @@ const authenticateToken = async (req, res, next) => {
       console.log('[AUTH] User is not active:', user.email);
       return res.status(401).json({ error: 'Account deactivated' });
     }
+    
+    // Verificar suscripción si es requerida
+    if (user.requiresSubscription) {
+      const validStatuses = ['active', 'trialing'];
+      
+      if (!user.subscriptionStatus || !validStatuses.includes(user.subscriptionStatus)) {
+        console.log('[AUTH] User subscription invalid:', user.email, 'Status:', user.subscriptionStatus);
+        return res.status(403).json({ 
+          error: 'Active subscription required',
+          requiresPayment: true 
+        });
+      }
+      
+      // Verificar si la suscripción expiró (grace period de 3 días para past_due)
+      if (user.subscriptionStatus === 'past_due' && user.currentPeriodEnd) {
+        const gracePeriodEnd = new Date(user.currentPeriodEnd);
+        gracePeriodEnd.setDate(gracePeriodEnd.getDate() + 3);
+        
+        if (new Date() > gracePeriodEnd) {
+          console.log('[AUTH] User grace period expired:', user.email);
+          return res.status(403).json({ 
+            error: 'Subscription payment overdue',
+            requiresPayment: true 
+          });
+        }
+      }
+    }
+    
     if (user.roleAssignments.length === 0) {
       console.log('[AUTH] User has no role assignments:', user.email);
       return res.status(401).json({ error: 'User has no assigned roles' });

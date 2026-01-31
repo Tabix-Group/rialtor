@@ -130,10 +130,26 @@ export default function RegisterPage() {
       })
 
       if (response.ok) {
-        setSuccess(true)
-        setTimeout(() => {
+        const data = await response.json()
+        
+        // Guardar el token
+        if (data.token) {
+          localStorage.setItem('token', data.token)
+        }
+        
+        // Si requiere pago, redirigir a la página de planes
+        if (data.requiresPayment) {
+          setSuccess(true)
+          setTimeout(() => {
+            window.location.href = `/pricing?userId=${data.user.id}`
+          }, 1500)
+        } else {
+          // Usuario legacy o creado por admin, ir a login
+          setSuccess(true)
+          setTimeout(() => {
             window.location.href = '/auth/login'
-        }, 2000)
+          }, 2000)
+        }
       } else {
         const data = await response.json()
         
@@ -161,7 +177,7 @@ export default function RegisterPage() {
                     <CheckCircle className="h-10 w-10 text-emerald-400" />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">¡Cuenta creada!</h2>
-                <p className="text-purple-200 mb-6">Te estamos redirigiendo al inicio de sesión...</p>
+                <p className="text-purple-200 mb-6">Redirigiendo para completar el proceso...</p>
                 <div className="w-full bg-white/10 rounded-full h-2.5">
                     <div className="bg-gradient-to-r from-violet-500 to-purple-500 h-2.5 rounded-full animate-[width_2s_ease-in-out]" style={{width: '100%'}}></div>
                 </div>

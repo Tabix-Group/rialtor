@@ -38,6 +38,7 @@ const register = async (req, res, next) => {
         phone,
         office,
         isActive: false,  // Los nuevos usuarios se crean inactivos por defecto
+        requiresSubscription: true, // Nuevos usuarios por registro requieren suscripción
         // role eliminado, ahora se asigna por roleAssignments
       },
       select: {
@@ -47,6 +48,7 @@ const register = async (req, res, next) => {
         phone: true,
         office: true,
         isActive: true,
+        requiresSubscription: true,
         // role eliminado
         avatar: true,
         createdAt: true
@@ -73,7 +75,8 @@ const register = async (req, res, next) => {
     res.status(201).json({
       message: 'User registered successfully',
       user,
-      token
+      token,
+      requiresPayment: user.requiresSubscription && !user.isActive // Indica si necesita ir a página de pago
     });
   } catch (error) {
     next(error);

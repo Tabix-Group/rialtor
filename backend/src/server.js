@@ -30,6 +30,7 @@ const favoritesRoutes = require('./routes/favorites');
 const indicatorsRoutes = require('./routes/indicators');
 const newslettersRoutes = require('./routes/newsletters');
 const salesFunnelRoutes = require('./routes/sales-funnel');
+const stripeRoutes = require('./routes/stripeRoutes');
 
 const app = express();
 // Confía en el primer proxy (Railway/Nginx)
@@ -114,7 +115,15 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Body parsing
-app.use(express.json({ limit: '25mb' }));
+// IMPORTANT: Stripe webhook route needs raw body, so we add it before JSON parsing
+// The webhook route will use express.raw() middleware directly
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/stripe/webhook') {
+    next();
+  } else {
+    express.json({ limit: '25mb' })(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 // Compression
@@ -218,6 +227,7 @@ app.use('/api/favorites', favoritesRoutes);
 app.use('/api/indicators', indicatorsRoutes);
 app.use('/api/newsletters', newslettersRoutes);
 app.use('/api/sales-funnel', salesFunnelRoutes);
+app.use('/api/stripe', stripeRoutes);
 app.use('/api/calendar', require('./routes/calendar'));
 
 // Error handling middleware

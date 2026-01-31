@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Edit, Trash2, X, Check } from 'lucide-react';
+import { UserPlus, Edit, Trash2, X, Check, CreditCard, DollarSign, Ban } from 'lucide-react';
 import { authenticatedFetch } from '@/utils/api';
 
 export default function UserManagement({ token }: { token: string }) {
@@ -11,6 +11,12 @@ export default function UserManagement({ token }: { token: string }) {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [showCancelSubscriptionModal, setShowCancelSubscriptionModal] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [subscriptionUser, setSubscriptionUser] = useState<any>(null);
+  const [refundAmount, setRefundAmount] = useState('');
+  const [refundReason, setRefundReason] = useState('requested_by_customer');
+  const [cancelImmediately, setCancelImmediately] = useState(false);
   const [form, setForm] = useState<{
     name: string;
     email: string;
@@ -171,6 +177,12 @@ export default function UserManagement({ token }: { token: string }) {
   };
 
   const handleToggleActive = async (user: any) => {
+    // Solo permitir activación/desactivación manual si NO requiere suscripción
+    if (user.requiresSubscription && user.subscriptionStatus) {
+      setError('Este usuario tiene suscripción activa. Usa los controles de suscripción.');
+      return;
+    }
+    
     setSaving(true);
     try {
       const res = await authenticatedFetch(`/api/users?id=${user.id}`, {
@@ -183,6 +195,81 @@ export default function UserManagement({ token }: { token: string }) {
       setUsers(users.map(u => u.id === user.id ? updatedUser.user : u));
     } catch {
       setError('Error al cambiar estado del usuario');
+    }
+    setSaving(false);
+  };
+
+  const openCancelSubscriptionModal = (user: any) => {
+    setSubscriptionUser(user);
+    setCancelImmediately(false);
+    setShowCancelSubscriptionModal(true);
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!subscriptionUser) return;
+    setSaving(true);
+    try {
+      const res = await authenticatedFetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: subscriptionUser.id,
+          immediately: cancelImmediately
+        })
+      });
+      if (!res.ok) throw new Error('Error al cancelar suscripción');
+      
+      // Refrescar lista de usuarios
+      const usersRes = await authenticatedFetch('/api/users');
+      const usersData = await usersRes.json();
+      setUsers(usersData.users || []);
+      
+      setShowCancelSubscriptionModal(false);
+      setSubscriptionUser(null);
+    } catch (err: any) {
+      setError(err.message || 'Error al cancelar suscripción');
+    }
+    setSaving(false);
+  };
+
+  const openRefundModal = (user: any) => {
+    setSubscriptionUser(user);
+    setRefundAmount('');
+    setRefundReason('requested_by_customer');
+    setShowRefundModal(true);
+  };
+
+  const handleProcessRefund = async () => {
+    if (!subscriptionUser) return;
+    setSaving(true);
+    try {
+      const payload: any = {
+        userId: subscriptionUser.id,
+        reason: refundReason
+      };
+      if (refundAmount) {
+        payload.amount = parseFloat(refundAmount);
+      }
+      
+      const res = await authenticatedFetch('/api/stripe/refund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Error al procesar reembolso');
+      }
+      
+      // Refrescar lista de usuarios
+      const usersRes = await authenticatedFetch('/api/users');
+      const usersData = await usersRes.json();
+      setUsers(usersData.users || []);
+      
+      setShowRefundModal(false);
+      setSubscriptionUser(null);
+    } catch (err: any) {
+      setError(err.message || 'Error al procesar reembolso');
     }
     setSaving(false);
   };
@@ -202,24 +289,14 @@ export default function UserManagement({ token }: { token: string }) {
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <colgroup>
-              <col style={{ width: '16%' }} />
-              <col style={{ width: '18%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '18%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '8%' }} />
-            </colgroup>
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Nombre</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Email</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Teléfono</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Oficina</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Roles</th>
-                {/* <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Permisos</th> */}
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Suscripción</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Plan</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Renovación</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Estado</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Acciones</th>
               </tr>
@@ -227,31 +304,101 @@ export default function UserManagement({ token }: { token: string }) {
             <tbody className="bg-white divide-y divide-gray-200">
               {users.map(user => (
                 <tr key={user.id}>
-                  <td className="px-3 py-2 whitespace-nowrap max-w-[180px] overflow-hidden text-ellipsis">{user.name}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{user.name}</td>
                   <td className="px-3 py-2 whitespace-nowrap max-w-[200px] overflow-hidden text-ellipsis">{user.email}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{user.phone}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{user.office}</td>
                   <td className="px-3 py-2 whitespace-nowrap">
                     {user.roles?.map((role: any) => (
                       <span key={role.id} className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-1 mb-1">{role.name}</span>
                     ))}
                   </td>
-                  {/* Columna permisos eliminada */}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    {user.requiresSubscription ? (
+                      user.subscriptionStatus ? (
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          user.subscriptionStatus === 'active' ? 'bg-green-100 text-green-800' :
+                          user.subscriptionStatus === 'trialing' ? 'bg-blue-100 text-blue-800' :
+                          user.subscriptionStatus === 'past_due' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {user.subscriptionStatus === 'active' ? 'Activo' :
+                           user.subscriptionStatus === 'trialing' ? 'Prueba' :
+                           user.subscriptionStatus === 'past_due' ? 'Pago Atrasado' :
+                           user.subscriptionStatus === 'canceled' ? 'Cancelado' : user.subscriptionStatus}
+                        </span>
+                      ) : (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                          Pendiente
+                        </span>
+                      )
+                    ) : (
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                        Legacy/Admin
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    {user.subscriptionPlanType ? (
+                      <span className="text-xs">
+                        {user.subscriptionPlanType === 'monthly' ? '$25/mes' : '$240/año'}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">-</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 whitespace-nowrap text-xs">
+                    {user.currentPeriodEnd ? (
+                      <>
+                        {new Date(user.currentPeriodEnd).toLocaleDateString()}
+                        {user.cancelAtPeriodEnd && (
+                          <div className="text-red-600 font-semibold">Cancela</div>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-500'}`}>{user.isActive ? 'Activo' : 'Inactivo'}</span>
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap flex gap-2">
-                    <button onClick={() => openEditModal(user)} className="text-blue-600 hover:text-blue-900" title="Editar"><Edit className="w-4 h-4" /></button>
-                    {user.isActive ? (
-                      <button onClick={() => handleToggleActive(user)} className="text-orange-600 hover:text-orange-900" title="Desactivar">
-                        <X className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <button onClick={() => handleToggleActive(user)} className="text-green-600 hover:text-green-900" title="Activar">
-                        <Check className="w-4 h-4" />
-                      </button>
-                    )}
-                    <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-900" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <div className="flex gap-2 flex-wrap">
+                      <button onClick={() => openEditModal(user)} className="text-blue-600 hover:text-blue-900" title="Editar"><Edit className="w-4 h-4" /></button>
+                      
+                      {/* Mostrar controles de suscripción solo si el usuario tiene suscripción activa */}
+                      {user.requiresSubscription && user.subscriptionStatus && ['active', 'trialing', 'past_due'].includes(user.subscriptionStatus) && (
+                        <>
+                          <button 
+                            onClick={() => openCancelSubscriptionModal(user)} 
+                            className="text-orange-600 hover:text-orange-900" 
+                            title="Cancelar Suscripción"
+                          >
+                            <Ban className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => openRefundModal(user)} 
+                            className="text-purple-600 hover:text-purple-900" 
+                            title="Reembolso"
+                          >
+                            <DollarSign className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                      
+                      {/* Solo mostrar toggle activo/inactivo para usuarios sin suscripción */}
+                      {!user.requiresSubscription && (
+                        user.isActive ? (
+                          <button onClick={() => handleToggleActive(user)} className="text-orange-600 hover:text-orange-900" title="Desactivar">
+                            <X className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <button onClick={() => handleToggleActive(user)} className="text-green-600 hover:text-green-900" title="Activar">
+                            <Check className="w-4 h-4" />
+                          </button>
+                        )
+                      )}
+                      
+                      <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-900" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -354,6 +501,158 @@ export default function UserManagement({ token }: { token: string }) {
               </button>
               <button onClick={confirmDelete} disabled={saving} className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 flex items-center gap-2">
                 <Trash2 className="w-4 h-4" /> {saving ? 'Eliminando...' : 'Sí, eliminar usuario'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Cancelación de Suscripción */}
+      {showCancelSubscriptionModal && subscriptionUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setShowCancelSubscriptionModal(false)} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"><X /></button>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Ban className="w-5 h-5 text-orange-600" />
+              Cancelar Suscripción
+            </h3>
+            <p className="text-gray-700 mb-4">
+              Usuario: <strong>{subscriptionUser.name}</strong>
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Plan actual: <strong>{subscriptionUser.subscriptionPlanType === 'monthly' ? '$25/mes' : '$240/año'}</strong>
+            </p>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+              <p className="text-sm text-yellow-800">
+                Selecciona cuándo cancelar la suscripción:
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-4">
+              <label className="flex items-start gap-3 p-3 border rounded cursor-pointer hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="cancelOption"
+                  checked={!cancelImmediately}
+                  onChange={() => setCancelImmediately(false)}
+                  className="mt-1"
+                />
+                <div>
+                  <div className="font-medium">Al final del período actual</div>
+                  <div className="text-sm text-gray-600">
+                    El usuario mantendrá acceso hasta {subscriptionUser.currentPeriodEnd ? new Date(subscriptionUser.currentPeriodEnd).toLocaleDateString() : 'el final del período'}
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 border rounded cursor-pointer hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="cancelOption"
+                  checked={cancelImmediately}
+                  onChange={() => setCancelImmediately(true)}
+                  className="mt-1"
+                />
+                <div>
+                  <div className="font-medium text-red-600">Inmediatamente</div>
+                  <div className="text-sm text-gray-600">
+                    El usuario perderá acceso de inmediato
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button 
+                onClick={() => setShowCancelSubscriptionModal(false)} 
+                disabled={saving}
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleCancelSubscription} 
+                disabled={saving}
+                className="px-4 py-2 rounded bg-orange-600 text-white hover:bg-orange-700 flex items-center gap-2"
+              >
+                <Ban className="w-4 h-4" /> {saving ? 'Cancelando...' : 'Confirmar Cancelación'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Reembolso */}
+      {showRefundModal && subscriptionUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setShowRefundModal(false)} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"><X /></button>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-purple-600" />
+              Procesar Reembolso
+            </h3>
+            <p className="text-gray-700 mb-4">
+              Usuario: <strong>{subscriptionUser.name}</strong>
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Plan: <strong>{subscriptionUser.subscriptionPlanType === 'monthly' ? '$25/mes' : '$240/año'}</strong>
+            </p>
+
+            <div className="bg-purple-50 border border-purple-200 rounded p-3 mb-4">
+              <p className="text-sm text-purple-800 font-medium mb-2">
+                ⚠️ Un reembolso completo cancelará la suscripción automáticamente
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Monto del reembolso (USD)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="Dejar vacío para reembolso completo"
+                  value={refundAmount}
+                  onChange={(e) => setRefundAmount(e.target.value)}
+                  className="w-full border rounded px-3 py-2"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Dejar vacío para reembolsar el último pago completo
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Motivo
+                </label>
+                <select
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value)}
+                  className="w-full border rounded px-3 py-2"
+                >
+                  <option value="requested_by_customer">Solicitado por el cliente</option>
+                  <option value="duplicate">Pago duplicado</option>
+                  <option value="fraudulent">Fraudulento</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button 
+                onClick={() => setShowRefundModal(false)} 
+                disabled={saving}
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleProcessRefund} 
+                disabled={saving}
+                className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700 flex items-center gap-2"
+              >
+                <DollarSign className="w-4 h-4" /> {saving ? 'Procesando...' : 'Procesar Reembolso'}
               </button>
             </div>
           </div>
