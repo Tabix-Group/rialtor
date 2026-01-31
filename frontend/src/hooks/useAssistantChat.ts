@@ -79,7 +79,6 @@ export function useAssistantChat(): UseAssistantChatReturn {
 
         try {
             const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-            console.log('[ASSISTANT] Sending message:', { content: content.trim(), sessionId, hasAudio: !!audioBase64 })
 
             const requestBody: any = {
                 message: content.trim(),
@@ -89,7 +88,6 @@ export function useAssistantChat(): UseAssistantChatReturn {
             if (audioBase64) {
                 requestBody.audioBase64 = audioBase64
                 requestBody.audioFilename = 'audio.webm'
-                console.log('[ASSISTANT] Enviando audio, longitud base64:', audioBase64.length)
             }
 
             if (requestAudioResponse) {
@@ -105,11 +103,8 @@ export function useAssistantChat(): UseAssistantChatReturn {
                 body: JSON.stringify(requestBody)
             })
 
-            console.log('[ASSISTANT] Response status:', response.status)
-
             if (response.ok) {
                 const data = await response.json()
-                console.log('[ASSISTANT] Response data:', data)
 
                 // Update sessionId if this is a new session
                 if (data.sessionId && !sessionId) {

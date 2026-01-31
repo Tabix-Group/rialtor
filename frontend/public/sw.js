@@ -10,16 +10,13 @@ const urlsToCache = [
 
 // Instalación del service worker
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing...');
   // Activar inmediatamente sin esperar
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Cache opened');
         return cache.addAll(urlsToCache).catch((error) => {
-          console.error('[Service Worker] Error caching files:', error);
           // No fallar si algunos archivos no se pueden cachear
           return Promise.resolve();
         });
@@ -29,7 +26,6 @@ self.addEventListener('install', (event) => {
 
 // Activación del service worker
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating...');
   
   event.waitUntil(
     caches.keys()
@@ -37,14 +33,12 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheName !== CACHE_NAME) {
-              console.log('[Service Worker] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('[Service Worker] Claiming clients');
         return self.clients.claim();
       })
   );
