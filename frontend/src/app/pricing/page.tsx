@@ -6,8 +6,8 @@ import { useSearchParams } from 'next/navigation'
 
 export default function PricingPage() {
   const searchParams = useSearchParams()
-  const userId = searchParams.get('userId')
-  const canceled = searchParams.get('canceled')
+  const userId = searchParams?.get('userId') || null
+  const canceled = searchParams?.get('canceled') || null
   
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
