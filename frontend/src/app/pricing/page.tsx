@@ -73,9 +73,9 @@ export default function PricingPage() {
       } else {
         throw new Error('No se recibió URL de checkout')
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error al procesar el pago:', err)
-      setError(err.message || 'Error al procesar tu solicitud. Por favor, intenta nuevamente.')
+      setError(err instanceof Error ? err.message : 'Error al procesar tu solicitud. Por favor, intenta nuevamente.')
       setIsLoading(null)
     }
   }
