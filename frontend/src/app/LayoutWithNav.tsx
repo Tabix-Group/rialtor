@@ -9,8 +9,12 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const pathname = usePathname();
   
-  // No mostrar sidebar en la landing page (/) cuando está logueado
-  const showSidebar = user && pathname !== '/';
+  // Rutas donde NO se debe mostrar la sidebar (incluso con usuario logueado)
+  const noSidebarRoutes = ['/', '/pricing', '/subscription/success', '/auth/login', '/auth/register'];
+  const shouldHideSidebar = noSidebarRoutes.some(route => pathname.startsWith(route));
+  
+  // Mostrar sidebar solo si: usuario logueado Y no está en una ruta excluida
+  const showSidebar = user && !shouldHideSidebar;
 
   return (
     <div className="flex min-h-screen">
