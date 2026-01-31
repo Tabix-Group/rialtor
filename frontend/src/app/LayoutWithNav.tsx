@@ -13,13 +13,43 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   console.log('[LayoutWithNav] User from useAuth:', user);
   console.log('[LayoutWithNav] Loading from useAuth:', loading);
   
+  // Debug: verificar campos específicos del usuario
+  if (user) {
+    console.log('[LayoutWithNav] user.isActive:', user.isActive);
+    console.log('[LayoutWithNav] user.requiresSubscription:', user.requiresSubscription);
+  }
+  
   // Rutas donde NO se debe mostrar la sidebar (incluso con usuario logueado)
   const noSidebarRoutes = ['/', '/pricing', '/subscription/success', '/auth/login', '/auth/register'];
   const shouldHideSidebar = pathname ? noSidebarRoutes.some(route => pathname.startsWith(route)) : false;
   
-  // Mostrar sidebar solo si: usuario logueado Y no está en una ruta excluida
-  // Temporalmente simplificar la lógica para debuggear
-  const showSidebar = user && !shouldHideSidebar;
+  console.log('[LayoutWithNav] shouldHideSidebar (route-based):', shouldHideSidebar);
+  
+  // Lógica de visibilidad de sidebar:
+  // - Si está cargando, no mostrar
+  // - Si no hay usuario, no mostrar
+  // - Si está en ruta excluida, no mostrar
+  // - Si usuario requiere suscripción pero no está activo, no mostrar
+  // - De lo contrario, mostrar
+  let showSidebar = false;
+  
+  if (!loading && user) {
+    if (!shouldHideSidebar) {
+      // Para usuarios legacy: isActive debe ser true y requiresSubscription false
+      // Para usuarios nuevos: isActive true (o no definido) y requiresSubscription true
+      const isLegacyUser = user.isActive === true && user.requiresSubscription === false;
+      const isNewUser = user.isActive === true && user.requiresSubscription === true;
+      
+      console.log('[LayoutWithNav] isLegacyUser:', isLegacyUser);
+      console.log('[LayoutWithNav] isNewUser:', isNewUser);
+      
+      if (isLegacyUser || isNewUser) {
+        showSidebar = true;
+      }
+    }
+  }
+  
+  console.log('[LayoutWithNav] Final showSidebar:', showSidebar);
 
   return (
     <div className="flex min-h-screen">
