@@ -74,22 +74,17 @@ export default function NewsManagement() {
     }, [currentPage, pageSize])
 
     useEffect(() => {
-        console.log('Categories state changed:', categories)
+        // Categories state changed
     }, [categories])
 
     const fetchCategories = async () => {
         try {
-            console.log('Fetching categories...')
             const response = await publicFetch('/api/categories')
-            console.log('Response status:', response.status)
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`)
             }
             const data = await response.json()
-            console.log('Categories data:', data)
-            console.log('Categories array:', data.categories)
             setCategories(data.categories || [])
-            console.log('Categories set in state:', data.categories || [])
         } catch (error) {
             console.error('Error fetching categories:', error)
         }
@@ -134,15 +129,11 @@ export default function NewsManagement() {
                 categoryId: formData.categoryId || null
             }
 
-            console.log('Sending data:', requestData)
-
             const response = await authenticatedFetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestData)
             })
-
-            console.log('Response status:', response.status)
 
             if (response.ok) {
                 await fetchNews(currentPage, pageSize)

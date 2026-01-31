@@ -62,12 +62,8 @@ export default function AdminPage() {
   // Verificar permisos solo en el cliente
   useEffect(() => {
     if (typeof window !== 'undefined' && user) {
-      console.log('User data:', user);
-      console.log('User roles:', user.roles);
       const adminPerm = checkPermission(user, 'view_admin');
       const userMgmtPerm = checkPermission(user, 'manage_users');
-      console.log('Has admin permission:', adminPerm);
-      console.log('Has user management permission:', userMgmtPerm);
       setHasAdminPerm(adminPerm);
       setHasUserMgmtPerm(userMgmtPerm);
       setPermsLoading(false);
@@ -129,20 +125,14 @@ export default function AdminPage() {
       if (!token) return;
       setRatesLoading(true);
       try {
-        console.log('Fetching bank rates from /api/admin/rates (primary)...');
         const res = await authenticatedFetch('/api/admin/rates');
-        console.log('Bank rates primary response status:', res.status);
         const data = await res.json();
-        console.log('Bank rates primary response body:', data);
         if (data && data.success) {
           setBankRates(data.data);
         } else {
-          console.warn('Primary rates endpoint returned no data, trying test endpoint...');
           // Try test endpoint
           const res2 = await authenticatedFetch('/api/admin/rates-test');
-          console.log('Bank rates test response status:', res2.status);
           const data2 = await res2.json();
-          console.log('Bank rates test response body:', data2);
           if (data2 && data2.success) setBankRates(data2.data);
         }
       } catch (error) {
