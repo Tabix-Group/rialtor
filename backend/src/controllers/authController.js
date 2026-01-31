@@ -53,20 +53,18 @@ const register = async (req, res, next) => {
       }
     });
 
-    // Asignar rol si se proporciona
-    if (role) {
-      const roleToAssign = await prisma.role.findUnique({
-        where: { name: role }
-      });
+    // Asignar rol USUARIO por defecto (ignorar el rol del request si viene)
+    const roleToAssign = await prisma.role.findUnique({
+      where: { name: 'USUARIO' }
+    });
 
-      if (roleToAssign) {
-        await prisma.roleAssignment.create({
-          data: {
-            userId: user.id,
-            roleId: roleToAssign.id
-          }
-        });
-      }
+    if (roleToAssign) {
+      await prisma.roleAssignment.create({
+        data: {
+          userId: user.id,
+          roleId: roleToAssign.id
+        }
+      });
     }
 
     // Generar token

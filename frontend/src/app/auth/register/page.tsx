@@ -271,41 +271,22 @@ export default function RegisterPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                    <label className="block text-sm font-medium text-purple-200 mb-2">Oficina</label>
-                    <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Building className="h-5 w-5 text-purple-400/50" />
-                    </div>
-                    <input
-                        id="office"
-                        name="office"
-                        type="text"
-                        required
-                        value={formData.office}
-                        onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-2.5 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 focus:bg-white/15 focus:border-purple-500/50 focus:ring-0 focus:outline-none sm:text-sm transition-colors"
-                        placeholder="RE/MAX Premium"
-                    />
-                    </div>
+            <div>
+                <label className="block text-sm font-medium text-purple-200 mb-2">Oficina</label>
+                <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Building className="h-5 w-5 text-purple-400/50" />
                 </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-purple-200 mb-2">Rol</label>
-                    <select
-                        id="role"
-                        name="role"
-                        required
-                        value={formData.role}
-                        onChange={handleChange}
-                        className="block w-full pl-3 pr-10 py-2.5 bg-white/10 border border-purple-500/30 rounded-lg text-white focus:bg-white/15 focus:border-purple-500/50 focus:ring-0 focus:outline-none sm:text-sm transition-colors appearance-none"
-                    >
-                        <option value="USUARIO" className="bg-gray-900 text-white">Usuario</option>
-                        <option value="AGENTE" className="bg-gray-900 text-white">Agente</option>
-                        <option value="BROKER" className="bg-gray-900 text-white">Broker</option>
-                        <option value="ADMIN" className="bg-gray-900 text-white">Administrador</option>
-                    </select>
+                <input
+                    id="office"
+                    name="office"
+                    type="text"
+                    required
+                    value={formData.office}
+                    onChange={handleChange}
+                    className="block w-full pl-10 pr-3 py-2.5 bg-white/10 border border-purple-500/30 rounded-lg text-white placeholder-purple-300/50 focus:bg-white/15 focus:border-purple-500/50 focus:ring-0 focus:outline-none sm:text-sm transition-colors"
+                    placeholder="RE/MAX Premium"
+                />
                 </div>
             </div>
 
