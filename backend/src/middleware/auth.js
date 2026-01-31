@@ -68,7 +68,7 @@ const authenticateToken = async (req, res, next) => {
     // Si el usuario está inactivo pero requiere suscripción, permitir solo rutas de Stripe
     if (!user.isActive && user.requiresSubscription) {
       // Permitir acceso a rutas de Stripe para completar el pago
-      const isStripeRoute = req.path.includes('/stripe/');
+      const isStripeRoute = req.path.includes('/stripe') || req.originalUrl.includes('/stripe');
       if (!isStripeRoute) {
         console.log('[AUTH] Inactive user trying to access non-Stripe route:', user.email, req.path);
         return res.status(403).json({ 
@@ -76,7 +76,10 @@ const authenticateToken = async (req, res, next) => {
           requiresPayment: true 
         });
       }
-      console.log('[AUTH] Allowing inactive user to access Stripe route for payment:', user.email);
+      console.log('[AUTH] Allowing inactive user to access Stripe route for payment:', user.email, req.originalUrl);
+      // No validar suscripción para usuarios en proceso de pago
+      req.user = user;
+      return next();
     }
     
     // Verificar suscripción si es requerida y el usuario YA está activo
