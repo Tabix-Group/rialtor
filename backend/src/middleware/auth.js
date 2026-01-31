@@ -57,13 +57,30 @@ const authenticateToken = async (req, res, next) => {
       console.log('[AUTH] User not found for id:', decoded.userId);
       return res.status(401).json({ error: 'Invalid token' });
     }
-    if (!user.isActive) {
-      console.log('[AUTH] User is not active:', user.email);
+    
+    // Permitir acceso a usuarios inactivos si están en proceso de pago (requiresSubscription)
+    // Esto permite que completen el flujo de pago antes de ser activados
+    if (!user.isActive && !user.requiresSubscription) {
+      console.log('[AUTH] User is not active and does not require subscription:', user.email);
       return res.status(401).json({ error: 'Account deactivated' });
     }
     
-    // Verificar suscripción si es requerida
-    if (user.requiresSubscription) {
+    // Si el usuario está inactivo pero requiere suscripción, permitir solo rutas de Stripe
+    if (!user.isActive && user.requiresSubscription) {
+      // Permitir acceso a rutas de Stripe para completar el pago
+      const isStripeRoute = req.path.includes('/stripe/');
+      if (!isStripeRoute) {
+        console.log('[AUTH] Inactive user trying to access non-Stripe route:', user.email, req.path);
+        return res.status(403).json({ 
+          error: 'Please complete payment to activate your account',
+          requiresPayment: true 
+        });
+      }
+      console.log('[AUTH] Allowing inactive user to access Stripe route for payment:', user.email);
+    }
+    
+    // Verificar suscripción si es requerida y el usuario YA está activo
+    if (user.isActive && user.requiresSubscription) {
       const validStatuses = ['active', 'trialing'];
       
       if (!user.subscriptionStatus || !validStatuses.includes(user.subscriptionStatus)) {
