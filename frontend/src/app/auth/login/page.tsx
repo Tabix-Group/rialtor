@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Eye, EyeOff, Lock, Mail, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useAuth } from '../authContext'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const { login } = useAuth()
 
   // Componente de fondo decorativo con líneas y elementos (igual a la landing)
   const BackgroundElements = () => (
@@ -83,17 +85,15 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         if (data.token && data.user) {
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+          // Usar el método login del authContext
+          login(data.token, data.user);
+          
+          // Si requiere pago, redirigir a pricing
+          if (data.requiresPayment) {
+            window.location.href = `/pricing?userId=${data.user.id}`;
+          } else {
+            window.location.href = '/dashboard';
           }
-        }
-        
-        // Si requiere pago, redirigir a pricing
-        if (data.requiresPayment) {
-          window.location.href = `/pricing?userId=${data.user.id}`;
-        } else {
-          window.location.href = '/dashboard';
         }
       } else {
         const data = await response.json()

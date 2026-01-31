@@ -14,7 +14,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const shouldHideSidebar = pathname ? noSidebarRoutes.some(route => pathname.startsWith(route)) : false;
   
   // Mostrar sidebar solo si: usuario logueado Y no está en una ruta excluida Y (está activo O no requiere suscripción)
-  const showSidebar = user && !shouldHideSidebar && (user.isActive || !user.requiresSubscription);
+  const userIsActive = user?.isActive !== false; // Considerar undefined como true
+  const userRequiresSubscription = user?.requiresSubscription === true; // Solo true si explícitamente true
+  const showSidebar = user && !shouldHideSidebar && (userIsActive || !userRequiresSubscription);
 
   return (
     <div className="flex min-h-screen">

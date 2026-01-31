@@ -183,6 +183,8 @@ const getMe = async (req, res, next) => {
         office: true,
         avatar: true,
         isActive: true,
+        requiresSubscription: true,
+        subscriptionStatus: true,
         createdAt: true,
         updatedAt: true,
         roleAssignments: {

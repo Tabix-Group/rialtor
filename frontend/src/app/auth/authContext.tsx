@@ -42,6 +42,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!parsed.roles && parsed.role) {
         parsed.roles = [{ id: 'legacy', name: parsed.role, permissions: [] }];
       }
+      // Asegurar que los campos de Stripe existan
+      if (parsed.isActive === undefined) {
+        parsed.isActive = true; // Asumir activo por defecto
+      }
+      if (parsed.requiresSubscription === undefined) {
+        parsed.requiresSubscription = false; // Asumir no requiere suscripción por defecto
+      }
       setUser(parsed);
     }
     setLoading(false);
