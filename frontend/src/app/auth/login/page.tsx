@@ -88,7 +88,13 @@ export default function LoginPage() {
             localStorage.setItem('user', JSON.stringify(data.user));
           }
         }
-        window.location.href = '/dashboard';
+        
+        // Si requiere pago, redirigir a pricing
+        if (data.requiresPayment) {
+          window.location.href = `/pricing?userId=${data.user.id}`;
+        } else {
+          window.location.href = '/dashboard';
+        }
       } else {
         const data = await response.json()
         setError(data.message || 'Credenciales incorrectas')

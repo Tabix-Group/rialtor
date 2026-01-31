@@ -98,6 +98,8 @@ const login = async (req, res, next) => {
         office: true,
         avatar: true,
         isActive: true,
+        requiresSubscription: true,
+        subscriptionStatus: true,
         createdAt: true,
         updatedAt: true,
         password: true, // necesario para comparar
@@ -123,10 +125,11 @@ const login = async (req, res, next) => {
     }
 
     // Verificar si el usuario está activo
-    if (!user.isActive) {
+    // Permitir login si está inactivo pero requiere suscripción (para completar pago)
+    if (!user.isActive && !user.requiresSubscription) {
       return res.status(401).json({
         error: 'Account deactivated',
-        message: 'Su cuenta aun no ha sido habilitada'
+        message: 'Su cuenta ha sido desactivada. Contacta al administrador.'
       });
     }
 
@@ -153,10 +156,15 @@ const login = async (req, res, next) => {
         permissions: ra.role.permissions.map(p => p.name)
       }))
     };
+    
+    // Indicar si el usuario necesita completar el pago
+    const requiresPayment = !user.isActive && user.requiresSubscription;
+    
     res.json({
       message: 'Login successful',
       user: userWithRoles,
-      token
+      token,
+      requiresPayment // Indica al frontend si debe redirigir a /pricing
     });
   } catch (error) {
     next(error);
