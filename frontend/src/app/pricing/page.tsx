@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Check, Sparkles, Zap, Crown, Loader2, AlertCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
+export const dynamic = 'force-dynamic'
+
 export default function PricingPage() {
   const searchParams = useSearchParams()
   const userId = searchParams?.get('userId') || null

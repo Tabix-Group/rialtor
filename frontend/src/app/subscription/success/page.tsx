@@ -5,6 +5,8 @@ import { CheckCircle, Loader2, Home, Sparkles } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default function SubscriptionSuccessPage() {
   const searchParams = useSearchParams()
   const sessionId = searchParams?.get('session_id') || null
