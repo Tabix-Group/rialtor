@@ -28,24 +28,28 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   // Lógica de visibilidad de sidebar:
   // - Si está cargando, no mostrar
   // - Si no hay usuario, no mostrar
-  // - Si está en ruta excluida, no mostrar
-  // - Si usuario requiere suscripción pero no está activo, no mostrar
-  // - De lo contrario, mostrar
+  // - Si está en ruta excluida Y el usuario requiere pago (inactive o requiresSubscription), no mostrar
+  // - Si es usuario legacy activo (isActive=true, requiresSubscription=false), mostrar siempre
+  // - Si es usuario nuevo activo (isActive=true, requiresSubscription=true), mostrar siempre
   let showSidebar = false;
   
   if (!loading && user) {
-    if (!shouldHideSidebar) {
-      // Para usuarios legacy: isActive debe ser true y requiresSubscription false
-      // Para usuarios nuevos: isActive true (o no definido) y requiresSubscription true
-      const isLegacyUser = user.isActive === true && user.requiresSubscription === false;
-      const isNewUser = user.isActive === true && user.requiresSubscription === true;
-      
-      console.log('[LayoutWithNav] isLegacyUser:', isLegacyUser);
-      console.log('[LayoutWithNav] isNewUser:', isNewUser);
-      
-      if (isLegacyUser || isNewUser) {
-        showSidebar = true;
-      }
+    // Para usuarios legacy: isActive debe ser true y requiresSubscription false
+    // Para usuarios nuevos: isActive true (o no definido) y requiresSubscription true
+    const isLegacyUser = user.isActive === true && user.requiresSubscription === false;
+    const isNewUser = user.isActive === true && user.requiresSubscription === true;
+    const isUserActive = isLegacyUser || isNewUser;
+    
+    console.log('[LayoutWithNav] isLegacyUser:', isLegacyUser);
+    console.log('[LayoutWithNav] isNewUser:', isNewUser);
+    console.log('[LayoutWithNav] isUserActive:', isUserActive);
+    
+    if (isUserActive) {
+      // Usuarios activos pueden ver la sidebar en todas las rutas
+      showSidebar = true;
+    } else if (!shouldHideSidebar) {
+      // Usuarios inactivos solo ven sidebar en rutas no excluidas
+      showSidebar = true;
     }
   }
   
