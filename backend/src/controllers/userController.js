@@ -101,7 +101,7 @@ const listUsers = async (req, res, next) => {
 // Create a new user (admin only)
 const createUser = async (req, res, next) => {
   try {
-    const { email, password, name, phone, office, roles } = req.body;
+    const { email, password, name, phone, office, roles, requiresSubscription } = req.body;
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
@@ -115,7 +115,7 @@ const createUser = async (req, res, next) => {
         phone,
         office,
         isActive: true,
-        requiresSubscription: false // Usuarios creados por admin NO requieren suscripción
+        requiresSubscription: requiresSubscription ?? false // Por defecto NO requiere suscripción (exento)
       }
     });
     // Asignar roles si se envían, si no, asignar rol USUARIO por defecto
@@ -178,12 +178,13 @@ const createUser = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     const { id } = req.query;
-    const { name, phone, office, role, isActive, password } = req.body;
+    const { name, phone, office, role, isActive, requiresSubscription, password } = req.body;
     let updateData = {
       ...(name && { name }),
       ...(phone && { phone }),
       ...(office && { office }),
-      ...(typeof isActive === 'boolean' && { isActive })
+      ...(typeof isActive === 'boolean' && { isActive }),
+      ...(typeof requiresSubscription === 'boolean' && { requiresSubscription })
     };
     if (password && password.length > 0) {
       updateData.password = await bcrypt.hash(password, 12);

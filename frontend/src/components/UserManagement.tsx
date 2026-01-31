@@ -25,6 +25,7 @@ export default function UserManagement({ token }: { token: string }) {
     roles: string[];
     password: string;
     isActive: boolean;
+    requiresSubscription: boolean;
   }>({
     name: '',
     email: '',
@@ -32,7 +33,8 @@ export default function UserManagement({ token }: { token: string }) {
     office: '',
     roles: [],
     password: '',
-    isActive: true
+    isActive: true,
+    requiresSubscription: false
   });
   const [saving, setSaving] = useState(false);
 
@@ -53,7 +55,7 @@ export default function UserManagement({ token }: { token: string }) {
 
   // Modal handlers
   const openCreateModal = () => {
-    setForm({ name: '', email: '', phone: '', office: '', password: '', isActive: true, roles: [] });
+    setForm({ name: '', email: '', phone: '', office: '', password: '', isActive: true, requiresSubscription: false, roles: [] });
     setModalType('create');
     setShowModal(true);
   };
@@ -65,6 +67,7 @@ export default function UserManagement({ token }: { token: string }) {
       office: user.office,
       password: '',
       isActive: user.isActive,
+      requiresSubscription: user.requiresSubscription ?? false,
       roles: user.roles?.map((r: any) => r.id) || [],
     });
     setSelectedUser(user);
@@ -458,9 +461,25 @@ export default function UserManagement({ token }: { token: string }) {
                   <input type="password" className="w-full border rounded px-3 py-2" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Dejar vacío para no cambiar" />
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                <input type="checkbox" checked={form.isActive} onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))} id="isActive" />
-                <label htmlFor="isActive" className="text-sm">Activo</label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.isActive} onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))} id="isActive" />
+                  <label htmlFor="isActive" className="text-sm">Activo</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    checked={form.requiresSubscription} 
+                    onChange={e => setForm(f => ({ ...f, requiresSubscription: e.target.checked }))} 
+                    id="requiresSubscription" 
+                  />
+                  <label htmlFor="requiresSubscription" className="text-sm">
+                    Requiere suscripción de pago
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 ml-5">
+                  Si no está marcado, el usuario tendrá acceso completo sin necesidad de pagar (usuario legacy/exento).
+                </p>
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button type="button" onClick={closeModal} className="px-4 py-2 rounded bg-gray-200 text-gray-700">Cancelar</button>
