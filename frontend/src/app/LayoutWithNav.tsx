@@ -6,17 +6,20 @@ import { useAuth } from './auth/authContext';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const pathname = usePathname();
+  
+  // Debug: verificar si user existe
+  console.log('[LayoutWithNav] User from useAuth:', user);
+  console.log('[LayoutWithNav] Loading from useAuth:', loading);
   
   // Rutas donde NO se debe mostrar la sidebar (incluso con usuario logueado)
   const noSidebarRoutes = ['/', '/pricing', '/subscription/success', '/auth/login', '/auth/register'];
   const shouldHideSidebar = pathname ? noSidebarRoutes.some(route => pathname.startsWith(route)) : false;
   
-  // Mostrar sidebar solo si: usuario logueado Y no está en una ruta excluida Y (está activo O no requiere suscripción)
-  const userIsActive = user?.isActive !== false; // Considerar undefined como true
-  const userRequiresSubscription = user?.requiresSubscription === true; // Solo true si explícitamente true
-  const showSidebar = user && !shouldHideSidebar && (userIsActive || !userRequiresSubscription);
+  // Mostrar sidebar solo si: usuario logueado Y no está en una ruta excluida
+  // Temporalmente simplificar la lógica para debuggear
+  const showSidebar = user && !shouldHideSidebar;
 
   return (
     <div className="flex min-h-screen">

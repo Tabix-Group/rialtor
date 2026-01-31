@@ -36,20 +36,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     const userData = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    
+    console.log('[AuthContext] Token from localStorage:', token ? 'exists' : 'null');
+    console.log('[AuthContext] User data from localStorage:', userData ? 'exists' : 'null');
+    
     if (token && userData) {
-      const parsed = JSON.parse(userData);
-      // Si viene de backend antiguo, migrar a nueva estructura
-      if (!parsed.roles && parsed.role) {
-        parsed.roles = [{ id: 'legacy', name: parsed.role, permissions: [] }];
+      try {
+        const parsed = JSON.parse(userData);
+        console.log('[AuthContext] Parsed user data:', parsed);
+        
+        // Si viene de backend antiguo, migrar a nueva estructura
+        if (!parsed.roles && parsed.role) {
+          parsed.roles = [{ id: 'legacy', name: parsed.role, permissions: [] }];
+        }
+        // Asegurar que los campos de Stripe existan
+        if (parsed.isActive === undefined) {
+          console.log('[AuthContext] Setting default isActive: true');
+          parsed.isActive = true; // Asumir activo por defecto
+        }
+        if (parsed.requiresSubscription === undefined) {
+          console.log('[AuthContext] Setting default requiresSubscription: false');
+          parsed.requiresSubscription = false; // Asumir no requiere suscripción por defecto
+        }
+        console.log('[AuthContext] Final user object:', parsed);
+        setUser(parsed);
+      } catch (error) {
+        console.error('[AuthContext] Error parsing user data:', error);
+        // Limpiar datos corruptos
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
-      // Asegurar que los campos de Stripe existan
-      if (parsed.isActive === undefined) {
-        parsed.isActive = true; // Asumir activo por defecto
-      }
-      if (parsed.requiresSubscription === undefined) {
-        parsed.requiresSubscription = false; // Asumir no requiere suscripción por defecto
-      }
-      setUser(parsed);
+    } else {
+      console.log('[AuthContext] No token or user data found');
     }
     setLoading(false);
   }, []);
