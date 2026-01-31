@@ -15,6 +15,8 @@ interface User {
   name: string;
   avatar?: string;
   roles: Role[];
+  isActive?: boolean;
+  requiresSubscription?: boolean;
 }
 
 interface AuthContextType {
