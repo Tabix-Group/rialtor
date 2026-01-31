@@ -122,6 +122,12 @@ export default function DashboardPage() {
     if (!loading && !user) {
       router.replace("/auth/login")
     }
+    
+    // Verificar si el usuario está inactivo y requiere pago
+    if (!loading && user && !user.isActive && user.requiresSubscription) {
+      console.log('[DASHBOARD] User is inactive and requires payment, redirecting to pricing')
+      router.replace(`/pricing?userId=${user.id}`)
+    }
   }, [user, loading, router])
 
   const fetchMarketData = async () => {

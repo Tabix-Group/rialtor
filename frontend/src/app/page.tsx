@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { useAuth } from "./auth/authContext"
+import { useRouter } from "next/navigation"
 
 // SVG icon components
 const BookOpen = ({ className }: { className?: string }) => (
@@ -275,7 +276,16 @@ export default function Home() {
   }
 
   const [, setRecentArticles] = useState<Article[]>([])
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  // Verificar si el usuario está inactivo y requiere pago
+  useEffect(() => {
+    if (!loading && user && !user.isActive && user.requiresSubscription) {
+      console.log('[LANDING] User is inactive and requires payment, redirecting to pricing')
+      router.replace(`/pricing?userId=${user.id}`)
+    }
+  }, [user, loading, router])
 
   useEffect(() => {
     const fetchRecent = async () => {
