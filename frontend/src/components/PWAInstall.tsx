@@ -56,7 +56,6 @@ export default function PWAInstall() {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          console.log('✅ Service Worker registered successfully:', registration.scope)
           // Forzar actualización si hay una nueva versión
           registration.update()
         })
@@ -67,19 +66,16 @@ export default function PWAInstall() {
 
     // Verificar si ya está instalada la PWA
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('✅ PWA already installed')
       return
     }
 
     // Si ya se mostró hoy, no mostrar de nuevo
     if (hasShownInstallBanner()) {
-      console.log('ℹ️ Install banner already shown today')
       return
     }
 
     // Para iOS, mostrar banner de instrucciones
     if (isIOS() && !window.matchMedia('(display-mode: standalone)').matches) {
-      console.log('🍎 iOS device detected, showing iOS install banner')
       setShowIOSBanner(true)
       markInstallBannerAsShown()
       return
@@ -87,18 +83,14 @@ export default function PWAInstall() {
 
     // Escuchar el evento beforeinstallprompt (solo para Android/Chrome)
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
-      console.log('✅ beforeinstallprompt event fired')
       // Prevenir que Chrome muestre automáticamente el prompt
       e.preventDefault()
       // Guardar el evento para que se pueda activar más tarde
       setDeferredPrompt(e)
       // Mostrar el botón de instalación solo en Android
       if (isAndroid()) {
-        console.log('🤖 Android device detected, showing install button')
         setShowInstallButton(true)
         markInstallBannerAsShown()
-      } else {
-        console.log('📱 Other mobile device detected')
       }
     }
 
@@ -106,16 +98,9 @@ export default function PWAInstall() {
 
     // Detectar si se instaló la app
     window.addEventListener('appinstalled', () => {
-      console.log('✅ PWA was installed')
       setShowInstallButton(false)
       setDeferredPrompt(null)
     })
-
-    // Log inicial para debugging
-    console.log('🔍 PWA Install component mounted')
-    console.log('🍎 Is iOS:', isIOS())
-    console.log('🤖 Is Android:', isAndroid())
-    console.log('🔒 Has shown banner today:', hasShownInstallBanner())
 
     // Limpiar event listeners
     return () => {
@@ -135,13 +120,6 @@ export default function PWAInstall() {
     // Ya no necesitamos el prompt deferred
     setDeferredPrompt(null)
     setShowInstallButton(false)
-
-    // Hacer algo con el resultado
-    if (outcome === 'accepted') {
-      console.log('User accepted the install prompt')
-    } else {
-      console.log('User dismissed the install prompt')
-    }
   }
 
   // No mostrar nada si no es móvil o ya está instalado
