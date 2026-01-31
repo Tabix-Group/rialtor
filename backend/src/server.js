@@ -161,9 +161,20 @@ app.get('/ping', (req, res) => {
   });
 });
 
-// Health check with database status
-app.get('/health', async (req, res) => {
-  console.log('[HEALTH] Health check requested');
+// Health check - simplified for Railway deployment
+// Returns 200 immediately if server is running
+// Database status available at /api/admin/health for detailed checks
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'rialtor-backend'
+  });
+});
+
+// Detailed health check with database status
+app.get('/api/health/detailed', async (req, res) => {
+  console.log('[HEALTH] Detailed health check requested');
   const healthData = {
     status: 'OK',
     timestamp: new Date().toISOString(),
