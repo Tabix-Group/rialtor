@@ -9,6 +9,8 @@ export default function UserManagement({ token }: { token: string }) {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'create' | 'edit' | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
   const [form, setForm] = useState<{
     name: string;
     email: string;
@@ -142,19 +144,30 @@ export default function UserManagement({ token }: { token: string }) {
   };
 
   const handleDelete = async (user: any) => {
-    if (!window.confirm('¿Seguro que deseas eliminar este usuario?')) return;
+    setUserToDelete(user);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!userToDelete) return;
     setSaving(true);
     try {
-      // use query parameter for delete
-      const res = await authenticatedFetch(`/api/users?id=${user.id}`, {
+      const res = await authenticatedFetch(`/api/users?id=${userToDelete.id}`, {
         method: 'DELETE'
       });
       if (!res.ok) throw new Error('Error');
-      setUsers(users.filter(u => u.id !== user.id));
+      setUsers(users.filter(u => u.id !== userToDelete.id));
+      setShowDeleteConfirm(false);
+      setUserToDelete(null);
     } catch {
       setError('Error al eliminar usuario');
     }
     setSaving(false);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setUserToDelete(null);
   };
 
   const handleToggleActive = async (user: any) => {
@@ -309,6 +322,40 @@ export default function UserManagement({ token }: { token: string }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación de Eliminación */}
+      {showDeleteConfirm && userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative border-l-4 border-red-600">
+            <button onClick={cancelDelete} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"><X /></button>
+            <h3 className="text-lg font-semibold mb-2 text-red-600">⚠️ Eliminar Usuario</h3>
+            <p className="text-gray-700 mb-4">
+              Estás a punto de eliminar a <strong>{userToDelete.name}</strong> ({userToDelete.email}).
+            </p>
+            <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
+              <p className="text-sm text-red-700 font-medium mb-2">Esta acción es IRREVERSIBLE y eliminará:</p>
+              <ul className="text-sm text-red-600 list-disc list-inside space-y-1">
+                <li>Todos los artículos creados</li>
+                <li>Todas las sesiones de chat</li>
+                <li>Solicitudes y plantillas de documentos</li>
+                <li>Historial de calculadoras</li>
+                <li>Placas de propiedades</li>
+                <li>Archivos subidos</li>
+                <li>Transacciones financieras</li>
+                <li>Todos los datos asociados</li>
+              </ul>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <button onClick={cancelDelete} disabled={saving} className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300">
+                Cancelar
+              </button>
+              <button onClick={confirmDelete} disabled={saving} className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 flex items-center gap-2">
+                <Trash2 className="w-4 h-4" /> {saving ? 'Eliminando...' : 'Sí, eliminar usuario'}
+              </button>
+            </div>
           </div>
         </div>
       )}
