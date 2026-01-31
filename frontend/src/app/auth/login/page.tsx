@@ -264,31 +264,6 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-
-      {/* Lado Derecho - Imagen Decorativa */}
-      <div className="hidden lg:block relative w-0 flex-1 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-l from-violet-600/40 to-transparent z-10" />
-        <Image
-          className="absolute inset-0 h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
-          alt="Modern Real Estate Architecture"
-          width={1920}
-          height={1080}
-          priority
-        />
-        <div className="absolute inset-0 z-20 flex flex-col justify-end p-12 text-white">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-            <blockquote className="space-y-2">
-              <p className="text-lg font-medium">
-                &ldquo;Rialtor ha transformado la manera en que gestiono mis clientes. La automatización y los reportes son de otro nivel.&rdquo;
-              </p>
-              <footer className="text-sm font-medium text-purple-200">
-                — Agente Top Producer
-              </footer>
-            </blockquote>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

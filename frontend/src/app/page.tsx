@@ -419,7 +419,7 @@ export default function Home() {
                     href="/auth/register"
                     className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors"
                   >
-                    Comenzar gratis
+                    Registrarse
                   </Link>
                 </>
               )}
@@ -481,7 +481,7 @@ export default function Home() {
                       href="/auth/register"
                       className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all duration-200"
                     >
-                      Comenzar gratis
+                      Comenzar
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                     <button
@@ -861,7 +861,7 @@ export default function Home() {
                       href="/auth/register"
                       className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all duration-200"
                     >
-                      Comenzar gratis
+                      Registrarse
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                     <Link

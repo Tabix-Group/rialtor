@@ -184,9 +184,9 @@ export default function RegisterPage() {
           </Link>
 
           <div className="mb-8">
-            {/* Icono con Sparkles */}
-            <div className="inline-flex items-center justify-center h-14 w-14 rounded-lg bg-gradient-to-br from-violet-500/30 to-purple-500/30 border border-purple-500/20 mb-4">
-              <Sparkles className="h-7 w-7 text-transparent bg-gradient-to-b from-purple-300 to-violet-500 bg-clip-text" />
+            {/* Logo - Icono mejorado (Igual que en Login) */}
+            <div className="h-14 w-14 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg mb-6 hover:shadow-xl transition-shadow">
+              <Sparkles className="h-7 w-7 text-white" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-white">
               Crear una cuenta
@@ -386,24 +386,6 @@ export default function RegisterPage() {
                 )}
             </button>
           </form>
-        </div>
-      </div>
-
-      {/* Lado Derecho - Imagen Decorativa */}
-      <div className="hidden lg:block relative w-0 flex-1 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-l from-violet-600/40 to-transparent z-10" />
-        <Image
-          className="absolute inset-0 h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1973&q=80"
-          alt="Office Background"
-          width={1920}
-          height={1080}
-        />
-        <div className="absolute bottom-0 right-0 p-12 z-20 text-white text-right max-w-lg">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              <h3 className="text-2xl font-bold mb-3 text-white">Potencia tu carrera</h3>
-              <p className="text-purple-200 text-base">Únete a la red de agentes más productiva del mercado con herramientas diseñadas para tu éxito.</p>
-            </div>
         </div>
       </div>
     </div>
