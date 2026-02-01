@@ -86,15 +86,15 @@ export default function ProspectSummary({
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-6 shadow-lg">
               <Users className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
-              <span className="text-xs sm:text-sm font-semibold text-white">Gestión Comercial Unificada</span>
+              <span className="text-xs sm:text-sm font-semibold text-white">Proyección Comercial</span>
             </div>
 
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 tracking-tight drop-shadow-md">
-              Mis <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Proyecciones y Prospectos</span>
+              Proyección Comercial
             </h1>
 
             <p className="text-lg text-slate-300 mb-8 max-w-2xl leading-relaxed">
-              Completa tus métricas comerciales y visualiza el rendimiento proyectado.
+              Tasa de cierre según mis indicadores del negocio
             </p>
 
             <div className="flex flex-wrap gap-4">

@@ -96,7 +96,7 @@ function Navigation() {
     // --- NEGOCIO (CRM & VENTAS) ---
     // Movido hacia arriba porque es el núcleo del trabajo
     {
-      name: "Gestión Comercial",
+      name: "Proyección Comercial",
       href: "/prospectos",
       icon: User2,
       description: "Prospectos, proyecciones y funnel",
