@@ -38,6 +38,13 @@ export default function FinanzasPage() {
   const [editingTransaction, setEditingTransaction] = useState<FinanceTransaction | null>(null)
   const [activeTab, setActiveTab] = useState<'transacciones' | 'reportes'>('transacciones')
 
+  // Función helper para formatear fecha correctamente (tratando UTC como fecha local)
+  const formatDate = (dateString: string, options: Intl.DateTimeFormatOptions) => {
+    const date = new Date(dateString)
+    const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+    return utcDate.toLocaleDateString('es-AR', options)
+  }
+
   // Conceptos predeterminados por Tipo
   const conceptosLaboralIngresos = [
     'Comisiones Inmobiliarias x Venta',
@@ -511,7 +518,7 @@ export default function FinanzasPage() {
                           {filteredTransactions.map((t) => (
                             <tr key={t.id} className="hover:bg-blue-50/20 transition-colors group">
                               <td className="py-4 px-6 text-sm text-slate-600 whitespace-nowrap">
-                                {new Date(t.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                {formatDate(t.date, { day: '2-digit', month: 'short', year: 'numeric' })}
                               </td>
                               <td className="py-4 px-6">
                                 <div className="flex flex-col">
@@ -565,7 +572,7 @@ export default function FinanzasPage() {
                           <div className="flex items-start justify-between mb-2">
                              <div className="flex items-center gap-2">
                                 <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                                    {new Date(t.date).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
+                                    {formatDate(t.date, { day: '2-digit', month: 'short' })}
                                 </span>
                                 <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border ${
                                     t.tipo === 'Laboral' ? 'border-blue-100 text-blue-600' : 'border-purple-100 text-purple-600'
