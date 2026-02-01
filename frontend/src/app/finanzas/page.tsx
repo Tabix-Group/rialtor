@@ -95,7 +95,7 @@ export default function FinanzasPage() {
     description: '',
     amount: '',
     currency: 'ARS' as 'ARS' | 'USD',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString()
   })
 
   // Filters
@@ -204,7 +204,7 @@ export default function FinanzasPage() {
       description: '',
       amount: '',
       currency: 'ARS',
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString()
     })
   }
 
@@ -233,7 +233,7 @@ export default function FinanzasPage() {
       description: transaction.description || '',
       amount: transaction.amount.toString(),
       currency: transaction.currency,
-      date: new Date(transaction.date).toISOString().split('T')[0]
+      date: new Date(transaction.date).toISOString()
     })
     setShowForm(true)
   }

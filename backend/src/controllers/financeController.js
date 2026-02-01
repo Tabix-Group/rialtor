@@ -12,8 +12,8 @@ const getTransactions = async (req, res, next) => {
 
     if (startDate || endDate) {
       where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+      if (startDate) where.date.gte = new Date(startDate + 'T00:00:00.000Z');
+      if (endDate) where.date.lte = new Date(endDate + 'T23:59:59.999Z');
     }
 
     if (currency) {
@@ -151,8 +151,8 @@ const getBalance = async (req, res, next) => {
 
     if (startDate || endDate) {
       where.date = {};
-      if (startDate) where.date.gte = new Date(startDate);
-      if (endDate) where.date.lte = new Date(endDate);
+      if (startDate) where.date.gte = new Date(startDate + 'T00:00:00.000Z');
+      if (endDate) where.date.lte = new Date(endDate + 'T23:59:59.999Z');
     }
 
     const transactions = await prisma.financeTransaction.findMany({
