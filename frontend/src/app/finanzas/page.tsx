@@ -102,7 +102,7 @@ export default function FinanzasPage() {
     description: '',
     amount: '',
     currency: 'ARS' as 'ARS' | 'USD',
-    date: new Date().toISOString()
+    date: new Date().toISOString().split('T')[0] // Fecha actual en formato YYYY-MM-DD
   })
 
   // Filters
@@ -211,7 +211,7 @@ export default function FinanzasPage() {
       description: '',
       amount: '',
       currency: 'ARS',
-      date: new Date().toISOString()
+      date: new Date().toISOString().split('T')[0] // Fecha actual en formato YYYY-MM-DD
     })
   }
 
@@ -240,7 +240,7 @@ export default function FinanzasPage() {
       description: transaction.description || '',
       amount: transaction.amount.toString(),
       currency: transaction.currency,
-      date: new Date(transaction.date).toISOString()
+      date: new Date(transaction.date).toISOString().split('T')[0] // Convertir a formato YYYY-MM-DD
     })
     setShowForm(true)
   }
@@ -728,6 +728,7 @@ export default function FinanzasPage() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                    max={new Date().toISOString().split('T')[0]} // No permitir fechas futuras
                     className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                     required
                   />
