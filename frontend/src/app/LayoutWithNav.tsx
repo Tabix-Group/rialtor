@@ -9,19 +9,17 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   
-  // Rutas donde NO se debe mostrar la sidebar (incluso con usuario logueado)
+  // Rutas donde NUNCA se debe mostrar la sidebar o navbar
   const noSidebarRoutes = ['/', '/pricing', '/subscription/success', '/auth/login', '/auth/register'];
-  const shouldHideSidebar = pathname ? noSidebarRoutes.some(route => pathname.startsWith(route)) : false;
+  const isLandingPage = pathname === '/' || (pathname ? noSidebarRoutes.some(route => pathname === route) : false);
   
-  // Lógica de visibilidad de sidebar:
-  // - Si está cargando, no mostrar
-  // - Si no hay usuario, no mostrar
-  // - Si está en ruta excluida Y el usuario requiere pago (inactive o requiresSubscription), no mostrar
-  // - Si es usuario legacy activo (isActive=true, requiresSubscription=false), mostrar siempre
-  // - Si es usuario nuevo activo (isActive=true, requiresSubscription=true), mostrar siempre
+  // La sidebar solo se muestra si:
+  // 1. No está en landing page u otras rutas excluidas
+  // 2. El usuario está autenticado
+  // 3. El usuario está activo
   let showSidebar = false;
   
-  if (!loading && user) {
+  if (!loading && user && !isLandingPage) {
     // Para usuarios legacy: isActive debe ser true y requiresSubscription false
     // Para usuarios nuevos: isActive true (o no definido) y requiresSubscription true
     const isLegacyUser = user.isActive === true && user.requiresSubscription === false;
@@ -29,10 +27,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const isUserActive = isLegacyUser || isNewUser;
     
     if (isUserActive) {
-      // Usuarios activos pueden ver la sidebar en todas las rutas
-      showSidebar = true;
-    } else if (!shouldHideSidebar) {
-      // Usuarios inactivos solo ven sidebar en rutas no excluidas
+      // Usuarios activos pueden ver la sidebar en todas las rutas permitidas
       showSidebar = true;
     }
   }
