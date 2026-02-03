@@ -202,6 +202,12 @@ function Navigation() {
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed)
+    // Si se está expandiendo, colapsar automáticamente después de 3 segundos
+    if (!isCollapsed) {
+      setTimeout(() => {
+        setIsCollapsed(true)
+      }, 3000) // 3 segundos
+    }
   }
 
   const toggleMobileSidebar = () => {
@@ -232,18 +238,21 @@ function Navigation() {
              className="w-6 h-6 object-contain"
            />
         )}
-
-        <button
-          onClick={toggleSidebar}
-          className="hidden p-1.5 text-slate-400 rounded-md lg:block hover:text-slate-600 hover:bg-slate-50 transition-colors"
-        >
-          {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-        </button>
         <button
           onClick={toggleMobileSidebar}
           className="p-2 text-slate-500 rounded-lg lg:hidden hover:bg-slate-50"
         >
           <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Collapse Button - Moved above User Section */}
+      <div className="flex items-center justify-center py-2 border-b border-slate-100">
+        <button
+          onClick={toggleSidebar}
+          className="p-1.5 text-slate-400 rounded-md lg:block hover:text-slate-600 hover:bg-slate-50 transition-colors"
+        >
+          {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
         </button>
       </div>
 
