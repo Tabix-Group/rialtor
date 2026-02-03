@@ -5,7 +5,7 @@ const urlsToCache = [
   '/manifest.json',
   '/images/favicon-96x96.png',
   '/images/icon-192.png',
-  '/images/icon-512.png'
+  '/images/android-chrome-512x512.png'
 ];
 
 // Instalación del service worker

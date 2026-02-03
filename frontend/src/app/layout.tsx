@@ -18,9 +18,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/images/favicon2.png', sizes: 'any' },
-      { url: '/images/favicon.ico', sizes: 'any' }
+      { url: '/images/favicon.ico', sizes: 'any' },
+      { url: '/images/android-chrome-512x512.png', sizes: '512x512' }
     ],
     shortcut: '/images/favicon.ico',
+    apple: [
+      { url: '/images/android-chrome-512x512.png', sizes: '512x512' }
+    ]
   },
   themeColor: '#059669',
   appleWebApp: {
@@ -46,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="RIALTOR" />
         <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/images/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/images/android-chrome-512x512.png" />
       </head>
       <body className={`${inter.className} bg-gray-50 text-gray-900 antialiased`}>
         <AuthProvider>
