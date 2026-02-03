@@ -200,14 +200,20 @@ function Navigation() {
     }
   }
 
+  // Keyboard shortcut for toggling sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault()
+        toggleSidebar()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isCollapsed])
+
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed)
-    // Si se está expandiendo, colapsar automáticamente después de 3 segundos
-    if (!isCollapsed) {
-      setTimeout(() => {
-        setIsCollapsed(true)
-      }, 3000) // 3 segundos
-    }
   }
 
   const toggleMobileSidebar = () => {
@@ -217,42 +223,34 @@ function Navigation() {
   const renderSidebarContent = () => (
     <div className="flex flex-col h-full bg-white text-slate-800">
       {/* Header / Logo */}
-      <div className={`flex items-center h-16 border-b border-slate-100 ${isCollapsed ? 'justify-center px-0' : 'justify-between px-5'}`}>
-        {!isCollapsed && (
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative flex items-center justify-center w-8 h-8 transition-transform group-hover:scale-105">
-               <img
-                src="/images/favicon.ico"
-                alt="Logo"
-                className="object-contain w-full h-full"
-              />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900">RIALTOR</span>
-          </Link>
-        )}
-        {/* Logo versión colapsada */}
-        {isCollapsed && (
+      <div className={`flex items-center border-b border-slate-100 transition-all duration-300 ${isCollapsed ? 'flex-col py-4 gap-4' : 'h-16 px-5 justify-between'}`}>
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="relative flex items-center justify-center w-8 h-8 transition-transform group-hover:scale-105">
              <img
-             src="/images/favicon.ico"
-             alt="Logo"
-             className="w-6 h-6 object-contain"
-           />
-        )}
+              src="/images/favicon.ico"
+              alt="Logo"
+              className="object-contain w-full h-full"
+            />
+          </div>
+          {!isCollapsed && (
+            <span className="text-lg font-bold tracking-tight text-slate-900">RIALTOR</span>
+          )}
+        </Link>
+        
+        {/* Toggle Button */}
+        <button
+          onClick={toggleSidebar}
+          className="hidden lg:flex p-1.5 text-slate-400 rounded-lg hover:text-primary hover:bg-primary/5 transition-all"
+          title={isCollapsed ? "Expandir (Ctrl+B)" : "Colapsar (Ctrl+B)"}
+        >
+          {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+        </button>
+
         <button
           onClick={toggleMobileSidebar}
           className="p-2 text-slate-500 rounded-lg lg:hidden hover:bg-slate-50"
         >
           <X className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Collapse Button - Moved above User Section */}
-      <div className="flex items-center justify-center py-2 border-b border-slate-100">
-        <button
-          onClick={toggleSidebar}
-          className="p-1.5 text-slate-400 rounded-md lg:block hover:text-slate-600 hover:bg-slate-50 transition-colors"
-        >
-          {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
         </button>
       </div>
 

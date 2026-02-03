@@ -35,7 +35,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       {showSidebar && <Navigation />}
-      <main className={`flex-1 transition-all duration-300 ${showSidebar && (isCollapsed ? 'lg:ml-16' : 'lg:ml-64')}`}>
+      <main className={`flex-1 transition-all duration-300 ${showSidebar && (isCollapsed ? 'lg:ml-20' : 'lg:ml-72')}`}>
         {children}
       </main>
     </div>

@@ -12,20 +12,42 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Auto-collapse sidebar after 3 seconds (only on desktop)
+  // Load preference and handle resize
   useEffect(() => {
-    const isMobile = window.innerWidth < 1024; // lg breakpoint
-    if (!isMobile) {
-      const timer = setTimeout(() => {
+    // Load from localStorage if available
+    const saved = localStorage.getItem('sidebar-collapsed');
+    if (saved !== null) {
+      setIsCollapsed(saved === 'true');
+    } else {
+      // Default behavior based on screen size
+      const isTablet = window.innerWidth >= 1024 && window.innerWidth < 1280;
+      if (isTablet) {
         setIsCollapsed(true);
-      }, 3000);
-
-      return () => clearTimeout(timer);
+      }
     }
+
+    const handleResize = () => {
+      // Auto-collapse on smaller desktop screens if they resize
+      if (window.innerWidth >= 1024 && window.innerWidth < 1280) {
+        setIsCollapsed(true);
+      } else if (window.innerWidth >= 1280) {
+        // Optional: auto expand on very large screens if not manually collapsed? 
+        // Better to respect user choice if saved.
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Save preference
+  const toggleCollapsed = (value: boolean) => {
+    setIsCollapsed(value);
+    localStorage.setItem('sidebar-collapsed', String(value));
+  };
+
   return (
-    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed }}>
+    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed: toggleCollapsed }}>
       {children}
     </SidebarContext.Provider>
   );
