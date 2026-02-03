@@ -132,10 +132,12 @@ export default function PWAInstall() {
         <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-4 sm:p-5 backdrop-blur-sm">
           <div className="flex items-start gap-3 sm:gap-4">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center shadow-sm">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center shadow-sm overflow-hidden border border-gray-100">
+                <img 
+                  src="/images/android-chrome-512x512.png" 
+                  alt="Rialtor Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
             <div className="flex-1 min-w-0">
@@ -174,10 +176,12 @@ export default function PWAInstall() {
       <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-4 sm:p-5 backdrop-blur-sm">
         <div className="flex items-start gap-3 sm:gap-4">
           <div className="flex-shrink-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center shadow-sm">
-              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center shadow-sm overflow-hidden border border-gray-100">
+              <img 
+                src="/images/android-chrome-512x512.png" 
+                alt="Rialtor Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
           <div className="flex-1 min-w-0">

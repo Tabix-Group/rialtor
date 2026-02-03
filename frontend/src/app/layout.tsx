@@ -48,8 +48,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="RIALTOR" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/images/icon-192.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/images/android-chrome-512x512.png" />
       </head>
       <body className={`${inter.className} bg-gray-50 text-gray-900 antialiased`}>

@@ -1,10 +1,9 @@
 // Service Worker para PWA RIALTOR
-const CACHE_NAME = 'rialtor-v1.0.2';
+const CACHE_NAME = 'rialtor-v1.0.3';
 const urlsToCache = [
   '/',
   '/manifest.json',
   '/images/favicon-96x96.png',
-  '/images/icon-192.png',
   '/images/android-chrome-512x512.png'
 ];
 
