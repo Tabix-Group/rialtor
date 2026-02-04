@@ -1,15 +1,27 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   Users, 
   DollarSign, 
   TrendingUp, 
   Target, 
   Briefcase,
+  Save,
+  Edit2
 } from 'lucide-react'
 import { getWeightedClosingRate } from '@/constants/conversionRates'
 import type { AgentLevel } from '@/constants/conversionRates'
+
+// Función para formatear moneda en USD
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
 
 interface ProspectSummaryProps {
   stats?: {
@@ -36,7 +48,7 @@ interface ProspectSummaryProps {
 
 export default function ProspectSummary({ 
   stats = {}, 
-  funnelStages = [], 
+  funnelStages = [], // eslint-disable-line @typescript-eslint/no-unused-vars
   agentLevel = 'inicial', 
   startDate,
   endDate,
@@ -44,23 +56,55 @@ export default function ProspectSummary({
   onSaveFunnel, 
   isSavingFunnel 
 }: ProspectSummaryProps) {
-  // Calcular tasa de cierre dinámica según nivel (usando datos reales)
-  const tasaCierrePorcentaje = getWeightedClosingRate(
-    Math.floor((stats?.clientsProspected || 0) * 0.5), // Asumir 50% referidos
-    Math.floor((stats?.clientsProspected || 0) * 0.5), // 50% fríos
-    agentLevel as AgentLevel
-  )
+  const [isEditingStats, setIsEditingStats] = useState(false)
+  const [localStartDate, setLocalStartDate] = useState(startDate || (() => {
+    const date = new Date()
+    date.setMonth(date.getMonth() - 1)
+    return date.toISOString().split('T')[0]
+  })())
+  const [localEndDate, setLocalEndDate] = useState(endDate || new Date().toISOString().split('T')[0])
+  const [editedStats, setEditedStats] = useState({
+    prospectadosReferidos: Math.floor((stats?.clientsProspected || 0) * 0.5),
+    prospectadosFrios: Math.floor((stats?.clientsProspected || 0) * 0.5),
+    ticketPromedio: stats?.avgSale || 0,
+    comisionPorcentaje: stats?.avgCommission || 3,
+    tasaCierre: 0.05, // 5% por defecto
+    tasaCierreNivel: agentLevel as AgentLevel,
+  })
 
-  // Cálculo de comisiones totales usando datos reales
-  const totalProspectados = stats?.total || 0
-  const comisionesTotales = totalProspectados * (stats?.avgSale || 0) * ((stats?.avgCommission || 0) / 100) * (tasaCierrePorcentaje / 100)
+  // Actualizar editedStats cuando cambien los stats
+  useEffect(() => {
+    setEditedStats({
+      prospectadosReferidos: Math.floor((stats?.clientsProspected || 0) * 0.5),
+      prospectadosFrios: Math.floor((stats?.clientsProspected || 0) * 0.5),
+      ticketPromedio: stats?.avgSale || 0,
+      comisionPorcentaje: stats?.avgCommission || 3,
+      tasaCierre: 0.05, // 5% por defecto
+      tasaCierreNivel: agentLevel as AgentLevel,
+    })
+  }, [stats, agentLevel])
 
-  const formatCurrency = (amount: number) => 
-    new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
-      currency: 'USD', 
-      maximumFractionDigits: 0 
-    }).format(amount)
+  // Sincronizar fechas locales con props
+  useEffect(() => {
+    if (startDate) setLocalStartDate(startDate)
+    if (endDate) setLocalEndDate(endDate)
+  }, [startDate, endDate])
+
+  // Cálculo de comisiones totales
+  const totalProspectados = editedStats.prospectadosReferidos + editedStats.prospectadosFrios
+  const comisionesTotales = totalProspectados * editedStats.ticketPromedio * (editedStats.comisionPorcentaje / 100) * editedStats.tasaCierre
+
+  const handleSaveStats = async () => {
+    // Aquí iría la lógica para guardar en el backend si es necesario
+    setIsEditingStats(false)
+    if (onSaveFunnel) {
+      onSaveFunnel()
+    }
+    // Aplicar las nuevas fechas
+    if (onDateChange) {
+      onDateChange(localStartDate, localEndDate)
+    }
+  }
 
   return (
     <div className="relative w-full overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 shadow-xl">
@@ -123,38 +167,115 @@ export default function ProspectSummary({
                   {isSavingFunnel ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
               )}
+
+              <button 
+                onClick={() => isEditingStats ? handleSaveStats() : setIsEditingStats(true)}
+                className="group inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-3 rounded-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-1 font-bold text-sm sm:text-base"
+              >
+                {isEditingStats ? (
+                  <>
+                    <Save className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
+                    Guardar Métricas
+                  </>
+                ) : (
+                  <>
+                    <Edit2 className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
+                    Editar Métricas
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
           {/* Derecha: KPIs */}
           <div className="w-full xl:w-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              
-              {/* 1. Prospectados (Total en período) */}
-              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Users className="w-5 h-5 text-amber-400" />
+            {isEditingStats && (
+              <div className="mb-6 bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg">
+                <h3 className="text-sm font-bold text-white mb-3">Filtros de Período</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] text-slate-300 font-bold uppercase">Fecha Inicio</label>
+                    <input
+                      type="date"
+                      value={localStartDate}
+                      onChange={(e) => setLocalStartDate(e.target.value)}
+                      className="w-full bg-slate-700/50 text-white px-3 py-2 rounded text-sm border border-slate-500 mt-1"
+                    />
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Prospectados (Período)</p>
-                    <p className="text-lg font-bold text-white tabular-nums">{stats?.total || 0}</p>
-                    <p className="text-[10px] text-slate-400">Total en el período</p>
+                    <label className="text-[10px] text-slate-300 font-bold uppercase">Fecha Fin</label>
+                    <input
+                      type="date"
+                      value={localEndDate}
+                      onChange={(e) => setLocalEndDate(e.target.value)}
+                      className="w-full bg-slate-700/50 text-white px-3 py-2 rounded text-sm border border-slate-500 mt-1"
+                    />
                   </div>
                 </div>
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              
+              {/* 1. Prospectados (Referidos + Fríos) */}
+              <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
+                {isEditingStats ? (
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-[9px] text-slate-300 font-bold uppercase">Referidos</label>
+                      <input
+                        type="number"
+                        value={editedStats.prospectadosReferidos}
+                        onChange={(e) => setEditedStats({...editedStats, prospectadosReferidos: parseInt(e.target.value) || 0})}
+                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] text-slate-300 font-bold uppercase">Fríos</label>
+                      <input
+                        type="number"
+                        value={editedStats.prospectadosFrios}
+                        onChange={(e) => setEditedStats({...editedStats, prospectadosFrios: parseInt(e.target.value) || 0})}
+                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Users className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Prospectados</p>
+                      <p className="text-lg font-bold text-white tabular-nums">{totalProspectados}</p>
+                      <p className="text-[10px] text-slate-400">{editedStats.prospectadosReferidos} ref. + {editedStats.prospectadosFrios} fríos</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 2. Ticket Promedio */}
               <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <DollarSign className="w-5 h-5 text-emerald-400" />
+                {isEditingStats ? (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-300 font-bold uppercase">Ticket Promedio</label>
+                    <input
+                      type="number"
+                      value={editedStats.ticketPromedio}
+                      onChange={(e) => setEditedStats({...editedStats, ticketPromedio: parseInt(e.target.value) || 0})}
+                      className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
+                    />
                   </div>
-                  <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Ticket Promedio</p>
-                    <p className="text-lg font-bold text-white tabular-nums">{formatCurrency(stats?.avgSale || 0)}</p>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <DollarSign className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Ticket Promedio</p>
+                      <p className="text-lg font-bold text-white tabular-nums">{formatCurrency(editedStats.ticketPromedio)}</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* 3. Comisión Promedio (%) */}
@@ -170,18 +291,32 @@ export default function ProspectSummary({
                 </div>
               </div>
 
-              {/* 4. Tasa de Cierre (Calculada Automáticamente) */}
+              {/* 4. Tasa de Cierre */}
               <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-rose-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Target className="w-5 h-5 text-rose-400" />
+                {isEditingStats ? (
+                  <div className="space-y-1">
+                    <label className="text-[9px] text-slate-300 font-bold uppercase">Tasa de Cierre</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="1"
+                      value={editedStats.tasaCierre}
+                      onChange={(e) => setEditedStats({...editedStats, tasaCierre: parseFloat(e.target.value) || 0})}
+                      className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
+                    />
                   </div>
-                  <div>
-                    <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Tasa de Cierre Ponderada ({agentLevel})</p>
-                    <p className="text-lg font-bold text-white tabular-nums">{tasaCierrePorcentaje}%</p>
-                    <p className="text-[10px] text-slate-400">Según nivel de agente</p>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-rose-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Target className="w-5 h-5 text-rose-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Tasa de Cierre</p>
+                      <p className="text-lg font-bold text-white tabular-nums">{(editedStats.tasaCierre * 100).toFixed(1)}%</p>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* 5. Comisiones Totales Obtenidas (Calculado) */}
@@ -193,7 +328,7 @@ export default function ProspectSummary({
                   <div>
                     <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Comisiones Totales Proyectadas</p>
                     <p className="text-xl font-extrabold text-white tabular-nums drop-shadow-sm">{formatCurrency(comisionesTotales)}</p>
-                    <p className="text-[10px] text-slate-400">({totalProspectados} × {formatCurrency(stats?.avgSale || 0)} × {stats?.avgCommission || 0}% × {tasaCierrePorcentaje}%)</p>
+                    <p className="text-[10px] text-slate-400">({totalProspectados} × {formatCurrency(editedStats.ticketPromedio)} × {editedStats.comisionPorcentaje}% × {(editedStats.tasaCierre * 100).toFixed(1)}%)</p>
                   </div>
                 </div>
               </div>
