@@ -6,7 +6,6 @@ import { AuthProvider } from './auth/authContext';
 import { AssistantProvider } from '../contexts/AssistantContext';
 import { NotificationProvider } from '../contexts/NotificationContext';
 import LayoutWithNav from './LayoutWithNav';
-import ConditionalFloatingAssistant from '../components/ConditionalFloatingAssistant';
 import PWAInstall from '../components/PWAInstall';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -58,7 +57,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <LayoutWithNav>
                   <main className="flex-grow">{children}</main>
                 </LayoutWithNav>
-                <ConditionalFloatingAssistant />
                 <PWAInstall />
               </div>
             </AssistantProvider>
