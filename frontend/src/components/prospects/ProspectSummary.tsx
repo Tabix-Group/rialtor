@@ -38,6 +38,7 @@ interface ProspectSummaryProps {
   agentLevel?: string
   startDate?: string
   endDate?: string
+  projectionMetrics?: any
   onDateChange?: (start: string, end: string) => void
   onCreateClick?: () => void
   onSaveFunnel?: () => void
@@ -50,6 +51,7 @@ export default function ProspectSummary({
   agentLevel = 'inicial', 
   startDate,
   endDate,
+  projectionMetrics = null,
   onDateChange,
   onSaveFunnel, 
   isSavingFunnel 
@@ -69,16 +71,30 @@ export default function ProspectSummary({
     agentLevel: (agentLevel as AgentLevel) || 'inicial',
   })
 
-  // Actualizar editedStats cuando cambien los stats
+  // Actualizar editedStats cuando cambien los stats o projection metrics
   useEffect(() => {
-    setEditedStats({
-      prospectadosReferidos: Math.floor((stats?.clientsProspected || 0) * 0.5),
-      prospectadosFrios: Math.floor((stats?.clientsProspected || 0) * 0.5),
-      ticketPromedio: stats?.avgSale || 0,
-      comisionPorcentaje: stats?.avgCommission || 3,
-      agentLevel: (agentLevel as AgentLevel) || 'inicial',
-    })
-  }, [stats, agentLevel])
+    if (projectionMetrics) {
+      // Si hay métricas guardadas, usarlas
+      setEditedStats({
+        prospectadosReferidos: projectionMetrics.prospectadosReferidos || 0,
+        prospectadosFrios: projectionMetrics.prospectadosFrios || 0,
+        ticketPromedio: projectionMetrics.ticketPromedio || 0,
+        comisionPorcentaje: projectionMetrics.comisionPorcentaje || 0,
+        agentLevel: (projectionMetrics.agentLevel as AgentLevel) || 'inicial',
+      })
+      if (projectionMetrics.startDate) setLocalStartDate(projectionMetrics.startDate)
+      if (projectionMetrics.endDate) setLocalEndDate(projectionMetrics.endDate)
+    } else {
+      // Si no hay métricas guardadas, usar los stats calculados
+      setEditedStats({
+        prospectadosReferidos: Math.floor((stats?.clientsProspected || 0) * 0.5),
+        prospectadosFrios: Math.floor((stats?.clientsProspected || 0) * 0.5),
+        ticketPromedio: stats?.avgSale || 0,
+        comisionPorcentaje: stats?.avgCommission || 3,
+        agentLevel: (agentLevel as AgentLevel) || 'inicial',
+      })
+    }
+  }, [stats, agentLevel, projectionMetrics])
 
   // Sincronizar fechas locales con props
   useEffect(() => {
@@ -96,7 +112,39 @@ export default function ProspectSummary({
   const comisionesTotales = totalProspectados * editedStats.ticketPromedio * (editedStats.comisionPorcentaje / 100) * tasaCierreCalculada
 
   const handleSaveStats = async () => {
-    // Aquí iría la lógica para guardar en el backend si es necesario
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      const apiUrl = typeof window !== 'undefined' 
+        ? (window.location.hostname === 'rialtor.app' || window.location.hostname === 'www.rialtor.app'
+          ? 'https://remax-be-production.up.railway.app'
+          : 'http://localhost:3003')
+        : 'http://localhost:3003'
+
+      const response = await fetch(`${apiUrl}/api/projection-metrics`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          prospectadosReferidos: editedStats.prospectadosReferidos,
+          prospectadosFrios: editedStats.prospectadosFrios,
+          ticketPromedio: editedStats.ticketPromedio,
+          comisionPorcentaje: editedStats.comisionPorcentaje,
+          agentLevel: editedStats.agentLevel,
+          startDate: localStartDate,
+          endDate: localEndDate,
+        }),
+      })
+
+      if (!response.ok) {
+        console.error('Error saving projection metrics')
+        return
+      }
+    } catch (error) {
+      console.error('Error saving projection metrics:', error)
+    }
+
     setIsEditingStats(false)
     if (onSaveFunnel) {
       onSaveFunnel()

@@ -30,6 +30,7 @@ const favoritesRoutes = require('./routes/favorites');
 const indicatorsRoutes = require('./routes/indicators');
 const newslettersRoutes = require('./routes/newsletters');
 const salesFunnelRoutes = require('./routes/sales-funnel');
+const projectionMetricsRoutes = require('./routes/projection-metrics');
 const stripeRoutes = require('./routes/stripeRoutes');
 
 const app = express();
@@ -238,6 +239,7 @@ app.use('/api/favorites', favoritesRoutes);
 app.use('/api/indicators', indicatorsRoutes);
 app.use('/api/newsletters', newslettersRoutes);
 app.use('/api/sales-funnel', salesFunnelRoutes);
+app.use('/api/projection-metrics', projectionMetricsRoutes);
 app.use('/api/stripe', stripeRoutes);
 app.use('/api/calendar', require('./routes/calendar'));
 

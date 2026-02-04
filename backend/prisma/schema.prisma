@@ -43,6 +43,7 @@ model User {
   prospects           Prospect[]
   roleAssignments     RoleAssignment[]
   salesFunnel         SalesFunnel?
+  projectionMetrics   ProjectionMetrics?
 
   @@map("users")
 }
@@ -427,3 +428,21 @@ model SalesFunnel {
 
   @@map("sales_funnels")
 }
+
+model ProjectionMetrics {
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  prospectadosReferidos   Int      @default(0)
+  prospectadosFrios       Int      @default(0)
+  ticketPromedio          Float    @default(0)
+  comisionPorcentaje      Float    @default(0)
+  agentLevel              String   @default("inicial")
+  startDate               DateTime?
+  endDate                 DateTime?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("projection_metrics")
+}
+

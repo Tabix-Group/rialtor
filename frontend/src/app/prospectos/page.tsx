@@ -17,6 +17,7 @@ export default function ProspectosPage() {
   })
   const [endDate, setEndDate] = useState<string>(() => new Date().toISOString().split('T')[0])
   const [prospectStats, setProspectStats] = useState<any>(null)
+  const [projectionMetrics, setProjectionMetrics] = useState<any>(null)
   
   // Referencia para la función de guardado del funnel
   const saveFunnelFn = useRef<(() => Promise<void>) | null>(null)
@@ -94,8 +95,43 @@ export default function ProspectosPage() {
     }
   }, [user, startDate, endDate])
 
+  const loadMetrics = useCallback(async () => {
+    if (!user) return
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      const r = await fetch('https://remax-be-production.up.railway.app/api/projection-metrics', {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (r.status === 404) {
+        // No metrics found yet, which is OK
+        setProjectionMetrics(null)
+        return
+      }
+
+      if (r.status === 401) {
+        console.warn('Unauthorized - token may be expired')
+        return
+      }
+
+      if (!r.ok) {
+        console.error(`HTTP ${r.status}: Failed to fetch metrics`)
+        return
+      }
+
+      const data = await r.json()
+      setProjectionMetrics(data)
+    } catch (e) {
+      console.error('Error fetching projection metrics', e)
+    }
+  }, [user])
+
   useEffect(()=>{ if (user) load() },[user, load])
   useEffect(()=>{ if (user) loadStats() },[user, loadStats])
+  useEffect(()=>{ if (user) loadMetrics() },[user, loadMetrics])
 
   const handleSaveFunnel = async () => {
     if (saveFunnelFn.current) {
@@ -117,6 +153,7 @@ export default function ProspectosPage() {
         agentLevel={agentLevel}
         startDate={startDate}
         endDate={endDate}
+        projectionMetrics={projectionMetrics}
         onDateChange={(newStart, newEnd) => {
           setStartDate(newStart)
           setEndDate(newEnd)
