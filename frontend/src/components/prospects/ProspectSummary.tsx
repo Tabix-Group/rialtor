@@ -15,12 +15,10 @@ import type { AgentLevel } from '@/constants/conversionRates'
 
 // Función para formatear moneda en USD
 const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return `U$D ${new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount)
+  }).format(amount)}`
 }
 
 interface ProspectSummaryProps {
@@ -285,7 +283,10 @@ export default function ProspectSummary({
                       min="0"
                       max="100"
                       value={editedStats.comisionPorcentaje}
-                      onChange={(e) => setEditedStats({...editedStats, comisionPorcentaje: parseFloat(e.target.value) || 0})}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0
+                        setEditedStats({...editedStats, comisionPorcentaje: Math.min(100, Math.max(0, value))})
+                      }}
                       className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
                     />
                   </div>
