@@ -133,31 +133,12 @@ export default function ProspectSummary({
 
             <p className="text-lg text-slate-300 mb-8 max-w-2xl leading-relaxed">
               Tasa de cierre según mis indicadores del negocio
+              {startDate && endDate && (
+                <span className="block text-sm text-slate-400 mt-2">
+                  Desde: {new Date(startDate).toLocaleDateString('es-AR')} - Hasta: {new Date(endDate).toLocaleDateString('es-AR')}
+                </span>
+              )}
             </p>
-
-            {/* Filtros de fecha */}
-            {onDateChange && (
-              <div className="flex flex-wrap gap-4 mb-8">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm text-slate-300">Desde:</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => onDateChange(e.target.value, endDate || '')}
-                    className="bg-slate-700/50 text-white px-3 py-2 rounded-lg border border-slate-500 text-sm"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm text-slate-300">Hasta:</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => onDateChange(startDate || '', e.target.value)}
-                    className="bg-slate-700/50 text-white px-3 py-2 rounded-lg border border-slate-500 text-sm"
-                  />
-                </div>
-              </div>
-            )}
 
             <div className="flex flex-wrap gap-4">
               {onSaveFunnel && (
