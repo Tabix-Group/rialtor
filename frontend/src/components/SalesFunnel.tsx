@@ -200,9 +200,8 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
         }
       })
       
-      // Si no existe el funnel (404), iniciar vacío
+      // Si no existe el funnel (404), mantener valores iniciales
       if (response.status === 404) {
-        setStages(defaultStages)
         return
       }
       
