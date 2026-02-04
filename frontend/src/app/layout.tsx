@@ -7,6 +7,7 @@ import { AssistantProvider } from '../contexts/AssistantContext';
 import { NotificationProvider } from '../contexts/NotificationContext';
 import LayoutWithNav from './LayoutWithNav';
 import PWAInstall from '../components/PWAInstall';
+import HelpAssistant from '../components/HelpAssistant';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <main className="flex-grow">{children}</main>
                 </LayoutWithNav>
                 <PWAInstall />
+                <HelpAssistant />
               </div>
             </AssistantProvider>
           </NotificationProvider>
