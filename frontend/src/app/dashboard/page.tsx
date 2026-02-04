@@ -200,21 +200,13 @@ export default function DashboardPage() {
         )
         setCalendarConnected(true)
       } else {
-        const errorData = await res.json().catch(() => ({}))
-        if (errorData.error === "CALENDAR_NOT_CONNECTED" || errorData.error === "Calendario no conectado") {
-          setCalendarEvents([])
-          setCalendarConnected(false)
-        } else {
-          console.error("Error fetching calendar events:", errorData)
-          setCalendarConnected(false)
-        }
+        // Tratar todos los errores (401, 500, etc.) como "calendario no conectado"
+        setCalendarEvents([])
+        setCalendarConnected(false)
       }
     } catch (error) {
-        if (error instanceof Error && error.message === 'CALENDAR_NOT_CONNECTED') {
-          setCalendarConnected(false)
-        } else {
-          console.error("Error fetching calendar events:", error)
-        }
+        // Silenciosamente manejar errores de calendario
+        setCalendarConnected(false)
         setCalendarEvents([])
     } finally {
       setCalendarLoading(false)

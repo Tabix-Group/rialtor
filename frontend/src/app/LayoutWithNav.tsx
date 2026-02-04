@@ -4,7 +4,7 @@ import Navigation from '../components/Navigation';
 import { SidebarProvider, useSidebar } from '../contexts/SidebarContext';
 import { useAuth } from './auth/authContext';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 
 // Cargar dinámicamente sin SSR para evitar problemas de hidratación
 const HelpAssistant = dynamic(() => import('../components/HelpAssistant'), {
@@ -21,6 +21,12 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
   const { user, loading } = useAuth();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
   
   // Rutas donde NUNCA se debe mostrar la sidebar o navbar
   const noSidebarRoutes = ['/', '/pricing', '/subscription/success', '/auth/login', '/auth/register'];
@@ -51,10 +57,13 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <main className={`flex-1 transition-all duration-300 ${showSidebar && (isCollapsed ? 'lg:ml-20' : 'lg:ml-72')}`}>
         {children}
       </main>
-      <Suspense fallback={null}>
-        <PWAInstall />
-        <HelpAssistant />
-      </Suspense>
+      {/* Solo renderizar componentes dinámicos si está montado y hay usuario */}
+      {mounted && user && (
+        <Suspense fallback={null}>
+          <PWAInstall />
+          <HelpAssistant />
+        </Suspense>
+      )}
     </div>
   );
 }

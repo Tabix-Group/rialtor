@@ -199,6 +199,13 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         }
       })
+      
+      // Si no existe el funnel (404), iniciar vacío
+      if (response.status === 404) {
+        setStages(defaultStages)
+        return
+      }
+      
       if (response.ok) {
         const result = await response.json()
         if (result && result.data) {
