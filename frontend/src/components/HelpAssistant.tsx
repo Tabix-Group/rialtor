@@ -6,11 +6,9 @@ import { X, Send, HelpCircle, Loader2 } from 'lucide-react'
 import { useHelpAssistantChat } from '../hooks/useHelpAssistantChat'
 import MessageContent from './MessageContent'
 import { useAuth } from '../app/auth/authContext'
-import { usePathname } from 'next/navigation'
 
 export default function HelpAssistant() {
-    const { user } = useAuth()
-    const pathname = usePathname()
+    const { user, loading } = useAuth()
     const [isOpen, setIsOpen] = useState(false)
     const {
         messages,
@@ -24,12 +22,8 @@ export default function HelpAssistant() {
     const [inputValue, setInputValue] = useState('')
     const [showTooltip, setShowTooltip] = useState(false)
 
-    // Rutas donde NO se debe mostrar el asistente de ayuda
-    const excludedRoutes = ['/', '/pricing', '/auth/login', '/auth/register'];
-    const isExcludedRoute = excludedRoutes.includes(pathname || '');
-
-    // Solo mostrar si el usuario está autenticado y NO está en una ruta excluida
-    if (!user || isExcludedRoute) return null
+    // Solo mostrar si el usuario está autenticado
+    if (loading || !user) return null
 
     const toggleOpen = () => setIsOpen(!isOpen)
 
