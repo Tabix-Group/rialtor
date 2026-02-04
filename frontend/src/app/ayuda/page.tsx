@@ -565,29 +565,29 @@ export default function AyudaPage() {
                 </div>
 
                 <div id="proy-prospectos" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Gestión de Prospectos</h3>
+                  <h3 className="text-xl font-semibold mb-3">Simulación Comercial</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Llevá un registro dinámico de cada cliente interesado en la sección de <code>/prospectos</code>.
+                      En la sección de <code>/prospectos</code> no cargás clientes individuales, sino que realizás <strong>proyecciones matemáticas</strong> de tu negocio.
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li><strong>Calificación:</strong> Asigná una temperatura (Frío, Tibio, Caliente) a cada prospecto.</li>
-                      <li><strong>Seguimiento:</strong> Definí fuentes de origen como Portales, Referidos o Redes Sociales.</li>
-                      <li><strong>Acciones Rápidas:</strong> Contactá vía WhatsApp o Email directamente desde la tabla de gestión.</li>
+                      <li><strong>Volumen de Prospección:</strong> Ingresá cuántos contactos nuevos (Fríos y Referidos) tenés en un período determinado.</li>
+                      <li><strong>Nivel de Agente:</strong> Ajustá tu nivel (Junior a Top Producer). El sistema cambiará las tasas de conversión automáticamente basadas en estadísticas reales del mercado.</li>
+                      <li><strong>Ticket y Comisión:</strong> Definí el precio promedio de las propiedades que manejás y tu porcentaje de honorarios para ver el potencial económico de tu pipeline.</li>
                     </ul>
                   </div>
                 </div>
 
                 <div id="proy-funnel" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Embudo de Ventas y Métricas</h3>
+                  <h3 className="text-xl font-semibold mb-3">Embudo de Conversión</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      El sistema calcula automáticamente tu proyección comercial basada en tus prospectos activos:
+                      Visualizá gráficamente el recorrido de tus negocios desde el contacto inicial hasta el cierre efectivo:
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                       <li><strong>Pipeline Visual:</strong> Gráfico de embudo que muestra la conversión de Leads a Cierres.</li>
-                       <li><strong>Proyección de Honorarios:</strong> Estimación de ingresos brutos basada en el valor de las propiedades en pipeline.</li>
-                       <li><strong>Tasa de Cierre:</strong> Porcentaje de efectividad por cada etapa del embudo.</li>
+                       <li><strong>Etapas Clave:</strong> Tasaciones, Captaciones, Reservas y Cierres.</li>
+                       <li><strong>Análisis Comparativo:</strong> Entendé por qué los referidos (Hot) convierten mucho mejor que los contactos de base fría (Cold).</li>
+                       <li><strong>Metas Mensuales:</strong> Usá el funnel para saber cuántos contactos nuevos necesitás hoy para alcanzar tu objetivo de cierres a fin de mes.</li>
                     </ul>
                   </div>
                 </div>
