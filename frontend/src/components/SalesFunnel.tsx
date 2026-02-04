@@ -116,9 +116,19 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
   const handleSave = useCallback(async () => {
     setIsSaving(true)
     try {
-      const response = await fetch('/api/sales-funnel', {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      const apiUrl = typeof window !== 'undefined' 
+        ? (window.location.hostname === 'rialtor.app' || window.location.hostname === 'www.rialtor.app'
+          ? 'https://remax-be-production.up.railway.app'
+          : 'http://localhost:3003')
+        : 'http://localhost:3003'
+      
+      const response = await fetch(`${apiUrl}/api/sales-funnel`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ 
           data: {
             stages,
@@ -177,7 +187,18 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
 
   const loadData = async () => {
     try {
-      const response = await fetch('/api/sales-funnel')
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      const apiUrl = typeof window !== 'undefined' 
+        ? (window.location.hostname === 'rialtor.app' || window.location.hostname === 'www.rialtor.app'
+          ? 'https://remax-be-production.up.railway.app'
+          : 'http://localhost:3003')
+        : 'http://localhost:3003'
+      
+      const response = await fetch(`${apiUrl}/api/sales-funnel`, {
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      })
       if (response.ok) {
         const result = await response.json()
         if (result && result.data) {

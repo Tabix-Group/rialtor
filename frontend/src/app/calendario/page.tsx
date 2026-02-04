@@ -267,9 +267,13 @@ export default function CalendarioPage() {
         console.error("Error fetching calendar events:", errorData)
       }
     } catch (error) {
+      if (error instanceof Error && error.message === 'CALENDAR_NOT_CONNECTED') {
+        setCalendarConnected(false)
+      } else {
+        console.error("Error fetching calendar events:", error)
+      }
       setCalendarConnected(false)
       setCalendarEvents([])
-      console.error("Error fetching calendar events:", error)
     } finally {
       setCalendarLoading(false)
     }

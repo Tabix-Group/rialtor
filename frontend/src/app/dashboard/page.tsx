@@ -210,8 +210,12 @@ export default function DashboardPage() {
         }
       }
     } catch (error) {
+        if (error instanceof Error && error.message === 'CALENDAR_NOT_CONNECTED') {
+          setCalendarConnected(false)
+        } else {
+          console.error("Error fetching calendar events:", error)
+        }
         setCalendarEvents([])
-        setCalendarConnected(false)
     } finally {
       setCalendarLoading(false)
     }
