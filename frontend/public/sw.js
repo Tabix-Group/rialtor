@@ -1,5 +1,5 @@
 // Service Worker para PWA RIALTOR
-const CACHE_NAME = 'rialtor-v1.0.3';
+const CACHE_NAME = 'rialtor-v1.0.4';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -45,13 +45,30 @@ self.addEventListener('activate', (event) => {
 
 // Interceptar peticiones con estrategia Network First
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
   // Ignorar peticiones que no sean HTTP/HTTPS
   if (!event.request.url.startsWith('http')) {
     return;
   }
 
+  // No cachear: peticiones de autenticación, API calls que requieren credenciales
+  const isAuthRequest = url.pathname.includes('/auth/') || 
+                        url.pathname.includes('/api/');
+  
+  if (isAuthRequest) {
+    // Network only para peticiones de API
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // Si no hay conexión, no responder con cache
+        return new Response(null, { status: 503 });
+      })
+    );
+    return;
+  }
+
   event.respondWith(
-    // Intentar primero desde la red
+    // Intentar primero desde la red para static assets
     fetch(event.request)
       .then((response) => {
         // Si la respuesta es válida, clonarla y guardarla en cache
