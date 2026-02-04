@@ -23,7 +23,8 @@ import {
   Home,
   Settings,
   FileCheck,
-  Workflow
+  Workflow,
+  Star
 } from 'lucide-react'
 
 export default function AyudaPage() {
@@ -87,6 +88,7 @@ export default function AyudaPage() {
       subsections: [
         { id: 'ia-intro', title: 'Introducción al Asistente' },
         { id: 'ia-consultas', title: 'Tipos de Consultas' },
+        { id: 'ia-asistente-flotante', title: 'Asistente Flotante' },
         { id: 'ia-mejores-practicas', title: 'Mejores Prácticas' }
       ]
     },
@@ -100,35 +102,14 @@ export default function AyudaPage() {
       ]
     },
     {
-      id: 'calendario',
-      title: 'Calendario Profesional',
-      icon: Calendar,
-      subsections: [
-        { id: 'calendario-crear', title: 'Crear Eventos' },
-        { id: 'calendario-gestionar', title: 'Gestionar Agenda' },
-        { id: 'calendario-sincronizar', title: 'Sincronización' }
-      ]
-    },
-    {
-      id: 'finanzas',
-      title: 'Gestión Financiera',
-      icon: DollarSign,
-      subsections: [
-        { id: 'finanzas-ingresos', title: 'Registrar Ingresos y Gastos' },
-        { id: 'finanzas-reportes', title: 'Reportes y Análisis' },
-        { id: 'finanzas-categorias', title: 'Categorías Personalizadas' }
-      ]
-    },
-    {
       id: 'calculadoras',
       title: 'Calculadoras',
       icon: Calculator,
       subsections: [
-        { id: 'calc-ajustes', title: 'Ajustes de Alquiler' },
+        { id: 'calc-listado', title: 'Suite de Calculadoras' },
+        { id: 'calc-comisiones', title: 'Comisiones Inmobiliarias' },
         { id: 'calc-escritura', title: 'Gastos de Escrituración' },
-        { id: 'calc-dias', title: 'Días Hábiles' },
-        { id: 'calc-hipotecarios', title: 'Créditos Hipotecarios' },
-        { id: 'calc-caucion', title: 'Seguros de Caución' }
+        { id: 'calc-ajustes', title: 'Ajustes de Alquiler (ICL/CAC)' }
       ]
     },
     {
@@ -136,9 +117,10 @@ export default function AyudaPage() {
       title: 'Documentos y Formularios',
       icon: FileText,
       subsections: [
-        { id: 'doc-resumidor', title: 'Resumidor Inteligente' },
+        { id: 'doc-intro', title: 'Gestión Documental' },
         { id: 'doc-formularios', title: 'Formularios Editables' },
-        { id: 'doc-generacion', title: 'Generación de Contratos' }
+        { id: 'doc-editor', title: 'Cómo usar el Editor' },
+        { id: 'doc-resumidor', title: 'Resumidor Inteligente' }
       ]
     },
     {
@@ -146,18 +128,55 @@ export default function AyudaPage() {
       title: 'Generador de Placas',
       icon: ImageIcon,
       subsections: [
-        { id: 'placas-crear', title: 'Crear Placas' },
-        { id: 'placas-personalizar', title: 'Personalización' },
-        { id: 'placas-descargar', title: 'Exportar y Compartir' }
+        { id: 'placas-modelos', title: 'Modelos Disponibles' },
+        { id: 'placas-crear', title: 'Paso a Paso' },
+        { id: 'placas-personalizar', title: 'Personalización' }
+      ]
+    },
+    {
+      id: 'crm-ventas',
+      title: 'CRM y Ventas',
+      icon: Users,
+      subsections: [
+        { id: 'crm-prospectos', title: 'Gestión de Prospectos' },
+        { id: 'crm-funnel', title: 'Embudo de Ventas' },
+        { id: 'crm-metricas', title: 'Métricas de Conversión' }
+      ]
+    },
+    {
+      id: 'knowledge-wiki',
+      title: 'Wiki Inmobiliaria',
+      icon: BookOpen,
+      subsections: [
+        { id: 'wiki-articulos', title: 'Base de Conocimiento' },
+        { id: 'wiki-busqueda', title: 'Búsqueda Inteligente' }
+      ]
+    },
+    {
+      id: 'finanzas',
+      title: 'Gestión Financiera',
+      icon: DollarSign,
+      subsections: [
+        { id: 'finanzas-ingresos', title: 'Ingresos y Gastos' },
+        { id: 'finanzas-reportes', title: 'Reportes y Análisis' }
       ]
     },
     {
       id: 'noticias',
-      title: 'Noticias del Sector',
+      title: 'Noticias y Newsletter',
       icon: Newspaper,
       subsections: [
-        { id: 'noticias-ver', title: 'Ver Noticias' },
-        { id: 'noticias-filtrar', title: 'Filtrar por Categoría' }
+        { id: 'noticias-ver', title: 'Noticias del Sector' },
+        { id: 'newsletter-gestion', title: 'Gestión de Newsletter' }
+      ]
+    },
+    {
+      id: 'calendario',
+      title: 'Calendario Profesional',
+      icon: Calendar,
+      subsections: [
+        { id: 'calendario-crear', title: 'Crear Eventos' },
+        { id: 'calendario-gestionar', title: 'Gestionar Agenda' }
       ]
     },
     {
@@ -165,8 +184,7 @@ export default function AyudaPage() {
       title: 'Centro de Descargas',
       icon: Download,
       subsections: [
-        { id: 'descargas-archivos', title: 'Archivos Disponibles' },
-        { id: 'descargas-administrar', title: 'Gestionar Descargas' }
+        { id: 'descargas-archivos', title: 'Archivos Disponibles' }
       ]
     },
     {
@@ -185,7 +203,6 @@ export default function AyudaPage() {
       icon: HelpCircle,
       subsections: [
         { id: 'soporte-problemas', title: 'Problemas Comunes' },
-        { id: 'soporte-compatibilidad', title: 'Compatibilidad' },
         { id: 'soporte-contacto', title: 'Contactar Soporte' }
       ]
     }
@@ -341,25 +358,55 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Introducción al Asistente</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      El <strong>Asistente IA de RIALTOR</strong> es un consultor inmobiliario inteligente que te ayuda con consultas sobre el mercado argentino, cálculos automáticos y búsqueda de información en tiempo real.
+                      El <strong>Asistente IA de RIALTOR</strong> es un consultor inmobiliario inteligente especializado en el mercado argentino. Combina modelos avanzados de lenguaje con búsqueda en tiempo real.
                     </p>
                     <p className="text-gray-700">
-                      Está entrenado con conocimiento específico del sector inmobiliario argentino, incluyendo normativas, cálculos fiscales, tendencias de mercado y mejores prácticas profesionales.
+                      A diferencia de un chat convencional, RIALTOR tiene acceso a:
                     </p>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                      <li><strong>Búsqueda Web en vivo:</strong> Cotizaciones del dólar, noticias y regulaciones al día.</li>
+                      <li><strong>Herramientas de cálculo:</strong> Puede realizar desgloses de impuestos y comisiones automáticamente.</li>
+                      <li><strong>Conocimiento Contextual:</strong> Entiende documentos y normativas específicas del sector.</li>
+                    </ul>
                   </div>
                 </div>
 
                 <div id="ia-consultas" className="mb-8 scroll-mt-24">
                   <h3 className="text-xl font-semibold mb-3">Tipos de Consultas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">Puedes realizar diversos tipos de consultas:</p>
-                    <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li><strong>Cálculos fiscales:</strong> "¿Cuánto es el ITI en CABA para una propiedad de $100,000 USD?"</li>
-                      <li><strong>Normativas:</strong> "¿Cuáles son los requisitos para un contrato de alquiler?"</li>
-                      <li><strong>Tendencias de mercado:</strong> "¿Cómo está el mercado inmobiliario en Buenos Aires?"</li>
-                      <li><strong>Mejores prácticas:</strong> "¿Cómo negociar una comisión con un cliente?"</li>
-                      <li><strong>Análisis de documentos:</strong> Sube contratos y obtén resúmenes automáticos</li>
-                    </ul>
+                    <p className="text-gray-700">Puedes probar con estas consultas reales:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border border-blue-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-blue-700 mb-1">Mercado y Dólar</p>
+                        <p className="text-sm italic">"¿A cuánto cerró el dólar blue hoy?"</p>
+                      </div>
+                      <div className="border border-blue-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-blue-700 mb-1">Cálculos Propios</p>
+                        <p className="text-sm italic">"Calculame honorarios para una venta de 150k USD en CABA con 4% de comisión"</p>
+                      </div>
+                      <div className="border border-blue-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-blue-700 mb-1">Legales</p>
+                        <p className="text-sm italic">"¿Cuáles son los requisitos de la nueva ley de alquileres para el ajuste?"</p>
+                      </div>
+                      <div className="border border-blue-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-blue-700 mb-1">Análisis</p>
+                        <p className="text-sm italic">"Analizá este contrato que voy a subir y decime las cláusulas de rescisión"</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="ia-asistente-flotante" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Asistente Flotante</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      No hace falta estar en la página de Chat. En cualquier parte de la aplicación, verás un <strong>círculo azul en la esquina inferior derecha</strong>. 
+                    </p>
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                      <li>Hacé clic en el icono para abrir la ventana rápida.</li>
+                      <li>Escribí tu consulta sin salir de lo que estás haciendo (por ejemplo, mientras editás un formulario).</li>
+                      <li>Podés minimizarlo en cualquier momento y la conversación se mantendrá.</li>
+                    </ol>
                   </div>
                 </div>
 
@@ -367,10 +414,9 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Mejores Prácticas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Sé específico en tus preguntas para obtener respuestas más precisas</li>
-                      <li>Incluye detalles relevantes como ubicación, montos y fechas</li>
-                      <li>Utiliza el historial de conversación para hacer seguimiento de consultas anteriores</li>
-                      <li>Verifica siempre información legal o fiscal con un profesional</li>
+                      <li><strong>Contexto geográfico:</strong> Mencioná siempre si la consulta es para CABA, GBA o Interior, ya que los impuestos varían.</li>
+                      <li><strong>Feedback:</strong> Usá los iconos de 👍 o 👎 para que RIALTOR aprenda de tus preferencias.</li>
+                      <li><strong>Limpiar Chat:</strong> Si vas a cambiar radicalmente de tema, usá el botón "Limpiar Chat" para evitar confusiones con el contexto anterior.</li>
                     </ul>
                   </div>
                 </div>
@@ -386,14 +432,18 @@ export default function AyudaPage() {
                 <div id="indicadores-disponibles" className="mb-8 scroll-mt-24">
                   <h3 className="text-xl font-semibold mb-3">Indicadores Disponibles</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">Accede a indicadores económicos actualizados en tiempo real:</p>
-                    <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li><strong>Dólar:</strong> Oficial, Blue, MEP, CCL, Tarjeta</li>
-                      <li><strong>Inflación:</strong> IPC Nacional y por provincia</li>
-                      <li><strong>Índices inmobiliarios:</strong> ICL, Precios m²</li>
-                      <li><strong>Tasas de interés:</strong> Hipotecarios, Plazo Fijo</li>
-                      <li><strong>UVA y UVI:</strong> Valores actualizados diariamente</li>
-                    </ul>
+                    <p className="text-gray-700">Actualizados cada 5 minutos desde fuentes oficiales:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>Dólar Blue</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>Dólar Oficial</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>Dólar MEP/CCL</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>ICL (Alquileres)</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>CAC (Cámara Const.)</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>IPC (Inflación)</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>UVA / UVI</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>Precio m² CABA</strong></div>
+                      <div className="bg-white p-3 border rounded shadow-sm"><strong>Tasas Bancarias</strong></div>
+                    </div>
                   </div>
                 </div>
 
@@ -401,7 +451,213 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Cómo Usar Indicadores</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Navega a <code>/indicadores</code> para ver todos los indicadores disponibles. Puedes filtrar por categoría, ver históricos y exportar datos en formato Excel o CSV.
+                      Entrá a la sección <code>/indicadores</code>. Encontrarás gráficos interactivos donde podés visualizar la evolución histórica y comparar valores. Ideal para mostrarle al cliente tendencias de mercado reales con bases de datos verificadas.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+
+              {/* Calculadoras */}
+              <section id="calculadoras" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <Calculator className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Calculadoras Profesionales</h2>
+                </div>
+
+                <div id="calc-listado" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Suite de Calculadoras</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">RIALTOR incluye una suite completa de herramientas para el profesional inmobiliario:</p>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-700 list-none p-0">
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Comisiones Inmobiliarias</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Gastos de Escrituración</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Impuesto a las Ganancias (IIGG)</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Ajustes de Alquiler (ICL/CAC/IPC)</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Simulador Hipotecario UVA</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Días Hábiles Contractuales</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div id="calc-comisiones" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Paso a paso: Comisiones</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                      <li>Ingresá el monto de la operación y seleccioná la moneda.</li>
+                      <li>Definí el porcentaje de comisión (ej: 4%).</li>
+                      <li>Seleccioná tu condición fiscal (Monotributo/RI) y la provincia para el cálculo de IIBB.</li>
+                      <li>Hacé clic en <strong>Calcular</strong> para ver el total neto a cobrar y los impuestos aplicados.</li>
+                    </ol>
+                  </div>
+                </div>
+              </section>
+
+              {/* Documentos */}
+              <section id="documentos" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <FileText className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Documentos y Formularios</h2>
+                </div>
+
+                <div id="doc-formularios" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Paso a paso: Editar Formularios</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">Editá tus contratos directamente en la nube:</p>
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                       <li>Andá a <code>/formularios</code>.</li>
+                       <li>Elegí entre las carpetas: <strong>Alquiler</strong>, <strong>Boletos</strong> o <strong>Reservas</strong>.</li>
+                       <li>Hacé clic en <strong>✏️ Abrir y Editar</strong> en el documento deseado.</li>
+                       <li>Modificá el texto. Los cambios se guardan temporalmente en tu sesión.</li>
+                       <li>Hacé clic en <strong>Descargar Documento Completado</strong> para obtener el .docx final.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div id="doc-resumidor" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Resumidor Inteligente</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">Subí cualquier PDF o DOCX de carácter legal y pedile a la IA que te extraiga los vencimientos, montos y cláusulas críticas. Ahorrá tiempo valioso en la revisión de contratos complejos.</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Placas */}
+              <section id="placas" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <ImageIcon className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Generador de Placas</h2>
+                </div>
+
+                <div id="placas-modelos" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Modelos de Placas Disponibles</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700 mb-4">RIALTOR ofrece 5 diseños optimizados para diferentes objetivos:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="p-4 border rounded-lg bg-white shadow-sm">
+                        <p className="font-bold text-blue-800">1. STANDARD</p>
+                        <p className="text-xs text-gray-600">Diseño esencial y limpio. Ideal para publicaciones rápidas con datos clave.</p>
+                      </div>
+                      <div className="p-4 border rounded-lg bg-blue-50 shadow-sm">
+                        <p className="font-bold text-blue-800">2. PREMIUM</p>
+                        <p className="text-xs text-gray-600">Enfoque profesional con foto del agente, branding y mayor visibilidad de contacto.</p>
+                      </div>
+                      <div className="p-4 border border-blue-200 rounded-lg bg-blue-100 shadow-sm">
+                        <p className="font-bold text-blue-700 flex items-center gap-1">3. VIP <Star className="w-3 h-3 fill-blue-700"/></p>
+                        <p className="text-xs text-gray-600">Estética editorial con composición de 3 fotos y QR dinámico para la ficha.</p>
+                      </div>
+                      <div className="p-4 border rounded-lg bg-white shadow-sm">
+                        <p className="font-bold text-gray-800">4. MODERNO</p>
+                        <p className="text-xs text-gray-600">Barra lateral traslúcida y tipografía moderna para un look vanguardista.</p>
+                      </div>
+                      <div className="p-4 border rounded-lg bg-white shadow-sm">
+                        <p className="font-bold text-gray-800">5. IMPACTO</p>
+                        <p className="text-xs text-gray-600">Diseño enmarcado con cajas de información centradas para captar atención inmediata.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="placas-crear" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Cómo generar una placa</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                       <li>Subí las fotos de la propiedad a <code>/placas</code>.</li>
+                       <li>Seleccioná uno de los <strong>5 modelos disponibles</strong> según tu necesidad.</li>
+                       <li>Completá los datos (en el Modelo 4 podés incluso elegir el color de la barra).</li>
+                       <li>Generá la previsualización y descargá el archivo final en alta resolución.</li>
+                    </ol>
+                  </div>
+                </div>
+              </section>
+
+              {/* CRM y Ventas */}
+              <section id="crm-ventas" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <Users className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">CRM y Ventas</h2>
+                </div>
+
+                <div id="crm-prospectos" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Gestión de Prospectos</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Llevá un registro de cada cliente interesado en la sección de <code>/prospectos</code>. Podés asignarles prioridades, fuentes (ej: WhatsApp, ZonaProp) y etiquetas personalizadas.
+                    </p>
+                  </div>
+                </div>
+
+                <div id="crm-funnel" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Embudo de Ventas</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Visualizá en qué etapa está cada operación: Desde el contacto inicial, pasando por la visita, reserva, hasta el cierre de la operación.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Wiki Inmobiliaria */}
+              <section id="knowledge-wiki" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <BookOpen className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Wiki Inmobiliaria</h2>
+                </div>
+
+                <div id="wiki-articulos" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Base de Conocimiento</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Accedé a la enciclopedia inmobiliaria de RIALTOR en <code>/knowledge</code>. Encontrarás artículos escritos por expertos sobre:
+                    </p>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                      <li>Guías de zonificación.</li>
+                      <li>Nuevas normativas de alquileres.</li>
+                      <li>Tips de negociación y cierre.</li>
+                      <li>Procesos de sucesión y donación.</li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
+
+              {/* Finanzas */}
+              <section id="finanzas" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <DollarSign className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Gestión Financiera</h2>
+                </div>
+
+                <div id="finanzas-ingresos" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Ingresos y Gastos</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Llevá la contabilidad de tu inmobiliaria o tu actividad como agente independiente. Registrá comisiones cobradas, gastos de publicidad, y mantenimientos en <code>/finanzas</code>.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Noticias y Newsletter */}
+              <section id="noticias" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <Newspaper className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Noticias y Newsletter</h2>
+                </div>
+
+                <div id="noticias-ver" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Noticias del Sector</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      En <code>/news</code> tenés un feed actualizado con las últimas novedades de los portales inmobiliarios y económicos más importantes de Argentina.
+                    </p>
+                  </div>
+                </div>
+
+                <div id="newsletter-gestion" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Gestión de Newsletter</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Creá campañas de email marketing para tus clientes. Podés elegir entre plantillas profesionales de propiedades o novedades del mercado y enviarlas a toda tu base de suscriptores con un clic.
                     </p>
                   </div>
                 </div>
@@ -415,247 +671,10 @@ export default function AyudaPage() {
                 </div>
 
                 <div id="calendario-crear" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Crear Eventos</h3>
+                  <h3 className="text-xl font-semibold mb-3">Agenda de Visitas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Crea eventos haciendo clic en cualquier fecha del calendario. Puedes agregar:
-                    </p>
-                    <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Visitas a propiedades con ubicación y cliente</li>
-                      <li>Reuniones con clientes o colegas</li>
-                      <li>Recordatorios de tareas y seguimientos</li>
-                      <li>Vencimientos de contratos y pagos</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div id="calendario-gestionar" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Gestionar Agenda</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Administra tu agenda con vistas diarias, semanales y mensuales. Puedes editar, reprogramar o eliminar eventos fácilmente.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="calendario-sincronizar" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Sincronización</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Próximamente: Sincronización con Google Calendar, Outlook y otros servicios de calendario populares.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Gestión Financiera */}
-              <section id="finanzas" className="mb-16 scroll-mt-24">
-                <div className="flex items-center gap-3 mb-6">
-                  <DollarSign className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Gestión Financiera</h2>
-                </div>
-
-                <div id="finanzas-ingresos" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Registrar Ingresos y Gastos</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Mantén un control preciso de tus finanzas registrando todas tus operaciones:
-                    </p>
-                    <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Comisiones de ventas y alquileres</li>
-                      <li>Gastos operativos y administrativos</li>
-                      <li>Inversiones en marketing y publicidad</li>
-                      <li>Pagos de impuestos y servicios</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div id="finanzas-reportes" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Reportes y Análisis</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Genera reportes detallados para analizar tu rentabilidad, proyecciones y tendencias financieras. Exporta datos en formato Excel para contabilidad.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="finanzas-prospectos" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Mis Prospectos</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Registrá tus proyecciones y prospectos concretados. Podés agregar un monto estimado, comisión prevista y cuántos clientes fueron contactados. También verás indicadores clave (monto promedio, comisión promedio, clientes prospectados y tasa de conversión) para comparar tu desempeño frente a lo planificado.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="finanzas-categorias" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Categorías Personalizadas</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Crea categorías personalizadas para organizar tus transacciones según tu modelo de negocio y necesidades específicas.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Calculadoras */}
-              <section id="calculadoras" className="mb-16 scroll-mt-24">
-                <div className="flex items-center gap-3 mb-6">
-                  <Calculator className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Calculadoras Profesionales</h2>
-                </div>
-
-                <div id="calc-ajustes" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Ajustes de Alquiler</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Calcula ajustes de alquileres según IPC, ICL o porcentajes pactados. Incluye simulador de ajustes anuales según la Ley de Alquileres.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="calc-escritura" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Gastos de Escrituración</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Calcula todos los gastos de escrituración incluyendo: honorarios de escribano, sellos provinciales, IIBB, ITI (CABA), registro de la propiedad y gestoría.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="calc-dias" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Días Hábiles</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Calcula días hábiles entre dos fechas, excluyendo fines de semana y feriados nacionales. Útil para vencimientos contractuales.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="calc-hipotecarios" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Créditos Hipotecarios</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Simula créditos hipotecarios con diferentes tasas, plazos y sistemas de amortización (francés o alemán). Compara ofertas de diferentes bancos.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="calc-caucion" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Seguros de Caución</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Cotiza seguros de caución para garantías de alquiler. Compara precios entre diferentes compañías aseguradoras.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Documentos y Formularios */}
-              <section id="documentos" className="mb-16 scroll-mt-24">
-                <div className="flex items-center gap-3 mb-6">
-                  <FileText className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Documentos y Formularios</h2>
-                </div>
-
-                <div id="doc-resumidor" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Resumidor Inteligente</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Sube contratos, escrituras o documentos extensos y obtén un resumen automático con los puntos clave, cláusulas importantes y datos relevantes extraídos por IA.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="doc-formularios" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Formularios Editables</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Edita formularios predefinidos directamente en el navegador con un editor WYSIWYG profesional. Incluye plantillas de:
-                    </p>
-                    <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Contratos de alquiler</li>
-                      <li>Boletos de compraventa</li>
-                      <li>Reservas de propiedad</li>
-                      <li>Autorizaciones de publicación</li>
-                      <li>Formularios de inspección</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div id="doc-generacion" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Generación de Contratos</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Genera contratos completos completando un formulario simple. El sistema rellena automáticamente todos los campos y genera un PDF listo para imprimir y firmar.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Placas */}
-              <section id="placas" className="mb-16 scroll-mt-24">
-                <div className="flex items-center gap-3 mb-6">
-                  <ImageIcon className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Generador de Placas</h2>
-                </div>
-
-                <div id="placas-crear" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Crear Placas</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Sube fotos de propiedades y genera automáticamente placas profesionales para redes sociales y portales inmobiliarios. Soporta modelos estándar y VIP.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="placas-personalizar" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Personalización</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Personaliza tus placas con:
-                    </p>
-                    <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Logo y marca personal</li>
-                      <li>Colores corporativos</li>
-                      <li>Datos de la propiedad (precio, superficie, ambientes)</li>
-                      <li>Información de contacto</li>
-                      <li>QR code para más información</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div id="placas-descargar" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Exportar y Compartir</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Descarga tus placas en alta resolución (PNG, JPG) optimizadas para Instagram, Facebook, WhatsApp y portales inmobiliarios.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Noticias */}
-              <section id="noticias" className="mb-16 scroll-mt-24">
-                <div className="flex items-center gap-3 mb-6">
-                  <Newspaper className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Noticias del Sector</h2>
-                </div>
-
-                <div id="noticias-ver" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Ver Noticias</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Mantente informado con las últimas noticias del mercado inmobiliario argentino, actualizadas automáticamente desde múltiples fuentes confiables.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="noticias-filtrar" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Filtrar por Categoría</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Filtra noticias por categorías como: normativas, mercado, economía, tendencias, tecnología inmobiliaria, y más.
+                      Sincronizá tus visitas y reuniones. Podés ver tus compromisos en formato semanal o mensual en <code>/calendario</code>.
                     </p>
                   </div>
                 </div>
@@ -669,25 +688,10 @@ export default function AyudaPage() {
                 </div>
 
                 <div id="descargas-archivos" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Archivos Disponibles</h3>
+                  <h3 className="text-xl font-semibold mb-3">Material Exclusivo</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Accede a una biblioteca de recursos descargables:
-                    </p>
-                    <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Plantillas de documentos y formularios</li>
-                      <li>Guías y manuales profesionales</li>
-                      <li>Normativas y legislación actualizada</li>
-                      <li>Material de marketing y branding</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div id="descargas-administrar" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Gestionar Descargas</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Los administradores pueden subir, organizar y gestionar archivos para que estén disponibles para todos los usuarios.
+                      Descargá guías, leyes actualizadas, y material de marketing listo para usar en tu inmobiliaria. 
                     </p>
                   </div>
                 </div>
