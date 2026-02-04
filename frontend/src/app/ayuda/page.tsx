@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '../auth/authContext'
 import { 
-  BookOpen, 
   Calculator, 
   FileText, 
   ImageIcon, 
@@ -14,17 +13,13 @@ import {
   TrendingUp, 
   Newspaper,
   Download,
-  Shield,
-  Users,
-  CreditCard,
   HelpCircle,
   Search,
   ChevronRight,
   Home,
   Settings,
-  FileCheck,
-  Workflow,
-  Star
+  Star,
+  BarChart3
 } from 'lucide-react'
 
 export default function AyudaPage() {
@@ -76,9 +71,10 @@ export default function AyudaPage() {
       title: 'Primeros Pasos',
       icon: Home,
       subsections: [
-        { id: 'registro', title: 'Registro y Login' },
-        { id: 'perfil', title: 'Configuración de Perfil' },
-        { id: 'navegacion', title: 'Navegación de la Plataforma' }
+        { id: 'registro', title: 'Registro e Inicio' },
+        { id: 'suscripcion', title: 'Suscripción VIP' },
+        { id: 'panel', title: 'Panel de Control' },
+        { id: 'pwa', title: 'App Móvil (PWA)' }
       ]
     },
     {
@@ -88,7 +84,6 @@ export default function AyudaPage() {
       subsections: [
         { id: 'ia-intro', title: 'Introducción al Asistente' },
         { id: 'ia-consultas', title: 'Tipos de Consultas' },
-        { id: 'ia-asistente-flotante', title: 'Asistente Flotante' },
         { id: 'ia-mejores-practicas', title: 'Mejores Prácticas' }
       ]
     },
@@ -134,22 +129,13 @@ export default function AyudaPage() {
       ]
     },
     {
-      id: 'crm-ventas',
-      title: 'CRM y Ventas',
-      icon: Users,
+      id: 'proyecciones-analisis',
+      title: 'Proyecciones y Análisis',
+      icon: BarChart3,
       subsections: [
-        { id: 'crm-prospectos', title: 'Gestión de Prospectos' },
-        { id: 'crm-funnel', title: 'Embudo de Ventas' },
-        { id: 'crm-metricas', title: 'Métricas de Conversión' }
-      ]
-    },
-    {
-      id: 'knowledge-wiki',
-      title: 'Wiki Inmobiliaria',
-      icon: BookOpen,
-      subsections: [
-        { id: 'wiki-articulos', title: 'Base de Conocimiento' },
-        { id: 'wiki-busqueda', title: 'Búsqueda Inteligente' }
+        { id: 'proy-prospectos', title: 'Gestión de Prospectos' },
+        { id: 'proy-funnel', title: 'Embudo de Ventas' },
+        { id: 'proy-metricas', title: 'Proyección de Cierres' }
       ]
     },
     {
@@ -158,16 +144,25 @@ export default function AyudaPage() {
       icon: DollarSign,
       subsections: [
         { id: 'finanzas-ingresos', title: 'Ingresos y Gastos' },
-        { id: 'finanzas-reportes', title: 'Reportes y Análisis' }
+        { id: 'finanzas-categorias', title: 'Conceptos Laborales y Personales' },
+        { id: 'finanzas-graficos', title: 'Gráficos y Evolución' },
+        { id: 'finanzas-reportes', title: 'Reportes Exportables' }
       ]
     },
     {
       id: 'noticias',
-      title: 'Noticias y Newsletter',
+      title: 'Noticias del Sector',
       icon: Newspaper,
       subsections: [
-        { id: 'noticias-ver', title: 'Noticias del Sector' },
-        { id: 'newsletter-gestion', title: 'Gestión de Newsletter' }
+        { id: 'noticias-ver', title: 'Feed de Novedades' }
+      ]
+    },
+    {
+      id: 'newsletter',
+      title: 'Mis Newsletters',
+      icon: Star,
+      subsections: [
+        { id: 'newsletter-gestion', title: 'Gestión de Campañas' }
       ]
     },
     {
@@ -185,16 +180,6 @@ export default function AyudaPage() {
       icon: Download,
       subsections: [
         { id: 'descargas-archivos', title: 'Archivos Disponibles' }
-      ]
-    },
-    {
-      id: 'admin',
-      title: 'Panel de Administración',
-      icon: Shield,
-      subsections: [
-        { id: 'admin-usuarios', title: 'Gestión de Usuarios' },
-        { id: 'admin-roles', title: 'Roles y Permisos' },
-        { id: 'admin-contenido', title: 'Gestión de Contenido' }
       ]
     },
     {
@@ -300,49 +285,62 @@ export default function AyudaPage() {
                 </div>
 
                 <div id="registro" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Registro y Login</h3>
+                  <h3 className="text-xl font-semibold mb-3">Registro e Inicio</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      <strong>Crear una cuenta:</strong> Visita <code>/auth/register</code> y completa el formulario con tu nombre, email y contraseña. Recibirás un email de confirmación.
+                      <strong>Crear una cuenta:</strong> Completa el formulario de registro con tu nombre, email, contraseña, teléfono y tu oficina o agencia local. No es necesario confirmar email para comenzar.
                     </p>
                     <p className="text-gray-700">
-                      <strong>Iniciar sesión:</strong> Accede en <code>/auth/login</code> con tus credenciales. El sistema guardará tu sesión de forma segura.
-                    </p>
-                    <p className="text-gray-700">
-                      <strong>Recuperar contraseña:</strong> Si olvidaste tu contraseña, usa la opción "¿Olvidaste tu contraseña?" en la página de login.
+                      <strong>Acceso Directo:</strong> Una vez registrado, el sistema te mantendrá conectado. Puedes acceder desde cualquier dispositivo usando tu email y contraseña.
                     </p>
                   </div>
                 </div>
 
-                <div id="perfil" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Configuración de Perfil</h3>
+                <div id="suscripcion" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Suscripción VIP</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Desde tu <strong>Dashboard</strong>, puedes actualizar tu información personal, foto de perfil, y preferencias profesionales.
+                      Para acceder a las herramientas avanzadas (AI, Placas VIP, Indicadores Pro), Rialtor requiere una suscripción activa.
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Foto de perfil y avatar personalizado</li>
-                      <li>Información de contacto y matrícula profesional</li>
-                      <li>Zona de trabajo y especialidades inmobiliarias</li>
-                      <li>Preferencias de notificaciones</li>
+                      <li><strong>Selección de Plan:</strong> Al ingresar por primera vez, serás redirigido a la página de planes (Mensual o Anual).</li>
+                      <li><strong>Pago Seguro:</strong> Utilizamos <strong>Stripe</strong> para procesar pagos de forma segura con tarjeta de crédito o débito.</li>
+                      <li><strong>Activación Instantánea:</strong> Una vez completado el pago, todas las funciones VIP se habilitarán automáticamente.</li>
                     </ul>
                   </div>
                 </div>
 
-                <div id="navegacion" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Navegación de la Plataforma</h3>
+                <div id="panel" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Panel de Control (Dashboard)</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      La plataforma cuenta con un <strong>menú lateral colapsable</strong> que te permite acceder rápidamente a todas las herramientas:
+                      Tu Dashboard es el centro neurálgico donde encontrarás:
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li><strong>Mi Panel:</strong> Dashboard principal con acceso rápido</li>
-                      <li><strong>Asistente IA:</strong> Consultor inmobiliario inteligente</li>
-                      <li><strong>Indicadores:</strong> Datos económicos en tiempo real</li>
-                      <li><strong>Calculadoras:</strong> Herramientas de cálculo profesional</li>
-                      <li><strong>Documentos:</strong> Gestión y edición de formularios</li>
-                      <li><strong>Placas:</strong> Generador de contenido visual</li>
+                      <li><strong>Indicadores Rápidos:</strong> Dólar, IPC, CAC y más, actualizados al momento.</li>
+                      <li><strong>Embudo de Ventas:</strong> Visualiza tus prospectos y cierres proyectados.</li>
+                      <li><strong>Calendario:</strong> Gestiona tus citas y eventos importantes.</li>
+                      <li><strong>Documentos Recientes:</strong> Acceso rápido a tus últimas creaciones.</li>
                     </ul>
+                  </div>
+                </div>
+
+                <div id="pwa" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">App Móvil (PWA)</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Puedes instalar Rialtor como una aplicación en tu teléfono sin necesidad de ir a la App Store o Play Store.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-3 bg-white rounded border border-gray-100">
+                        <span className="font-bold text-blue-600">iOS (iPhone):</span>
+                        <p className="text-sm">Toca el botón "Compartir" en Safari y selecciona <strong>"Agregar al inicio"</strong>.</p>
+                      </div>
+                      <div className="p-3 bg-white rounded border border-gray-100">
+                        <span className="font-bold text-blue-600">Android:</span>
+                        <p className="text-sm">Toca los tres puntos arriba a la derecha y selecciona <strong>"Instalar aplicación"</strong>.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -396,26 +394,12 @@ export default function AyudaPage() {
                   </div>
                 </div>
 
-                <div id="ia-asistente-flotante" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Asistente Flotante</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      No hace falta estar en la página de Chat. En cualquier parte de la aplicación, verás un <strong>círculo azul en la esquina inferior derecha</strong>. 
-                    </p>
-                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
-                      <li>Hacé clic en el icono para abrir la ventana rápida.</li>
-                      <li>Escribí tu consulta sin salir de lo que estás haciendo (por ejemplo, mientras editás un formulario).</li>
-                      <li>Podés minimizarlo en cualquier momento y la conversación se mantendrá.</li>
-                    </ol>
-                  </div>
-                </div>
-
                 <div id="ia-mejores-practicas" className="mb-8 scroll-mt-24">
                   <h3 className="text-xl font-semibold mb-3">Mejores Prácticas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
+                      <li><strong>Acceso desde el menú:</strong> Rialtor es una SPA (Single Page Application), podés acceder al Asistente IA directamente desde el menú lateral izquierdo en cualquier momento.</li>
                       <li><strong>Contexto geográfico:</strong> Mencioná siempre si la consulta es para CABA, GBA o Interior, ya que los impuestos varían.</li>
-                      <li><strong>Feedback:</strong> Usá los iconos de 👍 o 👎 para que RIALTOR aprenda de tus preferencias.</li>
                       <li><strong>Limpiar Chat:</strong> Si vas a cambiar radicalmente de tema, usá el botón "Limpiar Chat" para evitar confusiones con el contexto anterior.</li>
                     </ul>
                   </div>
@@ -470,11 +454,13 @@ export default function AyudaPage() {
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">RIALTOR incluye una suite completa de herramientas para el profesional inmobiliario:</p>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-700 list-none p-0">
-                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Comisiones Inmobiliarias</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Comisiones e Honorarios</li>
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Gastos de Escrituración</li>
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Impuesto a las Ganancias (IIGG)</li>
-                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Ajustes de Alquiler (ICL/CAC/IPC)</li>
-                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Simulador Hipotecario UVA</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Ajustes de Alquiler (IPC/ICL)</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Calculadora CAC (Construcción)</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Créditos Hipotecarios UVA</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Seguros de Caución</li>
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Días Hábiles Contractuales</li>
                     </ul>
                   </div>
@@ -571,50 +557,37 @@ export default function AyudaPage() {
                 </div>
               </section>
 
-              {/* CRM y Ventas */}
-              <section id="crm-ventas" className="mb-16 scroll-mt-24">
+              {/* Proyecciones y Análisis */}
+              <section id="proyecciones-analisis" className="mb-16 scroll-mt-24">
                 <div className="flex items-center gap-3 mb-6">
-                  <Users className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">CRM y Ventas</h2>
+                  <BarChart3 className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Proyecciones y Análisis</h2>
                 </div>
 
-                <div id="crm-prospectos" className="mb-8 scroll-mt-24">
+                <div id="proy-prospectos" className="mb-8 scroll-mt-24">
                   <h3 className="text-xl font-semibold mb-3">Gestión de Prospectos</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Llevá un registro de cada cliente interesado en la sección de <code>/prospectos</code>. Podés asignarles prioridades, fuentes (ej: WhatsApp, ZonaProp) y etiquetas personalizadas.
-                    </p>
-                  </div>
-                </div>
-
-                <div id="crm-funnel" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Embudo de Ventas</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Visualizá en qué etapa está cada operación: Desde el contacto inicial, pasando por la visita, reserva, hasta el cierre de la operación.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Wiki Inmobiliaria */}
-              <section id="knowledge-wiki" className="mb-16 scroll-mt-24">
-                <div className="flex items-center gap-3 mb-6">
-                  <BookOpen className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Wiki Inmobiliaria</h2>
-                </div>
-
-                <div id="wiki-articulos" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Base de Conocimiento</h3>
-                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">
-                      Accedé a la enciclopedia inmobiliaria de RIALTOR en <code>/knowledge</code>. Encontrarás artículos escritos por expertos sobre:
+                      Llevá un registro dinámico de cada cliente interesado en la sección de <code>/prospectos</code>.
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li>Guías de zonificación.</li>
-                      <li>Nuevas normativas de alquileres.</li>
-                      <li>Tips de negociación y cierre.</li>
-                      <li>Procesos de sucesión y donación.</li>
+                      <li><strong>Calificación:</strong> Asigná una temperatura (Frío, Tibio, Caliente) a cada prospecto.</li>
+                      <li><strong>Seguimiento:</strong> Definí fuentes de origen como Portales, Referidos o Redes Sociales.</li>
+                      <li><strong>Acciones Rápidas:</strong> Contactá vía WhatsApp o Email directamente desde la tabla de gestión.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div id="proy-funnel" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Embudo de Ventas y Métricas</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      El sistema calcula automáticamente tu proyección comercial basada en tus prospectos activos:
+                    </p>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                       <li><strong>Pipeline Visual:</strong> Gráfico de embudo que muestra la conversión de Leads a Cierres.</li>
+                       <li><strong>Proyección de Honorarios:</strong> Estimación de ingresos brutos basada en el valor de las propiedades en pipeline.</li>
+                       <li><strong>Tasa de Cierre:</strong> Porcentaje de efectividad por cada etapa del embudo.</li>
                     </ul>
                   </div>
                 </div>
@@ -628,37 +601,81 @@ export default function AyudaPage() {
                 </div>
 
                 <div id="finanzas-ingresos" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Ingresos y Gastos</h3>
+                  <h3 className="text-xl font-semibold mb-3">Movimientos de Caja</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Llevá la contabilidad de tu inmobiliaria o tu actividad como agente independiente. Registrá comisiones cobradas, gastos de publicidad, y mantenimientos en <code>/finanzas</code>.
+                      Rialtor te permite llevar una contabilidad bimonetaria (ARS/USD) diferenciando entre tu actividad profesional y tu vida personal.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-white rounded-lg border border-gray-100">
+                        <p className="font-bold text-blue-700">Actividad Laboral</p>
+                        <p className="text-sm text-gray-600">Comisiones de venta, alquiler, honorarios por tasaciones, inversión en publicidad y membresías.</p>
+                      </div>
+                      <div className="p-4 bg-white rounded-lg border border-gray-100">
+                        <p className="font-bold text-green-700">Actividad Personal</p>
+                        <p className="text-sm text-gray-600">Gastos de vivienda (Alquiler, Expensas, Servicios), educación, comida y ahorro personal.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="finanzas-graficos" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Gráficos y Visualización</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">En la pestaña de <strong>Reportes</strong>, accedés a una vista analítica:</p>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                       <li><strong>Distribución de Gastos:</strong> Gráfico de torta que muestra qué porcentaje de tus ingresos se va en cada concepto.</li>
+                       <li><strong>Evolución Mensual:</strong> Gráfico de barras comparativo de Ingresos vs Egresos a lo largo del tiempo.</li>
+                       <li><strong>Balance Neto:</strong> Cálculo en tiempo real de tu rentabilidad por moneda.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div id="finanzas-reportes" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Reportes Exportables</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Podés descargar toda tu información contable en un archivo de <strong>Excel (.xlsx)</strong> con un solo clic. Ideal para entregar a tu contador o realizar análisis externos detallados.
                     </p>
                   </div>
                 </div>
               </section>
 
-              {/* Noticias y Newsletter */}
+              {/* Noticias */}
               <section id="noticias" className="mb-16 scroll-mt-24">
                 <div className="flex items-center gap-3 mb-6">
                   <Newspaper className="w-8 h-8 text-blue-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Noticias y Newsletter</h2>
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Noticias del Sector</h2>
                 </div>
 
                 <div id="noticias-ver" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Noticias del Sector</h3>
+                  <h3 className="text-xl font-semibold mb-3">Feed de Novedades</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
                       En <code>/news</code> tenés un feed actualizado con las últimas novedades de los portales inmobiliarios y económicos más importantes de Argentina.
                     </p>
                   </div>
                 </div>
+              </section>
+
+              {/* Newsletter */}
+              <section id="newsletter" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <Star className="w-8 h-8 text-blue-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Mis Newsletters</h2>
+                </div>
 
                 <div id="newsletter-gestion" className="mb-8 scroll-mt-24">
-                  <h3 className="text-xl font-semibold mb-3">Gestión de Newsletter</h3>
+                  <h3 className="text-xl font-semibold mb-3">Gestión de Campañas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Creá campañas de email marketing para tus clientes. Podés elegir entre plantillas profesionales de propiedades o novedades del mercado y enviarlas a toda tu base de suscriptores con un clic.
+                      Creá campañas de email marketing para tus clientes directamente desde Rialtor.
                     </p>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                       <li><strong>Plantillas:</strong> Elegí entre diseños profesionales de propiedades o newsletters informativas.</li>
+                       <li><strong>Propiedades Destacadas:</strong> Arrastrá tus propiedades activas para incluirlas automáticamente en el correo.</li>
+                       <li><strong>Seguimiento:</strong> Enviá a tus suscriptores y mantené el contacto recurrente con tu base.</li>
+                    </ul>
                   </div>
                 </div>
               </section>
@@ -696,43 +713,6 @@ export default function AyudaPage() {
                   </div>
                 </div>
               </section>
-
-              {/* Panel de Administración */}
-              {user?.roles?.some((r: any) => r.name === 'ADMIN') && (
-                <section id="admin" className="mb-16 scroll-mt-24">
-                  <div className="flex items-center gap-3 mb-6">
-                    <Shield className="w-8 h-8 text-blue-600" />
-                    <h2 className="text-3xl font-bold text-gray-900 m-0">Panel de Administración</h2>
-                  </div>
-
-                  <div id="admin-usuarios" className="mb-8 scroll-mt-24">
-                    <h3 className="text-xl font-semibold mb-3">Gestión de Usuarios</h3>
-                    <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                      <p className="text-gray-700">
-                        Administra usuarios, activa/desactiva cuentas, verifica estados de suscripción y gestiona accesos a funcionalidades premium.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div id="admin-roles" className="mb-8 scroll-mt-24">
-                    <h3 className="text-xl font-semibold mb-3">Roles y Permisos</h3>
-                    <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                      <p className="text-gray-700">
-                        Configura roles personalizados y asigna permisos granulares para controlar el acceso a diferentes secciones y funcionalidades de la plataforma.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div id="admin-contenido" className="mb-8 scroll-mt-24">
-                    <h3 className="text-xl font-semibold mb-3">Gestión de Contenido</h3>
-                    <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                      <p className="text-gray-700">
-                        Administra noticias, artículos, categorías, archivos descargables y todos los contenidos de la plataforma desde un panel centralizado.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-              )}
 
               {/* Soporte */}
               <section id="soporte" className="mb-16 scroll-mt-24">
