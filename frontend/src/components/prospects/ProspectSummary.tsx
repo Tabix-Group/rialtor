@@ -197,7 +197,14 @@ export default function ProspectSummary({
                     <label className="text-[10px] text-slate-300 font-bold uppercase">Nivel de Agente</label>
                     <select
                       value={editedStats.agentLevel}
-                      onChange={(e) => setEditedStats({...editedStats, agentLevel: e.target.value as AgentLevel})}
+                      onChange={(e) => {
+                        const newLevel = e.target.value as AgentLevel
+                        setEditedStats({
+                          ...editedStats, 
+                          agentLevel: newLevel,
+                          prospectadosFrios: newLevel === 'experto' ? 0 : editedStats.prospectadosFrios
+                        })
+                      }}
                       className="w-full bg-slate-700/50 text-white px-3 py-2 rounded text-sm border border-slate-500 mt-1"
                     >
                       <option value="inicial">Inicial</option>
@@ -229,7 +236,8 @@ export default function ProspectSummary({
                         type="number"
                         value={editedStats.prospectadosFrios}
                         onChange={(e) => setEditedStats({...editedStats, prospectadosFrios: parseInt(e.target.value) || 0})}
-                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
+                        disabled={editedStats.agentLevel === 'experto'}
+                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -241,7 +249,12 @@ export default function ProspectSummary({
                     <div>
                       <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider">Prospectados</p>
                       <p className="text-lg font-bold text-white tabular-nums">{totalProspectados}</p>
-                      <p className="text-[10px] text-slate-400">{editedStats.prospectadosReferidos} ref. + {editedStats.prospectadosFrios} fríos</p>
+                      <p className="text-[10px] text-slate-400">
+                        {editedStats.agentLevel === 'experto' 
+                          ? `${editedStats.prospectadosReferidos} referidos` 
+                          : `${editedStats.prospectadosReferidos} ref. + ${editedStats.prospectadosFrios} fríos`
+                        }
+                      </p>
                     </div>
                   </div>
                 )}
