@@ -11,6 +11,13 @@ export default function ProspectosPage() {
   const [funnelStages, setFunnelStages] = useState<any[]>([])
   const [agentLevel, setAgentLevel] = useState<string>('inicial')
   const [loading, setLoading] = useState(true)
+  const [startDate, setStartDate] = useState<string>(() => {
+    const date = new Date()
+    date.setMonth(date.getMonth() - 1) // Último mes por defecto
+    return date.toISOString().split('T')[0]
+  })
+  const [endDate, setEndDate] = useState<string>(() => new Date().toISOString().split('T')[0])
+  const [prospectStats, setProspectStats] = useState<any>(null)
   
   // Referencia para la función de guardado del funnel
   const saveFunnelFn = useRef<(() => Promise<void>) | null>(null)
@@ -39,7 +46,22 @@ export default function ProspectosPage() {
     setLoading(false)
   }, [user])
 
+  const loadStats = useCallback(async () => {
+    if (!user) return
+    try {
+      const params = new URLSearchParams()
+      if (startDate) params.append('startDate', startDate)
+      if (endDate) params.append('endDate', endDate)
+      const r = await authenticatedFetch(`/api/prospects/stats?${params}`)
+      const data = await r.json()
+      setProspectStats(data.stats)
+    } catch (e) {
+      console.error('Error fetching prospect stats', e)
+    }
+  }, [user, startDate, endDate])
+
   useEffect(()=>{ if (user) load() },[user, load])
+  useEffect(()=>{ if (user) loadStats() },[user, loadStats])
 
   const handleSaveFunnel = async () => {
     if (saveFunnelFn.current) {
@@ -56,8 +78,15 @@ export default function ProspectosPage() {
       
       {/* 1. ENCABEZADO UNIFICADO CON 5 KPIs ACTUALIZADOS */}
       <ProspectSummary 
+        stats={prospectStats}
         funnelStages={funnelStages}
         agentLevel={agentLevel}
+        startDate={startDate}
+        endDate={endDate}
+        onDateChange={(newStart, newEnd) => {
+          setStartDate(newStart)
+          setEndDate(newEnd)
+        }}
         onSaveFunnel={handleSaveFunnel}
         isSavingFunnel={isSavingFunnel}
       />
