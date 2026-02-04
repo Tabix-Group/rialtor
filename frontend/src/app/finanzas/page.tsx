@@ -304,8 +304,12 @@ export default function FinanzasPage() {
             <div className="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border border-white/20 shadow-2xl">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 ${balance.ARS >= 0 ? 'bg-green-500/20' : 'bg-red-500/20'} rounded-xl flex items-center justify-center`}>
+                    {balance.ARS >= 0 ? (
+                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs sm:text-sm text-slate-300 mb-1">Saldo ARS</p>
@@ -318,8 +322,12 @@ export default function FinanzasPage() {
 
               <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border border-white/20 shadow-2xl">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 ${balance.USD >= 0 ? 'bg-blue-500/20' : 'bg-red-500/20'} rounded-xl flex items-center justify-center`}>
+                    {balance.USD >= 0 ? (
+                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs sm:text-sm text-slate-300 mb-1">Saldo USD</p>
