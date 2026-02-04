@@ -6,9 +6,11 @@ import { X, Send, HelpCircle, Loader2 } from 'lucide-react'
 import { useHelpAssistantChat } from '../hooks/useHelpAssistantChat'
 import MessageContent from './MessageContent'
 import { useAuth } from '../app/auth/authContext'
+import { usePathname } from 'next/navigation'
 
 export default function HelpAssistant() {
     const { user } = useAuth()
+    const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
     const {
         messages,
@@ -22,8 +24,13 @@ export default function HelpAssistant() {
     const [inputValue, setInputValue] = useState('')
     const [showTooltip, setShowTooltip] = useState(false)
 
-    // Solo mostrar si el usuario está autenticado
-    if (!user) return null
+    // Rutas donde NO se debe mostrar el asistente de ayuda
+    const excludedRoutes = ['/', '/pricing', '/auth/login', '/auth/register'];
+    const isExcludedRoute = excludedRoutes.includes(pathname || '');
+
+    // Al usar dynamic(..., { ssr: false }), ya no necesitamos el check de mounted manual
+    // Pero el check de user y ruta sigue siendo necesario
+    if (!user || isExcludedRoute) return null
 
     const toggleOpen = () => setIsOpen(!isOpen)
 

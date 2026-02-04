@@ -18,6 +18,9 @@ router.delete('/sessions/:sessionId', chatController.deleteChatSession);
 // Envío de mensajes
 router.post('/message', validateChat.message, chatController.sendMessage);
 
+// Ayuda de la plataforma (especializado)
+router.post('/help', chatController.processHelpChat);
+
 // Feedback de mensajes
 router.post('/feedback', chatController.sendFeedback);
 
