@@ -33,8 +33,6 @@ export default function HelpAssistant() {
 
     const toggleOpen = () => setIsOpen(!isOpen)
 
-    const toggleOpen = () => setIsOpen(!isOpen)
-
     const handleSendMessage = async () => {
         if (!inputValue.trim() || isLoading) return
         const message = inputValue
