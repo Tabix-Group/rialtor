@@ -18,9 +18,14 @@ declare global {
 }
 
 export default function PWAInstall() {
+  const [mounted, setMounted] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showInstallButton, setShowInstallButton] = useState(false)
   const [showIOSBanner, setShowIOSBanner] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Función para detectar si es iOS
   const isIOS = () => {
@@ -107,6 +112,8 @@ export default function PWAInstall() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
   }, [])
+
+  if (!mounted) return null
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return

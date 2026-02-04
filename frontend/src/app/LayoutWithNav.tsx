@@ -3,16 +3,8 @@ import { usePathname } from 'next/navigation';
 import Navigation from '../components/Navigation';
 import { SidebarProvider, useSidebar } from '../contexts/SidebarContext';
 import { useAuth } from './auth/authContext';
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
-
-const HelpAssistant = dynamic(() => import('../components/HelpAssistant'), {
-  ssr: false,
-});
-
-const PWAInstall = dynamic(() => import('../components/PWAInstall'), {
-  ssr: false,
-});
+import HelpAssistant from '../components/HelpAssistant';
+import PWAInstall from '../components/PWAInstall';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed } = useSidebar();
@@ -48,10 +40,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <main className={`flex-1 transition-all duration-300 ${showSidebar && (isCollapsed ? 'lg:ml-20' : 'lg:ml-72')}`}>
         {children}
       </main>
-      <Suspense fallback={null}>
-        <PWAInstall />
-        <HelpAssistant />
-      </Suspense>
+      <PWAInstall />
+      <HelpAssistant />
     </div>
   );
 }

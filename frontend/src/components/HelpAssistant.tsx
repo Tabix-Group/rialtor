@@ -11,7 +11,14 @@ import { usePathname } from 'next/navigation'
 export default function HelpAssistant() {
     const { user } = useAuth()
     const pathname = usePathname()
+    const [mounted, setMounted] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
+
+    // Evitar errores de hidratación y re-renders infinitos
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
     const {
         messages,
         isLoading,
@@ -24,12 +31,14 @@ export default function HelpAssistant() {
     const [inputValue, setInputValue] = useState('')
     const [showTooltip, setShowTooltip] = useState(false)
 
+    // No renderizar absolutamente nada hasta que esté montado en el cliente
+    if (!mounted) return null
+
     // Rutas donde NO se debe mostrar el asistente de ayuda
     const excludedRoutes = ['/', '/pricing', '/auth/login', '/auth/register'];
     const isExcludedRoute = excludedRoutes.includes(pathname || '');
 
-    // Al usar dynamic(..., { ssr: false }), ya no necesitamos el check de mounted manual
-    // Pero el check de user y ruta sigue siendo necesario
+    // Solo mostrar si el usuario está autenticado y NO está en una ruta excluida
     if (!user || isExcludedRoute) return null
 
     const toggleOpen = () => setIsOpen(!isOpen)
