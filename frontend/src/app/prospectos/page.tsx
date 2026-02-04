@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback, useRef } from 'react'
 import ProspectSummary from '../../components/prospects/ProspectSummary'
 import SalesFunnel from '@/components/SalesFunnel'
 import { useAuth } from '../auth/authContext'
-import { authenticatedFetch } from '@/utils/api'
 
 export default function ProspectosPage() {
   const { user } = useAuth()
@@ -27,7 +26,24 @@ export default function ProspectosPage() {
     if (!user) return
     setLoading(true)
     try {
-      const r = await authenticatedFetch('/api/sales-funnel')
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      const r = await fetch('https://remax-be-production.up.railway.app/api/sales-funnel', {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (r.status === 401) {
+        console.warn('Unauthorized - token may be expired')
+        return
+      }
+
+      if (!r.ok) {
+        console.error(`HTTP ${r.status}: Failed to fetch sales funnel`)
+        return
+      }
+
       const data = await r.json()
       if (data.data) {
         // Manejar tanto el formato antiguo (array) como el nuevo (objeto con stages)
@@ -52,7 +68,25 @@ export default function ProspectosPage() {
       const params = new URLSearchParams()
       if (startDate) params.append('startDate', startDate)
       if (endDate) params.append('endDate', endDate)
-      const r = await authenticatedFetch(`/api/prospects/stats?${params}`)
+      
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      const r = await fetch(`https://remax-be-production.up.railway.app/api/prospects/stats?${params}`, {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (r.status === 401) {
+        console.warn('Unauthorized - token may be expired')
+        return
+      }
+
+      if (!r.ok) {
+        console.error(`HTTP ${r.status}: Failed to fetch stats`)
+        return
+      }
+
       const data = await r.json()
       setProspectStats(data.stats)
     } catch (e) {
