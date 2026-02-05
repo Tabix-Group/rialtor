@@ -21,9 +21,6 @@ export default function HelpAssistant() {
     const [inputValue, setInputValue] = useState('')
     const [showTooltip, setShowTooltip] = useState(false)
 
-    // Solo mostrar si el usuario está autenticado
-    if (loading || !user) return null
-
     const toggleOpen = () => setIsOpen(!isOpen)
 
     const handleSendMessage = async () => {
@@ -48,10 +45,15 @@ export default function HelpAssistant() {
         } else {
             setShowTooltip(false)
         }
-    }, [isOpen, messages.length]);
+    }, [isOpen, messages.length])
+
+    // Solo mostrar si el usuario está autenticado
+    if (loading || !user) {
+        return null
+    }
 
     return (
-        <div className="fixed bottom-6 right-6 z-[60] font-sans">
+        <div className="fixed bottom-6 right-6 z-50 font-sans">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -177,7 +179,7 @@ export default function HelpAssistant() {
                 {!isOpen && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full" />
                 )}
-            </AnimatePresence>
+            </motion.button>
             
              {/* Tooltip */}
              <AnimatePresence>
