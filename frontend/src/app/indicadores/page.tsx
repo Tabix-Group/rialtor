@@ -567,7 +567,7 @@ export default function IndicadoresPage() {
           </section>
         )}
 
-        {/* Negociación RED */}
+        {/* Negociación */}
         <NetworkNegotiationIndicators />
 
         {/* Esquemas de Comisiones Inmobiliarias */}
