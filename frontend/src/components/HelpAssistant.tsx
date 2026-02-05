@@ -48,7 +48,7 @@ export default function HelpAssistant() {
         } else {
             setShowTooltip(false)
         }
-    }, [isOpen, messages.length])
+    }, [isOpen, messages.length]);
 
     return (
         <div className="fixed bottom-6 right-6 z-[60] font-sans">
