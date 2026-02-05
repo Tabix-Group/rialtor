@@ -152,7 +152,7 @@ export default function CalculadoraAlquilerPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-                    Monto actual del alquiler
+                    Monto inicial del alquiler
                   </label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -191,7 +191,7 @@ export default function CalculadoraAlquilerPage() {
 
                 <div>
                   <label htmlFor="months" className="block text-sm font-medium text-gray-700 mb-2">
-                    Duración en meses
+                    Actualizo cada ( meses )
                   </label>
                   <input
                     type="number"
