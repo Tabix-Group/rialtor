@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, HelpCircle, Loader2 } from 'lucide-react'
+import { X, Send, HelpCircle, Loader2, MessageSquare } from 'lucide-react' // Agregué MessageSquare para variedad visual
 import { useHelpAssistantChat } from '../hooks/useHelpAssistantChat'
 import MessageContent from './MessageContent'
 import { useAuth } from '../app/auth/authContext'
@@ -14,7 +14,7 @@ export default function HelpAssistant() {
         messages,
         isLoading,
         sendMessage,
-        clearChat,
+        clearChat, // Mantenido aunque no se usaba en UI visualmente antes, útil tenerlo
         inputRef,
         messagesEndRef
     } = useHelpAssistantChat()
@@ -52,122 +52,167 @@ export default function HelpAssistant() {
     }, [isOpen, messages.length])
 
     return (
-        <div className="fixed bottom-6 right-6 z-[60]">
+        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 20, scale: 0.95, transformOrigin: "bottom right" }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className="absolute bottom-20 right-0 w-[350px] sm:w-[400px] h-[500px] bg-white rounded-2xl shadow-2xl border border-blue-100 flex flex-col overflow-hidden"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        className="absolute bottom-20 right-0 w-[350px] sm:w-[380px] h-[550px] max-h-[80vh] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden ring-1 ring-black/5"
                     >
-                        {/* Header */}
-                        <div className="bg-blue-600 p-4 text-white flex items-center justify-between shadow-md">
-                            <div className="flex items-center gap-2">
-                                <div className="bg-white/20 p-2 rounded-lg">
-                                    <HelpCircle className="w-5 h-5" />
+                        {/* Header Moderno */}
+                        <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-4 text-white flex items-center justify-between shadow-sm relative overflow-hidden">
+                            {/* Decoración de fondo sutil */}
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 pointer-events-none" />
+                            
+                            <div className="flex items-center gap-3 relative z-10">
+                                <div className="relative">
+                                    <div className="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/10">
+                                        <HelpCircle className="w-5 h-5 text-blue-300" />
+                                    </div>
+                                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-slate-800 rounded-full animate-pulse"></div>
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm">Centro de Ayuda RIALTOR</h3>
-                                    <p className="text-[10px] text-blue-100 italic">Asistencia técnica en vivo</p>
+                                    <h3 className="font-bold text-sm tracking-wide">Soporte Rialtor</h3>
+                                    <p className="text-[11px] text-slate-300 font-medium">En línea para ayudarte</p>
                                 </div>
                             </div>
                             <button 
                                 onClick={toggleOpen}
-                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                                className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+                        {/* Messages Area con mejor estilo */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-slate-50 scroll-smooth">
+                            {/* Mensaje de bienvenida placeholder si no hay mensajes */}
+                            {messages.length === 0 && (
+                                <div className="flex flex-col items-center justify-center h-full text-center p-6 opacity-50">
+                                    <HelpCircle className="w-12 h-12 text-slate-300 mb-2" />
+                                    <p className="text-sm text-slate-500">¿Tienes dudas sobre la plataforma? Escribe aquí.</p>
+                                </div>
+                            )}
+
                             {messages.map((msg) => (
-                                <div
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                     key={msg.id}
-                                    className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
+                                    className={`flex w-full ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div
-                                        className={`max-w-[85%] p-3 rounded-2xl text-sm ${
+                                        className={`max-w-[85%] px-4 py-3 text-sm leading-relaxed shadow-sm relative group ${
                                             msg.isUser
-                                                ? 'bg-blue-600 text-white rounded-tr-none shadow-blue-200'
-                                                : 'bg-white text-slate-700 border border-slate-200 rounded-tl-none shadow-sm'
-                                        } shadow-md`}
+                                                ? 'bg-blue-600 text-white rounded-2xl rounded-tr-sm'
+                                                : 'bg-white text-slate-800 border border-slate-200 rounded-2xl rounded-tl-sm'
+                                        }`}
                                     >
                                         <MessageContent content={msg.content} isUser={msg.isUser} />
-                                        <div className={`text-[10px] mt-1 opacity-50 ${msg.isUser ? 'text-right' : 'text-left'}`}>
+                                        
+                                        <div className={`text-[10px] mt-1.5 opacity-0 group-hover:opacity-60 transition-opacity absolute -bottom-5 ${
+                                            msg.isUser ? 'right-0 text-slate-400' : 'left-0 text-slate-400'
+                                        }`}>
                                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
-                            <div ref={messagesEndRef} />
+                            <div ref={messagesEndRef} className="h-2" />
                         </div>
 
-                        {/* Input Area */}
-                        <div className="p-3 bg-white border-t border-slate-100">
-                            <div className="relative flex items-center gap-2">
+                        {/* Input Area Flotante */}
+                        <div className="p-4 bg-white border-t border-slate-100">
+                            <div className="relative flex items-center gap-2 bg-slate-100 rounded-xl p-1 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-400 transition-all shadow-inner">
                                 <input
                                     ref={inputRef}
                                     type="text"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onKeyPress={handleKeyPress}
-                                    placeholder="Escribe tu consulta de ayuda..."
-                                    className="w-full pl-4 pr-12 py-3 bg-slate-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
+                                    placeholder="Escribe tu consulta..."
+                                    className="w-full pl-3 py-2.5 bg-transparent border-none text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none"
                                     disabled={isLoading}
                                 />
-                                <button
+                                <motion.button
+                                    whileTap={{ scale: 0.9 }}
                                     onClick={handleSendMessage}
                                     disabled={isLoading || !inputValue.trim()}
-                                    className="absolute right-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                                    className={`p-2 rounded-lg transition-all duration-200 ${
+                                        !inputValue.trim() 
+                                            ? 'text-slate-400 bg-transparent cursor-not-allowed' 
+                                            : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'
+                                    }`}
                                 >
                                     {isLoading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
-                                        <Send className="w-5 h-5" />
+                                        <Send className="w-4 h-4" />
                                     )}
-                                </button>
+                                </motion.button>
                             </div>
-                            <p className="text-[10px] text-center text-slate-400 mt-2">
-                                Respondo dudas sobre el uso de Rialtor
-                            </p>
+                            <div className="flex justify-center mt-2">
+                                <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                                    Soporte técnico Rialtor
+                                </span>
+                            </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Bubble Button */}
+            {/* Bubble Button con mejor diseño */}
             <motion.button
+                layout
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleOpen}
-                className={`relative w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-colors ${
-                    isOpen ? 'bg-slate-800 text-white' : 'bg-blue-600 text-white'
+                className={`relative w-14 h-14 rounded-full shadow-2xl shadow-blue-900/20 flex items-center justify-center transition-all duration-300 z-50 overflow-hidden group ${
+                    isOpen 
+                        ? 'bg-slate-800 rotate-90' 
+                        : 'bg-gradient-to-br from-blue-600 to-indigo-600 hover:brightness-110'
                 }`}
             >
-                {isOpen ? <X /> : <HelpCircle className="w-7 h-7" />}
-                
-                {/* Notification Badge */}
-                {!isOpen && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full" />
-                )}
+                {/* Brillo sutil en hover */}
+                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                {/* Tooltip */}
-                <AnimatePresence>
-                    {showTooltip && !isOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            className="absolute right-full mr-4 whitespace-nowrap bg-white text-slate-800 px-4 py-2 rounded-xl shadow-xl border border-blue-50"
-                        >
-                            <p className="text-sm font-medium">¿Necesitas ayuda con Rialtor? 👋</p>
-                            <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-r border-t border-blue-50" />
-                        </motion.div>
+                <div className="relative z-10 text-white">
+                    {isOpen ? (
+                        <X className="w-6 h-6" />
+                    ) : (
+                        <HelpCircle className="w-7 h-7" />
                     )}
-                </AnimatePresence>
+                </div>
+                
+                {/* Notification Badge animado (Pulse) */}
+                {!isOpen && (
+                    <div className="absolute top-3 right-3">
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-white"></span>
+                        </span>
+                    </div>
+                )}
             </motion.button>
+
+            {/* Tooltip Externo (Estilo Speech Bubble) */}
+            <AnimatePresence>
+                {showTooltip && !isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, x: 10, scale: 0.9 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 10, scale: 0.9 }}
+                        className="absolute bottom-2 right-16 mr-2 z-50 origin-right"
+                    >
+                        <div className="bg-white text-slate-800 px-4 py-2.5 rounded-xl rounded-br-none shadow-xl border border-slate-100 whitespace-nowrap flex items-center gap-2">
+                            <span className="text-sm font-medium">¿Ayuda con la app? 👋</span>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
