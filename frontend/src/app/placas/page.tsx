@@ -151,7 +151,7 @@ export default function PlacasPage() {
     agentContact: '',
     url: 'www.rialtor.app',
     sidebarColor: 'rgba(84, 74, 63, 0.7)',
-    brand: 'RE/MAX'
+    brand: 'EMPRESA'
   });
   const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip' | 'model4' | 'model5'>('standard');
   const [creating, setCreating] = useState(false);
@@ -357,7 +357,7 @@ export default function PlacasPage() {
           agency: '',
           agentContact: '',
           sidebarColor: 'rgba(84, 74, 63, 0.7)',
-          brand: 'RE/MAX'
+          brand: 'EMPRESA'
         });
         setModelType('standard');
         setAgentImageFile(null);
@@ -1068,7 +1068,7 @@ export default function PlacasPage() {
                           <div className="space-y-1.5">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Marca / Franquicia</label>
                             <input type="text" value={propertyData.brand} onChange={(e) => setPropertyData(prev => ({ ...prev, brand: e.target.value }))}
-                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: RE/MAX Premium" />
+                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: EMPRESA Premium" />
                           </div>
                         )}
 
@@ -1157,7 +1157,7 @@ export default function PlacasPage() {
                       <div className="space-y-1.5 pt-4 border-t border-slate-100">
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Corredores Responsables (Legal) *</label>
                         <textarea required value={propertyData.corredores} onChange={(e) => setPropertyData(prev => ({ ...prev, corredores: e.target.value }))}
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-orange-50 outline-none text-sm leading-relaxed" rows={2} placeholder="Hernán Martin Carbone CPI 5493 / Gabriel Carlos Monrabal CMCPSI 6341" />
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-orange-50 outline-none text-sm leading-relaxed" rows={2} placeholder="Juan Perez CPI 5234 / Gabriel Fernandez CMCPSI 6543" />
                         <p className="text-[10px] text-slate-400 italic">Este texto aparecerá según normativa legal vigente.</p>
                       </div>
                     </div>
