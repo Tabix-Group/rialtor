@@ -303,7 +303,7 @@ export default function AyudaPage() {
                       Para acceder a las herramientas avanzadas (AI, Placas VIP, Indicadores Pro), Rialtor requiere una suscripción activa.
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li><strong>Selección de Plan:</strong> Al ingresar por primera vez, serás redirigido a la página de planes (Mensual o Anual).</li>
+                      <li><strong>Selección de Plan:</strong> Al ingresar por primera vez, serás redirigido a la página de planes en <a href="https://www.rialtor.app/pricing" className="text-blue-600 underline">https://www.rialtor.app/pricing</a>.</li>
                       <li><strong>Pago Seguro:</strong> Utilizamos <strong>Stripe</strong> para procesar pagos de forma segura con tarjeta de crédito o débito.</li>
                       <li><strong>Activación Instantánea:</strong> Una vez completado el pago, todas las funciones VIP se habilitarán automáticamente.</li>
                     </ul>
@@ -398,7 +398,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Mejores Prácticas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                      <li><strong>Acceso desde el menú:</strong> Rialtor es una SPA (Single Page Application), podés acceder al Asistente IA directamente desde el menú lateral izquierdo en cualquier momento.</li>
+                      <li><strong>Acceso desde el menú:</strong> Rialtor es una SPA (Single Page Application), podés acceder al Asistente IA directamente desde el menú lateral izquierdo o en <a href="https://www.rialtor.app/chat" className="text-blue-600 underline">https://www.rialtor.app/chat</a> en cualquier momento.</li>
                       <li><strong>Contexto geográfico:</strong> Mencioná siempre si la consulta es para CABA, GBA o Interior, ya que los impuestos varían.</li>
                       <li><strong>Limpiar Chat:</strong> Si vas a cambiar radicalmente de tema, usá el botón "Limpiar Chat" para evitar confusiones con el contexto anterior.</li>
                     </ul>
@@ -435,7 +435,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Cómo Usar Indicadores</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Entrá a la sección <code>/indicadores</code>. Encontrarás gráficos interactivos donde podés visualizar la evolución histórica y comparar valores. Ideal para mostrarle al cliente tendencias de mercado reales con bases de datos verificadas.
+                      Entrá a la sección de indicadores en <a href="https://www.rialtor.app/indicadores" className="text-blue-600 underline">https://www.rialtor.app/indicadores</a>. Encontrarás gráficos interactivos donde podés visualizar la evolución histórica y comparar valores. Ideal para mostrarle al cliente tendencias de mercado reales con bases de datos verificadas.
                     </p>
                   </div>
                 </div>
@@ -452,7 +452,7 @@ export default function AyudaPage() {
                 <div id="calc-listado" className="mb-8 scroll-mt-24">
                   <h3 className="text-xl font-semibold mb-3">Suite de Calculadoras</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-                    <p className="text-gray-700">RIALTOR incluye una suite completa de herramientas para el profesional inmobiliario:</p>
+                    <p className="text-gray-700">RIALTOR incluye una suite completa de herramientas profesionales en <a href="https://www.rialtor.app/calculadoras" className="text-blue-600 underline">https://www.rialtor.app/calculadoras</a>:</p>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-700 list-none p-0">
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Comisiones e Honorarios</li>
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Gastos de Escrituración</li>
@@ -491,7 +491,7 @@ export default function AyudaPage() {
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">Editá tus contratos directamente en la nube:</p>
                     <ol className="list-decimal list-inside text-gray-700 space-y-2">
-                       <li>Andá a <code>/formularios</code>.</li>
+                       <li>Andá a la sección de formularios en <a href="https://www.rialtor.app/formularios" className="text-blue-600 underline">https://www.rialtor.app/formularios</a>.</li>
                        <li>Elegí entre las carpetas: <strong>Alquiler</strong>, <strong>Boletos</strong> o <strong>Reservas</strong>.</li>
                        <li>Hacé clic en <strong>✏️ Abrir y Editar</strong> en el documento deseado.</li>
                        <li>Modificá el texto. Los cambios se guardan temporalmente en tu sesión.</li>
@@ -548,7 +548,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Cómo generar una placa</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <ol className="list-decimal list-inside text-gray-700 space-y-2">
-                       <li>Subí las fotos de la propiedad a <code>/placas</code>.</li>
+                       <li>Subí las fotos de la propiedad en <a href="https://www.rialtor.app/placas" className="text-blue-600 underline">https://www.rialtor.app/placas</a>.</li>
                        <li>Seleccioná uno de los <strong>5 modelos disponibles</strong> según tu necesidad.</li>
                        <li>Completá los datos (en el Modelo 4 podés incluso elegir el color de la barra).</li>
                        <li>Generá la previsualización y descargá el archivo final en alta resolución.</li>
@@ -568,7 +568,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Simulación Comercial</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      En la sección de <code>/prospectos</code> no cargás clientes individuales, sino que realizás <strong>proyecciones matemáticas</strong> de tu negocio.
+                      En la sección de prospectos en <a href="https://www.rialtor.app/prospectos" className="text-blue-600 underline">https://www.rialtor.app/prospectos</a> no cargás clientes individuales, sino que realizás <strong>proyecciones matemáticas</strong> de tu negocio.
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
                       <li><strong>Volumen de Prospección:</strong> Ingresá cuántos contactos nuevos (Fríos y Referidos) tenés en un período determinado.</li>
@@ -604,7 +604,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Movimientos de Caja</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Rialtor te permite llevar una contabilidad bimonetaria (ARS/USD) diferenciando entre tu actividad profesional y tu vida personal.
+                      Rialtor te permite llevar una contabilidad bimonetaria (ARS/USD) diferenciando entre tu actividad profesional y tu vida personal en <a href="https://www.rialtor.app/finanzas" className="text-blue-600 underline">https://www.rialtor.app/finanzas</a>.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white rounded-lg border border-gray-100">
@@ -652,7 +652,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Feed de Novedades</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      En <code>/news</code> tenés un feed actualizado con las últimas novedades de los portales inmobiliarios y económicos más importantes de Argentina.
+                      En <a href="https://www.rialtor.app/news" className="text-blue-600 underline">https://www.rialtor.app/news</a> tenés un feed actualizado con las últimas novedades de los portales inmobiliarios y económicos más importantes de Argentina.
                     </p>
                   </div>
                 </div>
@@ -669,7 +669,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Gestión de Campañas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Creá campañas de email marketing para tus clientes directamente desde Rialtor.
+                      Creá campañas de email marketing para tus clientes directamente desde Rialtor en <a href="https://www.rialtor.app/newsletter" className="text-blue-600 underline">https://www.rialtor.app/newsletter</a>.
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
                        <li><strong>Plantillas:</strong> Elegí entre diseños profesionales de propiedades o newsletters informativas.</li>
@@ -691,7 +691,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Agenda de Visitas</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Sincronizá tus visitas y reuniones. Podés ver tus compromisos en formato semanal o mensual en <code>/calendario</code>.
+                      Sincronizá tus visitas y reuniones. Podés ver tus compromisos en formato semanal o mensual en <a href="https://www.rialtor.app/calendario" className="text-blue-600 underline">https://www.rialtor.app/calendario</a>.
                     </p>
                   </div>
                 </div>
@@ -708,7 +708,7 @@ export default function AyudaPage() {
                   <h3 className="text-xl font-semibold mb-3">Material Exclusivo</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      Descargá guías, leyes actualizadas, y material de marketing listo para usar en tu inmobiliaria. 
+                      Descargá guías, leyes actualizadas, y material de marketing listo para usar en tu inmobiliaria desde <a href="https://www.rialtor.app/descargas" className="text-blue-600 underline">https://www.rialtor.app/descargas</a>. 
                     </p>
                   </div>
                 </div>
