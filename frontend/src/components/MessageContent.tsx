@@ -3,6 +3,7 @@
 import React from 'react'
 import { ExternalLink, DollarSign, Calculator, FileText } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface MessageContentProps {
     content: string
@@ -35,6 +36,7 @@ export default function MessageContent({ content, isUser, sources, calculation }
                 ) : (
                     <ReactMarkdown
                         className="prose prose-sm max-w-none"
+                        remarkPlugins={[remarkGfm]}
                         components={{
                             p: ({ children }) => <p className="mb-2">{children}</p>,
                             strong: ({ children }) => <strong className="font-semibold text-blue-600">{children}</strong>,
