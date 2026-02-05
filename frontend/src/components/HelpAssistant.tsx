@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, HelpCircle, Loader2, MessageSquare } from 'lucide-react' // Agregué MessageSquare para variedad visual
+import { X, Send, HelpCircle, Loader2 } from 'lucide-react'
 import { useHelpAssistantChat } from '../hooks/useHelpAssistantChat'
 import MessageContent from './MessageContent'
 import { useAuth } from '../app/auth/authContext'
@@ -14,7 +14,6 @@ export default function HelpAssistant() {
         messages,
         isLoading,
         sendMessage,
-        clearChat, // Mantenido aunque no se usaba en UI visualmente antes, útil tenerlo
         inputRef,
         messagesEndRef
     } = useHelpAssistantChat()
@@ -52,81 +51,68 @@ export default function HelpAssistant() {
     }, [isOpen, messages.length])
 
     return (
-        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-[60] font-sans">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95, transformOrigin: "bottom right" }}
+                        initial={{ opacity: 0, y: 20, scale: 0.95, transformOrigin: 'bottom right' }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="absolute bottom-20 right-0 w-[350px] sm:w-[380px] h-[550px] max-h-[80vh] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden ring-1 ring-black/5"
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        className="absolute bottom-20 right-0 w-[350px] sm:w-[380px] h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
                     >
-                        {/* Header Moderno */}
-                        <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-4 text-white flex items-center justify-between shadow-sm relative overflow-hidden">
-                            {/* Decoración de fondo sutil */}
-                            <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-10 translate-x-10 pointer-events-none" />
-                            
-                            <div className="flex items-center gap-3 relative z-10">
-                                <div className="relative">
-                                    <div className="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/10">
-                                        <HelpCircle className="w-5 h-5 text-blue-300" />
-                                    </div>
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-slate-800 rounded-full animate-pulse"></div>
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white flex items-center justify-between shadow-md">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm">
+                                    <HelpCircle className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-sm tracking-wide">Soporte Rialtor</h3>
-                                    <p className="text-[11px] text-slate-300 font-medium">En línea para ayudarte</p>
+                                    <h3 className="font-semibold text-base">Centro de Ayuda</h3>
+                                    <p className="text-xs text-blue-100 opacity-90">Asistencia para Rialtor</p>
                                 </div>
                             </div>
                             <button 
                                 onClick={toggleOpen}
-                                className="p-2 hover:bg-white/10 rounded-full transition-colors text-slate-300 hover:text-white"
+                                className="p-1.5 hover:bg-white/10 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        {/* Messages Area con mejor estilo */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-slate-50 scroll-smooth">
-                            {/* Mensaje de bienvenida placeholder si no hay mensajes */}
+                        {/* Messages Area */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                             {messages.length === 0 && (
-                                <div className="flex flex-col items-center justify-center h-full text-center p-6 opacity-50">
-                                    <HelpCircle className="w-12 h-12 text-slate-300 mb-2" />
-                                    <p className="text-sm text-slate-500">¿Tienes dudas sobre la plataforma? Escribe aquí.</p>
+                                <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-2">
+                                    <HelpCircle className="w-10 h-10 opacity-50" />
+                                    <p className="text-sm text-center">¿En qué puedo ayudarte hoy?</p>
                                 </div>
                             )}
-
                             {messages.map((msg) => (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
+                                <div
                                     key={msg.id}
-                                    className={`flex w-full ${msg.isUser ? 'justify-end' : 'justify-start'}`}
+                                    className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div
-                                        className={`max-w-[85%] px-4 py-3 text-sm leading-relaxed shadow-sm relative group ${
+                                        className={`max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${
                                             msg.isUser
-                                                ? 'bg-blue-600 text-white rounded-2xl rounded-tr-sm'
-                                                : 'bg-white text-slate-800 border border-slate-200 rounded-2xl rounded-tl-sm'
+                                                ? 'bg-blue-600 text-white rounded-tr-sm'
+                                                : 'bg-white text-gray-800 border border-gray-100 rounded-tl-sm'
                                         }`}
                                     >
                                         <MessageContent content={msg.content} isUser={msg.isUser} />
-                                        
-                                        <div className={`text-[10px] mt-1.5 opacity-0 group-hover:opacity-60 transition-opacity absolute -bottom-5 ${
-                                            msg.isUser ? 'right-0 text-slate-400' : 'left-0 text-slate-400'
-                                        }`}>
+                                        <div className={`text-[10px] mt-1.5 opacity-70 ${msg.isUser ? 'text-blue-100 text-right' : 'text-gray-500 text-left'}`}>
                                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
-                                </motion.div>
+                                </div>
                             ))}
-                            <div ref={messagesEndRef} className="h-2" />
+                            <div ref={messagesEndRef} />
                         </div>
 
-                        {/* Input Area Flotante */}
-                        <div className="p-4 bg-white border-t border-slate-100">
-                            <div className="relative flex items-center gap-2 bg-slate-100 rounded-xl p-1 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-400 transition-all shadow-inner">
+                        {/* Input Area */}
+                        <div className="p-4 bg-white border-t border-gray-100">
+                            <div className="relative flex items-center">
                                 <input
                                     ref={inputRef}
                                     type="text"
@@ -134,81 +120,78 @@ export default function HelpAssistant() {
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onKeyPress={handleKeyPress}
                                     placeholder="Escribe tu consulta..."
-                                    className="w-full pl-3 py-2.5 bg-transparent border-none text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none"
+                                    className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                                     disabled={isLoading}
                                 />
-                                <motion.button
-                                    whileTap={{ scale: 0.9 }}
+                                <button
                                     onClick={handleSendMessage}
                                     disabled={isLoading || !inputValue.trim()}
-                                    className={`p-2 rounded-lg transition-all duration-200 ${
-                                        !inputValue.trim() 
-                                            ? 'text-slate-400 bg-transparent cursor-not-allowed' 
-                                            : 'bg-blue-600 text-white shadow-md hover:bg-blue-700'
-                                    }`}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                                 >
                                     {isLoading ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
                                         <Send className="w-4 h-4" />
                                     )}
-                                </motion.button>
-                            </div>
-                            <div className="flex justify-center mt-2">
-                                <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                                    Soporte técnico Rialtor
-                                </span>
+                                </button>
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Bubble Button con mejor diseño */}
+            {/* Bubble Button */}
             <motion.button
-                layout
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleOpen}
-                className={`relative w-14 h-14 rounded-full shadow-2xl shadow-blue-900/20 flex items-center justify-center transition-all duration-300 z-50 overflow-hidden group ${
-                    isOpen 
-                        ? 'bg-slate-800 rotate-90' 
-                        : 'bg-gradient-to-br from-blue-600 to-indigo-600 hover:brightness-110'
+                className={`relative w-14 h-14 rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+                    isOpen ? 'bg-gray-800 text-white' : 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white'
                 }`}
             >
-                {/* Brillo sutil en hover */}
-                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                <div className="relative z-10 text-white">
+                <AnimatePresence mode="wait">
                     {isOpen ? (
-                        <X className="w-6 h-6" />
+                        <motion.div
+                            key="close-icon"
+                            initial={{ opacity: 0, rotate: -90 }}
+                            animate={{ opacity: 1, rotate: 0 }}
+                            exit={{ opacity: 0, rotate: 90 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <X className="w-6 h-6" />
+                        </motion.div>
                     ) : (
-                        <HelpCircle className="w-7 h-7" />
+                        <motion.div
+                            key="help-icon"
+                            initial={{ opacity: 0, rotate: 90 }}
+                            animate={{ opacity: 1, rotate: 0 }}
+                            exit={{ opacity: 0, rotate: -90 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <HelpCircle className="w-7 h-7" />
+                        </motion.div>
                     )}
-                </div>
+                </AnimatePresence>
                 
-                {/* Notification Badge animado (Pulse) */}
+                {/* Notification Badge */}
                 {!isOpen && (
-                    <div className="absolute top-3 right-3">
-                        <span className="relative flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border border-white"></span>
-                        </span>
-                    </div>
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full" />
                 )}
-            </motion.button>
-
-            {/* Tooltip Externo (Estilo Speech Bubble) */}
-            <AnimatePresence>
+            </AnimatePresence>
+            
+             {/* Tooltip */}
+             <AnimatePresence>
                 {showTooltip && !isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, x: 10, scale: 0.9 }}
+                        initial={{ opacity: 0, x: 10, scale: 0.95 }}
                         animate={{ opacity: 1, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: 10, scale: 0.9 }}
-                        className="absolute bottom-2 right-16 mr-2 z-50 origin-right"
+                        exit={{ opacity: 0, x: 10, scale: 0.95 }}
+                        className="absolute bottom-1 right-16 mr-2 z-50"
                     >
-                        <div className="bg-white text-slate-800 px-4 py-2.5 rounded-xl rounded-br-none shadow-xl border border-slate-100 whitespace-nowrap flex items-center gap-2">
+                        <div className="bg-white text-gray-800 px-4 py-2.5 rounded-xl shadow-xl border border-gray-100 whitespace-nowrap flex items-center gap-2">
                             <span className="text-sm font-medium">¿Ayuda con la app? 👋</span>
+                            {/* Arrow */}
+                            <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-r border-t border-gray-100" />
                         </div>
                     </motion.div>
                 )}
