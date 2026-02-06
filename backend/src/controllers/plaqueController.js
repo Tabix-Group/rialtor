@@ -1022,12 +1022,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.71)';
     
     if (isPremium) {
-      // Esquema premium: reemplazo de marrón por azul Rialtor (#68abcf)
+      // Esquema premium: reemplazo de marrón por azul Rialtor (#bac2cf)
       // Fondo del precio con mayor transparencia (0.8) para mejor integración visual
-      priceBoxFill = 'rgba(104, 171, 207, 0.8)'; // #68abcf
+      priceBoxFill = 'rgba(104, 171, 207, 0.8)'; // #bac2cf
       priceTextColor = '#D4AF37'; // Dorado metálico elegante (mantener)
       // Fondo del bloque de corredores/agencia: tono complementario en azul
-      corredoresBoxFill = 'rgba(104, 171, 207, 0.9)'; // #68abcf
+      corredoresBoxFill = 'rgba(104, 171, 207, 0.9)'; // #bac2cf
       corredoresTextColor = '#FFFFFF'; // Texto blanco para agencia y teléfono
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;
@@ -1626,7 +1626,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
       const textX = agentX + agentImageSize + 40;
 
-      // Fondo del zócalo con el nuevo color azul Rialtor (#68abcf)
+      // Fondo del zócalo con el nuevo color azul Rialtor (#bac2cf)
       svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(104, 171, 207, 0.95)" opacity="1" />\n`;
       
       // Línea superior decorativa dorada más gruesa - Dorado metálico elegante
