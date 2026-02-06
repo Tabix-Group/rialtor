@@ -100,7 +100,7 @@ router.get('/:id',
 
 // Eliminar archivo
 router.delete('/:id',
-    checkPermission('manage_system'),
+    checkPermission('view_admin'),
     deleteFile
 );
 

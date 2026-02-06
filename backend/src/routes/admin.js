@@ -119,8 +119,8 @@ router.get('/rates-test', async (req, res) => {
 
 // Tasas bancarias
 router.get('/rates', authenticateToken, checkPermission('view_admin'), getBankRates);
-router.post('/rates', authenticateToken, checkPermission('manage_system'), upsertBankRate);
-router.delete('/rates/:id', authenticateToken, checkPermission('manage_system'), deleteBankRate);
+router.post('/rates', authenticateToken, checkPermission('view_admin'), upsertBankRate);
+router.delete('/rates/:id', authenticateToken, checkPermission('view_admin'), deleteBankRate);
 
 // Índices económicos
 router.get('/economic-indices', authenticateToken, checkPermission('view_admin'), async (req, res) => {
@@ -143,7 +143,7 @@ router.get('/economic-indices', authenticateToken, checkPermission('view_admin')
   }
 });
 
-router.post('/economic-indices', authenticateToken, checkPermission('manage_system'), async (req, res) => {
+router.post('/economic-indices', authenticateToken, checkPermission('view_admin'), async (req, res) => {
   try {
     const { PrismaClient } = require('@prisma/client');
     const prisma = new PrismaClient();
@@ -186,7 +186,7 @@ router.post('/economic-indices', authenticateToken, checkPermission('manage_syst
   }
 });
 
-router.put('/economic-indices/:id', authenticateToken, checkPermission('manage_system'), async (req, res) => {
+router.put('/economic-indices/:id', authenticateToken, checkPermission('view_admin'), async (req, res) => {
   try {
     const { PrismaClient } = require('@prisma/client');
     const prisma = new PrismaClient();
@@ -210,7 +210,7 @@ router.put('/economic-indices/:id', authenticateToken, checkPermission('manage_s
   }
 });
 
-router.delete('/economic-indices/:id', authenticateToken, checkPermission('manage_system'), async (req, res) => {
+router.delete('/economic-indices/:id', authenticateToken, checkPermission('view_admin'), async (req, res) => {
   try {
     const { PrismaClient } = require('@prisma/client');
     const prisma = new PrismaClient();

@@ -323,7 +323,7 @@ const deleteFile = async (req, res, next) => {
 
         const isOwner = file.uploadedBy === userId;
         const isAdmin = user.roleAssignments.some(ra =>
-            ra.role.permissions.some(p => p.name === 'manage_system')
+            ra.role.permissions.some(p => p.name === 'view_admin')
         );
 
         if (!isOwner && !isAdmin) {

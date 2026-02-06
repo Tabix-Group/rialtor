@@ -1022,12 +1022,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.71)';
     
     if (isPremium) {
-      // Esquema premium: tonos más cálidos y menos contrastados para combinar con dorado
-      // Fondo del precio: tono cálido y más claro que el anterior para mejor legibilidad con dorado
-      priceBoxFill = 'rgba(112,85,58,0.95)'; // #70553A
+      // Esquema premium: reemplazo de marrón por azul Rialtor (#68abcf)
+      // Fondo del precio con mayor transparencia (0.8) para mejor integración visual
+      priceBoxFill = 'rgba(104, 171, 207, 0.8)'; // #68abcf
       priceTextColor = '#D4AF37'; // Dorado metálico elegante (mantener)
-      // Fondo del bloque de corredores/agencia: tono complementario y texto en blanco
-      corredoresBoxFill = 'rgba(108,79,47,0.92)'; // #6C4F2F
+      // Fondo del bloque de corredores/agencia: tono complementario en azul
+      corredoresBoxFill = 'rgba(104, 171, 207, 0.9)'; // #68abcf
       corredoresTextColor = '#FFFFFF'; // Texto blanco para agencia y teléfono
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;
@@ -1626,8 +1626,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
       const textX = agentX + agentImageSize + 40;
 
-      // Fondo del zócalo con gradiente elegante más sutil - tono cálido premium
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(112,85,58,0.95)" opacity="1" />\n`;
+      // Fondo del zócalo con el nuevo color azul Rialtor (#68abcf)
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(104, 171, 207, 0.95)" opacity="1" />\n`;
       
       // Línea superior decorativa dorada más gruesa - Dorado metálico elegante
       svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#D4AF37" stroke-width="4" opacity="1" />\n`;
