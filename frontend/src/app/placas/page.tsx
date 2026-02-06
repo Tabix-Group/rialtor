@@ -168,8 +168,13 @@ export default function PlacasPage() {
 
   // Proteger ruta
   useEffect(() => {
-    if (!loading && (!user || !hasPermission)) {
-      router.replace('/auth/login');
+    if (!loading) {
+      if (!user) {
+        router.replace('/auth/login');
+      } else if (!hasPermission) {
+        // Si estÃ¡ logueado pero no tiene permiso, ir al dashboard
+        router.replace('/dashboard');
+      }
     }
   }, [user, loading, hasPermission, router]);
 

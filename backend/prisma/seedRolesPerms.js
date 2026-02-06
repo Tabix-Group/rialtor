@@ -5,16 +5,12 @@ async function main() {
   // Permisos base por sección
   const permissions = [
     { name: 'view_admin', description: 'Acceso a panel de administración' },
-    { name: 'view_broker', description: 'Acceso a panel de broker' },
-    { name: 'view_agent', description: 'Acceso a panel de agente' },
-    { name: 'view_user', description: 'Acceso a panel de usuario' },
-    { name: 'manage_articles', description: 'Gestionar artículos' },
-    { name: 'manage_categories', description: 'Gestionar categorías' },
     { name: 'manage_users', description: 'Gestionar usuarios' },
-    { name: 'manage_documents', description: 'Gestionar documentos' },
-    { name: 'manage_system', description: 'Gestionar configuración del sistema' },
-    { name: 'use_calculator', description: 'Usar calculadora' },
-    { name: 'use_chat', description: 'Usar chat' },
+    { name: 'manage_content', description: 'Gestionar contenido' },
+    { name: 'upload_files', description: 'Subir archivos' },
+    { name: 'generate_documents', description: 'Generar documentos' },
+    { name: 'use_calculators', description: 'Usar calculadoras' },
+    { name: 'access_chat', description: 'Acceder al chat' },
     { name: 'use_placas', description: 'Usar generador de placas' },
     // Agrega más según tus vistas/secciones
   ];
@@ -22,7 +18,7 @@ async function main() {
   for (const perm of permissions) {
     await prisma.permission.upsert({
       where: { name: perm.name },
-      update: {},
+      update: { description: perm.description },
       create: perm,
     });
   }
@@ -33,30 +29,21 @@ async function main() {
       name: 'ADMIN',
       description: 'Administrador',
       permissions: [
-        'view_admin', 'view_broker', 'view_agent', 'view_user',
-        'manage_articles', 'manage_categories', 'manage_users', 'manage_documents', 'manage_system', 'use_calculator', 'use_chat', 'use_placas',
+        'view_admin', 'manage_users', 'manage_content', 'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas',
       ],
     },
     {
-      name: 'BROKER',
-      description: 'Broker',
+      name: 'CORREDOR',
+      description: 'Corredor',
       permissions: [
-        'view_broker', 'view_agent', 'view_user',
-        'manage_articles', 'manage_categories', 'manage_documents', 'use_calculator', 'use_chat', 'use_placas',
-      ],
-    },
-    {
-      name: 'AGENTE',
-      description: 'Agente',
-      permissions: [
-        'view_agent', 'view_user', 'manage_documents', 'use_calculator', 'use_chat', 'use_placas',
+        'manage_content', 'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas',
       ],
     },
     {
       name: 'USUARIO',
       description: 'Usuario',
       permissions: [
-        'view_user', 'use_calculator', 'use_chat',
+        'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas',
       ],
     },
   ];

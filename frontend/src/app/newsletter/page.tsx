@@ -239,8 +239,13 @@ export default function NewsletterPage() {
 
   // Proteger ruta
   useEffect(() => {
-    if (!loading && (!user || !hasPermission)) {
-      router.replace('/auth/login');
+    if (!loading) {
+      if (!user) {
+        router.replace('/auth/login');
+      } else if (!hasPermission) {
+        // Si estÃ¡ logueado pero no tiene permiso, ir al dashboard en lugar de login
+        router.replace('/dashboard');
+      }
     }
   }, [user, loading, hasPermission, router]);
 
