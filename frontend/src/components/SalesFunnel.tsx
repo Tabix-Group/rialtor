@@ -329,16 +329,22 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
       <div className="relative bg-gradient-to-b from-slate-50 via-blue-50/20 to-indigo-50/10">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200/60 p-6 sm:p-8">
-            <label className="block text-sm sm:text-base font-semibold text-slate-700 mb-4">Selecciona tu nivel de Agente:</label>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <label className="text-sm sm:text-base font-semibold text-slate-700">Tu nivel de Agente:</label>
+              <div className="text-xs text-slate-500 italic bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                Se configura desde "Editar Métricas" arriba
+              </div>
+            </div>
+            
             <div className="grid grid-cols-3 gap-3 sm:gap-4">
               {(['inicial', 'intermedio', 'experto'] as const).map((level) => (
                 <button
                   key={level}
-                  onClick={() => handleAgentLevelChange(level)}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 ${
+                  disabled={true}
+                  className={`px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 cursor-not-allowed ${
                     agentLevel === level
-                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50 ring-2 ring-blue-300'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300'
+                      ? 'bg-slate-700 text-white shadow-lg ring-2 ring-slate-400 opacity-90'
+                      : 'bg-slate-50 text-slate-400 border border-slate-200 opacity-60'
                   }`}
                 >
                   <Award className="w-4 h-4 sm:w-5 sm:h-5" />
