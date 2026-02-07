@@ -1022,13 +1022,13 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     selectedScheme.mainBoxFill = 'rgba(255, 255, 255, 0.71)';
     
     if (isPremium) {
-      // Esquema premium: reemplazo de marrón por azul Rialtor (#bac2cf)
-      // Fondo del precio con mayor transparencia (0.8) para mejor integración visual
-      priceBoxFill = 'rgba(104, 171, 207, 0.8)'; // #bac2cf
-      priceTextColor = '#D4AF37'; // Dorado metálico elegante (mantener)
-      // Fondo del bloque de corredores/agencia: tono complementario en azul
-      corredoresBoxFill = 'rgba(104, 171, 207, 0.9)'; // #bac2cf
-      corredoresTextColor = '#FFFFFF'; // Texto blanco para agencia y teléfono
+      // Esquema premium: Azul pizarra profundo (Slate 900) para mayor elegancia y calidad
+      // Reemplaza el celeste previo por un tono más profesional y sutil
+      priceBoxFill = 'rgba(15, 23, 42, 0.85)'; // Slate 900 con transparencia
+      priceTextColor = '#FFFFFF'; // Blanco puro para máxima legibilidad y limpieza
+      // Fondo del bloque de corredores/agencia: mismo tono para consistencia visual
+      corredoresBoxFill = 'rgba(15, 23, 42, 0.9)'; 
+      corredoresTextColor = '#F8FAFC'; // Blanco/Gris muy claro para información secundaria
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;
       priceTextColor = selectedScheme.priceTextColor;
@@ -1334,9 +1334,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     svg += `  <g filter="${isPremium ? 'url(#premiumShadow)' : 'url(#f1)'}">\n`;
     // Box para precio (arriba derecha) - usar color del esquema seleccionado
-    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${priceBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(212,175,55,0.5)' : 'rgba(0,0,0,0.15)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
+    // Para premium, usamos un borde blanco sutil en lugar del dorado previo
+    svg += `    <rect x="${precioBoxX}" y="${precioBoxY}" width="${precioBoxWidth}" height="${precioBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${priceBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.15)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
     // Box para información (abajo)
-    svg += `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${mainBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(212,175,55,0.2)' : 'rgba(0,0,0,0.12)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
+    svg += `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${mainBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
     svg += `  </g>\n`;
 
     // Dibujar precio en su box con mejor diseño
@@ -1626,11 +1627,11 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
       const textX = agentX + agentImageSize + 40;
 
-      // Fondo del zócalo con el nuevo color azul Rialtor (#bac2cf)
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(104, 171, 207, 0.95)" opacity="1" />\n`;
+      // Fondo del zócalo con un Azul Pizarro Profundo más elegante y sutil
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(15, 23, 42, 0.92)" opacity="1" />\n`;
       
-      // Línea superior decorativa dorada más gruesa - Dorado metálico elegante
-      svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#D4AF37" stroke-width="4" opacity="1" />\n`;
+      // Línea superior decorativa de calidad - Blanco sutil/Plateado en lugar de dorado chillón
+      svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#FFFFFF" stroke-width="2.5" opacity="0.4" />\n`;
 
       // Marco y fondo blanco para la imagen del agente (la imagen se compondrá después con Sharp)
       const frameCenterX = agentX + agentImageSize/2;
@@ -1639,33 +1640,33 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       // Fondo blanco sólido para el círculo - MÁS GRANDE
       svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 6}" fill="#FFFFFF" />\n`;
       
-      // Marco dorado exterior - MÁS GRUESO - Dorado metálico elegante
-      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 7}" fill="none" stroke="#D4AF37" stroke-width="5" opacity="1" />\n`;
+      // Marco blanco exterior - Limpio y profesional
+      svg += `  <circle cx="${frameCenterX}" cy="${frameCenterY}" r="${agentImageSize/2 + 7}" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.6" />\n`;
       
       // NOTA: La imagen del agente se compondrá después con Sharp, no con SVG
 
-      // Texto del agente con mejor diseño y tamaños MUCHO MÁS GRANDES
+      // Texto del agente con mejor diseño: Blanco puro para máxima legibilidad
       const agentName = escapeForSvg(propertyInfo.agentName || 'Agente Inmobiliario');
       const agency = escapeForSvg(propertyInfo.agency || 'Agencia Inmobiliaria');
       const agentContact = escapeForSvg(propertyInfo.agentContact || '');
       
       const textY = agentY + 30; // Posición Y base para el texto
       
-      // Nombre del agente con efecto de brillo y sombra para legibilidad - MÁS GRANDE - Dorado metálico
-      svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 32px; fill: #D4AF37; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0 0 15px rgba(212,175,55,0.6);">${agentName}</text>\n`;
+      // Nombre del agente con blanco nítido y sombra sutil para profundidad - Calidad Premium
+      svg += `  <text x="${textX}" y="${textY}" class="premium" style="font-size: 32px; fill: #FFFFFF; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${agentName}</text>\n`;
       
-      // Agencia con fuente más grande y elegante con sombra - texto en blanco para contraste
-      svg += `  <text x="${textX}" y="${textY + 42}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 22px; fill: #FFFFFF; font-weight: 500; text-shadow: 2px 2px 4px rgba(0,0,0,0.9);">${agency}</text>\n`;
+      // Agencia con texto blanco limpio y suave
+      svg += `  <text x="${textX}" y="${textY + 42}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 22px; fill: #E2E8F0; font-weight: 500; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">${agency}</text>\n`;
       
-      // Contacto si existe con mejor contraste - texto blanco
+      // Contacto si existe con mejor contraste
       if (agentContact) {
-        svg += `  <text x="${textX}" y="${textY + 72}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 18px; fill: #FFFFFF; opacity: 1; text-shadow: 2px 2px 3px rgba(0,0,0,0.9);">${agentContact}</text>\n`;
+        svg += `  <text x="${textX}" y="${textY + 72}" style="font-family: 'Roboto', 'Arial', sans-serif; font-size: 18px; fill: #CBD5E1; opacity: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${agentContact}</text>\n`;
       }
 
-      // Logo de Rialtor.app en el extremo derecho del zócalo con sombra - MÁS GRANDE - Dorado metálico
+      // Logo de Rialtor.app en blanco elegante
       const logoX = width - 60;
       const logoY = agentBoxY + agentBoxHeight / 2 + 10;
-      svg += `  <text x="${logoX}" y="${logoY}" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: 26px; font-weight: 700; fill: #D4AF37; text-anchor: end; text-shadow: 2px 2px 4px rgba(0,0,0,0.9);">Rialtor.app</text>\n`;
+      svg += `  <text x="${logoX}" y="${logoY}" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: 26px; font-weight: 700; fill: #FFFFFF; text-anchor: end; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); opacity: 0.9;">Rialtor.app</text>\n`;
     }
 
     svg += `</svg>`;
