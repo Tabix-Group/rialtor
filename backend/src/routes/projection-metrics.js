@@ -1,6 +1,7 @@
 const express = require('express')
 const { PrismaClient } = require('@prisma/client')
 const { authenticateToken } = require('../middleware/auth')
+const { recalculateStages } = require('../services/funnelService')
 
 const router = express.Router()
 const prisma = new PrismaClient()
@@ -85,6 +86,37 @@ router.post('/', authenticateToken, async (req, res) => {
         endDate: endDate ? new Date(endDate) : null,
       },
     })
+
+    // Sincronizar automáticamente con el Sales Funnel
+    try {
+      const pReferidos = parseInt(prospectadosReferidos)
+      const pFrios = parseInt(prospectadosFrios)
+      const aLevel = agentLevel || 'inicial'
+      
+      const newStages = recalculateStages(pReferidos, pFrios, aLevel)
+      
+      await prisma.salesFunnel.upsert({
+        where: { userId },
+        update: {
+          data: JSON.stringify({
+            stages: newStages,
+            agentLevel: aLevel
+          }),
+          updatedAt: new Date(),
+        },
+        create: {
+          userId,
+          data: JSON.stringify({
+            stages: newStages,
+            agentLevel: aLevel
+          }),
+        },
+      })
+      console.log(`[Metrics] Funnel synced for user ${userId}`)
+    } catch (funnelError) {
+      console.error('Error syncing sales funnel from metrics:', funnelError)
+      // No bloqueamos la respuesta principal si falla la sincronización del funnel
+    }
 
     res.json({
       success: true,

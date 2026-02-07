@@ -42,6 +42,7 @@ interface ProspectSummaryProps {
   onDateChange?: (start: string, end: string) => void
   onCreateClick?: () => void
   onSaveFunnel?: () => void
+  onStatsSaved?: () => void
   isSavingFunnel?: boolean
 }
 
@@ -54,6 +55,7 @@ export default function ProspectSummary({
   projectionMetrics = null,
   onDateChange,
   onSaveFunnel, 
+  onStatsSaved,
   isSavingFunnel 
 }: ProspectSummaryProps) {
   const [isEditingStats, setIsEditingStats] = useState(false)
@@ -146,8 +148,8 @@ export default function ProspectSummary({
     }
 
     setIsEditingStats(false)
-    if (onSaveFunnel) {
-      onSaveFunnel()
+    if (onStatsSaved) {
+      onStatsSaved()
     }
     // Aplicar las nuevas fechas
     if (onDateChange) {

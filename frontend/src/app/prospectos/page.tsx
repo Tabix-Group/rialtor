@@ -22,6 +22,7 @@ export default function ProspectosPage() {
   // Referencia para la función de guardado del funnel
   const saveFunnelFn = useRef<(() => Promise<void>) | null>(null)
   const [isSavingFunnel, setIsSavingFunnel] = useState(false)
+  const [funnelKey, setFunnelKey] = useState(0)
 
   const load = useCallback(async () => {
     if (!user) return
@@ -143,6 +144,15 @@ export default function ProspectosPage() {
     }
   }
 
+  const handleStatsSaved = () => {
+    // Recargar métricas, estadísticas y el funnel (backend ya lo sincronizó)
+    load()
+    loadStats()
+    loadMetrics()
+    // Forzar recarga del componente SalesFunnel
+    setFunnelKey(prev => prev + 1)
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       
@@ -159,6 +169,7 @@ export default function ProspectosPage() {
           setEndDate(newEnd)
         }}
         onSaveFunnel={handleSaveFunnel}
+        onStatsSaved={handleStatsSaved}
         isSavingFunnel={isSavingFunnel}
       />
 
@@ -174,6 +185,7 @@ export default function ProspectosPage() {
             </div>
             
             <SalesFunnel 
+              key={funnelKey}
               showHeader={false} 
               externalHandleSave={(fn) => { saveFunnelFn.current = fn }} 
             />
