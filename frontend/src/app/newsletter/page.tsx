@@ -175,6 +175,7 @@ interface NewsItem {
   title: string;
   synopsis: string;
   source: string;
+  externalUrl?: string; // Campo para el hipervínculo
   publishedAt: string;
   category?: {
     id: string;
@@ -629,7 +630,13 @@ export default function NewsletterPage() {
                   " class="pdf-block">
                     <h4 style="color: ${styles.textColor}; font-size: 12pt; margin: 0 0 10px 0; font-weight: 600; line-height: 1.3;">${news.title}</h4>
                     <p style="color: ${styles.textColor}; margin: 0 0 10px 0; line-height: 1.6; font-size: 10pt;">${cleanText(news.synopsis)}</p>
-                    <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}</p>
+                    <p style="color: ${styles.accentColor}; margin: 0; font-size: 8.5pt;">
+                      ${news.source} • ${new Date(news.publishedAt).toLocaleDateString('es-AR')}
+                      ${news.externalUrl ? `
+                        <span style="opacity: 0.5; margin: 0 8px;">|</span>
+                        <a href="${news.externalUrl}" style="color: ${styles.accentColor}; text-decoration: none; font-weight: 600;">Leer noticia →</a>
+                      ` : ''}
+                    </p>
                   </div>
                 ` : '';
               }).join('')}
@@ -1497,8 +1504,19 @@ export default function NewsletterPage() {
                               <div className="flex-1 min-w-0">
                                 <h4 className="text-sm font-medium text-slate-900 line-clamp-1">{news.title}</h4>
                                 <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{news.synopsis}</p>
-                                <p className="text-xs text-slate-400 mt-1">
+                                <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
                                   {news.source} • {new Date(news.publishedAt).toLocaleDateString('es-AR')}
+                                  {news.externalUrl && (
+                                    <a 
+                                      href={news.externalUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-blue-500 hover:underline flex items-center gap-0.5"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      | Leer noticia <ArrowRight className="w-2.5 h-2.5" />
+                                    </a>
+                                  )}
                                 </p>
                               </div>
                             </div>
@@ -1950,10 +1968,25 @@ export default function NewsletterPage() {
                                 {news.synopsis}
                               </p>
                               <p 
-                                className="text-xs"
+                                className="text-xs flex items-center gap-2"
                                 style={{ color: template?.preview.accentColor || '#9ca3af' }}
                               >
                                 {news.source} • {new Date(news.publishedAt).toLocaleDateString('es-AR')}
+                                {news.externalUrl && (
+                                  <>
+                                    <span className="opacity-50">|</span>
+                                    <a 
+                                      href={news.externalUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="font-semibold hover:underline flex items-center gap-1"
+                                      style={{ color: template?.preview.accentColor || '#3b82f6' }}
+                                    >
+                                      Leer noticia
+                                      <ArrowRight className="w-3 h-3" />
+                                    </a>
+                                  </>
+                                )}
                               </p>
                             </div>
                           ) : null;
