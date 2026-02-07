@@ -1023,11 +1023,11 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     
     if (isPremium) {
       // Esquema premium: Azul pizarra profundo (Slate 900) para mayor elegancia y calidad
-      // Reemplaza el celeste previo por un tono más profesional y sutil
-      priceBoxFill = 'rgba(15, 23, 42, 0.85)'; // Slate 900 con transparencia
+      // Ahora con mayor transparencia para un look más integrado y sutil (solicitud usuario)
+      priceBoxFill = 'rgba(15, 23, 42, 0.65)'; // Más traslúcido
       priceTextColor = '#FFFFFF'; // Blanco puro para máxima legibilidad y limpieza
       // Fondo del bloque de corredores/agencia: mismo tono para consistencia visual
-      corredoresBoxFill = 'rgba(15, 23, 42, 0.9)'; 
+      corredoresBoxFill = 'rgba(15, 23, 42, 0.75)'; 
       corredoresTextColor = '#F8FAFC'; // Blanco/Gris muy claro para información secundaria
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;
@@ -1215,9 +1215,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const imageArea = width * height;
     const baseScale = Math.sqrt(imageArea) / 100;
     
-    // Tamaños de fuente aumentados especialmente para el modelo premium
+    // Tamaños de fuente ajustados (Precio 25% más pequeño en premium por solicitud del usuario)
     const precioSize = isPremium 
-      ? Math.max(36, Math.min(60, Math.floor(width / 16)))  // 25% reducción en premium (80 * 0.75 = 60, 48 * 0.75 = 36)
+      ? Math.max(27, Math.min(45, Math.floor(width / 21)))  
       : Math.max(36, Math.min(72, Math.floor(width / 18 * finalScaleFactor * baseScale / 10)));
     const infoSize = Math.max(20, Math.min(38, Math.floor(width / 28 * finalScaleFactor * baseScale / 10)));
     const contactoSize = Math.max(16, Math.min(28, Math.floor(width / 35 * finalScaleFactor * baseScale / 10)));
@@ -1374,8 +1374,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         finalPrecioSize = minSizeByHeight;
       }
       
-      // Límites para el tamaño - reducidos 25% en premium
-      finalPrecioSize = Math.max(30, Math.min(67, finalPrecioSize));  // 40 * 0.75 = 30, 90 * 0.75 = 67
+      // Límites para el tamaño - ajustados por solicitud de reducción del 25% adicional
+      finalPrecioSize = Math.max(22, Math.min(50, finalPrecioSize)); 
     }
 
     // Texto del precio centrado con color específico para cada modelo y tamaño calculado
@@ -1627,8 +1627,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2; // Centrar verticalmente
       const textX = agentX + agentImageSize + 40;
 
-      // Fondo del zócalo con un Azul Pizarro Profundo más elegante y sutil
-      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(15, 23, 42, 0.92)" opacity="1" />\n`;
+      // Fondo del zócalo con mayor transparencia por solicitud del usuario
+      svg += `  <rect x="0" y="${agentBoxY}" width="${width}" height="${agentBoxHeight}" fill="rgba(15, 23, 42, 0.75)" opacity="1" />\n`;
       
       // Línea superior decorativa de calidad - Blanco sutil/Plateado en lugar de dorado chillón
       svg += `  <line x1="0" y1="${agentBoxY}" x2="${width}" y2="${agentBoxY}" stroke="#FFFFFF" stroke-width="2.5" opacity="0.4" />\n`;
