@@ -149,12 +149,19 @@ const getNewsletters = async (req, res, next) => {
     ]);
 
     // Parsear imágenes y otros campos JSON
-    const parsedNewsletters = newsletters.map(newsletter => ({
-      ...newsletter,
-      images: JSON.parse(newsletter.images || '[]'),
-      properties: newsletter.properties ? JSON.parse(newsletter.properties) : null,
-      news: newsletter.news ? JSON.parse(newsletter.news) : null,
-      agentInfo: newsletter.agentInfo ? JSON.parse(newsletter.agentInfo) : null
+    const parsedNewsletters = await Promise.all(newsletters.map(async (newsletter) => {
+      const newsIds = newsletter.news ? JSON.parse(newsletter.news) : [];
+      const propertyIds = newsletter.properties ? JSON.parse(newsletter.properties) : [];
+
+      // Opcional: Podríamos traer los datos completos aquí, pero por ahora 
+      // solo nos aseguramos de que el formato sea correcto.
+      return {
+        ...newsletter,
+        images: JSON.parse(newsletter.images || '[]'),
+        properties: propertyIds,
+        news: newsIds,
+        agentInfo: newsletter.agentInfo ? JSON.parse(newsletter.agentInfo) : null
+      };
     }));
 
     res.json({

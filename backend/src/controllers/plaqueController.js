@@ -1024,10 +1024,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     if (isPremium) {
       // Esquema premium: Azul pizarra profundo (Slate 900) para mayor elegancia y calidad
       // Ahora con mayor transparencia para un look más integrado y sutil (solicitud usuario)
-      priceBoxFill = 'rgba(15, 23, 42, 0.65)'; // Más traslúcido
+      priceBoxFill = 'rgba(15, 23, 42, 0.45)'; // Más traslúcido (reducido de 0.65)
       priceTextColor = '#FFFFFF'; // Blanco puro para máxima legibilidad y limpieza
       // Fondo del bloque de corredores/agencia: mismo tono para consistencia visual
-      corredoresBoxFill = 'rgba(15, 23, 42, 0.75)'; 
+      corredoresBoxFill = 'rgba(15, 23, 42, 0.45)'; // Más traslúcido (reducido de 0.75)
       corredoresTextColor = '#F8FAFC'; // Blanco/Gris muy claro para información secundaria
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;

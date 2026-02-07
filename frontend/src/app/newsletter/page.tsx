@@ -293,20 +293,27 @@ export default function NewsletterPage() {
     }
   }, []);
 
-  // Cargar newsletters
+  // Cargar newsletters por defecto
   useEffect(() => {
     if (user && hasPermission) {
       fetchNewsletters();
     }
   }, [user, hasPermission, fetchNewsletters]);
 
-  // Cargar noticias y propiedades disponibles cuando se abre el modal
+  // Cargar datos disponibles inicialmente para que estén listos para los previews
   useEffect(() => {
-    if (showCreateModal) {
+    if (user && hasPermission) {
       fetchAvailableNews();
       fetchAvailableProperties();
     }
-  }, [showCreateModal, showInternationalNews, fetchAvailableNews, fetchAvailableProperties]);
+  }, [user, hasPermission, fetchAvailableNews, fetchAvailableProperties]);
+
+  // Recargar noticias si cambia el filtro de internacionales y estamos en un modo que lo requiera
+  useEffect(() => {
+    if (showCreateModal || showPreviewModal) {
+      fetchAvailableNews();
+    }
+  }, [showCreateModal, showPreviewModal, showInternationalNews, fetchAvailableNews]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
