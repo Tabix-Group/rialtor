@@ -18,10 +18,6 @@ export default function ProspectosPage() {
   const [endDate, setEndDate] = useState<string>(() => new Date().toISOString().split('T')[0])
   const [prospectStats, setProspectStats] = useState<any>(null)
   const [projectionMetrics, setProjectionMetrics] = useState<any>(null)
-  
-  // Referencia para la función de guardado del funnel
-  const saveFunnelFn = useRef<(() => Promise<void>) | null>(null)
-  const [isSavingFunnel, setIsSavingFunnel] = useState(false)
   const [funnelKey, setFunnelKey] = useState(0)
 
   const load = useCallback(async () => {
@@ -134,16 +130,6 @@ export default function ProspectosPage() {
   useEffect(()=>{ if (user) loadStats() },[user, loadStats])
   useEffect(()=>{ if (user) loadMetrics() },[user, loadMetrics])
 
-  const handleSaveFunnel = async () => {
-    if (saveFunnelFn.current) {
-      setIsSavingFunnel(true)
-      await saveFunnelFn.current()
-      setIsSavingFunnel(false)
-      // Recargar para actualizar los KPIs en la cabecera después de guardar el funnel
-      load()
-    }
-  }
-
   const handleStatsSaved = () => {
     // Recargar métricas, estadísticas y el funnel (backend ya lo sincronizó)
     load()
@@ -168,9 +154,7 @@ export default function ProspectosPage() {
           setStartDate(newStart)
           setEndDate(newEnd)
         }}
-        onSaveFunnel={handleSaveFunnel}
         onStatsSaved={handleStatsSaved}
-        isSavingFunnel={isSavingFunnel}
       />
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -187,7 +171,6 @@ export default function ProspectosPage() {
             <SalesFunnel 
               key={funnelKey}
               showHeader={false} 
-              externalHandleSave={(fn) => { saveFunnelFn.current = fn }} 
             />
           </section>
         </div>

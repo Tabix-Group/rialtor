@@ -51,15 +51,19 @@ function recalculateStages(prospectsHot, prospectsCold, level) {
   const ratesCold = CONVERSION_RATES_BY_LEVEL[level].cold;
   const actualFriasCount = level === 'experto' ? 0 : prospectsCold;
 
+  // Tasaciones, Captaciones y Reservas son tasas sobre la ETAPA ANTERIOR
   const tasacionesHot = Math.round((prospectsHot * ratesHot.tasaciones) / 100);
   const captacionesHot = Math.round((tasacionesHot * ratesHot.captaciones) / 100);
   const reservasHot = Math.round((captacionesHot * ratesHot.reservas) / 100);
-  const cierresHot = Math.round((reservasHot * ratesHot.cierres) / 100);
 
   const tasacionesCold = Math.round((actualFriasCount * ratesCold.tasaciones) / 100);
   const captacionesCold = Math.round((tasacionesCold * ratesCold.captaciones) / 100);
   const reservasCold = Math.round((captacionesCold * ratesCold.reservas) / 100);
-  const cierresCold = Math.round((reservasCold * ratesCold.cierres) / 100);
+
+  // La tasa de CIERRES es una tasa FINAL (Prospectos -> Cierres) para ser consistente
+  // con la sección de Métricas (ProspectSummary) y el cálculo de comisiones proyectadas.
+  const cierresHot = Math.round((prospectsHot * ratesHot.cierres) / 100);
+  const cierresCold = Math.round((actualFriasCount * ratesCold.cierres) / 100);
 
   return [
     { 

@@ -41,9 +41,7 @@ interface ProspectSummaryProps {
   projectionMetrics?: any
   onDateChange?: (start: string, end: string) => void
   onCreateClick?: () => void
-  onSaveFunnel?: () => void
   onStatsSaved?: () => void
-  isSavingFunnel?: boolean
 }
 
 export default function ProspectSummary({ 
@@ -54,9 +52,7 @@ export default function ProspectSummary({
   endDate,
   projectionMetrics = null,
   onDateChange,
-  onSaveFunnel, 
   onStatsSaved,
-  isSavingFunnel 
 }: ProspectSummaryProps) {
   const [isEditingStats, setIsEditingStats] = useState(false)
   const [localStartDate, setLocalStartDate] = useState(startDate || (() => {
@@ -189,17 +185,6 @@ export default function ProspectSummary({
             </p>
 
             <div className="flex flex-wrap gap-4">
-              {onSaveFunnel && (
-                <button
-                  onClick={onSaveFunnel}
-                  disabled={isSavingFunnel}
-                  className="group inline-flex items-center gap-3 bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 hover:-translate-y-1 font-bold text-sm sm:text-base disabled:opacity-50"
-                >
-                  <Briefcase className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                  {isSavingFunnel ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
-              )}
-
               <button 
                 onClick={() => isEditingStats ? handleSaveStats() : setIsEditingStats(true)}
                 className="group inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-3 rounded-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-1 font-bold text-sm sm:text-base"

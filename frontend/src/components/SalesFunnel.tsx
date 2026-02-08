@@ -40,12 +40,10 @@ interface ConversionRatesByType {
 }
 
 interface SalesFunnelProps {
-  onSave?: (data: FunnelStage[]) => void
   showHeader?: boolean
-  externalHandleSave?: (fn: () => Promise<void>) => void
 }
 
-export default function SalesFunnel({ onSave, showHeader = true, externalHandleSave }: SalesFunnelProps) {
+export default function SalesFunnel({ showHeader = true }: SalesFunnelProps) {
   // --- TASAS DE CONVERSIÓN POR NIVEL Y TIPO DE CLIENTE ---
   // Importada desde conversionRates.ts
   const conversionRatesByLevel = CONVERSION_RATES_BY_LEVEL
@@ -105,7 +103,6 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
     },
   ])
 
-  const [isSaving, setIsSaving] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -113,59 +110,24 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
     loadData()
   }, [])
 
-  const handleSave = useCallback(async () => {
-    setIsSaving(true)
-    try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-      const apiUrl = typeof window !== 'undefined' 
-        ? (window.location.hostname === 'rialtor.app' || window.location.hostname === 'www.rialtor.app'
-          ? 'https://remax-be-production.up.railway.app'
-          : 'http://localhost:3003')
-        : 'http://localhost:3003'
-      
-      const response = await fetch(`${apiUrl}/api/sales-funnel`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({ 
-          data: {
-            stages,
-            agentLevel
-          } 
-        }),
-      })
-      if (!response.ok) throw new Error('Error saving funnel data')
-      if (onSave) onSave(stages)
-      await new Promise(resolve => setTimeout(resolve, 500))
-    } catch (error) {
-      console.error('Error saving sales funnel:', error)
-    } finally {
-      setIsSaving(false)
-    }
-  }, [stages, agentLevel, onSave])
-
-  useEffect(() => {
-    if (externalHandleSave) {
-      externalHandleSave(handleSave)
-    }
-  }, [externalHandleSave, handleSave])
-
   const recalculateStages = (prospectsCount: number, _referidosCount: number, friasCount: number, level: AgentLevel) => {
     const ratesHot = conversionRatesByLevel[level].hot
     const ratesCold = conversionRatesByLevel[level].cold
     const actualFriasCount = level === 'experto' ? 0 : friasCount;
 
+    // Tasaciones, Captaciones y Reservas son tasas sobre la ETAPA ANTERIOR
     const tasacionesHot = Math.round((prospectsCount * ratesHot.tasaciones) / 100)
     const captacionesHot = Math.round((tasacionesHot * ratesHot.captaciones) / 100)
     const reservasHot = Math.round((captacionesHot * ratesHot.reservas) / 100)
-    const cierresHot = Math.round((reservasHot * ratesHot.cierres) / 100)
 
     const tasacionesCold = Math.round((actualFriasCount * ratesCold.tasaciones) / 100)
     const captacionesCold = Math.round((tasacionesCold * ratesCold.captaciones) / 100)
     const reservasCold = Math.round((captacionesCold * ratesCold.reservas) / 100)
-    const cierresCold = Math.round((reservasCold * ratesCold.cierres) / 100)
+
+    // La tasa de CIERRES es una tasa FINAL (Prospectos -> Cierres) para ser consistente
+    // con la sección de Métricas (ProspectSummary) y el cálculo de comisiones.
+    const cierresHot = Math.round((prospectsCount * ratesHot.cierres) / 100)
+    const cierresCold = Math.round((actualFriasCount * ratesCold.cierres) / 100)
 
     return [
       { ...stages[0], clientsHot: prospectsCount, clientsCold: actualFriasCount },
@@ -286,14 +248,6 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
                 <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
                   Visualiza el rendimiento de tu pipeline, analiza tasas de conversión y gestiona tus referidos en tiempo real.
                 </p>
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="group inline-flex items-center gap-2 sm:gap-3 bg-white text-slate-900 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl hover:shadow-2xl hover:shadow-white/20 transition-all duration-300 hover:-translate-y-1 font-semibold text-sm sm:text-base disabled:opacity-70"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-blue-600" /> : <Save className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 group-hover:scale-110 transition-transform" />}
-                  {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
               </div>
 
               <div className="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -384,10 +338,8 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
                           min="0"
                           value={stage.clientsHot}
                           onChange={(e) => handleInputChange(stage.id, 'clientsHot', e.target.value)}
-                          disabled={index !== 0}
-                          className={`w-24 text-right text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors ${
-                            index === 0 ? 'text-slate-700 hover:text-cyan-600 cursor-text' : 'text-slate-400 cursor-not-allowed opacity-60'
-                          }`}
+                          disabled={true}
+                          className="w-24 text-right text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors text-slate-400 cursor-not-allowed opacity-60"
                         />
                         <div className="absolute top-1/2 -right-6 w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.6)] ring-4 ring-white"></div>
                       </div>
@@ -461,10 +413,8 @@ export default function SalesFunnel({ onSave, showHeader = true, externalHandleS
                           min="0"
                           value={stage.clientsCold}
                           onChange={(e) => handleInputChange(stage.id, 'clientsCold', e.target.value)}
-                          disabled={index !== 0 || agentLevel === 'experto'}
-                          className={`w-24 text-left text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors ${
-                            index === 0 && agentLevel !== 'experto' ? 'text-slate-700 hover:text-indigo-600 cursor-text' : 'text-slate-400 cursor-not-allowed opacity-60'
-                          }`}
+                          disabled={true}
+                          className="w-24 text-left text-3xl font-bold bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-200 transition-colors text-slate-400 cursor-not-allowed opacity-60"
                         />
                       </div>
                       <span className={`text-xs font-bold px-2 py-0.5 rounded mt-1 ${agentLevel === 'experto' ? 'text-slate-400 bg-slate-50' : 'text-indigo-600 bg-indigo-50'}`}>
