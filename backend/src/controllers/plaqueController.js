@@ -1119,9 +1119,25 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         iconSvg = iconSvg.replace(/width="18" height="18"/, `width="${iconSize}" height="${iconSize}"`)
                        .replace(/currentColor/g, "#FFFFFF");
         
+        const textX = iconSize + Math.floor(15 * finalScaleFactor);
+        const availableWidth = sidebarWidth - marginX - textX - Math.floor(10 * finalScaleFactor);
+        let lineTextSize = textSize;
+        
+        // Ajuste dinámico de fuente para la dirección para que entre en la barra
+        if (ln.icon === 'ubicacion') {
+          const charWidthFactor = 0.55; // Factor estimado para Arial Bold
+          const estimatedWidth = ln.text.length * textSize * charWidthFactor;
+          
+          if (estimatedWidth > availableWidth) {
+            lineTextSize = Math.floor(availableWidth / (ln.text.length * charWidthFactor));
+            // Mínimo de seguridad para legibilidad (45% del tamaño base)
+            lineTextSize = Math.max(lineTextSize, Math.floor(textSize * 0.45));
+          }
+        }
+
         svg += `  <g transform="translate(${marginX}, ${currentY})">\n`;
         svg += `    ${iconSvg}\n`;
-        svg += `    <text x="${iconSize + Math.floor(15 * finalScaleFactor)}" y="${iconSize/2 + Math.floor(6 * finalScaleFactor)}" style="font-family: Arial, sans-serif; font-size: ${textSize}px; font-weight: 600; fill: #FFFFFF;">${escapeForSvg(ln.text)}</text>\n`;
+        svg += `    <text x="${textX}" y="${Math.floor(iconSize/2)}" dominant-baseline="central" style="font-family: Arial, sans-serif; font-size: ${lineTextSize}px; font-weight: 600; fill: #FFFFFF;">${escapeForSvg(ln.text)}</text>\n`;
         svg += `  </g>\n`;
         currentY += spacingY;
       });
