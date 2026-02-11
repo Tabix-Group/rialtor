@@ -1046,6 +1046,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="currentColor" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="currentColor" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
       banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="currentColor" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="currentColor" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="currentColor" stroke-width="2"/></svg>`,
       antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
+      dormitorios: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M2 8h18a2 2 0 0 1 2 2v10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="currentColor"/></svg>`,
       contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
       correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="16" x="2" y="4" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="m22 7-10 5L2 7" stroke="currentColor" stroke-width="2" fill="none"/></svg>`,
@@ -1104,10 +1105,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       // Íconos e información
       let currentY = startY;
       const infoLines = [];
-      if (ambientes) infoLines.push({ icon: 'ambientes', text: `${ambientes} Ambientes` });
+      if (ambientes) infoLines.push({ icon: 'ambientes', text: `${ambientes} Ambiente${ambientes !== '1' ? 's' : ''}` });
+      if (dormitorios) infoLines.push({ icon: 'dormitorios', text: `${dormitorios} Dormitorio${dormitorios !== '1' ? 's' : ''}` });
       if (banos) infoLines.push({ icon: 'banos', text: `${banos} Baño${banos !== '1' ? 's' : ''}` });
       if (m2_totales) infoLines.push({ icon: 'm2_totales', text: `${m2_totales} m² totales` });
       if (m2_cubiertos) infoLines.push({ icon: 'm2_cubiertos', text: `${m2_cubiertos} m² cubiertos` });
+      if (direccion) infoLines.push({ icon: 'ubicacion', text: direccion });
       if (antiguedad) infoLines.push({ icon: 'antiguedad', text: `${antiguedad} años` });
       
       infoLines.forEach(ln => {
