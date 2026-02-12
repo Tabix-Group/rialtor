@@ -5,6 +5,7 @@ import { SidebarProvider, useSidebar } from '../contexts/SidebarContext';
 import { useAuth } from './auth/authContext';
 import dynamic from 'next/dynamic';
 import { Suspense, useState, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 // Cargar dinámicamente sin SSR para evitar problemas de hidratación
 const HelpAssistant = dynamic(() => import('../components/HelpAssistant'), {
@@ -64,6 +65,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           <HelpAssistant />
         </Suspense>
       )}
+      <Toaster position="top-right" />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Edit, Trash2, X, Check, CreditCard, DollarSign, Ban } from 'lucide-react';
+import { UserPlus, Edit, Trash2, X, Check, CreditCard, DollarSign, Ban, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { authenticatedFetch } from '@/utils/api';
+import { toast } from 'react-hot-toast';
 
 export default function UserManagement({ token }: { token: string }) {
   const [users, setUsers] = useState<any[]>([]);
@@ -17,6 +18,12 @@ export default function UserManagement({ token }: { token: string }) {
   const [refundAmount, setRefundAmount] = useState('');
   const [refundReason, setRefundReason] = useState('requested_by_customer');
   const [cancelImmediately, setCancelImmediately] = useState(false);
+  
+  // Search and Pagination
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
   const [form, setForm] = useState<{
     name: string;
     email: string;
@@ -140,14 +147,21 @@ export default function UserManagement({ token }: { token: string }) {
           const data = await updated.json();
           setUsers(data.users || []);
         }
+        toast.success('Usuario actualizado correctamente');
       } else {
         const updated = await authenticatedFetch('/api/users');
         const data = await updated.json();
         setUsers(data.users || []);
+        toast.success('Usuario creado correctamente');
       }
       closeModal();
-    } catch {
+    } catch (err: any) {
+      console.error(err);
       setError('Error al guardar usuario');
+      toast.error('Error al guardar el usuario');
+    }
+    setSaving(false);
+  };
     }
     setSaving(false);
   };
@@ -168,8 +182,10 @@ export default function UserManagement({ token }: { token: string }) {
       setUsers(users.filter(u => u.id !== userToDelete.id));
       setShowDeleteConfirm(false);
       setUserToDelete(null);
+      toast.success('Usuario eliminado correctamente');
     } catch {
       setError('Error al eliminar usuario');
+      toast.error('Error al eliminar el usuario');
     }
     setSaving(false);
   };
@@ -196,8 +212,10 @@ export default function UserManagement({ token }: { token: string }) {
       if (!res.ok) throw new Error('Error');
       const updatedUser = await res.json();
       setUsers(users.map(u => u.id === user.id ? updatedUser.user : u));
+      toast.success(`Usuario ${updatedUser.user.isActive ? 'activado' : 'desactivado'} correctamente`);
     } catch {
       setError('Error al cambiar estado del usuario');
+      toast.error('Error al cambiar el estado del usuario');
     }
     setSaving(false);
   };
@@ -277,13 +295,50 @@ export default function UserManagement({ token }: { token: string }) {
     setSaving(false);
   };
 
+  // Filtrado y paginación
+  const filteredUsers = users.filter(user => 
+    user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.office?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+
+  // Resetear a la primera página si cambia la búsqueda
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   return (
-    <div className="p-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
-        <h2 className="text-xl font-bold">Usuarios</h2>
-        <button onClick={openCreateModal} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors">
-          <UserPlus className="w-5 h-5" /> Nuevo Usuario
-        </button>
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-xl font-bold">Usuarios</h2>
+          <p className="text-sm text-gray-500">{filteredUsers.length} usuarios encontrados</p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <div className="relative flex-grow sm:w-64">
+            <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, email o oficina..."
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            onClick={openCreateModal} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <UserPlus className="w-5 h-5" /> 
+            <span>Nuevo Usuario</span>
+          </button>
+        </div>
       </div>
       {loading ? (
         <div className="text-center py-8 text-gray-500">Cargando usuarios...</div>
@@ -295,26 +350,29 @@ export default function UserManagement({ token }: { token: string }) {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Nombre</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Email</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Roles</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Suscripción</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Plan</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Renovación</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase hidden sm:table-cell">Email</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase hidden md:table-cell">Roles</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase hidden lg:table-cell">Suscripción</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase hidden xl:table-cell">Plan</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase hidden xl:table-cell">Renovación</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Estado</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase">Acciones</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users.map(user => (
-                <tr key={user.id}>
-                  <td className="px-3 py-2 whitespace-nowrap">{user.name}</td>
-                  <td className="px-3 py-2 whitespace-nowrap max-w-[200px] overflow-hidden text-ellipsis">{user.email}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">
+              {paginatedUsers.map(user => (
+                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-900">
+                    <div>{user.name}</div>
+                    <div className="text-xs text-gray-500 sm:hidden">{user.email}</div>
+                  </td>
+                  <td className="px-3 py-2 whitespace-nowrap max-w-[200px] overflow-hidden text-ellipsis hidden sm:table-cell">{user.email}</td>
+                  <td className="px-3 py-2 whitespace-nowrap hidden md:table-cell">
                     {user.roles?.map((role: any) => (
                       <span key={role.id} className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 mr-1 mb-1">{role.name}</span>
                     ))}
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap">
+                  <td className="px-3 py-2 whitespace-nowrap hidden lg:table-cell">
                     {user.requiresSubscription ? (
                       user.subscriptionStatus ? (
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -339,7 +397,7 @@ export default function UserManagement({ token }: { token: string }) {
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap">
+                  <td className="px-3 py-2 whitespace-nowrap hidden xl:table-cell">
                     {user.subscriptionPlanType ? (
                       <span className="text-xs">
                         {user.subscriptionPlanType === 'monthly' ? '$25/mes' : '$240/año'}
@@ -348,7 +406,7 @@ export default function UserManagement({ token }: { token: string }) {
                       <span className="text-xs text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap text-xs">
+                  <td className="px-3 py-2 whitespace-nowrap text-xs hidden xl:table-cell">
                     {user.currentPeriodEnd ? (
                       <>
                         {new Date(user.currentPeriodEnd).toLocaleDateString()}
@@ -407,6 +465,61 @@ export default function UserManagement({ token }: { token: string }) {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && !error && filteredUsers.length > 0 && (
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 bg-gray-50 p-4 rounded-lg">
+          <div className="text-sm text-gray-600 order-2 sm:order-1">
+            Mostrando <span className="font-medium">{startIndex + 1}</span> a <span className="font-medium">{Math.min(startIndex + itemsPerPage, filteredUsers.length)}</span> de <span className="font-medium">{filteredUsers.length}</span> usuarios
+          </div>
+          <div className="flex items-center gap-2 order-1 sm:order-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-md border bg-white enabled:hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Anterior"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                // Lógica simple para mostrar páginas cercanas si hay muchas
+                let pageNum = i + 1;
+                if (totalPages > 5 && currentPage > 3) {
+                  pageNum = currentPage - 2 + i;
+                  if (pageNum > totalPages) pageNum = totalPages - (4 - i);
+                }
+                if (pageNum <= 0) return null;
+                if (pageNum > totalPages) return null;
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-8 h-8 rounded-md text-sm font-medium transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white border text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-md border bg-white enabled:hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Siguiente"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
 
