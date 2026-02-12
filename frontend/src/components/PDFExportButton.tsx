@@ -40,13 +40,15 @@ export default function PDFExportButton({ elementId, fileName, title }: PDFExpor
       const pdfHeight = pdf.internal.pageSize.getHeight()
       const imgWidth = canvas.width
       const imgHeight = canvas.height
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
+      
+      // Ajustar ratio para dejar espacio para título (30mm) y pie de página (20mm)
+      const availableHeight = pdfHeight - 50 
+      const ratio = Math.min(pdfWidth / imgWidth, availableHeight / imgHeight)
       
       const finalImgWidth = imgWidth * ratio
       const finalImgHeight = imgHeight * ratio
       
       const xOffset = (pdfWidth - finalImgWidth) / 2
-      const yOffset = 10 // Margen superior
 
       // Añadir título
       pdf.setFontSize(18)
@@ -59,8 +61,7 @@ export default function PDFExportButton({ elementId, fileName, title }: PDFExpor
       // Añadir pie de página
       pdf.setFontSize(10)
       pdf.setTextColor(100, 116, 139) // Slate 500
-      pdf.text('rialtor.app - Herramientas Profesionales para el Real Estate', pdfWidth / 2, pdfHeight - 10, { align: 'center' })
-      pdf.text(`${new Date().toLocaleDateString()}`, pdfWidth - 20, pdfHeight - 10, { align: 'right' })
+      pdf.text('www.rialtor.app - Herramientas Profesionales para agentes inmobiliarios', pdfWidth / 2, pdfHeight - 10, { align: 'center' })
 
       pdf.save(`${fileName}.pdf`)
     } catch (error) {

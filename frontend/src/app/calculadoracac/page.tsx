@@ -233,9 +233,9 @@ export default function CalculadoraCACPage() {
                   />
                 </div>
 
-                <div id="cac-calculation-results" className="space-y-6 bg-white p-2 rounded-xl">
+                <div id="cac-calculation-results" className="space-y-6 bg-white p-4 rounded-xl">
                   {/* Resumen */}
-                  <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <CheckCircle className="w-5 h-5 text-green-600" />

@@ -357,54 +357,55 @@ export default function HipotecariosPage() {
                                             />
                                         </div>
 
-                                        <div id="mortgage-calculation-results" className="space-y-6 bg-white p-2 rounded-xl">
+                                    <div id="mortgage-calculation-results" className="space-y-6 bg-white p-4 rounded-xl">
+                                        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                            <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
-                                                <p className="text-sm font-medium text-blue-800 mb-1">Valor Primera Cuota</p>
-                                                <p className="text-3xl font-bold text-blue-700">{formatCurrency(result.monthlyPayment)}</p>
-                                            </div>
-                                            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-                                                <p className="text-sm font-medium text-gray-600 mb-1">Monto Total a Pagar</p>
-                                                <p className="text-3xl font-bold text-gray-900">{formatCurrency(result.totalPayment)}</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                                            <div className="p-3 bg-white border border-gray-200 rounded-lg text-center">
-                                                <p className="text-xs text-gray-500 uppercase tracking-wide">Plazo</p>
-                                                <p className="text-lg font-bold text-gray-800">{result.termYears} años</p>
-                                            </div>
-                                            <div className="p-3 bg-white border border-gray-200 rounded-lg text-center">
-                                                <p className="text-xs text-gray-500 uppercase tracking-wide">Tasa TNA</p>
-                                                <p className="text-lg font-bold text-gray-800">{result.interestRate}%</p>
-                                            </div>
-                                            <div className="p-3 bg-white border border-gray-200 rounded-lg text-center col-span-2 sm:col-span-1">
-                                                <p className="text-xs text-gray-500 uppercase tracking-wide">Intereses</p>
-                                                <p className="text-lg font-bold text-red-600">{formatCurrency(result.totalInterest)}</p>
-                                            </div>
-                                        </div>
-
-                                        {calculationMode === 'property' && propertyValue && loanAmount && (
-                                            <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 flex items-center gap-3">
-                                                <Wallet className="w-8 h-8 text-orange-500" />
-                                                <div>
-                                                    <p className="text-sm text-orange-800 font-medium">Ahorro inicial necesario</p>
-                                                    <p className="text-xl font-bold text-orange-700">
-                                                        {formatCurrency(parseFloat(propertyValue) - parseFloat(loanAmount))} USD
-                                                    </p>
+                                                <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                                                    <p className="text-sm font-medium text-blue-800 mb-1">Valor Primera Cuota</p>
+                                                    <p className="text-3xl font-bold text-blue-700">{formatCurrency(result.monthlyPayment)}</p>
+                                                </div>
+                                                <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                                                    <p className="text-sm font-medium text-gray-600 mb-1">Monto Total a Pagar</p>
+                                                    <p className="text-3xl font-bold text-gray-900">{formatCurrency(result.totalPayment)}</p>
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
 
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                        <h3 className="font-bold text-gray-900 mb-4">Nota Importante</h3>
-                                        <p className="text-sm text-gray-600 leading-relaxed">
-                                            Los montos calculados son estimativos y corresponden a la primera cuota. 
-                                            En los créditos UVA, el capital adeudado se ajusta mensualmente por inflación (CER), 
-                                            por lo que el valor de la cuota en pesos variará a lo largo del tiempo.
-                                        </p>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                                                <div className="p-3 bg-white border border-gray-200 rounded-lg text-center">
+                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Plazo</p>
+                                                    <p className="text-lg font-bold text-gray-800">{result.termYears} años</p>
+                                                </div>
+                                                <div className="p-3 bg-white border border-gray-200 rounded-lg text-center">
+                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Tasa TNA</p>
+                                                    <p className="text-lg font-bold text-gray-800">{result.interestRate}%</p>
+                                                </div>
+                                                <div className="p-3 bg-white border border-gray-200 rounded-lg text-center col-span-2 sm:col-span-1">
+                                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Intereses</p>
+                                                    <p className="text-lg font-bold text-red-600">{formatCurrency(result.totalInterest)}</p>
+                                                </div>
+                                            </div>
+
+                                            {calculationMode === 'property' && propertyValue && loanAmount && (
+                                                <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 flex items-center gap-3">
+                                                    <Wallet className="w-8 h-8 text-orange-500" />
+                                                    <div>
+                                                        <p className="text-sm text-orange-800 font-medium">Ahorro inicial necesario</p>
+                                                        <p className="text-xl font-bold text-orange-700">
+                                                            {formatCurrency(parseFloat(propertyValue) - parseFloat(loanAmount))} USD
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 font-sans">
+                                            <h3 className="font-bold text-gray-900 mb-4">Nota Importante</h3>
+                                            <p className="text-sm text-gray-600 leading-relaxed">
+                                                Los montos calculados son estimativos y corresponden a la primera cuota. 
+                                                En los créditos UVA, el capital adeudado se ajusta mensualmente por inflación (CER), 
+                                                por lo que el valor de la cuota en pesos variará a lo largo del tiempo.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (
