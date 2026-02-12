@@ -162,9 +162,6 @@ export default function UserManagement({ token }: { token: string }) {
     }
     setSaving(false);
   };
-    }
-    setSaving(false);
-  };
 
   const handleDelete = async (user: any) => {
     setUserToDelete(user);
