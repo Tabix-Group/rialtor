@@ -185,6 +185,9 @@ export default function FinanzasPage() {
     fetchExchangeRate()
   }, [])
 
+  const consolidatedBalance = exchangeRate ? (balance.USD + (balance.ARS / exchangeRate)) : 0
+  const isConsolidatedPositive = consolidatedBalance >= 0
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -362,23 +365,23 @@ export default function FinanzasPage() {
               </div>
 
               {/* Saldo Consolidado USD */}
-              <div className="bg-rose-500/10 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border border-rose-500/30 shadow-2xl relative overflow-hidden group">
+              <div className={`${isConsolidatedPositive ? 'bg-blue-500/10 border-blue-500/30' : 'bg-rose-500/10 border-rose-500/30'} backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border shadow-2xl relative overflow-hidden group`}>
                 <div className="absolute top-0 right-0 p-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+                  <div className={`w-1.5 h-1.5 rounded-full ${isConsolidatedPositive ? 'bg-blue-500' : 'bg-rose-500'} animate-pulse`}></div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-rose-500/20 rounded-xl flex items-center justify-center">
-                    <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 ${isConsolidatedPositive ? 'bg-blue-500/20' : 'bg-rose-500/20'} rounded-xl flex items-center justify-center`}>
+                    <Wallet className={`w-4 h-4 sm:w-5 sm:h-5 ${isConsolidatedPositive ? 'text-blue-400' : 'text-rose-400'}`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm text-rose-200 mb-1">Consolidado USD</p>
+                    <p className={`text-xs sm:text-sm ${isConsolidatedPositive ? 'text-blue-200' : 'text-rose-200'} mb-1`}>Consolidado USD</p>
                     <p className="text-base sm:text-xl lg:text-2xl font-extrabold text-white truncate">
                       ${exchangeRate 
-                        ? (balance.USD + (balance.ARS / exchangeRate)).toLocaleString('en-US', { minimumFractionDigits: 2 })
+                        ? consolidatedBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })
                         : '---'
                       }
                     </p>
-                    <p className="text-[10px] text-rose-300/70 mt-1 font-medium italic">
+                    <p className={`text-[10px] ${isConsolidatedPositive ? 'text-blue-300/70' : 'text-rose-300/70'} mt-1 font-medium italic`}>
                       {exchangeRate ? `@ $${exchangeRate.toLocaleString('es-AR')}` : 'Cargando cotización...'}
                     </p>
                   </div>

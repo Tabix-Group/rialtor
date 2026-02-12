@@ -138,7 +138,7 @@ export default function CalceEscrituraPage() {
   }, [activeTab, location, numericExchangeRate, numericWritingPrice, numericTransactionPrice, stampExemption])
 
   function formatUSD(n: number) {
-    return n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 })
+    return `US$ ${n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   function formatARS(n: number) {
@@ -227,12 +227,12 @@ export default function CalceEscrituraPage() {
                     Precio de Escrituración
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm font-bold">USD</span>
                     <input
                       inputMode="numeric"
                       value={writingPrice}
                       onChange={(e) => setWritingPrice(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
                 </div>
@@ -242,12 +242,12 @@ export default function CalceEscrituraPage() {
                     Precio de Transacción
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm font-bold">USD</span>
                     <input
                       inputMode="numeric"
                       value={transactionPrice}
                       onChange={(e) => setTransactionPrice(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     />
                   </div>
                 </div>
