@@ -354,7 +354,7 @@ export default function CalceEscrituraPage() {
                         {calculations.realEstateFee > 0 && (
                             <div className="flex justify-between items-center px-4 py-3">
                                 <div>
-                                    <div className="text-sm font-medium text-gray-900">Comisión Inmobiliaria</div>
+                                    <div className="text-sm font-medium text-gray-900">Honorarios inmobiliarios</div>
                                     <div className="text-xs text-gray-500">{activeTab === 'comprador' ? '4,00%' : '3,00%'} + IVA</div>
                                 </div>
                                 <div className="text-right">
@@ -366,7 +366,7 @@ export default function CalceEscrituraPage() {
                         {/* IVA Real Estate */}
                         {calculations.realEstateFeeIVA > 0 && activeTab === 'primera' && (
                             <div className="flex justify-between items-center px-4 py-2 bg-gray-50/50">
-                                <div className="text-xs text-gray-600 pl-4">↳ IVA Comisión</div>
+                                <div className="text-xs text-gray-600 pl-4">↳ IVA Honorarios</div>
                                 <div className="text-xs font-medium text-gray-700">{formatUSD(calculations.realEstateFeeIVA)}</div>
                             </div>
                         )}
