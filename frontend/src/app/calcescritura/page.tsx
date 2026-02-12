@@ -1,6 +1,7 @@
 "use client"
 import React, { useMemo, useState, useEffect } from "react"
 import { Calculator, DollarSign, MapPin, AlertTriangle, FileText, CheckCircle, Info, Building2 } from 'lucide-react'
+import PDFExportButton from "@/components/PDFExportButton"
 
 export default function CalceEscrituraPage() {
   const [activeTab, setActiveTab] = useState<'comprador' | 'vendedor' | 'primera'>('comprador')
@@ -311,29 +312,37 @@ export default function CalceEscrituraPage() {
               <div className="space-y-6">
                 {/* Resumen Final */}
                 <div className="bg-white rounded-xl shadow-lg p-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-100 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <CheckCircle className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        Resumen {activeTab === 'comprador' ? 'Comprador' : activeTab === 'vendedor' ? 'Vendedor' : '1ª Escritura'}
+                      </h2>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900">
-                      Resumen {activeTab === 'comprador' ? 'Comprador' : activeTab === 'vendedor' ? 'Vendedor' : '1ª Escritura'}
-                    </h2>
+                    <PDFExportButton 
+                      elementId="writing-calculation-results" 
+                      fileName={`calculo-escritura-${activeTab}`} 
+                      title={`Presupuesto de Escritura - ${activeTab === 'comprador' ? 'Comprador' : activeTab === 'vendedor' ? 'Vendedor' : '1ª Escritura'}`}
+                    />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-600">Gastos Totales</p>
-                      <p className="text-2xl font-bold text-gray-900">{formatUSD(calculations.totalCosts)}</p>
-                      <p className="text-xs text-gray-500 mt-1">{formatARS(calculations.totalCosts * numericExchangeRate)}</p>
+                  <div id="writing-calculation-results" className="space-y-6 bg-white p-2 rounded-xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600">Gastos Totales</p>
+                        <p className="text-2xl font-bold text-gray-900">{formatUSD(calculations.totalCosts)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{formatARS(calculations.totalCosts * numericExchangeRate)}</p>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-4 border border-green-100">
+                        <p className="text-sm text-green-800">
+                          {activeTab === 'vendedor' ? 'Monto neto a recibir' : 'Monto total a pagar'}
+                        </p>
+                        <p className="text-2xl font-bold text-green-700">{formatUSD(calculations.finalAmount)}</p>
+                        <p className="text-xs text-green-600 mt-1">{formatARS(calculations.finalAmount * numericExchangeRate)}</p>
+                      </div>
                     </div>
-                    <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-                      <p className="text-sm text-green-800">
-                         {activeTab === 'vendedor' ? 'Monto neto a recibir' : 'Monto total a pagar'}
-                      </p>
-                      <p className="text-2xl font-bold text-green-700">{formatUSD(calculations.finalAmount)}</p>
-                      <p className="text-xs text-green-600 mt-1">{formatARS(calculations.finalAmount * numericExchangeRate)}</p>
-                    </div>
-                  </div>
 
                   {/* Detalle de Gastos */}
                   <div className="border rounded-lg border-gray-200 overflow-hidden">
@@ -450,11 +459,12 @@ export default function CalceEscrituraPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-blue-700">
                         Los cálculos son estimativos y pueden variar según condiciones específicas. Los honorarios e impuestos pueden sufrir modificaciones.
                       </p>
+                    </div>
                   </div>
                 </div>
               </div>

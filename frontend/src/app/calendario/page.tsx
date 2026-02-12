@@ -8,6 +8,7 @@ import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay, addHours } from "date-fns"
 import { es } from "date-fns/locale"
 import { zonedTimeToUtc, utcToZonedTime, format as formatTz } from "date-fns-tz"
+import Select from 'react-select'
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import {
   Calendar,
@@ -236,6 +237,19 @@ export default function CalendarioPage() {
     end: "",
     addMeet: false,
   })
+
+  const timeOptions = Array.from({ length: 48 }, (_, i) => {
+    const hours = Math.floor(i / 2).toString().padStart(2, '0')
+    const minutes = (i % 2 === 0 ? '00' : '30')
+    return { value: `${hours}:${minutes}`, label: `${hours}:${minutes}` }
+  })
+
+  // Helper para manejar cambios de fecha y hora por separado
+  const handleDateTimeChange = (field: 'start' | 'end', date: string, time: string) => {
+    if (!date) return
+    const dateTime = `${date}T${time || '00:00'}`
+    setNewEvent(prev => ({ ...prev, [field]: dateTime }))
+  }
 
   useEffect(() => {
     fetchCalendarEvents()
@@ -752,26 +766,60 @@ export default function CalendarioPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Inicio</label>
-                    <input
-                      type="datetime-local"
-                      value={newEvent.start}
-                      onChange={(e) => setNewEvent({ ...newEvent, start: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-slate-700"
-                      required
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5 underline decoration-blue-500/30">Inicio</label>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="date"
+                        value={newEvent.start.split('T')[0]}
+                        onChange={(e) => handleDateTimeChange('start', e.target.value, newEvent.start.split('T')[1] || '09:00')}
+                        className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        required
+                      />
+                      <Select
+                        placeholder="Hora..."
+                        options={timeOptions}
+                        value={timeOptions.find(opt => opt.value === (newEvent.start.split('T')[1]?.substring(0, 5) || '09:00'))}
+                        onChange={(opt) => handleDateTimeChange('start', newEvent.start.split('T')[0], opt?.value || '09:00')}
+                        className="text-sm"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            borderRadius: '0.5rem',
+                            borderColor: '#cbd5e1',
+                            padding: '1px'
+                          })
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Fin</label>
-                    <input
-                      type="datetime-local"
-                      value={newEvent.end}
-                      onChange={(e) => setNewEvent({ ...newEvent, end: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-slate-700"
-                      required
-                    />
+                  <div className="space-y-4">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5 underline decoration-blue-500/30">Fin</label>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="date"
+                        value={newEvent.end.split('T')[0]}
+                        onChange={(e) => handleDateTimeChange('end', e.target.value, newEvent.end.split('T')[1] || '10:00')}
+                        className="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                        required
+                      />
+                      <Select
+                        placeholder="Hora..."
+                        options={timeOptions}
+                        value={timeOptions.find(opt => opt.value === (newEvent.end.split('T')[1]?.substring(0, 5) || '10:00'))}
+                        onChange={(opt) => handleDateTimeChange('end', newEvent.end.split('T')[0], opt?.value || '10:00')}
+                        className="text-sm"
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            borderRadius: '0.5rem',
+                            borderColor: '#cbd5e1',
+                            padding: '1px'
+                          })
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
 

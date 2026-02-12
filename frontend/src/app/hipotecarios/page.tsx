@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Calculator, TrendingUp, DollarSign, Calendar, Banknote, Building, Wallet, Percent, Home, AlertCircle } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 import { useAuth } from '../auth/authContext'
+import PDFExportButton from "@/components/PDFExportButton"
 
 interface BankRate {
     id: string
@@ -342,14 +343,22 @@ export default function HipotecariosPage() {
                             {result ? (
                                 <div className="space-y-6">
                                     <div className="bg-white rounded-xl shadow-lg p-6">
-                                        <div className="flex items-center gap-3 mb-6">
-                                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                                <TrendingUp className="w-5 h-5 text-green-600" />
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-100 pb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                                    <TrendingUp className="w-5 h-5 text-green-600" />
+                                                </div>
+                                                <h2 className="text-xl font-bold text-gray-900">Proyección del Crédito</h2>
                                             </div>
-                                            <h2 className="text-xl font-bold text-gray-900">Proyección del Crédito</h2>
+                                            <PDFExportButton 
+                                                elementId="mortgage-calculation-results" 
+                                                fileName="simulacion-hipotecaria" 
+                                                title={`Simulación Crédito Hipotecario - ${selectedBank || 'Resultados'}`}
+                                            />
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                        <div id="mortgage-calculation-results" className="space-y-6 bg-white p-2 rounded-xl">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                             <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
                                                 <p className="text-sm font-medium text-blue-800 mb-1">Valor Primera Cuota</p>
                                                 <p className="text-3xl font-bold text-blue-700">{formatCurrency(result.monthlyPayment)}</p>
@@ -387,8 +396,9 @@ export default function HipotecariosPage() {
                                             </div>
                                         )}
                                     </div>
+                                </div>
 
-                                    <div className="bg-white rounded-xl shadow-lg p-6">
+                                <div className="bg-white rounded-xl shadow-lg p-6">
                                         <h3 className="font-bold text-gray-900 mb-4">Nota Importante</h3>
                                         <p className="text-sm text-gray-600 leading-relaxed">
                                             Los montos calculados son estimativos y corresponden a la primera cuota. 

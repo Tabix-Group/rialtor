@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Building2, TrendingUp, Calendar, DollarSign, AlertCircle, CheckCircle, Info } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
+import PDFExportButton from '@/components/PDFExportButton'
 
 interface CACProjection {
   date: string
@@ -224,8 +225,17 @@ export default function CalculadoraCACPage() {
           <div className="lg:col-span-2">
             {result ? (
               <div className="space-y-6">
-                {/* Resumen */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex justify-end">
+                  <PDFExportButton 
+                    elementId="cac-calculation-results" 
+                    fileName={`calculo-cac-${new Date().getTime()}`} 
+                    title="Proyección de Índice CAC"
+                  />
+                </div>
+
+                <div id="cac-calculation-results" className="space-y-6 bg-white p-2 rounded-xl">
+                  {/* Resumen */}
+                  <div className="bg-white rounded-xl shadow-lg p-6">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <CheckCircle className="w-5 h-5 text-green-600" />
