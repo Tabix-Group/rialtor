@@ -57,6 +57,7 @@ interface PropertyData {
   url?: string; // URL personalizada para la placa
   sidebarColor?: string; // Color para Modelo 4
   brand?: string; // Marca para placas
+  textColor?: 'auto' | 'white' | 'black'; // Color de letras forzado
 }
 
 interface PropertyPlaque {
@@ -151,7 +152,8 @@ export default function PlacasPage() {
     agentContact: '',
     url: 'www.rialtor.app',
     sidebarColor: 'rgba(84, 74, 63, 0.7)',
-    brand: 'EMPRESA'
+    brand: 'EMPRESA',
+    textColor: 'auto'
   });
   const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip' | 'model4' | 'model5'>('standard');
   const [creating, setCreating] = useState(false);
@@ -1121,6 +1123,63 @@ export default function PlacasPage() {
                             </div>
                           </div>
                         )}
+
+                        <div className="space-y-3 col-span-full">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color de Letras</label>
+                          <div className="flex flex-wrap gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                              <div className="relative flex items-center justify-center">
+                                <input 
+                                  type="radio" 
+                                  name="textColor" 
+                                  value="auto" 
+                                  checked={propertyData.textColor === 'auto' || !propertyData.textColor} 
+                                  onChange={() => setPropertyData(prev => ({ ...prev, textColor: 'auto' }))}
+                                  className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-full checked:border-blue-500 transition-all"
+                                />
+                                <div className="absolute w-2.5 h-2.5 bg-blue-500 rounded-full opacity-0 peer-checked:opacity-100 transition-all"></div>
+                              </div>
+                              <span className="text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">Automático</span>
+                            </label>
+
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                              <div className="relative flex items-center justify-center">
+                                <input 
+                                  type="radio" 
+                                  name="textColor" 
+                                  value="white" 
+                                  checked={propertyData.textColor === 'white'} 
+                                  onChange={() => setPropertyData(prev => ({ ...prev, textColor: 'white' }))}
+                                  className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-full checked:border-blue-500 transition-all"
+                                />
+                                <div className="absolute w-2.5 h-2.5 bg-blue-500 rounded-full opacity-0 peer-checked:opacity-100 transition-all"></div>
+                              </div>
+                              <span className="text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors flex items-center gap-2">
+                                <div className="w-4 h-4 rounded bg-white border border-slate-300"></div>
+                                Letras Blancas
+                              </span>
+                            </label>
+
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                              <div className="relative flex items-center justify-center">
+                                <input 
+                                  type="radio" 
+                                  name="textColor" 
+                                  value="black" 
+                                  checked={propertyData.textColor === 'black'} 
+                                  onChange={() => setPropertyData(prev => ({ ...prev, textColor: 'black' }))}
+                                  className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded-full checked:border-blue-500 transition-all"
+                                />
+                                <div className="absolute w-2.5 h-2.5 bg-blue-500 rounded-full opacity-0 peer-checked:opacity-100 transition-all"></div>
+                              </div>
+                              <span className="text-sm font-semibold text-slate-700 group-hover:text-blue-600 transition-colors flex items-center gap-2">
+                                <div className="w-4 h-4 rounded bg-black"></div>
+                                Letras Negras
+                              </span>
+                            </label>
+                          </div>
+                          <p className="text-[10px] text-slate-400 italic px-1">Elige el color que mejor contraste con tu imagen de fondo para maximizar legibilidad.</p>
+                        </div>
                       </div>
 
                       {/* Info del Agente (Solo si el modelo lo requiere) */}

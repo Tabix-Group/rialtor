@@ -756,6 +756,16 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const geometricPattern = propertyInfo.geometricPattern || 'none'; // Nuevo campo para patrones geométricos
     const brand = propertyInfo.brand || null; // Nuevo campo para marca
     const sidebarColor = propertyInfo.sidebarColor || 'rgba(84, 74, 63, 0.7)'; // Color por defecto para Modelo 4
+
+    // --- CÁLCULO DE COLOR DE TEXTO (AUTO O FORZADO) ---
+    const descriptionForAnalysis = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
+    const overlayColorAnalysis = determineOverlayColor(imageAnalysis && imageAnalysis.colores);
+    const automaticTextColor = overlayColorAnalysis === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
+    
+    // User forced color or automatic
+    const forcedTextColor = propertyInfo.textColor === 'white' ? '#FFFFFF' : (propertyInfo.textColor === 'black' ? '#000000' : null);
+    const textColor = forcedTextColor || automaticTextColor;
+
     // Calcular cantidad de campos con información para diseño adaptativo
     let fieldCount = 0;
     if (tipo) fieldCount++;
@@ -782,8 +792,6 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     // Descripción adicional para renderizar abajo-derecha (si existe)
     const descripcion = propertyInfo.descripcion || propertyInfo.descripcion_adicional || null;
-    const overlayColor = determineOverlayColor(imageAnalysis && imageAnalysis.colores);
-    const textColor = overlayColor === 'rgba(0,0,0,0.8)' ? '#FFFFFF' : '#000000';
     
     // Función para crear patrones geométricos
     function createGeometricPattern(patternType) {
@@ -1025,19 +1033,19 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       // Esquema premium: Azul pizarra profundo (Slate 900) para mayor elegancia y calidad
       // Ahora con mayor transparencia para un look más integrado y sutil (solicitud usuario)
       priceBoxFill = 'rgba(15, 23, 42, 0.45)'; // Más traslúcido (reducido de 0.65)
-      priceTextColor = '#FFFFFF'; // Blanco puro para máxima legibilidad y limpieza
+      priceTextColor = forcedTextColor || '#FFFFFF'; // Blanco puro para máxima legibilidad y limpieza
       // Fondo del bloque de corredores/agencia: mismo tono para consistencia visual
       corredoresBoxFill = 'rgba(15, 23, 42, 0.45)'; // Más traslúcido (reducido de 0.75)
-      corredoresTextColor = '#F8FAFC'; // Blanco/Gris muy claro para información secundaria
+      corredoresTextColor = forcedTextColor || '#F8FAFC'; // Blanco/Gris muy claro para información secundaria
     } else {
       priceBoxFill = selectedScheme.priceBoxFill;
-      priceTextColor = selectedScheme.priceTextColor;
+      priceTextColor = forcedTextColor || selectedScheme.priceTextColor;
       corredoresBoxFill = selectedScheme.corredoresBoxFill;
-      corredoresTextColor = selectedScheme.corredoresTextColor;
+      corredoresTextColor = forcedTextColor || selectedScheme.corredoresTextColor;
     }
     
     const mainBoxFill = selectedScheme.mainBoxFill;
-    const mainTextColor = selectedScheme.mainTextColor;
+    const mainTextColor = forcedTextColor || selectedScheme.mainTextColor;
 
     // Two icon palettes: main (colored) for the top-right box, alt (contrast/white) for sidebars/overlays
     const svgIconsAlt = {
@@ -1055,26 +1063,26 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const svgIconsMain = {
       precio: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
       // Iconos dinámicos por tipo de propiedad
-      tipo_casa: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#000000" stroke-width="2" fill="none"/><polyline points="9,22 9,12 15,12 15,22" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      tipo_departamento: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#000000" stroke-width="2" fill="none"/><path d="M9 9h1v1H9zM14 9h1v1h-1zM9 14h1v1H9zM14 14h1v1h-1z" fill="#000000"/><path d="M7 21v-4M17 21v-4" stroke="#000000" stroke-width="2"/></svg>`,
-      tipo_local: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" stroke="#000000" stroke-width="2" fill="none"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#000000" stroke-width="2" fill="none"/><path d="M12 11v6" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      tipo_oficina: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="#000000" stroke-width="2" fill="none"/><path d="M5 21V7l8-4v18" stroke="#000000" stroke-width="2" fill="none"/><path d="M19 21V11l-6-4" stroke="#000000" stroke-width="2" fill="none"/><path d="M9 9v.01M9 12v.01M9 15v.01M13 4v.01M13 7v.01M13 10v.01M13 13v.01M13 16v.01M13 19v.01" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      tipo_terreno: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 20h18" stroke="#000000" stroke-width="2" fill="none"/><path d="M7 16l3-6 2 3 4-7" stroke="#000000" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="5" cy="18" r="1" fill="#000000"/><circle cx="12" cy="18" r="1" fill="#000000"/><circle cx="19" cy="18" r="1" fill="#000000"/></svg>`,
-      tipo_galpon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="#000000" stroke-width="2" fill="none"/><path d="M3 7l9-4 9 4v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2 2V7z" stroke="#000000" stroke-width="2" fill="none"/><path d="M12 3v18" stroke="#000000" stroke-width="1" fill="none"/><path d="M8 14h8" stroke="#000000" stroke-width="1" fill="none"/></svg>`,
+      tipo_casa: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="${textColor}" stroke-width="2" fill="none"/><polyline points="9,22 9,12 15,12 15,22" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      tipo_departamento: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M9 9h1v1H9zM14 9h1v1h-1zM9 14h1v1H9zM14 14h1v1h-1z" fill="${textColor}"/><path d="M7 21v-4M17 21v-4" stroke="${textColor}" stroke-width="2"/></svg>`,
+      tipo_local: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M12 11v6" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      tipo_oficina: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M5 21V7l8-4v18" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M19 21V11l-6-4" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M9 9v.01M9 12v.01M9 15v.01M13 4v.01M13 7v.01M13 10v.01M13 13v.01M13 16v.01M13 19v.01" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      tipo_terreno: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 20h18" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M7 16l3-6 2 3 4-7" stroke="${textColor}" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="5" cy="18" r="1" fill="${textColor}"/><circle cx="12" cy="18" r="1" fill="${textColor}"/><circle cx="19" cy="18" r="1" fill="${textColor}"/></svg>`,
+      tipo_galpon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21h18" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M3 7l9-4 9 4v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M12 3v18" stroke="${textColor}" stroke-width="1" fill="none"/><path d="M8 14h8" stroke="${textColor}" stroke-width="1" fill="none"/></svg>`,
       // Icono mejorado para ambientes (espacios/habitaciones)
-      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
+      ambientes: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1" stroke="${textColor}" stroke-width="2" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="${textColor}" stroke-width="2" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="${textColor}" stroke-width="2" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
       // Iconos corregidos de Lucide React exactos
-      dormitorios: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4v16" stroke="#000000" stroke-width="2" stroke-linecap="round"/><path d="M2 8h18a2 2 0 0 1 2 2v10" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17h20" stroke="#000000" stroke-width="2" stroke-linecap="round"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="#000000" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="#000000" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="#000000" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="#000000" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="#000000" stroke-width="2"/></svg>`,
-      cocheras: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 16H9m10 0h3m-3 0c0-1.1-.9-2-2-2s-2 .9-2 2m5 0v2a1 1 0 0 1-1 1h-2m-3-3V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v9m16 0H6m0 0c0-1.1-.9-2-2-2s-2 .9-2 2m4 0v3" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#000000" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" stroke="#000000" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="3" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="16" x="2" y="4" rx="2" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 7-10 5L2 7" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" fill="none"/><circle cx="9" cy="7" r="4" stroke="#000000" stroke-width="2" fill="none"/><path d="m22 21-3.5-3.5" stroke="#000000" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="3" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#000000" stroke-width="2" fill="none"/><polyline points="12,6 12,12 16,14" stroke="#000000" stroke-width="2" fill="none"/></svg>`,
-      descripcion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" stroke="#000000" stroke-width="2" fill="none"/><path d="M12 9v4" stroke="#000000" stroke-width="2" stroke-linecap="round"/><path d="m12 17.02.01 0" stroke="#000000" stroke-width="2" stroke-linecap="round"/></svg>`
+      dormitorios: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 4v16" stroke="${textColor}" stroke-width="2" stroke-linecap="round"/><path d="M2 8h18a2 2 0 0 1 2 2v10" stroke="${textColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17h20" stroke="${textColor}" stroke-width="2" stroke-linecap="round"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="${textColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      banos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" stroke="${textColor}" stroke-width="2" fill="none"/><line x1="10" x2="8" y1="5" y2="7" stroke="${textColor}" stroke-width="2"/><line x1="2" x2="22" y1="12" y2="12" stroke="${textColor}" stroke-width="2"/><line x1="7" x2="7" y1="19" y2="21" stroke="${textColor}" stroke-width="2"/><line x1="17" x2="17" y1="19" y2="21" stroke="${textColor}" stroke-width="2"/></svg>`,
+      cocheras: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 16H9m10 0h3m-3 0c0-1.1-.9-2-2-2s-2 .9-2 2m5 0v2a1 1 0 0 1-1 1h-2m-3-3V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v9m16 0H6m0 0c0-1.1-.9-2-2-2s-2 .9-2 2m4 0v3" stroke="${textColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="${textColor}" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="2" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      m2_totales: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      m2_cubiertos: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84z" stroke="${textColor}" stroke-width="2" fill="none"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" stroke="${textColor}" stroke-width="2" fill="none"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      ubicacion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" stroke="${textColor}" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="3" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      contacto: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      correo: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="16" x="2" y="4" rx="2" stroke="${textColor}" stroke-width="2" fill="none"/><path d="m22 7-10 5L2 7" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      corredores: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="${textColor}" stroke-width="2" fill="none"/><circle cx="9" cy="7" r="4" stroke="${textColor}" stroke-width="2" fill="none"/><path d="m22 21-3.5-3.5" stroke="${textColor}" stroke-width="2" fill="none"/><circle cx="17" cy="17" r="3" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      antiguedad: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="${textColor}" stroke-width="2" fill="none"/><polyline points="12,6 12,12 16,14" stroke="${textColor}" stroke-width="2" fill="none"/></svg>`,
+      descripcion: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" stroke="${textColor}" stroke-width="2" fill="none"/><path d="M12 9v4" stroke="${textColor}" stroke-width="2" stroke-linecap="round"/><path d="m12 17.02.01 0" stroke="${textColor}" stroke-width="2" stroke-linecap="round"/></svg>`
     };
 
     // --- LÓGICA ESPECÍFICA PARA MODELO 4 ---
@@ -1117,7 +1125,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         let iconSvg = svgIconsAlt[ln.icon] || svgIconsAlt['ambientes'];
         // Ajustar tamaño y color de íconos para el sidebar usando el nuevo formato
         iconSvg = iconSvg.replace(/width="18" height="18"/, `width="${iconSize}" height="${iconSize}"`)
-                       .replace(/currentColor/g, "#FFFFFF");
+                       .replace(/currentColor/g, textColor);
         
         const textX = iconSize + Math.floor(15 * finalScaleFactor);
         const availableWidth = sidebarWidth - marginX - textX - Math.floor(10 * finalScaleFactor);
@@ -1137,7 +1145,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
         svg += `  <g transform="translate(${marginX}, ${currentY})">\n`;
         svg += `    ${iconSvg}\n`;
-        svg += `    <text x="${textX}" y="${Math.floor(iconSize/2)}" dominant-baseline="central" style="font-family: Arial, sans-serif; font-size: ${lineTextSize}px; font-weight: 600; fill: #FFFFFF;">${escapeForSvg(ln.text)}</text>\n`;
+        svg += `    <text x="${textX}" y="${Math.floor(iconSize/2)}" dominant-baseline="central" style="font-family: Arial, sans-serif; font-size: ${lineTextSize}px; font-weight: 600; fill: ${textColor};">${escapeForSvg(ln.text)}</text>\n`;
         svg += `  </g>\n`;
         currentY += spacingY;
       });
@@ -1151,7 +1159,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       
       // Logo (Brand) - reducido 25% + escalado adaptativamente
       if (brand) {
-        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: ${brandSize}px; font-weight: 900; fill: #FFFFFF; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: ${brandSize}px; font-weight: 900; fill: ${textColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
       }
       
       // Texto vertical a la derecha - reducido 25% + escalado adaptativamente
@@ -1177,8 +1185,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const titleBoxH = 90;
       const titleBoxX = (width - titleBoxW) / 2;
       const titleBoxY = height * 0.15;
-      svg += `  <rect x="${titleBoxX}" y="${titleBoxY}" width="${titleBoxW}" height="${titleBoxH}" rx="15" fill="rgba(0,0,0,0.3)" stroke="#FFFFFF" stroke-width="1.5" />\n`;
-      svg += `  <text x="${width/2}" y="${titleBoxY + 60}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 38px; font-weight: 700; fill: #FFFFFF;">${escapeForSvg(tipo)} - ${ambientes} Ambientes</text>\n`;
+      svg += `  <rect x="${titleBoxX}" y="${titleBoxY}" width="${titleBoxW}" height="${titleBoxH}" rx="15" fill="rgba(0,0,0,0.3)" stroke="${textColor}" stroke-width="1.5" />\n`;
+      svg += `  <text x="${width/2}" y="${titleBoxY + 60}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 38px; font-weight: 700; fill: ${textColor};">${escapeForSvg(tipo)} - ${ambientes} Ambientes</text>\n`;
       
       // Caja de Precio (Medio)
       const priceText = `${moneda} ${formatPrice(precio)}`;
@@ -1186,8 +1194,8 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const priceBoxH = 80;
       const priceBoxX = (width - priceBoxW) / 2;
       const priceBoxY = (height - priceBoxH) / 2;
-      svg += `  <rect x="${priceBoxX}" y="${priceBoxY}" width="${priceBoxW}" height="${priceBoxH}" rx="40" fill="rgba(0,0,0,0.1)" stroke="#FFFFFF" stroke-width="1.5" />\n`;
-      svg += `  <text x="${width/2}" y="${priceBoxY + 52}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 36px; font-weight: 700; fill: #FFFFFF;">${escapeForSvg(priceText)}</text>\n`;
+      svg += `  <rect x="${priceBoxX}" y="${priceBoxY}" width="${priceBoxW}" height="${priceBoxH}" rx="40" fill="rgba(0,0,0,0.1)" stroke="${textColor}" stroke-width="1.5" />\n`;
+      svg += `  <text x="${width/2}" y="${priceBoxY + 52}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 36px; font-weight: 700; fill: ${textColor};">${escapeForSvg(priceText)}</text>\n`;
       
       // Caja de info (Abajo)
       const infoTextParts = [];
@@ -1196,7 +1204,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const infoText = infoTextParts.join(' - ');
 
       if (infoText) {
-        svg += `  <text x="${width/2}" y="${height * 0.82}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 32px; font-weight: 700; fill: #FFFFFF; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${escapeForSvg(infoText)}</text>\n`;
+        svg += `  <text x="${width/2}" y="${height * 0.82}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 32px; font-weight: 700; fill: ${textColor}; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${escapeForSvg(infoText)}</text>\n`;
       }
       
       // Logo (Brand)
@@ -1451,7 +1459,9 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const finalInfoBoxY = precioBoxY + precioBoxHeight + 10;
 
     // Replace previous box rect if width/height changed
-    svg = svg.replace(`    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.12)" stroke-width="1.5" />\n`, `    <rect x="${finalInfoBoxX}" y="${finalInfoBoxY}" width="${finalInfoBoxWidth}" height="${infoBoxHeightFinal}" rx="14" fill="${mainBoxFill}" opacity="1" stroke="rgba(0,0,0,0.12)" stroke-width="1.5" />\n`);
+    const oldRect = `    <rect x="${infoBoxX}" y="${infoBoxY}" width="${infoBoxWidth}" height="${infoBoxHeight}" rx="${isPremium ? '16' : '14'}" fill="${mainBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
+    const newRect = `    <rect x="${finalInfoBoxX}" y="${finalInfoBoxY}" width="${finalInfoBoxWidth}" height="${infoBoxHeightFinal}" rx="${isPremium ? '16' : '14'}" fill="${mainBoxFill}" opacity="1" stroke="${isPremium ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)'}" stroke-width="${isPremium ? '2' : '1.5'}" />\n`;
+    svg = svg.replace(oldRect, newRect);
 
     // Ahora renderizamos las líneas envueltas dentro del box
     let cursorY = finalInfoBoxY + padding + Math.floor(lineHeight / 2);
@@ -2284,6 +2294,42 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   const corredores = esc(propertyInfo.corredores || '');
   const contacto = esc(propertyInfo.contacto || '');
   const url = esc(propertyInfo.url || 'www.rialtor.app');
+
+  // Ajuste de colores según preferencia del usuario
+  const forcedColor = propertyInfo.textColor === 'white' ? '#FFFFFF' : (propertyInfo.textColor === 'black' ? '#000000' : null);
+  
+  // Colores por defecto (Editorial VIP)
+  let labelColor = '#7b96ad';
+  let tipoColor = '#2d4458';
+  let valueColor = '#3d5166';
+  let featureLabelColor = '#8197ab';
+  let footerUrlColor = '#3d5166';
+  let footerContactColor = '#4a6075';
+  let footerInfoColor = '#6b8299';
+  let cardBgColor = '#f5f9fc';
+  let cardBorderColor = '#c5dae9';
+  let iconColor = '#6b8299';
+
+  // Si se fuerza un color, aplicarlo a todos los elementos de texto para asegurar legibilidad
+  if (forcedColor) {
+    labelColor = forcedColor;
+    tipoColor = forcedColor;
+    valueColor = forcedColor;
+    featureLabelColor = forcedColor;
+    footerUrlColor = forcedColor;
+    footerContactColor = forcedColor;
+    footerInfoColor = forcedColor;
+    iconColor = forcedColor;
+    
+    // Ajustar fondos de tarjeta para contraste
+    if (forcedColor === '#000000') {
+      cardBgColor = 'rgba(255, 255, 255, 0.4)';
+      cardBorderColor = 'rgba(0, 0, 0, 0.2)';
+    } else {
+      cardBgColor = 'rgba(0, 0, 0, 0.4)';
+      cardBorderColor = 'rgba(255, 255, 255, 0.2)';
+    }
+  }
   
   // === SISTEMA DE LAYOUT EDITORIAL PREMIUM ===
   // - Agente: 200px + márgenes amplios = área izquierda de ~290px
@@ -2308,7 +2354,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
         font-size: 10px; 
         font-weight: 700; 
-        fill: #7b96ad; 
+        fill: ${labelColor}; 
         letter-spacing: 2.5px; 
         text-transform: uppercase; 
       }
@@ -2318,7 +2364,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Playfair Display', Georgia, serif; 
         font-size: 26px; 
         font-weight: 700; 
-        fill: #2d4458; 
+        fill: ${tipoColor}; 
         letter-spacing: 0px;
       }
       
@@ -2327,7 +2373,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Playfair Display', Georgia, serif; 
         font-size: 26px; 
         font-weight: 700; 
-        fill: #2d4458; 
+        fill: ${tipoColor}; 
         letter-spacing: 0px;
       }
       
@@ -2336,7 +2382,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
         font-size: 21px; 
         font-weight: 700; 
-        fill: #3d5166; 
+        fill: ${valueColor}; 
       }
       
       /* Labels de características - celeste suave */
@@ -2344,7 +2390,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
         font-size: 11px; 
         font-weight: 500; 
-        fill: #8197ab; 
+        fill: ${featureLabelColor}; 
         letter-spacing: 0.1px;
       }
       
@@ -2353,7 +2399,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
         font-size: 18px; 
         font-weight: 700; 
-        fill: #3d5166; 
+        fill: ${footerUrlColor}; 
         letter-spacing: 0.2px;
       }
       
@@ -2362,7 +2408,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
         font-size: 15px; 
         font-weight: 600; 
-        fill: #4a6075; 
+        fill: ${footerContactColor}; 
         letter-spacing: 0.1px;
       }
       
@@ -2371,7 +2417,7 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
         font-size: 13px; 
         font-weight: 500; 
-        fill: #6b8299; 
+        fill: ${footerInfoColor}; 
         letter-spacing: 0.1px;
       }
       
@@ -2569,14 +2615,14 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
         if (featureY + cardHeight > footerY - 5) return;
         
         // Contenedor más compacto
-        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="#f5f9fc" opacity="0.8" />\n`;
-        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="none" stroke="#c5dae9" stroke-width="0.8" />\n`;
+        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="${cardBgColor}" opacity="0.8" />\n`;
+        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="none" stroke="${cardBorderColor}" stroke-width="0.8" />\n`;
         
-        svg += `  <g style="color: #6b8299">\n`;
+        svg += `  <g style="color: ${iconColor}">\n`;
         svg += `    <svg x="${featureX}" y="${featureY - 2}" width="${iconSize}" height="${iconSize}">\n`;
         svg += `      <use href="#${feature.icon}" />\n`;
         svg += `    </svg>\n`;
-        svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 12}" class="vip-feature-value" style="font-size: 19px;">${feature.value}<tspan style="font-size: 12px; font-weight: 500; fill: #8197ab;"> ${feature.unit}</tspan></text>\n`;
+        svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 12}" class="vip-feature-value" style="font-size: 19px;">${feature.value}<tspan style="font-size: 12px; font-weight: 500; fill: ${featureLabelColor};"> ${feature.unit}</tspan></text>\n`;
         svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 28}" class="vip-feature-label" style="font-size: 10px;">${feature.label}</text>\n`;
         svg += `  </g>\n`;
       });
