@@ -47,7 +47,7 @@ export default function NetworkNegotiationIndicators() {
         <div className="space-y-8">
           {/* Global */}
           <div className="bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl p-6 border border-indigo-100 dark:border-indigo-900">
-            <h4 className="text-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-4">PROMEDIO RED GLOBAL</h4>
+            <h4 className="text-center text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-4">PROMEDIO GLOBAL</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="flex flex-col items-center text-center">
                 <Clock className="w-5 h-5 text-indigo-500 mb-2" />

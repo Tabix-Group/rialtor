@@ -151,7 +151,7 @@ export default function CalculadoraCACPage() {
                       value={formData.amount}
                       onChange={handleInputChange}
                       placeholder="Ej: 100000"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 no-spinners"
                       required
                       min="1"
                       step="0.01"
@@ -188,7 +188,7 @@ export default function CalculadoraCACPage() {
                     value={formData.months}
                     onChange={handleInputChange}
                     placeholder="Ej: 24"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 no-spinners"
                     required
                     min="1"
                     max="120"
@@ -357,6 +357,7 @@ export default function CalculadoraCACPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
             ) : (
               <div className="bg-white rounded-xl shadow-lg p-12 text-center">

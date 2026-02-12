@@ -164,7 +164,7 @@ export default function CalculadoraAlquilerPage() {
                       value={formData.amount}
                       onChange={handleInputChange}
                       placeholder="Ej: 50000"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 no-spinners"
                       required
                       min="1"
                       step="0.01"
@@ -201,7 +201,7 @@ export default function CalculadoraAlquilerPage() {
                     value={formData.months}
                     onChange={handleInputChange}
                     placeholder="Ej: 12"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 no-spinners"
                     required
                     min="1"
                     max="120"
@@ -383,6 +383,7 @@ export default function CalculadoraAlquilerPage() {
                     </div>
                   </div>
                 )}
+                </div>
               </div>
             ) : (
               <div className="bg-white rounded-xl shadow-lg p-12 text-center">

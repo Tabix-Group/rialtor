@@ -258,7 +258,7 @@ export default function HipotecariosPage() {
                                                         type="number"
                                                         value={propertyValue}
                                                         onChange={(e) => setPropertyValue(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 no-spinners"
                                                         placeholder="100000"
                                                     />
                                                 </div>
@@ -271,7 +271,7 @@ export default function HipotecariosPage() {
                                                         type="number"
                                                         value={loanAmount}
                                                         onChange={(e) => setLoanAmount(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 no-spinners"
                                                         placeholder="80000"
                                                     />
                                                 </div>
@@ -287,7 +287,7 @@ export default function HipotecariosPage() {
                                                         type="number"
                                                         value={salary}
                                                         onChange={(e) => setSalary(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 no-spinners"
                                                     />
                                                 </div>
                                             </div>
@@ -299,7 +299,7 @@ export default function HipotecariosPage() {
                                                         type="number"
                                                         value={savings}
                                                         onChange={(e) => setSavings(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 no-spinners"
                                                     />
                                                 </div>
                                             </div>
@@ -314,7 +314,7 @@ export default function HipotecariosPage() {
                                                 type="number"
                                                 value={termYears}
                                                 onChange={(e) => setTermYears(e.target.value)}
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 no-spinners"
                                                 placeholder="20"
                                             />
                                         </div>

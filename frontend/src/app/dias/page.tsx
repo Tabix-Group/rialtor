@@ -300,7 +300,7 @@ export default function DiasPage() {
                                                     value={businessDaysCount}
                                                     onChange={(e) => setBusinessDaysCount(e.target.value)}
                                                     placeholder="Ej: 15"
-                                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 no-spinners"
                                                 />
                                             </div>
                                         </div>
@@ -436,42 +436,41 @@ export default function DiasPage() {
 
                                     <div id="due-date-calculation-results" className="space-y-6 bg-white p-2 rounded-xl">
                                         <div className="text-center py-6 bg-teal-50 rounded-xl border border-teal-100 mb-6">
-                                        <p className="text-sm text-teal-700 mb-1">La fecha calculada es</p>
-                                        <p className="text-3xl sm:text-4xl font-bold text-teal-800 capitalize mb-2">
-                                            {formatDate(dueDateResult.dueDate)}
-                                        </p>
-                                        <p className="text-gray-600">{formatShortDate(dueDateResult.dueDate)}</p>
-                                    </div>
+                                            <p className="text-sm text-teal-700 mb-1">La fecha calculada es</p>
+                                            <p className="text-3xl sm:text-4xl font-bold text-teal-800 capitalize mb-2">
+                                                {formatDate(dueDateResult.dueDate)}
+                                            </p>
+                                            <p className="text-gray-600">{formatShortDate(dueDateResult.dueDate)}</p>
+                                        </div>
 
-                                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg mb-6">
-                                        <div className="text-center">
-                                            <p className="text-xs text-gray-500">Inicio</p>
-                                            <p className="font-semibold text-gray-900">{formatShortDate(dueDateResult.startDate)}</p>
+                                        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg mb-6">
+                                            <div className="text-center">
+                                                <p className="text-xs text-gray-500">Inicio</p>
+                                                <p className="font-semibold text-gray-900">{formatShortDate(dueDateResult.startDate)}</p>
+                                            </div>
+                                            <div className="flex items-center text-teal-500 px-4">
+                                                <span className="text-xs font-medium mr-2">+{dueDateResult.businessDaysRequested} hábiles</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-xs text-gray-500">Fin</p>
+                                                <p className="font-semibold text-teal-700">{formatShortDate(dueDateResult.dueDate)}</p>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center text-teal-500 px-4">
-                                            <span className="text-xs font-medium mr-2">+{dueDateResult.businessDaysRequested} hábiles</span>
-                                            <ArrowRight className="w-4 h-4" />
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="text-xs text-gray-500">Fin</p>
-                                            <p className="font-semibold text-teal-700">{formatShortDate(dueDateResult.dueDate)}</p>
-                                        </div>
-                                    </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-3 border border-gray-200 rounded-lg text-center">
-                                            <div className="text-xl font-bold text-gray-700">{dueDateResult.totalCalendarDays}</div>
-                                            <div className="text-xs text-gray-500">Días Calendario</div>
-                                        </div>
-                                        <div className="p-3 border border-gray-200 rounded-lg text-center">
-                                            <div className="text-xl font-bold text-purple-600">{dueDateResult.nonBusinessDays.holidays}</div>
-                                            <div className="text-xs text-gray-500">Feriados saltados</div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-3 border border-gray-200 rounded-lg text-center">
+                                                <div className="text-xl font-bold text-gray-700">{dueDateResult.totalCalendarDays}</div>
+                                                <div className="text-xs text-gray-500">Días Calendario</div>
+                                            </div>
+                                            <div className="p-3 border border-gray-200 rounded-lg text-center">
+                                                <div className="text-xl font-bold text-purple-600">{dueDateResult.nonBusinessDays.holidays}</div>
+                                                <div className="text-xs text-gray-500">Feriados saltados</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                                
+
                                 {dueDateResult.nonBusinessDays && dueDateResult.nonBusinessDays.details.length > 0 && (
                                     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                                         <div className="px-6 py-4 border-b border-gray-200">
