@@ -460,7 +460,7 @@ export default function AyudaPage() {
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Ajustes de Alquiler (IPC/ICL)</li>
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Calculadora CAC (Construcción)</li>
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Créditos Hipotecarios UVA</li>
-                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Seguros de Caución</li>
+                      <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Garantía de fianza</li>
                       <li className="flex items-center gap-2 font-medium"><div className="w-2 h-2 bg-blue-500 rounded-full"></div> Días Hábiles Contractuales</li>
                     </ul>
                   </div>

@@ -49,7 +49,7 @@ export default function FinanzasPage() {
   const conceptosLaboralIngresos = [
     'Comisiones Inmobiliarias x Venta',
     'Comisiones Inmobiliarias x Alquiler',
-    'Comisiones por Seguro de Caucion',
+    'Comisiones por Garantía de fianza',
     'Comisiones Escribanos',
     'Ingresos por Tasaciones',
     'Otros'

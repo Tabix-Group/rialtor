@@ -42,9 +42,9 @@ export default function CalculadorasPage() {
       icon: Home,
     },
     {
-      name: 'Seguro de Caución',
+      name: 'Garantía de fianza',
       href: '/creditos',
-      description: 'Accedé a la calculadora de costo de caución (seguros) para operaciones de alquiler y garantías.',
+      description: 'Accedé a la calculadora de costo de garantía de fianza para operaciones de alquiler.',
       color: 'bg-blue-50',
       icon: ShieldCheck,
     },

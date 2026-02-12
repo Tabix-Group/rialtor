@@ -70,7 +70,7 @@ export default function CalceEscrituraPage() {
     let finalAmount = 0
 
     if (activeTab === 'comprador') {
-      realEstateFee = numericTransactionPrice * 0.04
+      realEstateFee = numericTransactionPrice * 0.03
       realEstateFeeIVA = realEstateFee * ivaRate
       notaryFees = numericTransactionPrice * 0.02
       notaryFeesIVA = notaryFees * ivaRate
@@ -355,7 +355,7 @@ export default function CalceEscrituraPage() {
                             <div className="flex justify-between items-center px-4 py-3">
                                 <div>
                                     <div className="text-sm font-medium text-gray-900">Honorarios inmobiliarios</div>
-                                    <div className="text-xs text-gray-500">{activeTab === 'comprador' ? '4,00%' : '3,00%'} + IVA</div>
+                                    <div className="text-xs text-gray-500">{activeTab === 'primera' ? '4,00%' : '3,00%'} + IVA</div>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-sm font-semibold text-gray-900">{formatUSD(calculations.realEstateFee)}</div>

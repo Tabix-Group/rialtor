@@ -200,7 +200,7 @@ export default function RealEstateCommissions() {
           <TrendingUp className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold">Esquemas de Comisiones Inmobiliarias</h2>
+          <h2 className="text-2xl font-bold">Comisiones Inmobiliarias</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Valores de mercado actuales para diferentes tipos de operaciones
           </p>

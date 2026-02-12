@@ -122,7 +122,7 @@ function Navigation() {
           href: "/dias",
         },
         { name: "Créditos Hipotecarios", href: "/hipotecarios" },
-        { name: "Seguros de Caución", href: "/creditos" },
+        { name: "Garantía de fianza", href: "/creditos" },
       ],
     },
     {
