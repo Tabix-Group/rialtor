@@ -55,12 +55,51 @@ export default function ProspectSummary({
   onStatsSaved,
 }: ProspectSummaryProps) {
   const [isEditingStats, setIsEditingStats] = useState(false)
+  const [localFrequency, setLocalFrequency] = useState('mensual')
   const [localStartDate, setLocalStartDate] = useState(startDate || (() => {
     const date = new Date()
     date.setMonth(date.getMonth() - 1)
     return date.toISOString().split('T')[0]
   })())
   const [localEndDate, setLocalEndDate] = useState(endDate || new Date().toISOString().split('T')[0])
+
+  // Detectar frecuencia inicial basada en fechas
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate + 'T00:00:00')
+      const end = new Date(endDate + 'T00:00:00')
+      const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+      
+      if (diffDays <= 8) setLocalFrequency('semanal')
+      else if (diffDays <= 16) setLocalFrequency('quincenal')
+      else if (diffDays <= 32) setLocalFrequency('mensual')
+      else if (diffDays <= 65) setLocalFrequency('bimestral')
+      else if (diffDays <= 95) setLocalFrequency('trimestral')
+      else if (diffDays <= 185) setLocalFrequency('semestral')
+      else if (diffDays <= 370) setLocalFrequency('anual')
+    }
+  }, [startDate, endDate])
+
+  // Calcular fecha fin basada en frecuencia cuando se edita
+  useEffect(() => {
+    if (isEditingStats) {
+      const start = new Date(localStartDate + 'T00:00:00')
+      const end = new Date(start)
+      
+      switch (localFrequency) {
+        case 'semanal': end.setDate(start.getDate() + 7); break
+        case 'quincenal': end.setDate(start.getDate() + 15); break
+        case 'mensual': end.setMonth(start.getMonth() + 1); break
+        case 'bimestral': end.setMonth(start.getMonth() + 2); break
+        case 'trimestral': end.setMonth(start.getMonth() + 3); break
+        case 'semestral': end.setMonth(start.getMonth() + 6); break
+        case 'anual': end.setFullYear(start.getFullYear() + 1); break
+      }
+      
+      setLocalEndDate(end.toISOString().split('T')[0])
+    }
+  }, [localStartDate, localFrequency, isEditingStats])
+
   const [editedStats, setEditedStats] = useState({
     prospectadosReferidos: Math.floor((stats?.clientsProspected || 0) * 0.5),
     prospectadosFrios: Math.floor((stats?.clientsProspected || 0) * 0.5),
@@ -220,13 +259,20 @@ export default function ProspectSummary({
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] text-slate-300 font-bold uppercase">Fecha Fin</label>
-                    <input
-                      type="date"
-                      value={localEndDate}
-                      onChange={(e) => setLocalEndDate(e.target.value)}
+                    <label className="text-[10px] text-slate-300 font-bold uppercase">Frecuencia</label>
+                    <select
+                      value={localFrequency}
+                      onChange={(e) => setLocalFrequency(e.target.value)}
                       className="w-full bg-slate-700/50 text-white px-3 py-2 rounded text-sm border border-slate-500 mt-1"
-                    />
+                    >
+                      <option value="semanal">Semanal</option>
+                      <option value="quincenal">Quincenal</option>
+                      <option value="mensual">Mensual</option>
+                      <option value="bimestral">Bimestral</option>
+                      <option value="trimestral">Trimestral</option>
+                      <option value="semestral">Semestral</option>
+                      <option value="anual">Anual</option>
+                    </select>
                   </div>
                   <div>
                     <label className="text-[10px] text-slate-300 font-bold uppercase">Nivel de Agente</label>
@@ -252,7 +298,7 @@ export default function ProspectSummary({
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               
-              {/* 1. Prospectados (Referidos + Fríos) */}
+              {/* 1. Prospectados (Referidos + Bases Frías) */}
               <div className="bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-colors group">
                 {isEditingStats ? (
                   <div className="space-y-2">
@@ -260,19 +306,21 @@ export default function ProspectSummary({
                       <label className="text-[9px] text-slate-300 font-bold uppercase">Referidos</label>
                       <input
                         type="number"
-                        value={editedStats.prospectadosReferidos}
+                        placeholder="0"
+                        value={editedStats.prospectadosReferidos || ''}
                         onChange={(e) => setEditedStats({...editedStats, prospectadosReferidos: parseInt(e.target.value) || 0})}
-                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
+                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] text-slate-300 font-bold uppercase">Fríos</label>
+                      <label className="text-[9px] text-slate-300 font-bold uppercase">Bases Frías</label>
                       <input
                         type="number"
-                        value={editedStats.prospectadosFrios}
+                        placeholder="0"
+                        value={editedStats.prospectadosFrios || ''}
                         onChange={(e) => setEditedStats({...editedStats, prospectadosFrios: parseInt(e.target.value) || 0})}
                         disabled={editedStats.agentLevel === 'experto'}
-                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500 disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
@@ -287,7 +335,7 @@ export default function ProspectSummary({
                       <p className="text-[10px] text-slate-400">
                         {editedStats.agentLevel === 'experto' 
                           ? `${editedStats.prospectadosReferidos} referidos` 
-                          : `${editedStats.prospectadosReferidos} ref. + ${editedStats.prospectadosFrios} fríos`
+                          : `${editedStats.prospectadosReferidos} ref. + ${editedStats.prospectadosFrios} Bases Frías`
                         }
                       </p>
                     </div>
@@ -302,9 +350,10 @@ export default function ProspectSummary({
                     <label className="text-[9px] text-slate-300 font-bold uppercase">Ticket Promedio</label>
                     <input
                       type="number"
-                      value={editedStats.ticketPromedio}
+                      placeholder="0"
+                      value={editedStats.ticketPromedio || ''}
                       onChange={(e) => setEditedStats({...editedStats, ticketPromedio: parseInt(e.target.value) || 0})}
-                      className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500"
+                      className="w-full bg-slate-700/50 text-white px-2 py-1 rounded text-sm border border-slate-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 ) : (
