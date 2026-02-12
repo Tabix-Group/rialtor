@@ -356,6 +356,7 @@ export default function HipotecariosPage() {
                                                 title={`Simulación Crédito Hipotecario - ${selectedBank || 'Resultados'}`}
                                             />
                                         </div>
+                                    </div>
 
                                     <div id="mortgage-calculation-results" className="space-y-6 bg-white p-4 rounded-xl">
                                         <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
