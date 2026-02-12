@@ -609,7 +609,7 @@ export default function IndicadoresPage() {
           </div>
         </section>
 
-        {/* Esquemas de Comisiones Inmobiliarias */}
+        {/* Esquemas de Honorarios inmobiliarios */}
         <RealEstateCommissions />
 
         {/* Índices Económicos */}

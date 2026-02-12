@@ -37,6 +37,8 @@ export default function FinanzasPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<FinanceTransaction | null>(null)
   const [activeTab, setActiveTab] = useState<'transacciones' | 'reportes'>('transacciones')
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null)
+  const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(true)
 
   // Función helper para formatear fecha correctamente (tratando UTC como fecha local)
   const formatDate = (dateString: string, options: Intl.DateTimeFormatOptions) => {
@@ -47,8 +49,8 @@ export default function FinanzasPage() {
 
   // Conceptos predeterminados por Tipo
   const conceptosLaboralIngresos = [
-    'Comisiones Inmobiliarias x Venta',
-    'Comisiones Inmobiliarias x Alquiler',
+    'Honorarios inmobiliarios x Venta',
+    'Honorarios inmobiliarios x Alquiler',
     'Comisiones por Garantía de fianza',
     'Comisiones Escribanos',
     'Ingresos por Tasaciones',
@@ -161,6 +163,27 @@ export default function FinanzasPage() {
       fetchBalance()
     }
   }, [filters, user])
+
+  // Fetch exchange rate from Ámbito API
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        const response = await fetch('https://mercados.ambito.com//dolar/oficial/variacion')
+        const data = await response.json()
+
+        if (data.venta) {
+          const cleanRate = parseFloat(data.venta.replace(',', '.'))
+          setExchangeRate(cleanRate)
+        }
+      } catch (error) {
+        console.warn('Error fetching exchange rate from Ámbito:', error)
+      } finally {
+        setIsLoadingExchangeRate(false)
+      }
+    }
+
+    fetchExchangeRate()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -301,7 +324,7 @@ export default function FinanzasPage() {
             </div>
 
             {/* Balance Cards */}
-            <div className="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="w-full lg:w-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
               <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border border-white/20 shadow-2xl">
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className={`w-8 h-8 sm:w-10 sm:h-10 ${balance.ARS >= 0 ? 'bg-green-500/20' : 'bg-red-500/20'} rounded-xl flex items-center justify-center`}>
@@ -333,6 +356,30 @@ export default function FinanzasPage() {
                     <p className="text-xs sm:text-sm text-slate-300 mb-1">Saldo USD</p>
                     <p className="text-base sm:text-xl lg:text-2xl font-bold text-white truncate">
                       ${balance.USD.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Saldo Consolidado USD */}
+              <div className="bg-rose-500/10 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-4 sm:p-5 lg:p-6 border border-rose-500/30 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+                </div>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-rose-500/20 rounded-xl flex items-center justify-center">
+                    <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-rose-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm text-rose-200 mb-1">Consolidado USD</p>
+                    <p className="text-base sm:text-xl lg:text-2xl font-extrabold text-white truncate">
+                      ${exchangeRate 
+                        ? (balance.USD + (balance.ARS / exchangeRate)).toLocaleString('en-US', { minimumFractionDigits: 2 })
+                        : '---'
+                      }
+                    </p>
+                    <p className="text-[10px] text-rose-300/70 mt-1 font-medium italic">
+                      {exchangeRate ? `@ $${exchangeRate.toLocaleString('es-AR')}` : 'Cargando cotización...'}
                     </p>
                   </div>
                 </div>

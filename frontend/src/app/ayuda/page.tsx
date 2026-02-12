@@ -102,7 +102,7 @@ export default function AyudaPage() {
       icon: Calculator,
       subsections: [
         { id: 'calc-listado', title: 'Suite de Calculadoras' },
-        { id: 'calc-comisiones', title: 'Comisiones Inmobiliarias' },
+        { id: 'calc-comisiones', title: 'Honorarios inmobiliarios' },
         { id: 'calc-escritura', title: 'Gastos de Escrituración' },
         { id: 'calc-ajustes', title: 'Ajustes de Alquiler (ICL/CAC)' }
       ]
