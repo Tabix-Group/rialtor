@@ -505,8 +505,6 @@ export default function Home() {
                   </>
                 )}
               </motion.div>
-
-              </motion.div>
             </motion.div>
 
             {/* Right - Stats Grid */}
