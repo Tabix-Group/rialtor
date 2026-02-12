@@ -10,13 +10,18 @@ export default function ProspectosPage() {
   const [funnelStages, setFunnelStages] = useState<any[]>([])
   const [agentLevel, setAgentLevel] = useState<string>('inicial')
   const [loading, setLoading] = useState(true)
-  const [startDate, setStartDate] = useState<string>(() => {
-    const date = new Date()
-    date.setMonth(date.getMonth() - 1) // Último mes por defecto
-    return date.toISOString().split('T')[0]
-  })
-  const [endDate, setEndDate] = useState<string>(() => new Date().toISOString().split('T')[0])
+  const [startDate, setStartDate] = useState<string>('')
+  const [endDate, setEndDate] = useState<string>('')
   const [prospectStats, setProspectStats] = useState<any>(null)
+
+  // Inicializar fechas en el cliente para evitar errores de hidratación
+  useEffect(() => {
+    const start = new Date()
+    start.setMonth(start.getMonth() - 1)
+    setStartDate(start.toISOString().split('T')[0])
+    setEndDate(new Date().toISOString().split('T')[0])
+  }, [])
+
   const [projectionMetrics, setProjectionMetrics] = useState<any>(null)
   const [funnelKey, setFunnelKey] = useState(0)
 

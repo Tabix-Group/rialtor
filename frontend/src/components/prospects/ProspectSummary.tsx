@@ -55,35 +55,56 @@ export default function ProspectSummary({
   onStatsSaved,
 }: ProspectSummaryProps) {
   const [isEditingStats, setIsEditingStats] = useState(false)
+  const [hasMounted, setHasMounted] = useState(false)
   const [localFrequency, setLocalFrequency] = useState('mensual')
-  const [localStartDate, setLocalStartDate] = useState(startDate || (() => {
-    const date = new Date()
-    date.setMonth(date.getMonth() - 1)
-    return date.toISOString().split('T')[0]
-  })())
-  const [localEndDate, setLocalEndDate] = useState(endDate || new Date().toISOString().split('T')[0])
+  const [localStartDate, setLocalStartDate] = useState('')
+  const [localEndDate, setLocalEndDate] = useState('')
+
+  // Inicializar en el cliente para evitar errores de hidratación
+  useEffect(() => {
+    setHasMounted(true)
+    
+    if (!localStartDate && !startDate) {
+      const d = new Date()
+      d.setMonth(d.getMonth() - 1)
+      setLocalStartDate(d.toISOString().split('T')[0])
+    } else if (startDate) {
+      setLocalStartDate(startDate)
+    }
+
+    if (!localEndDate && !endDate) {
+      setLocalEndDate(new Date().toISOString().split('T')[0])
+    } else if (endDate) {
+      setLocalEndDate(endDate)
+    }
+  }, [startDate, endDate])
 
   // Detectar frecuencia inicial basada en fechas
   useEffect(() => {
     if (startDate && endDate) {
       const start = new Date(startDate + 'T00:00:00')
       const end = new Date(endDate + 'T00:00:00')
-      const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
       
-      if (diffDays <= 8) setLocalFrequency('semanal')
-      else if (diffDays <= 16) setLocalFrequency('quincenal')
-      else if (diffDays <= 32) setLocalFrequency('mensual')
-      else if (diffDays <= 65) setLocalFrequency('bimestral')
-      else if (diffDays <= 95) setLocalFrequency('trimestral')
-      else if (diffDays <= 185) setLocalFrequency('semestral')
-      else if (diffDays <= 370) setLocalFrequency('anual')
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+        
+        if (diffDays <= 8) setLocalFrequency('semanal')
+        else if (diffDays <= 16) setLocalFrequency('quincenal')
+        else if (diffDays <= 32) setLocalFrequency('mensual')
+        else if (diffDays <= 65) setLocalFrequency('bimestral')
+        else if (diffDays <= 95) setLocalFrequency('trimestral')
+        else if (diffDays <= 185) setLocalFrequency('semestral')
+        else if (diffDays <= 370) setLocalFrequency('anual')
+      }
     }
   }, [startDate, endDate])
 
   // Calcular fecha fin basada en frecuencia cuando se edita
   useEffect(() => {
-    if (isEditingStats) {
+    if (isEditingStats && localStartDate) {
       const start = new Date(localStartDate + 'T00:00:00')
+      if (isNaN(start.getTime())) return
+
       const end = new Date(start)
       
       switch (localFrequency) {
@@ -96,7 +117,9 @@ export default function ProspectSummary({
         case 'anual': end.setFullYear(start.getFullYear() + 1); break
       }
       
-      setLocalEndDate(end.toISOString().split('T')[0])
+      if (!isNaN(end.getTime())) {
+        setLocalEndDate(end.toISOString().split('T')[0])
+      }
     }
   }, [localStartDate, localFrequency, isEditingStats])
 
@@ -216,9 +239,9 @@ export default function ProspectSummary({
 
             <p className="text-lg text-slate-300 mb-8 max-w-2xl leading-relaxed">
               Tasa de cierre según mis indicadores del negocio
-              {startDate && endDate && (
+              {hasMounted && startDate && endDate && (
                 <span className="block text-sm text-slate-400 mt-2">
-                  Desde: {new Date(startDate).toLocaleDateString('es-AR')} - Hasta: {new Date(endDate).toLocaleDateString('es-AR')}
+                  Desde: {new Date(startDate + 'T00:00:00').toLocaleDateString('es-AR')} - Hasta: {new Date(endDate + 'T00:00:00').toLocaleDateString('es-AR')}
                 </span>
               )}
             </p>
