@@ -173,19 +173,6 @@ const commissionsData: CommissionSection[] = [
 ]
 
 export default function RealEstateCommissions() {
-  // Flattened list de todas las comisiones para vista de tabla
-  const allCommissions = commissionsData.flatMap((section) =>
-    section.types.map((type) => ({
-      operationType: section.title,
-      region: section.subtitle || "General",
-      party: type.name,
-      description: type.description,
-      rate: type.seller.max > 0 ? type.seller : type.buyer,
-      notes: type.notes,
-      isSeller: type.seller.max > 0,
-    }))
-  )
-
   const formatRate = (min: number, max: number) => {
     if (min === 0 && max === 0) return "Sin comisión"
     if (min === max) return `${min.toFixed(2)}%`
@@ -211,69 +198,53 @@ export default function RealEstateCommissions() {
       <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex gap-3">
         <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
         <p className="text-sm text-blue-900 dark:text-blue-100">
-          Los valores mostrados son rangos estándar del mercado. Las comisiones pueden variar según el acuerdo entre partes, 
-          la zona geográfica y las políticas específicas de cada inmobiliaria. Use esta información como referencia para negociaciones.
+          Los valores mostrados son rangos estándar del mercado argentino. Use esta información como referencia profesional.
         </p>
       </div>
 
-      {/* Commissions Table */}
-      <div className="overflow-x-auto rounded-xl border border-border">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-border">
-              <th className="px-6 py-4 text-left text-sm font-semibold">Tipo de Operación</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Zona</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Parte</th>
-              <th className="px-6 py-4 text-right text-sm font-semibold">Comisión</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Notas</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {allCommissions.map((commission, idx) => (
-              <tr
-                key={idx}
-                className="hover:bg-muted/50 transition-colors"
-              >
-                <td className="px-6 py-4">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm">{commission.operationType}</span>
+      {/* Commissions cards grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {commissionsData.map((section, idx) => (
+          <div key={idx} className="bg-white dark:bg-slate-900 border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-b border-border">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">{section.title}</h3>
+              {section.subtitle && (
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  {section.subtitle}
+                </span>
+              )}
+            </div>
+            <div className="p-4 space-y-3">
+              {section.types.map((type, tIdx) => {
+                const rate = type.seller.max > 0 ? type.seller : type.buyer;
+                return (
+                  <div key={tIdx} className="flex flex-col">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-muted-foreground font-medium">{type.name}</span>
+                      <span className={`text-sm font-bold ${rate.max === 0 ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-slate-100"}`}>
+                        {formatRate(rate.min, rate.max)}
+                      </span>
+                    </div>
+                    {type.notes && (
+                      <span className="text-[10px] text-muted-foreground italic leading-tight">
+                        {type.notes}
+                      </span>
+                    )}
+                    {tIdx < section.types.length - 1 && (
+                      <div className="h-px bg-slate-100 dark:bg-slate-800 mt-3" />
+                    )}
                   </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                    {commission.region}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-sm text-muted-foreground">{commission.party}</span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <span className={`text-sm font-semibold ${
-                    commission.rate.max === 0 
-                      ? "text-green-600 dark:text-green-400" 
-                      : "text-slate-900 dark:text-slate-100"
-                  }`}>
-                    {formatRate(commission.rate.min, commission.rate.max)}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  {commission.notes && (
-                    <span className="text-xs text-muted-foreground italic">
-                      {commission.notes}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Footer Note */}
       <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 border border-border">
         <p className="text-xs text-muted-foreground text-center">
-          Datos compilados de estándares del mercado inmobiliario argentino. 
-          <br />
+          Datos compilados de estándares del mercado inmobiliario. 
           Última actualización: {new Date().toLocaleDateString("es-AR")}
         </p>
       </div>

@@ -570,6 +570,45 @@ export default function IndicadoresPage() {
         {/* Negociación */}
         <NetworkNegotiationIndicators />
 
+        {/* KPI Cierres */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-orange-600" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold">KPI Cierres</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ponderación mensual histórica de operaciones
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-6 shadow-sm">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {[
+                { mes: "Ene", val: "4,72%" },
+                { mes: "Feb", val: "5,41%" },
+                { mes: "Mar", val: "7,12%" },
+                { mes: "Abr", val: "6,82%" },
+                { mes: "May", val: "8,41%" },
+                { mes: "Jun", val: "9,15%" },
+                { mes: "Jul", val: "8,66%" },
+                { mes: "Ago", val: "9,64%" },
+                { mes: "Sep", val: "9,42%" },
+                { mes: "Oct", val: "9,65%" },
+                { mes: "Nov", val: "9,78%" },
+                { mes: "Dic", val: "11,21%" }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center">
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground mb-1">{item.mes}</span>
+                  <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{item.val}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Esquemas de Comisiones Inmobiliarias */}
         <RealEstateCommissions />
 
