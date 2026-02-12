@@ -585,7 +585,7 @@ export default function AyudaPage() {
                       Visualizá gráficamente el recorrido de tus negocios desde el contacto inicial hasta el cierre efectivo:
                     </p>
                     <ul className="list-disc list-inside text-gray-700 space-y-2">
-                       <li><strong>Etapas Clave:</strong> Tasaciones, Captaciones, Reservas y Cierres.</li>
+                       <li><strong>Etapas Clave:</strong> Captaciones, Reservas y Cierres.</li>
                        <li><strong>Análisis Comparativo:</strong> Entendé por qué los referidos (Hot) convierten mucho mejor que los contactos de base fría (Cold).</li>
                        <li><strong>Metas Mensuales:</strong> Usá el funnel para saber cuántos contactos nuevos necesitás hoy para alcanzar tu objetivo de cierres a fin de mes.</li>
                     </ul>
@@ -609,7 +609,7 @@ export default function AyudaPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white rounded-lg border border-gray-100">
                         <p className="font-bold text-blue-700">Actividad Laboral</p>
-                        <p className="text-sm text-gray-600">Comisiones de venta, alquiler, honorarios por tasaciones, inversión en publicidad y membresías.</p>
+                        <p className="text-sm text-gray-600">Comisiones de venta, alquiler, inversión en publicidad y membresías.</p>
                       </div>
                       <div className="p-4 bg-white rounded-lg border border-gray-100">
                         <p className="font-bold text-green-700">Actividad Personal</p>

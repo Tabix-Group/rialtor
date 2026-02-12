@@ -169,8 +169,8 @@ export default function Home() {
       size: "large" as const,
     },
     {
-      name: "Proyecciones y Tasaciones",
-      description: "Modelos de proyección y tasación para el mercado argentino.",
+      name: "Proyecciones de Negocio",
+      description: "Modelos de proyección para el mercado argentino.",
       icon: TrendingUp,
       href: "/proyecciones",
       requiresAuth: true,
@@ -178,7 +178,7 @@ export default function Home() {
     },
     {
       name: "Consultor Inmobiliario IA",
-      description: "Tu asesor 24/7 especializado en Argentina: negocia mejor, tasá propiedades con precisión.",
+      description: "Tu asesor 24/7 especializado en Argentina: negocia mejor, impulsá tu negocio.",
       icon: User2,
       href: "https://www.rialtor.app/chat",
       requiresAuth: true,
