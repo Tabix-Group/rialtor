@@ -506,16 +506,6 @@ export default function Home() {
                 )}
               </motion.div>
 
-              {/* Trust indicators */}
-              <motion.div variants={fadeInUp} className="pt-8 border-t border-white/5">
-                <p className="text-xs text-purple-300/50 mb-4 uppercase tracking-wider">Empresas que confían en nosotros</p>
-                <div className="flex items-center gap-8 opacity-50">
-                  {["CBRE", "RE/MAX", "Century21", "Coldwell"].map((brand) => (
-                    <span key={brand} className="text-sm font-semibold tracking-wider text-purple-300/40">
-                      {brand}
-                    </span>
-                  ))}
-                </div>
               </motion.div>
             </motion.div>
 

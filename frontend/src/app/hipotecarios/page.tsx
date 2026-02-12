@@ -46,6 +46,26 @@ export default function HipotecariosPage() {
     const [result, setResult] = useState<MortgageResult | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    const [exchangeRate, setExchangeRate] = useState<number>(1450)
+    const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState(true)
+
+    // Fetch bank rates
+    useEffect(() => {
+        const fetchExchangeRate = async () => {
+            try {
+                const response = await fetch('https://mercados.ambito.com//dolar/oficial/variacion')
+                const data = await response.json()
+                if (data.venta) {
+                    setExchangeRate(parseFloat(data.venta.replace(',', '.')))
+                }
+            } catch (error) {
+                console.warn('Error fetching exchange rate:', error)
+            } finally {
+                setIsLoadingExchangeRate(false)
+            }
+        }
+        fetchExchangeRate()
+    }, [])
 
     // Fetch bank rates
     useEffect(() => {
@@ -127,12 +147,34 @@ export default function HipotecariosPage() {
         }
     }
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('es-AR', {
-            style: 'currency',
-            currency: 'ARS'
-        }).format(amount)
+    const formatUSD = (amount: number) => {
+        return `US$ ${amount.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     }
+
+    const formatARS = (amount: number) => {
+        return amount.toLocaleString('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            maximumFractionDigits: 0
+        })
+    }
+
+    const handlePropertyValueChange = (value: string) => {
+        setPropertyValue(value)
+        if (value && loanAmount) {
+            // No action needed for anticipo if it's derived, 
+            // but if we want it to stay consistent we might need logic here
+        }
+    }
+
+    const handleLoanAmountChange = (value: string) => {
+        setLoanAmount(value)
+    }
+
+    const anticipoMonetary = (parseFloat(propertyValue) || 0) - (parseFloat(loanAmount) || 0)
+    const anticipoPercentage = propertyValue && parseFloat(propertyValue) > 0 
+        ? (anticipoMonetary / parseFloat(propertyValue)) * 100 
+        : 0
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
@@ -270,11 +312,22 @@ export default function HipotecariosPage() {
                                                     <input
                                                         type="number"
                                                         value={loanAmount}
-                                                        onChange={(e) => setLoanAmount(e.target.value)}
+                                                        onChange={(e) => handleLoanAmountChange(e.target.value)}
                                                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 no-spinners"
                                                         placeholder="80000"
                                                     />
                                                 </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Anticipo (Diferencia)</label>
+                                                <div className="relative">
+                                                    <Wallet className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                    <div className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-600 font-medium flex justify-between items-center">
+                                                        <span>{formatUSD(anticipoMonetary)}</span>
+                                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{anticipoPercentage.toFixed(1)}% del total</span>
+                                                    </div>
+                                                </div>
+                                                <p className="mt-1 text-[10px] text-gray-400 italic font-medium tracking-tight">Cálculo automático: Propiedad - Préstamo</p>
                                             </div>
                                         </>
                                     ) : (
@@ -363,11 +416,13 @@ export default function HipotecariosPage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                                 <div className="bg-blue-50 rounded-lg p-5 border border-blue-100">
                                                     <p className="text-sm font-medium text-blue-800 mb-1">Valor Primera Cuota</p>
-                                                    <p className="text-3xl font-bold text-blue-700">{formatCurrency(result.monthlyPayment)}</p>
+                                                    <p className="text-3xl font-bold text-blue-700">{formatUSD(result.monthlyPayment)}</p>
+                                                    <p className="text-xs text-blue-600 mt-1 font-medium">{formatARS(result.monthlyPayment * exchangeRate)}</p>
                                                 </div>
                                                 <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
                                                     <p className="text-sm font-medium text-gray-600 mb-1">Monto Total a Pagar</p>
-                                                    <p className="text-3xl font-bold text-gray-900">{formatCurrency(result.totalPayment)}</p>
+                                                    <p className="text-3xl font-bold text-gray-900">{formatUSD(result.totalPayment)}</p>
+                                                    <p className="text-xs text-gray-500 mt-1 font-medium">{formatARS(result.totalPayment * exchangeRate)}</p>
                                                 </div>
                                             </div>
 
@@ -382,18 +437,26 @@ export default function HipotecariosPage() {
                                                 </div>
                                                 <div className="p-3 bg-white border border-gray-200 rounded-lg text-center col-span-2 sm:col-span-1">
                                                     <p className="text-xs text-gray-500 uppercase tracking-wide">Intereses</p>
-                                                    <p className="text-lg font-bold text-red-600">{formatCurrency(result.totalInterest)}</p>
+                                                    <p className="text-lg font-bold text-red-600">{formatUSD(result.totalInterest)}</p>
+                                                    <p className="text-[10px] text-red-400 font-medium">{formatARS(result.totalInterest * exchangeRate)}</p>
                                                 </div>
                                             </div>
 
                                             {calculationMode === 'property' && propertyValue && loanAmount && (
                                                 <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 flex items-center gap-3">
-                                                    <Wallet className="w-8 h-8 text-orange-500" />
+                                                    <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                                        <Wallet className="w-6 h-6 text-orange-600" />
+                                                    </div>
                                                     <div>
-                                                        <p className="text-sm text-orange-800 font-medium">Ahorro inicial necesario</p>
-                                                        <p className="text-xl font-bold text-orange-700">
-                                                            {formatCurrency(parseFloat(propertyValue) - parseFloat(loanAmount))} USD
-                                                        </p>
+                                                        <p className="text-sm text-orange-800 font-medium">Ahorro inicial necesario (Anticipo)</p>
+                                                        <div className="flex items-baseline gap-2">
+                                                            <p className="text-xl font-bold text-orange-700">
+                                                                {formatUSD(anticipoMonetary)}
+                                                            </p>
+                                                            <p className="text-xs text-orange-600 font-medium tracking-tight">
+                                                                {formatARS(anticipoMonetary * exchangeRate)}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}
