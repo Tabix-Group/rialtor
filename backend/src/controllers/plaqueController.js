@@ -1102,7 +1102,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const spacingY = Math.floor(baseSpacingY * finalScaleFactor);
       const priceSize = Math.floor(36 * finalScaleFactor);  // 48 * 0.75
       const brandSize = Math.floor(39 * finalScaleFactor);  // 52 * 0.75
-      const correSize = Math.floor(13 * finalScaleFactor);  // 18 * 0.75
+      const correSize = Math.floor(16 * finalScaleFactor);  // Aumentado 25% (de 13 a 16)
       
       let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
@@ -1215,7 +1215,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       
       // Texto vertical a la derecha
       if (corredores) {
-        svg += `  <text x="${width - 25}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 25}, ${height/2})" style="font-family: Arial, sans-serif; font-size: 16px; fill: rgba(255,255,255,0.7); letter-spacing: 1px;">${escapeForSvg(corredores)}</text>\n`;
+        svg += `  <text x="${width - 25}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 25}, ${height/2})" style="font-family: Arial, sans-serif; font-size: 20px; fill: rgba(255,255,255,0.7); letter-spacing: 1px;">${escapeForSvg(corredores)}</text>\n`;
       }
       
       svg += `</svg>`;
