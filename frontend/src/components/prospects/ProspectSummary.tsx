@@ -348,22 +348,24 @@ export default function ProspectSummary({
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col h-full justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
                         <Users className="w-5 h-5 text-amber-400" />
                       </div>
-                      <div>
-                        <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight">Prospectados</p>
-                        <p className="text-lg font-bold text-white tabular-nums leading-none mt-1">{totalProspectados}</p>
+                      <div className="min-h-[60px]">
+                        <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight mb-1">Prospectados</p>
+                        <p className="text-xl font-bold text-white tabular-nums leading-none">{totalProspectados}</p>
                       </div>
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-2">
-                      {editedStats.agentLevel === 'experto' 
-                        ? `${editedStats.prospectadosReferidos} referidos` 
-                        : `${editedStats.prospectadosReferidos} ref. + ${editedStats.prospectadosFrios} Bases Frías`
-                      }
-                    </p>
+                    <div className="mt-auto">
+                      <p className="text-[10px] text-slate-400 leading-tight">
+                        {editedStats.agentLevel === 'experto' 
+                          ? `${editedStats.prospectadosReferidos} referidos` 
+                          : `${editedStats.prospectadosReferidos} ref. + ${editedStats.prospectadosFrios} Bases Frías`
+                        }
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -382,15 +384,18 @@ export default function ProspectSummary({
                     />
                   </div>
                 ) : (
-                  <div className="flex flex-col h-full justify-center">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
                         <DollarSign className="w-5 h-5 text-emerald-400" />
                       </div>
-                      <div>
-                        <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight">Ticket Promedio</p>
-                        <p className="text-lg font-bold text-white tabular-nums leading-none mt-1">{formatCurrency(editedStats.ticketPromedio)}</p>
+                      <div className="min-h-[60px]">
+                        <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight mb-1">Ticket Promedio</p>
+                        <p className="text-xl font-bold text-white tabular-nums leading-none">{formatCurrency(editedStats.ticketPromedio)}</p>
                       </div>
+                    </div>
+                    <div className="mt-auto">
+                      <p className="text-[10px] text-transparent leading-tight select-none">-</p>
                     </div>
                   </div>
                 )}
@@ -415,15 +420,18 @@ export default function ProspectSummary({
                     />
                   </div>
                 ) : (
-                  <div className="flex flex-col h-full justify-center">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 w-10 h-10 bg-indigo-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
                         <TrendingUp className="w-5 h-5 text-indigo-400" />
                       </div>
-                      <div>
-                        <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight">Comisión Promedio</p>
-                        <p className="text-lg font-bold text-white tabular-nums leading-none mt-1">{editedStats.comisionPorcentaje}%</p>
+                      <div className="min-h-[60px]">
+                        <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight mb-1">Comisión Promedio</p>
+                        <p className="text-xl font-bold text-white tabular-nums leading-none">{editedStats.comisionPorcentaje}%</p>
                       </div>
+                    </div>
+                    <div className="mt-auto">
+                      <p className="text-[10px] text-transparent leading-tight select-none">-</p>
                     </div>
                   </div>
                 )}
@@ -431,32 +439,36 @@ export default function ProspectSummary({
 
               {/* 4. Tasa de Cierre */}
               <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.75rem)] xl:w-[200px] bg-white/10 backdrop-blur-xl rounded-xl p-4 border border-white/10 shadow-lg hover:bg-white/15 transition-all duration-300 group hover:-translate-y-1">
-                <div className="flex flex-col h-full justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-rose-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0 w-10 h-10 bg-rose-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
                       <Target className="w-5 h-5 text-rose-400" />
                     </div>
-                    <div>
-                      <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight">Tasa de Cierre ({editedStats.agentLevel})</p>
-                      <p className="text-lg font-bold text-white tabular-nums leading-none mt-1">{(tasaCierreCalculada * 100).toFixed(1)}%</p>
+                    <div className="min-h-[60px]">
+                      <p className="text-[10px] text-slate-300 font-medium uppercase tracking-wider leading-tight mb-1">Tasa de Cierre ({editedStats.agentLevel})</p>
+                      <p className="text-xl font-bold text-white tabular-nums leading-none">{(tasaCierreCalculada * 100).toFixed(1)}%</p>
                     </div>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-2">Según nivel de agente</p>
+                  <div className="mt-auto">
+                    <p className="text-[10px] text-slate-400 leading-tight">Según nivel de agente</p>
+                  </div>
                 </div>
               </div>
 
               {/* 5. Comisiones Totales Obtenidas (Calculado) */}
-              <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.75rem)] xl:w-[220px] bg-blue-600/20 backdrop-blur-xl rounded-xl p-4 border border-blue-400/30 shadow-lg hover:bg-blue-600/30 transition-all duration-300 group hover:-translate-y-1 flex flex-col justify-between ring-1 ring-white/5">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
+              <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.75rem)] xl:w-[220px] bg-blue-600/20 backdrop-blur-xl rounded-xl p-4 border border-blue-400/30 shadow-lg hover:bg-blue-600/30 transition-all duration-300 group hover:-translate-y-1 flex flex-col ring-1 ring-white/5">
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-all shadow-inner">
                     <Briefcase className="w-5 h-5 text-cyan-400" />
                   </div>
-                  <div>
-                    <p className="text-[10px] text-blue-200 font-semibold uppercase tracking-wider leading-tight">Comisiones Totales</p>
-                    <p className="text-lg font-extrabold text-white tabular-nums drop-shadow-sm leading-none mt-1">{formatCurrency(comisionesTotales)}</p>
+                  <div className="min-h-[60px]">
+                    <p className="text-[10px] text-blue-200 font-semibold uppercase tracking-wider leading-tight mb-1">Comisiones Totales</p>
+                    <p className="text-xl font-extrabold text-white tabular-nums drop-shadow-sm leading-none">{formatCurrency(comisionesTotales)}</p>
                   </div>
                 </div>
-                <p className="text-[9px] text-slate-400 mt-2 leading-tight">({totalProspectados} × {formatCurrency(editedStats.ticketPromedio)} × {editedStats.comisionPorcentaje}% × {(tasaCierreCalculada * 100).toFixed(1)}%)</p>
+                <div className="mt-auto">
+                  <p className="text-[9px] text-slate-400 leading-tight">({totalProspectados} × {formatCurrency(editedStats.ticketPromedio)} × {editedStats.comisionPorcentaje}% × {(tasaCierreCalculada * 100).toFixed(1)}%)</p>
+                </div>
               </div>
 
             </div>
