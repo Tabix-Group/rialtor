@@ -945,10 +945,11 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header with Horizontal Navigation */}
-      <header className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white shadow-xl sticky top-0 z-50">
+      {/* Header with Horizontal Navigation - Lowered z-index to not cover main menu button */}
+      <header className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white shadow-xl sticky top-0 z-30">
         <div className="max-w-7xl mx-auto">
-          <div className="px-4 md:px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Added padding-left for mobile menu button visibility */}
+          <div className="pl-16 pr-4 md:px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-2 md:p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20">
                 <Shield className="w-8 h-8 md:w-10 md:h-10 text-white/90" />
