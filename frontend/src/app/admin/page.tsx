@@ -349,18 +349,21 @@ export default function AdminPage() {
               <div className="text-blue-600">{stat.icon}</div>
             </div>
             <div className="mt-4">
-              <span className={`text-sm font-medium ${stat.changeType === 'increase' ? 'text-green-600' : 'text-orange-600'
-                }`}>
-                {stat.change}
-              </span>
-              <span className="text-sm text-gray-500 ml-2">vs mes anterior</span>
+              {stat.change && (
+                <>
+                  <span className={`text-sm font-medium ${stat.changeType === 'increase' ? 'text-green-600' : 'text-orange-600'}`}>
+                    {stat.change}
+                  </span>
+                  <span className="text-sm text-gray-500 ml-2">vs mes anterior</span>
+                </>
+              )}
             </div>
           </div>
         ))}
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Actividad Mensual</h3>
           <div className="h-64">
@@ -602,8 +605,11 @@ export default function AdminPage() {
         </div>
 
         {/* Lista de tasas */}
-        <div>
-          <h4 className="text-md font-semibold text-gray-900 mb-4">Tasas Actuales</h4>
+        <div className="mt-10">
+          <div className="border-b border-gray-100 pb-4 mb-6">
+            <h4 className="text-xl font-extrabold text-blue-900 leading-tight">Tasas de Interés Vigentes</h4>
+            <p className="text-gray-500 text-sm mt-1">Configuración de tasas de referencia para el cálculo de hipotecas y créditos</p>
+          </div>
           {ratesLoading ? (
             <div className="text-center py-8 text-gray-500">Cargando tasas...</div>
           ) : bankRates.length === 0 ? (
@@ -778,21 +784,24 @@ export default function AdminPage() {
           </div>
 
           {/* Lista de índices */}
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h4 className="text-md font-semibold text-gray-900">Índices Registrados</h4>
-              <div className="flex items-center gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar por Indicador</label>
+          <div className="mt-10">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-6 mb-8 border-b border-gray-100 pb-6">
+              <div>
+                <h4 className="text-xl font-extrabold text-blue-900 leading-tight">Historial de Índices Registrados</h4>
+                <p className="text-gray-500 text-sm mt-1">Evolución de costos e indicadores económicos clave</p>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+                <div className="w-full sm:w-64">
+                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Filtrar por Indicador</label>
                   <select
                     value={filterIndicator}
                     onChange={(e) => {
                       setFilterIndicator(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                   >
-                    <option value="">Todos</option>
+                    <option value="">Todos los indicadores</option>
                     <optgroup label="Índices Económicos">
                       <option value="ipc">IPC (Inflación)</option>
                       <option value="cacGeneral">CAC General</option>
@@ -810,8 +819,8 @@ export default function AdminPage() {
                     </optgroup>
                   </select>
                 </div>
-                <div className="text-sm text-gray-500">
-                  Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} registros
+                <div className="text-sm font-medium text-gray-400 pb-2">
+                  {totalItems} total
                 </div>
               </div>
             </div>
@@ -935,109 +944,69 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-8 flex items-center gap-5">
-          <span className="inline-flex items-center justify-center bg-white/20 rounded-full p-3 shadow">
-            <Shield className="w-10 h-10 text-white/90" />
-          </span>
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">Panel de Administración</h1>
-            <p className="text-blue-100 text-lg">Gestión y control de la plataforma Rialtor</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex flex-col lg:flex-row gap-10">
-          {/* Sidebar */}
-          <div className="lg:w-72">
-            <div className="bg-white/90 rounded-2xl shadow-2xl border border-gray-100 p-6 sticky top-8">
-              <nav className="space-y-3">
-                <button
-                  onClick={() => setActiveTab('dashboard')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'dashboard' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <BarChart3 className="w-6 h-6" />
-                  Dashboard
-                </button>
-                {hasUserMgmtPerm && (
-                  <button
-                    onClick={() => setActiveTab('users')}
-                    className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'users' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                  >
-                    <Users className="w-6 h-6" />
-                    Usuarios
-                  </button>
-                )}
-                <button
-                  onClick={() => setActiveTab('content')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'content' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <FileText className="w-6 h-6" />
-                  Contenido
-                </button>
-                <button
-                  onClick={() => setActiveTab('categories')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'categories' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <Tag className="w-6 h-6" />
-                  Categorías
-                </button>
-                <button
-                  onClick={() => setActiveTab('files')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'files' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <File className="w-6 h-6" />
-                  Archivos
-                </button>
-                <button
-                  onClick={() => setActiveTab('rates')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'rates' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <Percent className="w-6 h-6" />
-                  Tasas
-                </button>
-                <button
-                  onClick={() => setActiveTab('indices')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'indices' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <BarChart3 className="w-6 h-6" />
-                  Índices
-                </button>
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl text-lg text-left font-semibold transition-all ${activeTab === 'settings' ? 'bg-blue-100 text-blue-700 shadow' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                >
-                  <Settings className="w-6 h-6" />
-                  Configuración
-                </button>
-              </nav>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header with Horizontal Navigation */}
+      <header className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white shadow-xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="px-4 md:px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-2 md:p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20">
+                <Shield className="w-8 h-8 md:w-10 md:h-10 text-white/90" />
+              </div>
+              <div className="space-y-0.5">
+                <h1 className="text-xl md:text-3xl font-black tracking-tight leading-none">Rialtor Admin</h1>
+                <p className="text-blue-100/80 text-xs md:text-base font-medium">Gestión integral de la plataforma</p>
+              </div>
             </div>
           </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            {activeTab === 'dashboard' && renderDashboard()}
-            {activeTab === 'users' && renderUsers()}
-            {activeTab === 'content' && renderContent()}
-            {activeTab === 'categories' && renderCategories()}
-            {activeTab === 'files' && renderFiles()}
-            {activeTab === 'rates' && renderRates()}
-            {activeTab === 'indices' && renderIndices()}
-            {activeTab === 'settings' && renderSettings()}
+          
+          {/* Tabs Navigation - Scrollable on mobile */}
+          <div className="px-4 md:px-8">
+            <nav className="flex items-center gap-1 overflow-x-auto no-scrollbar border-t border-white/10 py-1">
+              {[
+                { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 className="w-4 h-4 md:w-5 md:h-5" /> },
+                { id: 'users', label: 'Usuarios', icon: <Users className="w-4 h-4 md:w-5 md:h-5" />, permission: 'manage_users' },
+                { id: 'content', label: 'Contenido', icon: <FileText className="w-4 h-4 md:w-5 md:h-5" /> },
+                { id: 'categories', label: 'Categorías', icon: <Tag className="w-4 h-4 md:w-5 md:h-5" /> },
+                { id: 'files', label: 'Archivos', icon: <File className="w-4 h-4 md:w-5 md:h-5" /> },
+                { id: 'rates', label: 'Tasas', icon: <Percent className="w-4 h-4 md:w-5 md:h-5" /> },
+                { id: 'indices', label: 'Índices', icon: <TrendingUp className="w-4 h-4 md:w-5 md:h-5" /> },
+                { id: 'settings', label: 'Configuración', icon: <Settings className="w-4 h-4 md:w-5 md:h-5" /> },
+              ].map((tab) => {
+                if (tab.permission && !hasUserMgmtPerm) return null;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-3 md:px-5 py-3 md:py-4 text-xs md:text-sm font-bold whitespace-nowrap transition-all border-b-4 ${
+                      isActive 
+                        ? 'border-white text-white bg-white/10' 
+                        : 'border-transparent text-blue-100 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
         </div>
-      </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+        <div className="w-full">
+          {activeTab === 'dashboard' && renderDashboard()}
+          {activeTab === 'users' && renderUsers()}
+          {activeTab === 'content' && renderContent()}
+          {activeTab === 'categories' && renderCategories()}
+          {activeTab === 'files' && renderFiles()}
+          {activeTab === 'rates' && renderRates()}
+          {activeTab === 'indices' && renderIndices()}
+          {activeTab === 'settings' && renderSettings()}
+        </div>
+      </main>
     </div>
   )
 }
