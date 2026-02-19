@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Users, FileText, MessageSquare, Settings, TrendingUp, BarChart3, Shield, Percent, File, Tag } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
 import UserManagement from '../../components/UserManagement'
 import NewsManagement from '../../components/NewsManagement'
 import CategoryManagement from '../../components/CategoryManagement'
@@ -34,7 +35,14 @@ export default function AdminPage() {
   const [permsLoading, setPermsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   // Dashboard stats
-  const [statsData, setStatsData] = useState<{ totalUsers: number; publishedArticles: number; chatQueries: number; documentsUploaded: number } | null>(null);
+  const [statsData, setStatsData] = useState<{ 
+    totalUsers: number; 
+    publishedArticles: number; 
+    chatQueries: number; 
+    documentsUploaded: number;
+    activityData?: { name: string; actividad: number }[];
+    userStatusData?: { name: string; value: number }[];
+  } | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [documentsCount, setDocumentsCount] = useState<number | null>(null);
   // Recent users state
@@ -355,17 +363,69 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Actividad Mensual</h3>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded">
-            <BarChart3 className="w-16 h-16 text-gray-400" />
-            <p className="text-gray-500 ml-4">Gráfico de actividad mensual</p>
+          <div className="h-64">
+            {statsData?.activityData && statsData.activityData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={statsData.activityData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                  />
+                  <Bar dataKey="actividad" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Actividad Total" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center bg-gray-50 rounded">
+                <BarChart3 className="w-16 h-16 text-gray-400" />
+                <p className="text-gray-500 mt-2">Cargando datos de actividad...</p>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Usuarios Activos</h3>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded">
-            <TrendingUp className="w-16 h-16 text-gray-400" />
-            <p className="text-gray-500 ml-4">Gráfico de usuarios activos</p>
+          <div className="h-64">
+            {statsData?.userStatusData && statsData.userStatusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statsData.userStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    <Cell fill="#10b981" /> {/* Activos - Verde */}
+                    <Cell fill="#ef4444" /> {/* Inactivos - Rojo */}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center bg-gray-50 rounded">
+                <TrendingUp className="w-16 h-16 text-gray-400" />
+                <p className="text-gray-500 mt-2">Cargando datos de usuarios...</p>
+              </div>
+            )}
+            {statsData?.userStatusData && (
+              <div className="flex justify-center gap-6 mt-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                  <span className="text-sm text-gray-600">Activos ({statsData.userStatusData[0]?.value})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="text-sm text-gray-600">Inactivos ({statsData.userStatusData[1]?.value})</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -394,13 +454,10 @@ export default function AdminPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Estado
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {recentUsersData.map((user) => (
+                {recentUsersData.slice(0, 10).map((user) => (
                   <tr key={user.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -419,9 +476,6 @@ export default function AdminPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-500'}`}>{user.isActive ? 'Activo' : 'Inactivo'}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button className="text-blue-600 hover:text-blue-900">Editar</button>
                     </td>
                   </tr>
                 ))}
