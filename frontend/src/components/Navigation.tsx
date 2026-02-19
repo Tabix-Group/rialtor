@@ -256,8 +256,8 @@ function Navigation() {
 
       {/* Navigation Scroll Area */}
       {user && (
-        <div className="flex-1 px-3 py-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
-          <nav className="space-y-1.5">
+        <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'px-1.5 py-2 hide-scrollbar' : 'px-3 py-6 scrollbar-thin scrollbar-thumb-slate-200'}`}>
+          <nav className={isCollapsed ? 'space-y-1' : 'space-y-1.5'}>
             {navConfig.map((item) => {
               const Icon = item.icon
               const hasDropdown = item.dropdown && item.dropdown.length > 0
@@ -271,6 +271,7 @@ function Navigation() {
                     <Link
                       href={item.href}
                       data-dropdown-button
+                      title={isCollapsed ? item.name : undefined}
                       onClick={(e) => {
                         const target = e.target as HTMLElement
                         const isChevronClick = target.closest('svg') || target.tagName === 'svg'
@@ -344,6 +345,7 @@ function Navigation() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  title={isCollapsed ? item.name : undefined}
                   className={`
                     group/item flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200
                     ${isItemActive 
@@ -365,13 +367,14 @@ function Navigation() {
       )}
 
       {/* User Section / Footer */}
-      <div className="p-4 border-t border-slate-100 bg-white z-10">
+      <div className={`${isCollapsed ? "p-2" : "p-4"} border-t border-slate-100 bg-white z-10`}>
         {user ? (
           <div className="relative">
             {/* User Toggle Button */}
             <button
               data-user-button
               onClick={handleUserMenuClick}
+              title={isCollapsed ? user.name : undefined}
               className={`
                 w-full flex items-center p-2 rounded-xl transition-all duration-200
                 ${isUserMenuOpen ? "bg-slate-50 ring-1 ring-slate-200" : "hover:bg-slate-50"}

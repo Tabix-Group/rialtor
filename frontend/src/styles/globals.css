@@ -25,6 +25,14 @@
   --radius: 0.5rem;
 }
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .dark {
   --background: 222 47% 11%;
   --foreground: 210 40% 98%;
