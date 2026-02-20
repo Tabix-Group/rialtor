@@ -7,7 +7,7 @@ import { authenticatedFetch } from '@/utils/api'
 import {
   DollarSign, Plus, Minus, Calendar, Filter, TrendingUp, TrendingDown,
   ArrowUpRight, Edit3, Trash2, Search, X, ChevronDown, BarChart3,
-  Wallet, ArrowRightLeft, FileText
+  Wallet, ArrowRightLeft, FileText, Download
 } from 'lucide-react'
 import Reportes from './Reportes'
 
@@ -154,6 +154,102 @@ export default function FinanzasPage() {
       setBalance(data.balances || { ARS: 0, USD: 0 })
     } catch (error) {
       console.error('Error fetching balance:', error)
+    }
+  }
+
+  // EXCEL EXPORT IMPROVED
+  const exportToXLSX = async () => {
+    if (filteredTransactions.length === 0) {
+      alert('No hay transacciones para exportar.')
+      return
+    }
+
+    try {
+      const XLSX = (await import('xlsx')) as typeof import('xlsx')
+
+      // Sheet 1: Transacciones
+      const wsData = filteredTransactions.map(t => ({
+        Fecha: formatDate(t.date, { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        Categoría: t.tipo,
+        Tipo: t.type === 'ingreso' ? 'Ingreso' : 'Egreso',
+        Concepto: t.concept,
+        Descripción: t.description || '',
+        Monto: Number(t.amount),
+        Moneda: t.currency
+      }))
+
+      const ws = XLSX.utils.json_to_sheet(wsData)
+
+      // Sheet 2: Análisis (Estadísticas para gráficos)
+      // 1. Datos Mensuales
+      const monthlyMap = new Map<string, { month: any, ingresos: number, egresos: number }>()
+      filteredTransactions.forEach(t => {
+        const d = new Date(t.date)
+        const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
+        const label = d.toLocaleString('es-ES', { month: 'long', year: 'numeric' })
+        if (!monthlyMap.has(key)) monthlyMap.set(key, { month: label, ingresos: 0, egresos: 0 })
+        const item = monthlyMap.get(key)!
+        if (t.type === 'ingreso') item.ingresos += t.amount
+        else item.egresos += t.amount
+      })
+      const monthlyData = Array.from(monthlyMap.values()).sort((a,b) => a.month.localeCompare(b.month))
+
+      // 2. Datos por Concepto
+      const conceptMap = new Map<string, number>()
+      filteredTransactions.forEach(t => {
+        conceptMap.set(t.concept, (conceptMap.get(t.concept) || 0) + (t.type === 'ingreso' ? t.amount : -t.amount))
+      })
+      const conceptData = Array.from(conceptMap.entries())
+        .map(([concept, total]) => ({ Concepto: concept, Total: total }))
+        .sort((a,b) => b.Total - a.Total)
+
+      // 3. Totales por Categoría
+      const categoryMap = new Map<string, { ingresos: number, egresos: number }>()
+      filteredTransactions.forEach(t => {
+        if (!categoryMap.has(t.tipo)) categoryMap.set(t.tipo, { ingresos: 0, egresos: 0 })
+        const item = categoryMap.get(t.tipo)!
+        if (t.type === 'ingreso') item.ingresos += t.amount
+        else item.egresos += t.amount
+      })
+      const categoryData = Array.from(categoryMap.entries()).map(([cat, vals]) => ({
+        Categoría: cat,
+        Ingresos: vals.ingresos,
+        Egresos: vals.egresos,
+        Neto: vals.ingresos - vals.egresos
+      }))
+
+      // Crear la hoja de Análisis combinada
+      const analysisData = [
+        ['ANÁLISIS DE FINANZAS - RIALTOR'],
+        [`Generado el: ${new Date().toLocaleDateString('es-AR')}`],
+        [],
+        ['RESUMEN MENSUAL'],
+        ['Mes', 'Ingresos', 'Egresos', 'Diferencia'],
+        ...monthlyData.map(m => [m.month, m.ingresos, m.egresos, m.ingresos - m.egresos]),
+        [],
+        ['TOTALES POR CATEGORÍA'],
+        ['Categoría', 'Ingresos', 'Egresos', 'Balance'],
+        ...categoryData.map(c => [c.Categoría, c.Ingresos, c.Egresos, c.Neto]),
+        [],
+        ['DISTRIBUCIÓN POR CONCEPTO'],
+        ['Concepto', 'Balance Neto'],
+        ...conceptData.map(c => [c.Concepto, c.Total]),
+        [],
+        ['Saldos Consolidados Actuales'],
+        ['ARS', balance.ARS],
+        ['USD', balance.USD]
+      ]
+
+      const wsAnalysis = XLSX.utils.aoa_to_sheet(analysisData)
+
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Listado de Movimientos')
+      XLSX.utils.book_append_sheet(wb, wsAnalysis, 'Análisis y Estadísticas')
+
+      XLSX.writeFile(wb, `rialtor_finanzas_${new Date().toISOString().slice(0,10)}.xlsx`)
+    } catch (err) {
+      console.error('Error exporting XLSX:', err)
+      alert('Error al generar el archivo Excel.')
     }
   }
 
@@ -558,6 +654,22 @@ export default function FinanzasPage() {
                   </div>
                 ) : (
                   <>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between p-6 gap-4 border-b border-slate-100 bg-slate-50/20">
+                       <div>
+                          <h3 className="text-slate-900 font-bold text-lg">Listado de transacciones</h3>
+                          <p className="text-slate-500 text-xs">Visualiza y gestiona todos tus movimientos financieros</p>
+                       </div>
+                       
+                       <div className="flex items-center gap-3">
+                        <button
+                          onClick={exportToXLSX}
+                          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 hover:shadow-emerald-500/30 transition-all transform active:scale-[0.98]"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>Exportar a Excel</span>
+                        </button>
+                       </div>
+                    </div>
                     {/* ======================= */}
                     {/* VISTA DESKTOP: TABLA    */}
                     {/* ======================= */}
