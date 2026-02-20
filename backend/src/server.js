@@ -12,6 +12,15 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3003;
 
+// Global error handlers - prevent the process from dying silently
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] Uncaught Exception:', err.message, err.stack);
+  // Don't exit - keep the healthcheck alive
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[FATAL] Unhandled Rejection:', reason);
+});
+
 // Health check endpoint - ABSOLUTELY EARLY to skip all other logic/requires
 // This MUST respond with 200 immediately for Railway health checks to pass.
 app.get('/health', (req, res) => {
@@ -36,31 +45,48 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 });
 
 // --- SLOW LOADING: Proceed with imports and further setup ---
+// Each require is wrapped so that a broken module never crashes the whole process.
+function safeRequire(mod) {
+  try { return require(mod); } catch (e) {
+    console.error(`[SERVER] Failed to load module "${mod}":`, e.message);
+    // Return a dead-end router so the app doesn't crash
+    const { Router } = require('express');
+    const r = Router();
+    r.all('*', (req, res) => res.status(503).json({ error: `Module ${mod} failed to load`, detail: e.message }));
+    return r;
+  }
+}
+
 const { errorHandler } = require('./middleware/errorHandler');
 const { notFound } = require('./middleware/notFound');
-const { startCronJobs } = require('./services/cronJobs');
 
-// Routes imports follow...
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const categoryRoutes = require('./routes/categories');
-const articleRoutes = require('./routes/articles');
-const chatRoutes = require('./routes/chat');
-const documentRoutes = require('./routes/documents');
-const calculatorRoutes = require('./routes/calculator');
-const adminRoutes = require('./routes/admin');
-const placasRoutes = require('./routes/placas');
-const newsRoutes = require('./routes/news');
-const filesRoutes = require('./routes/files');
-const formsRoutes = require('./routes/forms');
-const financesRoutes = require('./routes/finances');
-const prospectsRoutes = require('./routes/prospects');
-const favoritesRoutes = require('./routes/favorites');
-const indicatorsRoutes = require('./routes/indicators');
-const newslettersRoutes = require('./routes/newsletters');
-const salesFunnelRoutes = require('./routes/sales-funnel');
-const projectionMetricsRoutes = require('./routes/projection-metrics');
-const stripeRoutes = require('./routes/stripeRoutes');
+let startCronJobs = () => console.warn('[SERVER] cronJobs not loaded, skipping.');
+try {
+  startCronJobs = require('./services/cronJobs').startCronJobs;
+} catch (e) {
+  console.error('[SERVER] Failed to load cronJobs:', e.message);
+}
+
+const authRoutes = safeRequire('./routes/auth');
+const userRoutes = safeRequire('./routes/users');
+const categoryRoutes = safeRequire('./routes/categories');
+const articleRoutes = safeRequire('./routes/articles');
+const chatRoutes = safeRequire('./routes/chat');
+const documentRoutes = safeRequire('./routes/documents');
+const calculatorRoutes = safeRequire('./routes/calculator');
+const adminRoutes = safeRequire('./routes/admin');
+const placasRoutes = safeRequire('./routes/placas');
+const newsRoutes = safeRequire('./routes/news');
+const filesRoutes = safeRequire('./routes/files');
+const formsRoutes = safeRequire('./routes/forms');
+const financesRoutes = safeRequire('./routes/finances');
+const prospectsRoutes = safeRequire('./routes/prospects');
+const favoritesRoutes = safeRequire('./routes/favorites');
+const indicatorsRoutes = safeRequire('./routes/indicators');
+const newslettersRoutes = safeRequire('./routes/newsletters');
+const salesFunnelRoutes = safeRequire('./routes/sales-funnel');
+const projectionMetricsRoutes = safeRequire('./routes/projection-metrics');
+const stripeRoutes = safeRequire('./routes/stripeRoutes');
 
 // Security middleware
 app.use(helmet({
@@ -160,19 +186,24 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Favicon support (returns a 204 No Content if not present)
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-const rolesRouter = require('./routes/roles');
-const permissionsRouter = require('./routes/permissions');
-const { PrismaClient } = require('@prisma/client');
+const rolesRouter = safeRequire('./routes/roles');
+const permissionsRouter = safeRequire('./routes/permissions');
 
-console.log('[SERVER] Initializing Prisma client...');
-let prisma;
-try {
-  prisma = new PrismaClient();
-  console.log('[SERVER] Prisma client initialized successfully');
-} catch (error) {
-  console.error('[SERVER] Failed to initialize Prisma client:', error);
-  // Continue without Prisma for health check
-  prisma = null;
+let PrismaClient;
+try { PrismaClient = require('@prisma/client').PrismaClient; } catch(e) {
+  console.error('[SERVER] @prisma/client not available:', e.message);
+}
+
+let prisma = null;
+if (PrismaClient) {
+  try {
+    prisma = new PrismaClient();
+    console.log('[SERVER] Prisma client initialized successfully');
+  } catch (error) {
+    console.error('[SERVER] Failed to initialize Prisma client:', error.message);
+  }
+} else {
+  console.warn('[SERVER] Prisma client not loaded, DB features will be unavailable');
 }
 
 // Detailed health check with database status
@@ -243,7 +274,7 @@ app.use('/api/newsletters', newslettersRoutes);
 app.use('/api/sales-funnel', salesFunnelRoutes);
 app.use('/api/projection-metrics', projectionMetricsRoutes);
 app.use('/api/stripe', stripeRoutes);
-app.use('/api/calendar', require('./routes/calendar'));
+app.use('/api/calendar', safeRequire('./routes/calendar'));
 
 // Error handling middleware
 app.use(notFound);

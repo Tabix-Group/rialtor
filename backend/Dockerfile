@@ -28,8 +28,8 @@ RUN groupadd --gid 1001 nodejs \
 RUN chown -R nodejs:nodejs /app
 USER nodejs
 
-# Exponer puerto
+# Exponer puerto (Railway sobreescribe con $PORT)
 EXPOSE 3003
 
-# Comando por defecto
-CMD ["npm", "start"]
+# Comando por defecto - llamada directa a node para máxima rapidez en el startup
+CMD ["node", "src/server.js"]
