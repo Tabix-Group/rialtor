@@ -2669,10 +2669,11 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
     svg += `  <text x="${centerX}" y="${currentLineY}" text-anchor="middle" class="vip-footer-info">${contacto}</text>\n`;
   }
   
-  svg += `</svg>`;
+  // Texto vertical a la derecha (Legal) - Consistencia con otros modelos
+  if (corredores) {
+    svg += `  <text x="${width - 35}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 35}, ${height/2})" style="font-family: 'Inter', Arial, sans-serif; font-size: 18px; fill: rgba(100,116,139,0.7); letter-spacing: 1px;">${corredores}</text>\n`;
+  }
   
-  return svg;
-}
 
 /**
  * Crear overlay de diseño completo para placa VIP según imagen de referencia - DEPRECATED
