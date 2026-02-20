@@ -7,11 +7,40 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config();
 
+const app = express();
+// Confía en el primer proxy (Railway/Nginx)
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || 3003;
+
+// Health check endpoint - ABSOLUTELY EARLY to skip all other logic/requires
+// This MUST respond with 200 immediately for Railway health checks to pass.
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'rialtor-backend',
+    port: PORT
+  });
+});
+
+app.get('/ping', (req, res) => {
+  res.json({ status: 'pong', timestamp: new Date().toISOString() });
+});
+
+// --- FAST BIND: Listen for connections immediately ---
+// This ensures that the healthcheck passes as soon as the process starts,
+// even while we are still loading slower components like Prisma or complex routes.
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server starting on port ${PORT}...`);
+  console.log(`💡 Health check READY: http://localhost:${PORT}/health`);
+});
+
+// --- SLOW LOADING: Proceed with imports and further setup ---
 const { errorHandler } = require('./middleware/errorHandler');
 const { notFound } = require('./middleware/notFound');
 const { startCronJobs } = require('./services/cronJobs');
 
-// Routes
+// Routes imports follow...
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const categoryRoutes = require('./routes/categories');
@@ -32,30 +61,6 @@ const newslettersRoutes = require('./routes/newsletters');
 const salesFunnelRoutes = require('./routes/sales-funnel');
 const projectionMetricsRoutes = require('./routes/projection-metrics');
 const stripeRoutes = require('./routes/stripeRoutes');
-
-const app = express();
-// Confía en el primer proxy (Railway/Nginx)
-app.set('trust proxy', 1);
-const PORT = process.env.PORT || 3003;
-
-// Health check endpoint - early in the middleware chain to respond faster and avoid blocks
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    service: 'rialtor-backend'
-  });
-});
-
-// Simple ping endpoint that doesn't require database
-app.get('/ping', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
-});
 
 // Security middleware
 app.use(helmet({
@@ -244,21 +249,12 @@ app.use('/api/calendar', require('./routes/calendar'));
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
-console.log('[SERVER] Starting server initialization...');
-console.log('[SERVER] PORT:', PORT);
-console.log('[SERVER] NODE_ENV:', process.env.NODE_ENV);
+// Finalize startup
+console.log('[SERVER] Server initialization complete.');
+console.log('[SERVER] Environment:', process.env.NODE_ENV);
 console.log('[SERVER] DATABASE_URL configured:', !!process.env.DATABASE_URL);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 API: http://localhost:${PORT}/api`);
-  console.log(`💡 Health check: http://localhost:${PORT}/health`);
-  console.log(`🗄️ Database connection: ${process.env.DATABASE_URL ? 'configured' : 'missing'}`);
-  
-  // Iniciar tareas programadas (cron jobs)
-  startCronJobs();
-});
+// Iniciar tareas programadas (cron jobs)
+startCronJobs();
 
 module.exports = app;
