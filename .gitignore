@@ -119,9 +119,6 @@ public/uploads/
 *.tsbuildinfo
 next-env.d.ts
 
-# Docker
-.dockerignore
-
 # SSL certificates
 ssl/
 *.pem

@@ -32,6 +32,21 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/health/routes', (req, res) => {
+  const failed = Object.entries(moduleLoadStatus).filter(([,v]) => v !== 'OK');
+  res.status(200).json({
+    total: Object.keys(moduleLoadStatus).length,
+    failed: failed.length,
+    modules: moduleLoadStatus,
+    env: {
+      DATABASE_URL: !!process.env.DATABASE_URL,
+      JWT_SECRET: !!process.env.JWT_SECRET,
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT
+    }
+  });
+});
+
 app.get('/ping', (req, res) => {
   res.json({ status: 'pong', timestamp: new Date().toISOString() });
 });
@@ -46,8 +61,14 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
 // --- SLOW LOADING: Proceed with imports and further setup ---
 // Each require is wrapped so that a broken module never crashes the whole process.
+const moduleLoadStatus = {}; // Track which modules loaded
 function safeRequire(mod) {
-  try { return require(mod); } catch (e) {
+  try {
+    const result = require(mod);
+    moduleLoadStatus[mod] = 'OK';
+    return result;
+  } catch (e) {
+    moduleLoadStatus[mod] = `FAILED: ${e.message}`;
     console.error(`[SERVER] Failed to load module "${mod}":`, e.message);
     // Return a dead-end router so the app doesn't crash
     const { Router } = require('express');
