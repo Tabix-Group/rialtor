@@ -13,6 +13,9 @@ export default function NetworkNegotiationIndicators() {
           <h2 className="text-2xl font-bold">Negociación</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Estadísticas promedio de negociación y tiempos de venta
+            <span className="block text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-1 italic">
+              * Datos recolectados por agentes independientes
+            </span>
           </p>
         </div>
       </div>

@@ -190,6 +190,9 @@ export default function RealEstateCommissions() {
           <h2 className="text-2xl font-bold">Honorarios inmobiliarios</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Valores de mercado actuales para diferentes tipos de operaciones
+            <span className="block text-xs text-primary font-medium mt-1 italic">
+              * Datos recolectados por agentes independientes
+            </span>
           </p>
         </div>
       </div>

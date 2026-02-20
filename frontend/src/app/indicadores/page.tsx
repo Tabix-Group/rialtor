@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { TrendingUp, TrendingDown, DollarSign, RefreshCw, Info, BarChart3 } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, RefreshCw, Info, BarChart3, Building, LayoutGrid } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import RealEstateCommissions from "@/components/RealEstateCommissions"
 import NetworkNegotiationIndicators from "@/components/NetworkNegotiationIndicators"
@@ -107,6 +107,7 @@ export default function IndicadoresPage() {
   const [dollarCharts, setDollarCharts] = useState<Record<string, EconomicIndexChartData>>({})
   const [selectedDollarChart, setSelectedDollarChart] = useState<string | null>(null)
   const [selectedDollarPeriod, setSelectedDollarPeriod] = useState<string>('30d')
+  const [activeTab, setActiveTab] = useState<'finanzas' | 'mercado'>('finanzas')
 
   const fetchIndicators = async () => {
     try {
@@ -321,521 +322,555 @@ export default function IndicadoresPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12">
+        {/* Tab Switcher */}
+        <div className="flex items-center justify-center p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl w-fit mx-auto shadow-inner border border-slate-200 dark:border-slate-700">
+          <button
+            onClick={() => setActiveTab('finanzas')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 ${
+              activeTab === 'finanzas'
+                ? "bg-white dark:bg-slate-700 text-primary shadow-sm font-semibold"
+                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-100"
+            }`}
+          >
+            <DollarSign className="w-5 h-5" />
+            Finanzas
+          </button>
+          <button
+            onClick={() => setActiveTab('mercado')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-300 ${
+              activeTab === 'mercado'
+                ? "bg-white dark:bg-slate-700 text-primary shadow-sm font-semibold"
+                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-100"
+            }`}
+          >
+            <Building className="w-5 h-5" />
+            Mercado Inmobiliario
+          </button>
+        </div>
 
-        {/* Cotizaciones del Dólar */}
-        <section>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold">Cotizaciones del Dólar</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Dólar Oficial */}
-            <div 
-              className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
-              onClick={() => fetchDollarChart('oficial')}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Dólar Oficial</h3>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.oficial.variacion)}`}>
-                  <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.dolar.oficial.variacion)}`}>
-                    {getVariationIcon(data.dolar.oficial.variacion)}
-                    {formatCurrency(Math.abs(data.dolar.oficial.variacion), 1)}%
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Compra</span>
-                  <span className="text-2xl font-bold">${formatCurrency(data.dolar.oficial.compra)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Venta</span>
-                  <span className="text-2xl font-bold">${formatCurrency(data.dolar.oficial.venta)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Dólar Blue */}
-            <div 
-              className="bg-card border-2 border-primary/50 rounded-2xl p-6 hover:border-primary transition-all hover:shadow-lg cursor-pointer"
-              onClick={() => fetchDollarChart('blue')}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Dólar Blue</h3>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.blue.variacion)}`}>
-                  <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.dolar.blue.variacion)}`}>
-                    {getVariationIcon(data.dolar.blue.variacion)}
-                    {formatCurrency(Math.abs(data.dolar.blue.variacion), 1)}%
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Compra</span>
-                  <span className="text-2xl font-bold">${formatCurrency(data.dolar.blue.compra)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Venta</span>
-                  <span className="text-2xl font-bold">${formatCurrency(data.dolar.blue.venta)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Dólar Tarjeta */}
-            <div 
-              className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
-              onClick={() => fetchDollarChart('tarjeta')}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Dólar Tarjeta</h3>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.tarjeta.variacion)}`}>
-                  <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.dolar.tarjeta.variacion)}`}>
-                    {getVariationIcon(data.dolar.tarjeta.variacion)}
-                    {formatCurrency(Math.abs(data.dolar.tarjeta.variacion), 1)}%
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Compra</span>
-                  <span className="text-2xl font-bold">${formatCurrency(data.dolar.tarjeta.compra)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Venta</span>
-                  <span className="text-2xl font-bold">${formatCurrency(data.dolar.tarjeta.venta)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Gráficos del Dólar */}
-        {selectedDollarChart && dollarCharts[selectedDollarChart] && (
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
+        {activeTab === 'finanzas' ? (
+          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
+            {/* Cotizaciones del Dólar */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-primary" />
+                  <DollarSign className="w-5 h-5 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold">
-                  Histórico del Dólar {selectedDollarChart === 'oficial' ? 'Oficial' : selectedDollarChart === 'blue' ? 'Blue' : 'Tarjeta'}
-                </h2>
-              </div>
-              
-              {/* Selector de período */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Período:</span>
-                <div className="flex gap-1">
-                  {[
-                    { key: '7d', label: '7 días' },
-                    { key: '30d', label: '30 días' },
-                    { key: '90d', label: '90 días' },
-                    { key: '1y', label: '1 año' }
-                  ].map((period) => (
-                    <button
-                      key={period.key}
-                      onClick={() => changeDollarPeriod(period.key)}
-                      className={`px-3 py-1.5 text-sm rounded-full transition-all ${
-                        selectedDollarPeriod === period.key
-                          ? 'bg-primary text-primary-foreground font-medium'
-                          : 'bg-muted hover:bg-muted/80 text-muted-foreground'
-                      }`}
-                    >
-                      {period.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-card border border-border rounded-2xl p-6">
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={dollarCharts[selectedDollarChart].data}>
-                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                    <XAxis 
-                      dataKey="fecha" 
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
-                        month: 'short', 
-                        day: 'numeric',
-                        ...(selectedDollarPeriod === '1y' && { year: '2-digit' })
-                      })}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 12 }}
-                      domain={['dataMin - 1', 'dataMax + 1']}
-                      tickFormatter={(value) => `$${formatCurrency(value)}`}
-                    />
-                    <Tooltip 
-                      labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                      formatter={(value: number, name: string) => [
-                        `$${formatCurrency(value)}`, 
-                        name === 'compra' ? 'Compra' : 'Venta'
-                      ]}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="compra" 
-                      stroke="#10b981" 
-                      strokeWidth={2}
-                      name="compra"
-                      dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
-                      activeDot={{ r: 5, stroke: '#10b981', strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="venta" 
-                      stroke="#ef4444" 
-                      strokeWidth={2}
-                      name="venta"
-                      dot={{ fill: '#ef4444', strokeWidth: 2, r: 3 }}
-                      activeDot={{ r: 5, stroke: '#ef4444', strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex items-center justify-center gap-6 mt-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-muted-foreground">Compra</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="text-sm text-muted-foreground">Venta</span>
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground mt-2 text-center">
-                Período: {dollarCharts[selectedDollarChart].periodo}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Índice UVA */}
-        {economicIndexes && economicIndexes.uva && (
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-amber-600" />
-              </div>
-              <h2 className="text-2xl font-bold">Índice UVA</h2>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              <div 
-                className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-6 hover:border-amber-300 transition-all hover:shadow-lg cursor-pointer"
-                onClick={() => fetchEconomicIndexChart('uva')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900">UVA (Unidad de Valor Adquisitivo)</h3>
-                    <p className="text-sm text-gray-600 mt-1">{economicIndexes.uva.descripcion}</p>
-                  </div>
-                  {economicIndexes.uva.variacion !== null && (
-                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.uva.variacion)}`}>
-                      <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.uva.variacion)}`}>
-                        {getVariationIcon(economicIndexes.uva.variacion)}
-                        {formatCurrency(Math.abs(economicIndexes.uva.variacion), 4)}%
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-baseline gap-3">
-                  <div className="text-4xl font-bold text-gray-900">${formatCurrency(economicIndexes.uva.valor, 2)}</div>
-                  <div className="text-sm text-gray-500">
-                    al {economicIndexes.uva.fecha ? new Date(economicIndexes.uva.fecha).toLocaleDateString("es-AR", { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-amber-200">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Info className="w-4 h-4" />
-                    <span>Utilizado principalmente en créditos hipotecarios UVA. Se actualiza diariamente según la inflación.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Negociación */}
-        <NetworkNegotiationIndicators />
-
-        {/* KPI Cierres */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-orange-600" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold">KPI Cierres</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Ponderación mensual histórica de operaciones
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-6 shadow-sm">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {[
-                { mes: "Ene", val: "4,72%" },
-                { mes: "Feb", val: "5,41%" },
-                { mes: "Mar", val: "7,12%" },
-                { mes: "Abr", val: "6,82%" },
-                { mes: "May", val: "8,41%" },
-                { mes: "Jun", val: "9,15%" },
-                { mes: "Jul", val: "8,66%" },
-                { mes: "Ago", val: "9,64%" },
-                { mes: "Sep", val: "9,42%" },
-                { mes: "Oct", val: "9,65%" },
-                { mes: "Nov", val: "9,78%" },
-                { mes: "Dic", val: "11,21%" }
-              ].map((item, idx) => (
-                <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground mb-1">{item.mes}</span>
-                  <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{item.val}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Esquemas de Honorarios inmobiliarios */}
-        <RealEstateCommissions />
-
-        {/* Índices Económicos */}
-        {economicIndexes && (
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold">Índices Económicos</h2>
-            </div>
-
-            {/* Grid especial para IPC e Inflación - destacados en 2 columnas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* IPC */}
-              <div 
-                className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 hover:border-blue-300 transition-all hover:shadow-lg cursor-pointer"
-                onClick={() => fetchEconomicIndexChart('ipc')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">IPC (Inflación)</h3>
-                    <p className="text-xs text-gray-600 mt-0.5">Índice acumulado</p>
-                  </div>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.ipc?.variacion || 0)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.ipc?.variacion || 0)}`}>
-                      {getVariationIcon(economicIndexes.ipc?.variacion || 0)}
-                      {formatCurrency(Math.abs(economicIndexes.ipc?.variacion || 0), 2)}%
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold text-gray-900">{formatCurrency(economicIndexes.ipc?.valor || 0, 2)}</div>
-                  <div className="text-sm text-gray-600">{economicIndexes.ipc?.descripcion || 'Cargando...'}</div>
-                  <div className="text-xs text-gray-500">
-                    Actualizado: {economicIndexes.ipc?.fecha ? new Date(economicIndexes.ipc.fecha).toLocaleDateString("es-AR") : 'N/A'}
-                  </div>
-                </div>
+                <h2 className="text-2xl font-bold">Cotizaciones del Dólar</h2>
               </div>
 
-              {/* Inflación Mensual */}
-              {economicIndexes.inflacion && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Dólar Oficial */}
                 <div 
-                  className="bg-gradient-to-br from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl p-6 hover:border-red-300 transition-all hover:shadow-lg cursor-pointer"
-                  onClick={() => fetchEconomicIndexChart('inflacion')}
+                  className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                  onClick={() => fetchDollarChart('oficial')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Inflación Mensual</h3>
-                      <p className="text-xs text-gray-600 mt-0.5">Histórica desde 2010</p>
+                    <h3 className="text-lg font-semibold">Dólar Oficial</h3>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.oficial.variacion)}`}>
+                      <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.dolar.oficial.variacion)}`}>
+                        {getVariationIcon(data.dolar.oficial.variacion)}
+                        {formatCurrency(Math.abs(data.dolar.oficial.variacion), 1)}%
+                      </span>
                     </div>
-                    {economicIndexes.inflacion.variacion !== null && (
-                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.inflacion.variacion)}`}>
-                        <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.inflacion.variacion)}`}>
-                          {getVariationIcon(economicIndexes.inflacion.variacion)}
-                          {formatCurrency(Math.abs(economicIndexes.inflacion.variacion), 2)}%
-                        </span>
-                      </div>
-                    )}
                   </div>
-                  <div className="space-y-2">
-                    <div className="text-3xl font-bold text-gray-900">{formatCurrency(economicIndexes.inflacion.valor, 2)}%</div>
-                    <div className="text-sm text-gray-600">{economicIndexes.inflacion.descripcion}</div>
-                    <div className="text-xs text-gray-500">
-                      Actualizado: {economicIndexes.inflacion.fecha ? new Date(economicIndexes.inflacion.fecha).toLocaleDateString("es-AR", { month: 'long', year: 'numeric' }) : 'N/A'}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Compra</span>
+                      <span className="text-2xl font-bold">${formatCurrency(data.dolar.oficial.compra)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Venta</span>
+                      <span className="text-2xl font-bold">${formatCurrency(data.dolar.oficial.venta)}</span>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Resto de índices en grid normal */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-              {/* CAC General */}
-              <div 
-                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
-                onClick={() => fetchEconomicIndexChart('cacGeneral')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">CAC General</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacGeneral?.variacion || 0)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacGeneral?.variacion || 0)}`}>
-                      {getVariationIcon(economicIndexes.cacGeneral?.variacion || 0)}
-                      {formatCurrency(Math.abs(economicIndexes.cacGeneral?.variacion || 0), 2)}%
-                    </span>
+                {/* Dólar Blue */}
+                <div 
+                  className="bg-card border-2 border-primary/50 rounded-2xl p-6 hover:border-primary transition-all hover:shadow-lg cursor-pointer"
+                  onClick={() => fetchDollarChart('blue')}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Dólar Blue</h3>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.blue.variacion)}`}>
+                      <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.dolar.blue.variacion)}`}>
+                        {getVariationIcon(data.dolar.blue.variacion)}
+                        {formatCurrency(Math.abs(data.dolar.blue.variacion), 1)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Compra</span>
+                      <span className="text-2xl font-bold">${formatCurrency(data.dolar.blue.compra)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Venta</span>
+                      <span className="text-2xl font-bold">${formatCurrency(data.dolar.blue.venta)}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacGeneral?.valor || 0, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.cacGeneral?.descripcion || 'Cargando...'}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Actualizado: {economicIndexes.cacGeneral?.fecha ? new Date(economicIndexes.cacGeneral.fecha).toLocaleDateString("es-AR") : 'N/A'}
+
+                {/* Dólar Tarjeta */}
+                <div 
+                  className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                  onClick={() => fetchDollarChart('tarjeta')}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Dólar Tarjeta</h3>
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(data.dolar.tarjeta.variacion)}`}>
+                      <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(data.dolar.tarjeta.variacion)}`}>
+                        {getVariationIcon(data.dolar.tarjeta.variacion)}
+                        {formatCurrency(Math.abs(data.dolar.tarjeta.variacion), 1)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Compra</span>
+                      <span className="text-2xl font-bold">${formatCurrency(data.dolar.tarjeta.compra)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Venta</span>
+                      <span className="text-2xl font-bold">${formatCurrency(data.dolar.tarjeta.venta)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            </section>
 
-              {/* CAC Materiales */}
-              <div 
-                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
-                onClick={() => fetchEconomicIndexChart('cacMateriales')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">CAC Materiales</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacMateriales?.variacion || 0)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacMateriales?.variacion || 0)}`}>
-                      {getVariationIcon(economicIndexes.cacMateriales?.variacion || 0)}
-                      {formatCurrency(Math.abs(economicIndexes.cacMateriales?.variacion || 0), 2)}%
-                    </span>
+            {/* Gráficos del Dólar */}
+            {selectedDollarChart && dollarCharts[selectedDollarChart] && (
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <BarChart3 className="w-5 h-5 text-primary" />
+                    </div>
+                    <h2 className="text-2xl font-bold">
+                      Histórico del Dólar {selectedDollarChart === 'oficial' ? 'Oficial' : selectedDollarChart === 'blue' ? 'Blue' : 'Tarjeta'}
+                    </h2>
+                  </div>
+                  
+                  {/* Selector de período */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Período:</span>
+                    <div className="flex gap-1">
+                      {[
+                        { key: '7d', label: '7 días' },
+                        { key: '30d', label: '30 días' },
+                        { key: '90d', label: '90 días' },
+                        { key: '1y', label: '1 año' }
+                      ].map((period) => (
+                        <button
+                          key={period.key}
+                          onClick={() => changeDollarPeriod(period.key)}
+                          className={`px-3 py-1.5 text-sm rounded-full transition-all ${
+                            selectedDollarPeriod === period.key
+                              ? 'bg-primary text-primary-foreground font-medium'
+                              : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                          }`}
+                        >
+                          {period.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacMateriales?.valor || 0, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.cacMateriales?.descripcion || 'Cargando...'}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Actualizado: {economicIndexes.cacMateriales?.fecha ? new Date(economicIndexes.cacMateriales.fecha).toLocaleDateString("es-AR") : 'N/A'}
-                  </div>
-                </div>
-              </div>
 
-              {/* CAC Mano de Obra */}
-              <div 
-                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
-                onClick={() => fetchEconomicIndexChart('cacManoObra')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">CAC Mano de Obra</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacManoObra?.variacion || 0)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacManoObra?.variacion || 0)}`}>
-                      {getVariationIcon(economicIndexes.cacManoObra?.variacion || 0)}
-                      {formatCurrency(Math.abs(economicIndexes.cacManoObra?.variacion || 0), 2)}%
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacManoObra?.valor || 0, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.cacManoObra?.descripcion || 'Cargando...'}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Actualizado: {economicIndexes.cacManoObra?.fecha ? new Date(economicIndexes.cacManoObra.fecha).toLocaleDateString("es-AR") : 'N/A'}
-                  </div>
-                </div>
-              </div>
-
-              {/* IS */}
-              <div 
-                className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
-                onClick={() => fetchEconomicIndexChart('is')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">IS (Salarios)</h3>
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.is?.variacion || 0)}`}>
-                    <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.is?.variacion || 0)}`}>
-                      {getVariationIcon(economicIndexes.is?.variacion || 0)}
-                      {formatCurrency(Math.abs(economicIndexes.is?.variacion || 0), 2)}%
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-3xl font-bold">{formatCurrency(economicIndexes.is?.valor || 0, 2)}</div>
-                  <div className="text-sm text-muted-foreground">{economicIndexes.is?.descripcion || 'Cargando...'}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Actualizado: {economicIndexes.is?.fecha ? new Date(economicIndexes.is.fecha).toLocaleDateString("es-AR") : 'N/A'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Gráficos de Índices Económicos */}
-        {economicIndexes && Object.keys(economicCharts).length > 0 && (
-          <section>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold">Series Históricas</h2>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {Object.entries(economicCharts).map(([indicator, chartData]) => (
-                <div key={indicator} className="bg-card border border-border rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold mb-4 capitalize">
-                    {indicator === 'ipc' ? 'IPC (Inflación)' :
-                     indicator === 'inflacion' ? 'Inflación Mensual' :
-                     indicator === 'cacGeneral' ? 'CAC General' :
-                     indicator === 'cacMateriales' ? 'CAC Materiales' :
-                     indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
-                     indicator === 'uva' ? 'UVA (Unidad de Valor Adquisitivo)' :
-                     'IS (Salarios)'}
-                  </h3>
-                  <div className="h-64">
+                <div className="bg-card border border-border rounded-2xl p-6">
+                  <div className="h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData.data}>
+                      <LineChart data={dollarCharts[selectedDollarChart].data}>
                         <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                         <XAxis 
                           dataKey="fecha" 
                           tick={{ fontSize: 12 }}
-                          tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' })}
+                          tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            ...(selectedDollarPeriod === '1y' && { year: '2-digit' })
+                          })}
                         />
                         <YAxis 
                           tick={{ fontSize: 12 }}
                           domain={['dataMin - 1', 'dataMax + 1']}
+                          tickFormatter={(value) => `$${formatCurrency(value)}`}
                         />
                         <Tooltip 
-                          labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR')}
-                          formatter={(value: number) => [formatCurrency(value, 2), 'Valor']}
+                          labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                          formatter={(value: number, name: string) => [
+                            `$${formatCurrency(value)}`, 
+                            name === 'compra' ? 'Compra' : 'Venta'
+                          ]}
                         />
                         <Line 
                           type="monotone" 
-                          dataKey="valor" 
-                          stroke="#3b82f6" 
+                          dataKey="compra" 
+                          stroke="#10b981" 
                           strokeWidth={2}
-                          dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                          activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                          name="compra"
+                          dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
+                          activeDot={{ r: 5, stroke: '#10b981', strokeWidth: 2 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="venta" 
+                          stroke="#ef4444" 
+                          strokeWidth={2}
+                          name="venta"
+                          dot={{ fill: '#ef4444', strokeWidth: 2, r: 3 }}
+                          activeDot={{ r: 5, stroke: '#ef4444', strokeWidth: 2 }}
                         />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
+                  <div className="flex items-center justify-center gap-6 mt-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="text-sm text-muted-foreground">Compra</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <span className="text-sm text-muted-foreground">Venta</span>
+                    </div>
+                  </div>
                   <div className="text-xs text-muted-foreground mt-2 text-center">
-                    Período: {chartData.periodo}
+                    Período: {dollarCharts[selectedDollarChart].periodo}
                   </div>
                 </div>
-              ))}
-            </div>
-          </section>
+              </section>
+            )}
+
+            {/* Índices Económicos */}
+            {economicIndexes && (
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Índices Económicos</h2>
+                </div>
+
+                {/* Grid especial para IPC e Inflación - destacados en 2 columnas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  {/* IPC */}
+                  <div 
+                    className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 hover:border-blue-300 transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => fetchEconomicIndexChart('ipc')}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">IPC (Inflación)</h3>
+                        <p className="text-xs text-gray-600 mt-0.5">Índice acumulado</p>
+                      </div>
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.ipc?.variacion || 0)}`}>
+                        <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.ipc?.variacion || 0)}`}>
+                          {getVariationIcon(economicIndexes.ipc?.variacion || 0)}
+                          {formatCurrency(Math.abs(economicIndexes.ipc?.variacion || 0), 2)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-3xl font-bold text-gray-900">{formatCurrency(economicIndexes.ipc?.valor || 0, 2)}</div>
+                      <div className="text-sm text-gray-600">{economicIndexes.ipc?.descripcion || 'Cargando...'}</div>
+                      <div className="text-xs text-gray-500">
+                        Actualizado: {economicIndexes.ipc?.fecha ? new Date(economicIndexes.ipc.fecha).toLocaleDateString("es-AR") : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Inflación Mensual */}
+                  {economicIndexes.inflacion && (
+                    <div 
+                      className="bg-gradient-to-br from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl p-6 hover:border-red-300 transition-all hover:shadow-lg cursor-pointer"
+                      onClick={() => fetchEconomicIndexChart('inflacion')}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">Inflación Mensual</h3>
+                          <p className="text-xs text-gray-600 mt-0.5">Histórica desde 2010</p>
+                        </div>
+                        {economicIndexes.inflacion.variacion !== null && (
+                          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.inflacion.variacion)}`}>
+                            <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.inflacion.variacion)}`}>
+                              {getVariationIcon(economicIndexes.inflacion.variacion)}
+                              {formatCurrency(Math.abs(economicIndexes.inflacion.variacion), 2)}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-3xl font-bold text-gray-900">{formatCurrency(economicIndexes.inflacion.valor, 2)}%</div>
+                        <div className="text-sm text-gray-600">{economicIndexes.inflacion.descripcion}</div>
+                        <div className="text-xs text-gray-500">
+                          Actualizado: {economicIndexes.inflacion.fecha ? new Date(economicIndexes.inflacion.fecha).toLocaleDateString("es-AR", { month: 'long', year: 'numeric' }) : 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Resto de índices en grid normal */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                  {/* CAC General */}
+                  <div 
+                    className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => fetchEconomicIndexChart('cacGeneral')}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">CAC General</h3>
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacGeneral?.variacion || 0)}`}>
+                        <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacGeneral?.variacion || 0)}`}>
+                          {getVariationIcon(economicIndexes.cacGeneral?.variacion || 0)}
+                          {formatCurrency(Math.abs(economicIndexes.cacGeneral?.variacion || 0), 2)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacGeneral?.valor || 0, 2)}</div>
+                      <div className="text-sm text-muted-foreground">{economicIndexes.cacGeneral?.descripcion || 'Cargando...'}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Actualizado: {economicIndexes.cacGeneral?.fecha ? new Date(economicIndexes.cacGeneral.fecha).toLocaleDateString("es-AR") : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CAC Materiales */}
+                  <div 
+                    className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => fetchEconomicIndexChart('cacMateriales')}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">CAC Materiales</h3>
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacMateriales?.variacion || 0)}`}>
+                        <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacMateriales?.variacion || 0)}`}>
+                          {getVariationIcon(economicIndexes.cacMateriales?.variacion || 0)}
+                          {formatCurrency(Math.abs(economicIndexes.cacMateriales?.variacion || 0), 2)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacMateriales?.valor || 0, 2)}</div>
+                      <div className="text-sm text-muted-foreground">{economicIndexes.cacMateriales?.descripcion || 'Cargando...'}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Actualizado: {economicIndexes.cacMateriales?.fecha ? new Date(economicIndexes.cacMateriales.fecha).toLocaleDateString("es-AR") : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CAC Mano de Obra */}
+                  <div 
+                    className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => fetchEconomicIndexChart('cacManoObra')}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">CAC Mano de Obra</h3>
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.cacManoObra?.variacion || 0)}`}>
+                        <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.cacManoObra?.variacion || 0)}`}>
+                          {getVariationIcon(economicIndexes.cacManoObra?.variacion || 0)}
+                          {formatCurrency(Math.abs(economicIndexes.cacManoObra?.variacion || 0), 2)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-3xl font-bold">{formatCurrency(economicIndexes.cacManoObra?.valor || 0, 2)}</div>
+                      <div className="text-sm text-muted-foreground">{economicIndexes.cacManoObra?.descripcion || 'Cargando...'}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Actualizado: {economicIndexes.cacManoObra?.fecha ? new Date(economicIndexes.cacManoObra.fecha).toLocaleDateString("es-AR") : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* IS */}
+                  <div 
+                    className="bg-card border border-border rounded-2xl p-6 hover:border-foreground/20 transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => fetchEconomicIndexChart('is')}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">IS (Salarios)</h3>
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.is?.variacion || 0)}`}>
+                        <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.is?.variacion || 0)}`}>
+                          {getVariationIcon(economicIndexes.is?.variacion || 0)}
+                          {formatCurrency(Math.abs(economicIndexes.is?.variacion || 0), 2)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="text-3xl font-bold">{formatCurrency(economicIndexes.is?.valor || 0, 2)}</div>
+                      <div className="text-sm text-muted-foreground">{economicIndexes.is?.descripcion || 'Cargando...'}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Actualizado: {economicIndexes.is?.fecha ? new Date(economicIndexes.is.fecha).toLocaleDateString("es-AR") : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Gráficos de Índices Económicos */}
+            {economicIndexes && Object.keys(economicCharts).length > 0 && (
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Series Históricas</h2>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {Object.entries(economicCharts).map(([indicator, chartData]) => (
+                    <div key={indicator} className="bg-card border border-border rounded-2xl p-6">
+                      <h3 className="text-lg font-semibold mb-4 capitalize">
+                        {indicator === 'ipc' ? 'IPC (Inflación)' :
+                         indicator === 'inflacion' ? 'Inflación Mensual' :
+                         indicator === 'cacGeneral' ? 'CAC General' :
+                         indicator === 'cacMateriales' ? 'CAC Materiales' :
+                         indicator === 'cacManoObra' ? 'CAC Mano de Obra' :
+                         indicator === 'uva' ? 'UVA (Unidad de Valor Adquisitivo)' :
+                         'IS (Salarios)'}
+                      </h3>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={chartData.data}>
+                            <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                            <XAxis 
+                              dataKey="fecha" 
+                              tick={{ fontSize: 12 }}
+                              tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' })}
+                            />
+                            <YAxis 
+                              tick={{ fontSize: 12 }}
+                              domain={['dataMin - 1', 'dataMax + 1']}
+                            />
+                            <Tooltip 
+                              labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR')}
+                              formatter={(value: number) => [formatCurrency(value, 2), 'Valor']}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="valor" 
+                              stroke="#3b82f6" 
+                              strokeWidth={2}
+                              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                              activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-2 text-center">
+                        Período: {chartData.periodo}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Índice UVA */}
+            {economicIndexes && economicIndexes.uva && (
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Índice UVA</h2>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                  <div 
+                    className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-6 hover:border-amber-300 transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => fetchEconomicIndexChart('uva')}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">UVA (Unidad de Valor Adquisitivo)</h3>
+                        <p className="text-sm text-gray-600 mt-1">{economicIndexes.uva.descripcion}</p>
+                      </div>
+                      {economicIndexes.uva.variacion !== null && (
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getVariationBgColor(economicIndexes.uva.variacion)}`}>
+                          <span className={`flex items-center gap-1 text-sm font-medium ${getVariationColor(economicIndexes.uva.variacion)}`}>
+                            {getVariationIcon(economicIndexes.uva.variacion)}
+                            {formatCurrency(Math.abs(economicIndexes.uva.variacion), 4)}%
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-3">
+                      <div className="text-4xl font-bold text-gray-900">${formatCurrency(economicIndexes.uva.valor, 2)}</div>
+                      <div className="text-sm text-gray-500">
+                        al {economicIndexes.uva.fecha ? new Date(economicIndexes.uva.fecha).toLocaleDateString("es-AR", { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A'}
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-amber-200">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Info className="w-4 h-4" />
+                        <span>Utilizado principalmente en créditos hipotecarios UVA. Se actualiza diariamente según la inflación.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
+            {/* Negociación */}
+            <NetworkNegotiationIndicators />
+
+            {/* KPI Cierres */}
+            <section className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-orange-600" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold">KPI Cierres</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Ponderación mensual histórica de operaciones
+                    <span className="block text-xs text-orange-600 dark:text-orange-400 font-medium mt-1 italic">
+                      * Datos recolectados por agentes independientes
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-6 shadow-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {[
+                    { mes: "Ene", val: "4,72%" },
+                    { mes: "Feb", val: "5,41%" },
+                    { mes: "Mar", val: "7,12%" },
+                    { mes: "Abr", val: "6,82%" },
+                    { mes: "May", val: "8,41%" },
+                    { mes: "Jun", val: "9,15%" },
+                    { mes: "Jul", val: "8,66%" },
+                    { mes: "Ago", val: "9,64%" },
+                    { mes: "Sep", val: "9,42%" },
+                    { mes: "Oct", val: "9,65%" },
+                    { mes: "Nov", val: "9,78%" },
+                    { mes: "Dic", val: "11,21%" }
+                  ].map((item, idx) => (
+                    <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center">
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground mb-1">{item.mes}</span>
+                      <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{item.val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Esquemas de Honorarios inmobiliarios */}
+            <RealEstateCommissions />
+          </div>
         )}
 
         {/* Footer Info */}
