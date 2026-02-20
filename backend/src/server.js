@@ -38,6 +38,25 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3003;
 
+// Health check endpoint - early in the middleware chain to respond faster and avoid blocks
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    service: 'rialtor-backend'
+  });
+});
+
+// Simple ping endpoint that doesn't require database
+app.get('/ping', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV
+  });
+});
+
 // Security middleware
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
@@ -150,28 +169,6 @@ try {
   // Continue without Prisma for health check
   prisma = null;
 }
-
-// Simple ping endpoint that doesn't require database
-app.get('/ping', (req, res) => {
-  console.log('[PING] Ping requested');
-  res.json({
-    status: 'OK',
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
-});
-
-// Health check - simplified for Railway deployment
-// Returns 200 immediately if server is running
-// Database status available at /api/admin/health for detailed checks
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    service: 'rialtor-backend'
-  });
-});
 
 // Detailed health check with database status
 app.get('/api/health/detailed', async (req, res) => {
