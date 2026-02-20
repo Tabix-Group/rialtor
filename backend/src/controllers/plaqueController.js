@@ -755,6 +755,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const antiguedad = propertyInfo.antiguedad || null;
     const geometricPattern = propertyInfo.geometricPattern || 'none'; // Nuevo campo para patrones geométricos
     const brand = propertyInfo.brand || null; // Nuevo campo para marca
+    const brandColor = propertyInfo.brandColor || '#E31837'; // Color para marca (RE/MAX Red por defecto)
     const sidebarColor = propertyInfo.sidebarColor || 'rgba(84, 74, 63, 0.7)'; // Color por defecto para Modelo 4
 
     // --- CÁLCULO DE COLOR DE TEXTO (AUTO O FORZADO) ---
@@ -1210,7 +1211,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       // Logo (Brand)
       if (brand) {
         const brandFontSize = brand.length > 15 ? 32 : 42;
-        svg += `  <text x="${width - 60}" y="${height - 80}" text-anchor="end" style="font-family: Arial Black, sans-serif; font-size: ${brandFontSize}px; font-weight: 900; fill: #E31837; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+        svg += `  <text x="${width - 60}" y="${height - 80}" text-anchor="end" style="font-family: Arial Black, sans-serif; font-size: ${brandFontSize}px; font-weight: 900; fill: ${brandColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
       }
       
       // Texto vertical a la derecha

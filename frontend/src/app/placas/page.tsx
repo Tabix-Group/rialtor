@@ -57,6 +57,7 @@ interface PropertyData {
   url?: string; // URL personalizada para la placa
   sidebarColor?: string; // Color para Modelo 4
   brand?: string; // Marca para placas
+  brandColor?: string; // Color para la marca (especialmente Modelo 5)
   textColor?: 'auto' | 'white' | 'black'; // Color de letras forzado
 }
 
@@ -153,6 +154,7 @@ export default function PlacasPage() {
     url: 'www.rialtor.app',
     sidebarColor: 'rgba(84, 74, 63, 0.7)',
     brand: 'EMPRESA',
+    brandColor: '#E31837',
     textColor: 'auto'
   });
   const [modelType, setModelType] = useState<'standard' | 'premium' | 'vip' | 'model4' | 'model5'>('standard');
@@ -363,8 +365,11 @@ export default function PlacasPage() {
           agentName: '',
           agency: '',
           agentContact: '',
+          url: 'www.rialtor.app',
           sidebarColor: 'rgba(84, 74, 63, 0.7)',
-          brand: 'EMPRESA'
+          brand: 'EMPRESA',
+          brandColor: '#E31837',
+          textColor: 'auto'
         });
         setModelType('standard');
         setAgentImageFile(null);
@@ -1072,10 +1077,38 @@ export default function PlacasPage() {
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                         {isFieldVisible('brand') && (
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Marca / Franquicia</label>
-                            <input type="text" value={propertyData.brand} onChange={(e) => setPropertyData(prev => ({ ...prev, brand: e.target.value }))}
-                              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: EMPRESA Premium" />
+                          <div className="space-y-4">
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Marca / Franquicia</label>
+                              <input type="text" value={propertyData.brand} onChange={(e) => setPropertyData(prev => ({ ...prev, brand: e.target.value }))}
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: EMPRESA Premium" />
+                            </div>
+
+                            {/* Selector de color solo para Modelo 5 y cuando hay marca */}
+                            {modelType === 'model5' && (
+                              <div className="space-y-2">
+                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color de la Marca</label>
+                                <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                  <input 
+                                    type="color" 
+                                    value={propertyData.brandColor || '#E31837'} 
+                                    onChange={(e) => setPropertyData(prev => ({ ...prev, brandColor: e.target.value }))}
+                                    className="w-12 h-10 rounded cursor-pointer bg-transparent border-0"
+                                  />
+                                  <div className="flex-1">
+                                    <p className="text-xs font-semibold text-slate-600">Personaliza el color del texto</p>
+                                    <p className="text-[10px] text-slate-400">El color por defecto es el Rojo RE/MAX (#E31837)</p>
+                                  </div>
+                                  <button 
+                                    type="button"
+                                    onClick={() => setPropertyData(prev => ({ ...prev, brandColor: '#E31837' }))}
+                                    className="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-wider underline"
+                                  >
+                                    Resetear
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
 
