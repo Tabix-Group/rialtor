@@ -114,7 +114,7 @@ const PLAQUE_MODEL_SUMMARY: {
     title: 'Modelo 5 (Impacto Visual Enmarcado)',
     description: 'Diseño con marco perimetral y cajas de información centradas para alto impacto visual.',
     features: ['Marco envolvente', 'Cajas flotantes', 'Enfoque visual'],
-    relevantFields: ['tipo', 'precio', 'moneda', 'direccion', 'ambientes', 'dormitorios', 'm2_totales', 'brand', 'corredores']
+    relevantFields: ['tipo', 'precio', 'moneda', 'direccion', 'ambientes', 'dormitorios', 'm2_totales', 'brand', 'corredores', 'agentName']
   }
 ];
 

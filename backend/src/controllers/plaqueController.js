@@ -3,7 +3,12 @@ const { PrismaClient } = require('@prisma/client');
 const OpenAI = require('openai');
 const cloudinary = require('../cloudinary');
 const multer = require('multer');
-const sharp = require('sharp');
+let sharp = null;
+try {
+  sharp = require('sharp');
+} catch (sharpErr) {
+  console.error('[PLACAS] Error cargando sharp, procesamiento de imágenes no disponible:', sharpErr.message);
+}
 const QRCode = require('qrcode');
 // Node 18+ tiene fetch nativo, no necesitamos importar node-fetch
 
@@ -1212,6 +1217,12 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       if (brand) {
         const brandFontSize = brand.length > 15 ? 32 : 42;
         svg += `  <text x="${width - 60}" y="${height - 80}" text-anchor="end" style="font-family: Arial Black, sans-serif; font-size: ${brandFontSize}px; font-weight: 900; fill: ${brandColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+      }
+      
+      // Nombre del Agente (bottom-left)
+      const agentNameM5 = propertyInfo.agentName ? escapeForSvg(propertyInfo.agentName) : null;
+      if (agentNameM5) {
+        svg += `  <text x="60" y="${height - 80}" text-anchor="start" style="font-family: Arial, sans-serif; font-size: 28px; font-weight: 600; fill: ${textColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">${agentNameM5}</text>\n`;
       }
       
       // Texto vertical a la derecha
