@@ -1084,8 +1084,8 @@ export default function PlacasPage() {
                                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: EMPRESA Premium" />
                             </div>
 
-                            {/* Selector de color solo para Modelo 5 y cuando hay marca */}
-                            {modelType === 'model5' && (
+                            {/* Selector de color para todos los modelos cuando hay marca */}
+                            {propertyData.brand && (
                               <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color de la Marca</label>
                                 <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200">

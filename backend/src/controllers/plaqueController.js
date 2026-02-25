@@ -1165,7 +1165,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       
       // Logo (Brand) - reducido 25% + escalado adaptativamente
       if (brand) {
-        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: ${brandSize}px; font-weight: 900; fill: ${textColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: ${brandSize}px; font-weight: 900; fill: ${brandColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
       }
       
       // Texto vertical a la derecha - reducido 25% + escalado adaptativamente
@@ -1213,16 +1213,29 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         svg += `  <text x="${width/2}" y="${height * 0.82}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 32px; font-weight: 700; fill: ${textColor}; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${escapeForSvg(infoText)}</text>\n`;
       }
       
-      // Logo (Brand)
-      if (brand) {
-        const brandFontSize = brand.length > 15 ? 32 : 42;
-        svg += `  <text x="${width - 60}" y="${height - 80}" text-anchor="end" style="font-family: Arial Black, sans-serif; font-size: ${brandFontSize}px; font-weight: 900; fill: ${brandColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
-      }
-      
-      // Nombre del Agente (bottom-left)
+      // Nombre del Agente — extremo inferior izquierdo con fondo semi-transparente
       const agentNameM5 = propertyInfo.agentName ? escapeForSvg(propertyInfo.agentName) : null;
       if (agentNameM5) {
-        svg += `  <text x="60" y="${height - 80}" text-anchor="start" style="font-family: Arial, sans-serif; font-size: 28px; font-weight: 600; fill: ${textColor}; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">${agentNameM5}</text>\n`;
+        const agFontSize = agentNameM5.length > 20 ? 22 : 28;
+        const agPadX = 16, agPadY = 10;
+        const agBoxW = Math.min(agentNameM5.length * agFontSize * 0.56 + agPadX * 2, width * 0.45);
+        const agBoxH = agFontSize + agPadY * 2;
+        const agBoxX = borderMargin;
+        const agBoxY = height - borderMargin - agBoxH;
+        svg += `  <rect x="${agBoxX}" y="${agBoxY}" width="${agBoxW}" height="${agBoxH}" rx="6" fill="rgba(0,0,0,0.55)" />\n`;
+        svg += `  <text x="${agBoxX + agPadX}" y="${agBoxY + agFontSize + agPadY - 4}" text-anchor="start" style="font-family: Arial, sans-serif; font-size: ${agFontSize}px; font-weight: 700; fill: #FFFFFF; letter-spacing: 0.3px;">${agentNameM5}</text>\n`;
+      }
+
+      // Logo (Brand) — extremo inferior derecho con fondo semi-transparente
+      if (brand) {
+        const brFontSize = brand.length > 15 ? 28 : 38;
+        const brPadX = 18, brPadY = 10;
+        const brBoxW = Math.min(brand.length * brFontSize * 0.62 + brPadX * 2, width * 0.42);
+        const brBoxH = brFontSize + brPadY * 2;
+        const brBoxX = width - borderMargin - brBoxW;
+        const brBoxY = height - borderMargin - brBoxH;
+        svg += `  <rect x="${brBoxX}" y="${brBoxY}" width="${brBoxW}" height="${brBoxH}" rx="6" fill="rgba(0,0,0,0.55)" />\n`;
+        svg += `  <text x="${brBoxX + brBoxW / 2}" y="${brBoxY + brFontSize + brPadY - 4}" text-anchor="middle" style="font-family: Arial Black, sans-serif; font-size: ${brFontSize}px; font-weight: 900; fill: ${brandColor}; text-transform: uppercase; letter-spacing: 1px;">${escapeForSvg(brand)}</text>\n`;
       }
       
       // Texto vertical a la derecha
@@ -1656,7 +1669,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       // Fondo con opacidad del 50%
       svg += `  <rect x="${brandX - 20}" y="${brandY - brandSize - 16}" width="${brandBoxWidth}" height="${brandBoxHeight}" rx="8" fill="rgba(255,255,255,0.5)" stroke="rgba(0,0,0,0.1)" stroke-width="1.5" />\n`;
       
-      svg += `  <text x="${brandX}" y="${brandY}" text-anchor="start" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${brandSize}px; font-weight: 700; fill: #000000;">${brandSafe}</text>\n`;
+      svg += `  <text x="${brandX}" y="${brandY}" text-anchor="start" style="font-family: 'DejaVu Sans', 'Arial', sans-serif; font-size: ${brandSize}px; font-weight: 700; fill: ${brandColor};">${brandSafe}</text>\n`;
     }
 
     // Zócalo del agente para modelo premium
@@ -2344,12 +2357,12 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   // === SISTEMA DE LAYOUT EDITORIAL PREMIUM ===
   // - Agente: 165px + margen izquierdo 36px + separación 24px = 225px de área izquierda
-  // - Info central: 225px hasta 870px = 645px de ancho útil
-  // - QR: últimos 210px (150px QR + 36px margen + 24px frame)
+  // - Info central: 225px hasta 856px = 631px de ancho útil
+  // - QR: últimos 210px (150px QR + 36px margen + 24px frame) + 14px gap = 224px reservados
   
   const qrTotalWidth = 150 + 24 + 36; // qrSize + frame + rightMargin
   const infoStartX = hasAgentPhoto ? 225 : 54;
-  const infoEndX = width - qrTotalWidth; // ~870px
+  const infoEndX = width - qrTotalWidth - 14; // ~856px (14px gap antes del QR)
   const infoWidth = infoEndX - infoStartX;
   
   let svg = `<?xml version="1.0" encoding="UTF-8"?>
