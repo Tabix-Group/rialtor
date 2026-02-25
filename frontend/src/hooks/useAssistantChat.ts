@@ -47,7 +47,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
-            content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n¿En qué puedo ayudarte hoy?',
+            content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n⚠️ **Nota**: Esta información se genera sin consultar internet en tiempo real. Para cálculos precisos e índices actualizados, utiliza nuestras secciones de **[Calculadoras](/calculadoras)** e **[Indicadores](/indicadores)**.\n\n¿En qué puedo ayudarte hoy?',
             isUser: false,
             timestamp: new Date().toISOString(),
             read: false
@@ -162,7 +162,7 @@ export function useAssistantChat(): UseAssistantChatReturn {
     const clearChat = useCallback(() => {
         setMessages([{
             id: '1',
-            content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n¿En qué puedo ayudarte hoy?',
+            content: '¡Hola! Soy **RIALTOR**, tu asistente de IA especializado en el sector inmobiliario argentino. 🏠\n\nPuedo ayudarte con:\n\n📊 **Cálculos**: Honorarios, gastos de escrituración, impuestos\n💰 **Mercado**: Precios del dólar, tendencias, análisis\n📋 **Legal**: Contratos, regulaciones, documentación\n🔍 **Propiedades**: Búsqueda y asesoramiento\n\n⚠️ **Nota**: Esta información se genera sin consultar internet en tiempo real. Para cálculos precisos e índices actualizados, utiliza nuestras secciones de **[Calculadoras](/calculadoras)** e **[Indicadores](/indicadores)**.\n\n¿En qué puedo ayudarte hoy?',
             isUser: false,
             timestamp: new Date().toISOString(),
             read: false

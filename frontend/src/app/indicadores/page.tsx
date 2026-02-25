@@ -846,18 +846,18 @@ export default function IndicadoresPage() {
               <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-6 shadow-sm">
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                   {[
-                    { mes: "Ene", val: "4,72%" },
-                    { mes: "Feb", val: "5,41%" },
-                    { mes: "Mar", val: "7,12%" },
-                    { mes: "Abr", val: "6,82%" },
-                    { mes: "May", val: "8,41%" },
-                    { mes: "Jun", val: "9,15%" },
-                    { mes: "Jul", val: "8,66%" },
-                    { mes: "Ago", val: "9,64%" },
-                    { mes: "Sep", val: "9,42%" },
-                    { mes: "Oct", val: "9,65%" },
-                    { mes: "Nov", val: "9,78%" },
-                    { mes: "Dic", val: "11,21%" }
+                    { mes: "Ene", val: "5%" },
+                    { mes: "Feb", val: "5%" },
+                    { mes: "Mar", val: "7%" },
+                    { mes: "Abr", val: "7%" },
+                    { mes: "May", val: "8%" },
+                    { mes: "Jun", val: "9%" },
+                    { mes: "Jul", val: "9%" },
+                    { mes: "Ago", val: "10%" },
+                    { mes: "Sep", val: "9%" },
+                    { mes: "Oct", val: "10%" },
+                    { mes: "Nov", val: "10%" },
+                    { mes: "Dic", val: "11%" }
                   ].map((item, idx) => (
                     <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground mb-1">{item.mes}</span>

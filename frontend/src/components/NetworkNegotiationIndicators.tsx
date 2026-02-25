@@ -28,14 +28,14 @@ export default function NetworkNegotiationIndicators() {
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
               <p className="text-xs text-muted-foreground mb-1 leading-tight">Prom. Variación Precio Publicación / Vendido</p>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-red-500">-5,60%</span>
+                <span className="text-2xl font-bold text-red-500">-6%</span>
                 <TrendingDown className="w-4 h-4 text-red-500" />
               </div>
             </div>
             <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-100 dark:border-slate-800">
               <p className="text-xs text-muted-foreground mb-1 leading-tight">Prom. Variación Primer Precio / Vendido</p>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-red-500">-8,12%</span>
+                <span className="text-2xl font-bold text-red-500">-8%</span>
                 <TrendingDown className="w-4 h-4 text-red-500" />
               </div>
             </div>
@@ -55,17 +55,17 @@ export default function NetworkNegotiationIndicators() {
               <div className="flex flex-col items-center text-center">
                 <Clock className="w-5 h-5 text-indigo-500 mb-2" />
                 <p className="text-xs text-muted-foreground mb-1">Captación hasta Reserva</p>
-                <span className="text-3xl font-bold">135,35</span>
+                <span className="text-3xl font-bold">135</span>
               </div>
               <div className="flex flex-col items-center text-center">
                 <Clock className="w-5 h-5 text-indigo-500 mb-2" />
                 <p className="text-xs text-muted-foreground mb-1">Reserva hasta Venta</p>
-                <span className="text-3xl font-bold">55,88</span>
+                <span className="text-3xl font-bold">56</span>
               </div>
               <div className="flex flex-col items-center text-center">
                 <Clock className="w-5 h-5 text-indigo-500 mb-2" />
                 <p className="text-xs text-muted-foreground mb-1">Captación hasta Venta</p>
-                <span className="text-3xl font-bold">188,66</span>
+                <span className="text-3xl font-bold">189</span>
               </div>
             </div>
           </div>
@@ -82,15 +82,15 @@ export default function NetworkNegotiationIndicators() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-border/50 text-center">
                   <p className="text-[10px] text-muted-foreground mb-1 font-medium">Capt./Reserva</p>
-                  <p className="text-lg font-bold">162,16</p>
+                  <p className="text-lg font-bold">162</p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-border/50 text-center">
                   <p className="text-[10px] text-muted-foreground mb-1 font-medium">Res./Venta</p>
-                  <p className="text-lg font-bold">64,76</p>
+                  <p className="text-lg font-bold">65</p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-border/50 text-center">
                   <p className="text-[10px] text-muted-foreground mb-1 font-medium">Capt./Venta</p>
-                  <p className="text-lg font-bold">226,98</p>
+                  <p className="text-lg font-bold">227</p>
                 </div>
               </div>
             </div>
@@ -106,15 +106,15 @@ export default function NetworkNegotiationIndicators() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-border/50 text-center">
                   <p className="text-[10px] text-muted-foreground mb-1 font-medium">Capt./Reserva</p>
-                  <p className="text-lg font-bold">116,94</p>
+                  <p className="text-lg font-bold">117</p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-border/50 text-center">
                   <p className="text-[10px] text-muted-foreground mb-1 font-medium">Res./Venta</p>
-                  <p className="text-lg font-bold">52,63</p>
+                  <p className="text-lg font-bold">53</p>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-border/50 text-center">
                   <p className="text-[10px] text-muted-foreground mb-1 font-medium">Capt./Venta</p>
-                  <p className="text-lg font-bold">168,75</p>
+                  <p className="text-lg font-bold">169</p>
                 </div>
               </div>
             </div>
