@@ -1944,12 +1944,11 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
       .toBuffer();
     
     // 3. Foto del AGENTE con marco PREMIUM editorial (área inferior izquierda)
-    // Proporciones optimizadas: ratio 3:4 para retrato profesional
-    const agentWidth = 200;   // Ancho balanceado
-    const agentHeight = 265;  // Alto proporcional 3:4
-    const agentX = 50;        // Margen izquierdo elegante
-    // Alinear bottom del agente con el área de características
-    const agentY = footerY - agentHeight - 25; // 25px de margen antes del footer
+    // Proporciones 3:4 — contenido entre contentY y footerY (300px)
+    const agentWidth = 165;   // Ancho proporcional al área de contenido
+    const agentHeight = 220;  // Alto: 300 - 40px márgenes verticales = 260 → 220 para dejar aire
+    const agentX = 36;        // Margen izquierdo
+    const agentY = contentY + Math.floor((contentHeight - agentHeight) / 2); // Centrado vertical
     
     let agentProcessed = null;
     if (agentImageBuffer) {
@@ -2157,11 +2156,11 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     
     // Capa 6: Código QR con diseño limpio y profesional
     const qrUrl = propertyInfo.url || 'https://www.rialtor.app';
-    const qrSize = 145; // Tamaño optimizado para el nuevo layout compacto
-    const qrFrameSize = qrSize + 28; // Marco más ajustado
-    const qrX = width - qrSize - 65; // Posición horizontal balanceada
-    // Alinear bottom del QR con el agente y características
-    const qrY = footerY - qrFrameSize - 20; // Más cerca del footer para compactar
+    const qrSize = 150; // Tamaño optimizado para el nuevo layout
+    const qrFrameSize = 174; // qrSize + 24 de marco
+    const qrX = width - qrFrameSize - 36; // Margen derecho de 36px
+    // Centrado vertical en el área de contenido
+    const qrY = contentY + Math.floor((contentHeight - qrFrameSize) / 2);
     
     try {
       // Generar código QR de alta calidad
@@ -2344,15 +2343,14 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   }
   
   // === SISTEMA DE LAYOUT EDITORIAL PREMIUM ===
-  // - Agente: 200px + márgenes amplios = área izquierda de ~290px
-  // - Info central: desde 290px hasta ~750px (460px de ancho)
-  // - QR: desde ~750px hasta borde derecho (~330px de área)
+  // - Agente: 165px + margen izquierdo 36px + separación 24px = 225px de área izquierda
+  // - Info central: 225px hasta 870px = 645px de ancho útil
+  // - QR: últimos 210px (150px QR + 36px margen + 24px frame)
   
-  const agentAreaWidth = hasAgentPhoto ? 290 : 0;
-  const qrAreaWidth = 330; // Espacio amplio para QR centrado
-  const infoStartX = hasAgentPhoto ? 290 : 60; // Más espaciado desde el agente
-  const infoEndX = width - qrAreaWidth;
-  const infoWidth = infoEndX - infoStartX; // ~460px para información
+  const qrTotalWidth = 150 + 24 + 36; // qrSize + frame + rightMargin
+  const infoStartX = hasAgentPhoto ? 225 : 54;
+  const infoEndX = width - qrTotalWidth; // ~870px
+  const infoWidth = infoEndX - infoStartX;
   
   let svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
@@ -2545,95 +2543,91 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   <!-- === SECCIÓN DE INFORMACIÓN DE PROPIEDAD === -->\n`;
   
-  // Posicionamiento vertical optimizado para diseño compacto
-  let currentY = contentY + 30;
-  
-  // LABEL: "Propiedad"
-  svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-label">PROPIEDAD</text>\n`;
-  currentY += 28;
-  
-  // TIPO de propiedad — protagonista, tipografía grande y segura
-  svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-tipo" style="font-size: 30px;">${tipo}</text>\n`;
-  currentY += 10;
+  // --- LAYOUT VERTICAL DEL ÁREA DE CONTENIDO (contentY → footerY, 300px) ---
+  // Zona 1: Encabezado (label + tipo + dirección): ~88px
+  // Zona 2: Separador: ~14px
+  // Zona 3: Grid de features (2 filas × 56px + gap 10px): ~122px
+  // Margen superior/inferior: ~38px libre
 
-  // DIRECCIÓN — subtítulo en línea con separador "|", tamaño ajustado dinámicamente
+  const headerTopY   = contentY + 28;   // Label "PROPIEDAD"
+  const tipoY        = headerTopY + 26; // Tipo de propiedad (serif bold)
+  const direccionY   = tipoY + 26;      // Dirección (sans-serif medium)
+  const accentLineY  = direccionY + 18; // Línea de acento
+  const featuresTopY = accentLineY + 18; // Inicio del grid de features
+
+  // LABEL superior
+  svg += `  <text x="${infoStartX}" y="${headerTopY}" class="vip-label">PROPIEDAD</text>\n`;
+
+  // TIPO — protagonista, tipo serif bold grande
+  svg += `  <text x="${infoStartX}" y="${tipoY}" style="font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 700; fill: ${tipoColor}; letter-spacing: 0px;">${tipo}</text>\n`;
+
+  // DIRECCIÓN — línea separada, sans-serif medium, tamaño ajustado dinámicamente
   if (direccion) {
-    const maxDirWidth = infoEndX - infoStartX - 20;
-    let dirFontSize = 17;
-    const estimatedDirWidth = direccion.length * (dirFontSize * 0.6);
+    const maxDirWidth = infoEndX - infoStartX - 16;
+    let dirFontSize = 15;
+    const estimatedDirWidth = direccion.length * (dirFontSize * 0.58);
     if (estimatedDirWidth > maxDirWidth) {
-      dirFontSize = Math.max(12, Math.floor(maxDirWidth / (direccion.length * 0.6)));
+      dirFontSize = Math.max(11, Math.floor(maxDirWidth / (direccion.length * 0.58)));
     }
-    // Barra separadora tipo | dirección
-    const sepX = infoStartX + tipo.length * 16.5 + 12;
-    svg += `  <text x="${sepX}" y="${currentY + 2}" dominant-baseline="middle" style="font-family: Inter, Arial, sans-serif; font-size: 22px; font-weight: 200; fill: #b0c8d8;">|</text>\n`;
-    svg += `  <text x="${sepX + 20}" y="${currentY + 2}" dominant-baseline="middle" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: ${dirFontSize}px; font-weight: 500; fill: ${valueColor}; letter-spacing: 0.2px;">${direccion}</text>\n`;
+    svg += `  <text x="${infoStartX}" y="${direccionY}" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: ${dirFontSize}px; font-weight: 500; fill: ${valueColor}; letter-spacing: 0.1px;">${direccion}</text>\n`;
   }
-  currentY += 22;
 
-  // Separador de acento — línea corta doble
-  svg += `  <rect x="${infoStartX}" y="${currentY}" width="60" height="3" rx="1.5" fill="#a8c5dd" opacity="0.9" />\n`;
-  svg += `  <rect x="${infoStartX + 68}" y="${currentY + 0.5}" width="20" height="2" rx="1" fill="#c5dae9" opacity="0.6" />\n`;
-  currentY += 20;
+  // Separador de acento — doble franja
+  svg += `  <rect x="${infoStartX}" y="${accentLineY}" width="55" height="2.5" rx="1.5" fill="#a8c5dd" opacity="0.9" />\n`;
+  svg += `  <rect x="${infoStartX + 62}" y="${accentLineY + 0.5}" width="18" height="1.5" rx="1" fill="#c5dae9" opacity="0.6" />\n`;
 
-  // === CARACTERÍSTICAS — Grid 3 columnas, tarjetas elegantes ===
+  // === CARACTERÍSTICAS — Grid 3 columnas × 2 filas ===
   const features = [];
-  if (ambientes) features.push({ icon: 'icon-ambientes', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' });
-  if (cocheras) features.push({ icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' });
-  if (m2_totales) features.push({ icon: 'icon-area', value: `${m2_totales}`, unit: 'm²', label: 'totales' });
-  if (m2_cubiertos) features.push({ icon: 'icon-covered', value: `${m2_cubiertos}`, unit: 'm²', label: 'cubiertos' });
-  if (dormitorios) features.push({ icon: 'icon-bed', value: dormitorios, unit: '', label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
-  if (banos) features.push({ icon: 'icon-bath', value: banos, unit: '', label: banos === '1' ? 'baño' : 'baños' });
+  if (ambientes)  features.push({ icon: 'icon-ambientes', value: ambientes,  unit: '',   label: ambientes  === '1' ? 'ambiente'   : 'ambientes' });
+  if (cocheras)   features.push({ icon: 'icon-garage',    value: cocheras,   unit: '',   label: cocheras   === '1' ? 'cochera'    : 'cocheras' });
+  if (m2_totales) features.push({ icon: 'icon-area',      value: m2_totales, unit: 'm²', label: 'totales' });
+  if (m2_cubiertos) features.push({ icon: 'icon-covered', value: m2_cubiertos, unit: 'm²', label: 'cubiertos' });
+  if (dormitorios) features.push({ icon: 'icon-bed',      value: dormitorios, unit: '',  label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
+  if (banos)       features.push({ icon: 'icon-bath',     value: banos,       unit: '',  label: banos       === '1' ? 'baño'       : 'baños' });
 
-  // Layout: 3 columnas, 2 filas máximo (6 features)
-  const numCols = 3;
-  const colGap = 14;
-  const totalColsWidth = infoWidth - (colGap * (numCols - 1));
-  const cardW = Math.floor(totalColsWidth / numCols);
-  const cardH = 54;
-  const rowGap = 10;
-  const iconSz = 22;
-  const colXs = [
+  const NUM_COLS   = 3;
+  const CARD_H     = 56;
+  const CARD_GAP_X = 12;
+  const CARD_GAP_Y = 10;
+  const ICON_SZ    = 20;
+  // Distribuir el ancho disponible en 3 columnas iguales
+  const CARD_W = Math.floor((infoWidth - CARD_GAP_X * (NUM_COLS - 1)) / NUM_COLS);
+  const colXArr = [
     infoStartX,
-    infoStartX + cardW + colGap,
-    infoStartX + (cardW + colGap) * 2
+    infoStartX + CARD_W + CARD_GAP_X,
+    infoStartX + (CARD_W + CARD_GAP_X) * 2
   ];
 
   if (features.length > 0) {
-    svg += `\n  <!-- Grid de características 3 columnas -->\n`;
-    features.forEach((feature, index) => {
-      if (index >= 6) return;
-      const col = index % numCols;
-      const row = Math.floor(index / numCols);
-      const fx = colXs[col];
-      const fy = currentY + row * (cardH + rowGap);
+    svg += `\n  <!-- Grid de características VIP 3×2 -->\n`;
+    features.forEach((feat, idx) => {
+      if (idx >= 6) return;
+      const col = idx % NUM_COLS;
+      const row = Math.floor(idx / NUM_COLS);
+      const fx  = colXArr[col];
+      const fy  = featuresTopY + row * (CARD_H + CARD_GAP_Y);
+      if (fy + CARD_H > footerY - 8) return;
 
-      if (fy + cardH > footerY - 5) return;
+      // Tarjeta — fondo plano + borde + acento izquierdo
+      svg += `  <rect x="${fx}" y="${fy}" width="${CARD_W}" height="${CARD_H}" rx="7" fill="${cardBgColor}" />\n`;
+      svg += `  <rect x="${fx}" y="${fy}" width="${CARD_W}" height="${CARD_H}" rx="7" fill="none" stroke="${cardBorderColor}" stroke-width="1" />\n`;
+      svg += `  <rect x="${fx}" y="${fy + 9}" width="3" height="${CARD_H - 18}" rx="1.5" fill="#a8c5dd" opacity="0.75" />\n`;
 
-      // Fondo de tarjeta con borde limpio
-      svg += `  <rect x="${fx}" y="${fy}" width="${cardW - 4}" height="${cardH}" rx="8" fill="${cardBgColor}" />\n`;
-      svg += `  <rect x="${fx}" y="${fy}" width="${cardW - 4}" height="${cardH}" rx="8" fill="none" stroke="${cardBorderColor}" stroke-width="1" />\n`;
+      const iconX  = fx + 10;
+      const iconY  = fy + Math.floor((CARD_H - ICON_SZ) / 2);
+      const textX  = fx + ICON_SZ + 20;
+      const valY   = fy + 24;
+      const labY   = fy + 42;
 
-      // Acento izquierdo — franja de color
-      svg += `  <rect x="${fx}" y="${fy + 8}" width="3" height="${cardH - 16}" rx="1.5" fill="#a8c5dd" opacity="0.7" />\n`;
+      // Icono SVG inline via <use>
+      svg += `  <svg x="${iconX}" y="${iconY}" width="${ICON_SZ}" height="${ICON_SZ}" stroke="${iconColor}" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><use href="#${feat.icon}" /></svg>\n`;
 
-      const textX = fx + iconSz + 18;
-      const iconY = fy + Math.floor((cardH - iconSz) / 2);
-      const valueY = fy + 22;
-      const labelY = fy + 40;
+      // Valor + unidad
+      const unitStr = feat.unit ? `<tspan style="font-size:11px;font-weight:500;fill:${featureLabelColor};" dx="1" dy="-3">${feat.unit}</tspan>` : '';
+      svg += `  <text x="${textX}" y="${valY}" style="font-family:'Inter',Arial,sans-serif;font-size:19px;font-weight:700;fill:${valueColor};">${feat.value}${unitStr}</text>\n`;
 
-      // Icono
-      svg += `  <g style="color: ${iconColor}">\n`;
-      svg += `    <svg x="${fx + 8}" y="${iconY}" width="${iconSz}" height="${iconSz}" stroke="${iconColor}" fill="none">\n`;
-      svg += `      <use href="#${feature.icon}" />\n`;
-      svg += `    </svg>\n`;
-      svg += `  </g>\n`;
-
-      // Valor principal + unidad
-      svg += `  <text x="${textX}" y="${valueY}" style="font-family: 'Inter', Arial, sans-serif; font-size: 20px; font-weight: 700; fill: ${valueColor};">${feature.value}<tspan style="font-size: 12px; font-weight: 500; fill: ${featureLabelColor}; baseline-shift: 4px;"> ${feature.unit}</tspan></text>\n`;
-
-      // Label descriptivo
-      svg += `  <text x="${textX}" y="${labelY}" style="font-family: 'Inter', Arial, sans-serif; font-size: 10px; font-weight: 500; fill: ${featureLabelColor}; letter-spacing: 0.5px; text-transform: uppercase;">${feature.label}</text>\n`;
+      // Label
+      svg += `  <text x="${textX}" y="${labY}" style="font-family:'Inter',Arial,sans-serif;font-size:10px;font-weight:500;fill:${featureLabelColor};letter-spacing:0.5px;text-transform:uppercase;">${feat.label}</text>\n`;
     });
   }
   
