@@ -2552,93 +2552,90 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-label">PROPIEDAD</text>\n`;
   currentY += 28;
   
-  // TIPO de propiedad y DIRECCIÓN en la misma línea
-  svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-tipo">${tipo}</text>\n`;
-  
+  // TIPO de propiedad — protagonista, tipografía grande y segura
+  svg += `  <text x="${infoStartX}" y="${currentY}" class="vip-tipo" style="font-size: 30px;">${tipo}</text>\n`;
+  currentY += 10;
+
+  // DIRECCIÓN — subtítulo en línea con separador "|", tamaño ajustado dinámicamente
   if (direccion) {
-    // Calcular ancho aproximado del tipo (Playfair Display 30px, bold, serif)
-    const tipoWidth = tipo.length * 20; 
-    const separatorX = infoStartX + tipoWidth + 25; 
-    
-    // Espacio disponible para la dirección
-    const maxDireccionX = width - 100; 
-    const maxDireccionWidth = maxDireccionX - separatorX - 30; 
-    
-    // Calcular tamaño de fuente dinámico basado en la longitud de la dirección
-    let direccionFontSize = 26;
-    const charWidthRatio = 0.55; 
-    const estimatedDireccionWidth = direccion.length * (26 * charWidthRatio);
-    
-    if (estimatedDireccionWidth > maxDireccionWidth) {
-      direccionFontSize = Math.max(14, Math.floor((maxDireccionWidth / direccion.length) / charWidthRatio * 0.9));
+    const maxDirWidth = infoEndX - infoStartX - 20;
+    let dirFontSize = 17;
+    const estimatedDirWidth = direccion.length * (dirFontSize * 0.6);
+    if (estimatedDirWidth > maxDirWidth) {
+      dirFontSize = Math.max(12, Math.floor(maxDirWidth / (direccion.length * 0.6)));
     }
-    
-    // Separador vertical entre tipo y dirección
-    svg += `  <line x1="${separatorX}" y1="${currentY - 18}" x2="${separatorX}" y2="${currentY + 2}" stroke="#c5dae9" stroke-width="2" stroke-linecap="round" opacity="0.6" />\n`;
-    
-    // Dirección a la derecha del separador
-    svg += `  <text x="${separatorX + 30}" y="${currentY}" class="vip-direccion" style="font-size: ${direccionFontSize}px; overflow: hidden;" clip-path="url(#direccionClipPath)">${direccion}</text>\n`;
+    // Barra separadora tipo | dirección
+    const sepX = infoStartX + tipo.length * 16.5 + 12;
+    svg += `  <text x="${sepX}" y="${currentY + 2}" dominant-baseline="middle" style="font-family: Inter, Arial, sans-serif; font-size: 22px; font-weight: 200; fill: #b0c8d8;">|</text>\n`;
+    svg += `  <text x="${sepX + 20}" y="${currentY + 2}" dominant-baseline="middle" style="font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: ${dirFontSize}px; font-weight: 500; fill: ${valueColor}; letter-spacing: 0.2px;">${direccion}</text>\n`;
   }
-  
-  currentY += 24;
-  
-  // Separador minimalista celeste
-  svg += `  <line x1="${infoStartX}" y1="${currentY}" x2="${infoStartX + 70}" y2="${currentY}" stroke="#a8c5dd" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />\n`;
-  currentY += 28;
-  
-  // === CARACTERÍSTICAS - Grid 2x2 ===
-  const ambientesCard = ambientes ? { icon: 'icon-descripcion', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' } : null;
-  const cocheraCard = cocheras ? { icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' } : null;
-  
+  currentY += 22;
+
+  // Separador de acento — línea corta doble
+  svg += `  <rect x="${infoStartX}" y="${currentY}" width="60" height="3" rx="1.5" fill="#a8c5dd" opacity="0.9" />\n`;
+  svg += `  <rect x="${infoStartX + 68}" y="${currentY + 0.5}" width="20" height="2" rx="1" fill="#c5dae9" opacity="0.6" />\n`;
+  currentY += 20;
+
+  // === CARACTERÍSTICAS — Grid 3 columnas, tarjetas elegantes ===
   const features = [];
-  if (ambientesCard) features.push(ambientesCard);
-  if (cocheraCard) features.push(cocheraCard);
+  if (ambientes) features.push({ icon: 'icon-ambientes', value: ambientes, unit: '', label: ambientes === '1' ? 'ambiente' : 'ambientes' });
+  if (cocheras) features.push({ icon: 'icon-garage', value: cocheras, unit: '', label: cocheras === '1' ? 'cochera' : 'cocheras' });
   if (m2_totales) features.push({ icon: 'icon-area', value: `${m2_totales}`, unit: 'm²', label: 'totales' });
   if (m2_cubiertos) features.push({ icon: 'icon-covered', value: `${m2_cubiertos}`, unit: 'm²', label: 'cubiertos' });
   if (dormitorios) features.push({ icon: 'icon-bed', value: dormitorios, unit: '', label: dormitorios === '1' ? 'dormitorio' : 'dormitorios' });
   if (banos) features.push({ icon: 'icon-bath', value: banos, unit: '', label: banos === '1' ? 'baño' : 'baños' });
-  
-  // Calcular posiciones de columnas para características
-  const iconSize = 24;
-  const featureColWidth = Math.min(210, (infoWidth - 25) / 2);
-  
-    // Calcular altura disponible
-    const availableHeight = (footerY - 15) - currentY;
-    const numRows = Math.ceil(features.length / 2);
-    // Asegurar un mínimo de espacio entre filas, reduciendo el alto de la tarjeta si es necesario
-    const cardHeight = 42; 
-    const rowSpacing = 8;
-    const featureRowHeight = Math.max(cardHeight + rowSpacing, numRows > 1 ? (availableHeight / numRows) : cardHeight + rowSpacing);
-    
-    const col1X = infoStartX;
-    const col2X = infoStartX + featureColWidth + 25;
-    
-    if (features.length > 0) {
-      svg += `\n  <!-- Grid de características compacto -->\n`;
-      
-      features.forEach((feature, index) => {
-        if (index >= 6) return; 
-        
-        const col = index % 2;
-        const row = Math.floor(index / 2);
-        const featureX = col === 0 ? col1X : col2X;
-        const featureY = currentY + (row * featureRowHeight);
-        
-        if (featureY + cardHeight > footerY - 5) return;
-        
-        // Contenedor más compacto
-        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="${cardBgColor}" opacity="0.8" />\n`;
-        svg += `  <rect x="${featureX - 5}" y="${featureY - 5}" width="${featureColWidth - 12}" height="${cardHeight}" rx="8" fill="none" stroke="${cardBorderColor}" stroke-width="0.8" />\n`;
-        
-        svg += `  <g style="color: ${iconColor}">\n`;
-        svg += `    <svg x="${featureX}" y="${featureY - 2}" width="${iconSize}" height="${iconSize}">\n`;
-        svg += `      <use href="#${feature.icon}" />\n`;
-        svg += `    </svg>\n`;
-        svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 12}" class="vip-feature-value" style="font-size: 19px;">${feature.value}<tspan style="font-size: 12px; font-weight: 500; fill: ${featureLabelColor};"> ${feature.unit}</tspan></text>\n`;
-        svg += `    <text x="${featureX + iconSize + 8}" y="${featureY + 28}" class="vip-feature-label" style="font-size: 10px;">${feature.label}</text>\n`;
-        svg += `  </g>\n`;
-      });
-    }
+
+  // Layout: 3 columnas, 2 filas máximo (6 features)
+  const numCols = 3;
+  const colGap = 14;
+  const totalColsWidth = infoWidth - (colGap * (numCols - 1));
+  const cardW = Math.floor(totalColsWidth / numCols);
+  const cardH = 54;
+  const rowGap = 10;
+  const iconSz = 22;
+  const colXs = [
+    infoStartX,
+    infoStartX + cardW + colGap,
+    infoStartX + (cardW + colGap) * 2
+  ];
+
+  if (features.length > 0) {
+    svg += `\n  <!-- Grid de características 3 columnas -->\n`;
+    features.forEach((feature, index) => {
+      if (index >= 6) return;
+      const col = index % numCols;
+      const row = Math.floor(index / numCols);
+      const fx = colXs[col];
+      const fy = currentY + row * (cardH + rowGap);
+
+      if (fy + cardH > footerY - 5) return;
+
+      // Fondo de tarjeta con borde limpio
+      svg += `  <rect x="${fx}" y="${fy}" width="${cardW - 4}" height="${cardH}" rx="8" fill="${cardBgColor}" />\n`;
+      svg += `  <rect x="${fx}" y="${fy}" width="${cardW - 4}" height="${cardH}" rx="8" fill="none" stroke="${cardBorderColor}" stroke-width="1" />\n`;
+
+      // Acento izquierdo — franja de color
+      svg += `  <rect x="${fx}" y="${fy + 8}" width="3" height="${cardH - 16}" rx="1.5" fill="#a8c5dd" opacity="0.7" />\n`;
+
+      const textX = fx + iconSz + 18;
+      const iconY = fy + Math.floor((cardH - iconSz) / 2);
+      const valueY = fy + 22;
+      const labelY = fy + 40;
+
+      // Icono
+      svg += `  <g style="color: ${iconColor}">\n`;
+      svg += `    <svg x="${fx + 8}" y="${iconY}" width="${iconSz}" height="${iconSz}" stroke="${iconColor}" fill="none">\n`;
+      svg += `      <use href="#${feature.icon}" />\n`;
+      svg += `    </svg>\n`;
+      svg += `  </g>\n`;
+
+      // Valor principal + unidad
+      svg += `  <text x="${textX}" y="${valueY}" style="font-family: 'Inter', Arial, sans-serif; font-size: 20px; font-weight: 700; fill: ${valueColor};">${feature.value}<tspan style="font-size: 12px; font-weight: 500; fill: ${featureLabelColor}; baseline-shift: 4px;"> ${feature.unit}</tspan></text>\n`;
+
+      // Label descriptivo
+      svg += `  <text x="${textX}" y="${labelY}" style="font-family: 'Inter', Arial, sans-serif; font-size: 10px; font-weight: 500; fill: ${featureLabelColor}; letter-spacing: 0.5px; text-transform: uppercase;">${feature.label}</text>\n`;
+    });
+  }
   
   // === FOOTER EDITORIAL PREMIUM ===
   svg += `\n  <!-- Footer Editorial Premium -->\n`;
