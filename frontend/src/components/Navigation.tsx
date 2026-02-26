@@ -30,6 +30,7 @@ import {
   HelpCircle,
   Mail,
   Briefcase, // Icono añadido para mejorar sección de negocio
+  Wand2,
 } from "lucide-react"
 
 function Navigation() {
@@ -144,6 +145,13 @@ function Navigation() {
       href: "/placas",
       icon: ImageIcon,
       description: "Genera placas profesionales",
+    },
+    {
+      name: "Decorala",
+      href: "/decorala",
+      icon: Wand2,
+      description: "Decoraci\u00f3n de ambientes con IA",
+      badge: "Nuevo",
     },
     {
       name: "Mis Newsletters",
@@ -357,7 +365,14 @@ function Navigation() {
                 >
                   <Icon className={`w-5 h-5 flex-shrink-0 transition-colors ${isItemActive ? "text-primary" : "text-slate-500 group-hover/item:text-slate-700"}`} />
                   {!isCollapsed && (
-                    <span className="ml-3 truncate">{item.name}</span>
+                    <>
+                      <span className="ml-3 flex-1 truncate">{item.name}</span>
+                      {(item as any).badge && (
+                        <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white leading-none">
+                          {(item as any).badge}
+                        </span>
+                      )}
+                    </>
                   )}
                 </Link>
               )

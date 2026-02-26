@@ -88,6 +88,18 @@ const Shield = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const Wand2 = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732zM14 5l3 3"
+    />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 20l1-4 9-9 3 3-9 9-4 1z" />
+  </svg>
+)
+
 const ArrowRight = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -214,6 +226,15 @@ export default function Home() {
       icon: ShieldCheck,
       href: "https://www.rialtor.app/placas",
       requiresAuth: true,
+      size: "normal" as const,
+    },
+    {
+      name: "Decorala",
+      description: "Subí la foto de un ambiente vacío y recibí una versión amoblada con IA. Cuatro estilos disponibles.",
+      icon: Wand2,
+      href: "https://www.rialtor.app/decorala",
+      requiresAuth: true,
+      isNew: true,
       size: "normal" as const,
     },
     {
@@ -610,6 +631,13 @@ export default function Home() {
                           <div className="absolute top-6 right-6 flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
                             <span className="text-[10px] font-medium text-violet-400">LIVE</span>
+                          </div>
+                        )}
+                        {(feature as any).isNew && (
+                          <div className="absolute top-6 right-6">
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] font-bold text-emerald-400 uppercase tracking-wide">
+                              Nuevo
+                            </span>
                           </div>
                         )}
                       </div>

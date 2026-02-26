@@ -2,6 +2,16 @@ const cron = require('node-cron');
 const { syncAllRSSSources, cleanOldNews } = require('./rssService');
 const economicIndicatorsService = require('./economicIndicatorsService');
 
+let prismaForCron = null;
+let cloudinaryForCron = null;
+try {
+  const { PrismaClient } = require('@prisma/client');
+  prismaForCron = new PrismaClient();
+  cloudinaryForCron = require('../cloudinary');
+} catch (e) {
+  console.error('[Cron] No se pudo inicializar Prisma/Cloudinary para limpieza de Decorala:', e.message);
+}
+
 /**
  * Configura y arranca todas las tareas programadas
  */
@@ -49,6 +59,38 @@ const startCronJobs = () => {
         timezone: "America/Argentina/Buenos_Aires"
     });
 
+    // Limpiar imágenes de Decorala expiradas (15 días) todos los días a las 04:00 AM
+    cron.schedule('0 4 * * *', async () => {
+        console.log('[Cron] Ejecutando limpieza de decoraciones expiradas...');
+        if (!prismaForCron || !cloudinaryForCron) {
+            console.warn('[Cron] Decorala cleanup omitido: Prisma o Cloudinary no disponibles');
+            return;
+        }
+        try {
+            const expired = await prismaForCron.decorationRequest.findMany({
+                where: { expiresAt: { lt: new Date() } },
+                select: { id: true, originalId: true, generatedId: true },
+            });
+
+            let deleted = 0;
+            for (const req of expired) {
+                try {
+                    if (req.originalId) await cloudinaryForCron.uploader.destroy(req.originalId);
+                    if (req.generatedId) await cloudinaryForCron.uploader.destroy(req.generatedId);
+                    await prismaForCron.decorationRequest.delete({ where: { id: req.id } });
+                    deleted++;
+                } catch (itemErr) {
+                    console.error(`[Cron] Error eliminando decoración ${req.id}:`, itemErr.message);
+                }
+            }
+            console.log(`[Cron] Decorala: ${deleted} decoraciones expiradas eliminadas`);
+        } catch (error) {
+            console.error('[Cron] Error en limpieza de Decorala:', error);
+        }
+    }, {
+        timezone: "America/Argentina/Buenos_Aires"
+    });
+
     // Nota: Se elimina la sincronización inicial al arrancar para evitar ejecuciones
     // inmediatas. Las noticias se sincronizan únicamente mediante el cron diario
     // configurado más arriba (08:00 AM Argentina).
@@ -68,6 +110,7 @@ const startCronJobs = () => {
     console.log('[Cron] - Actualización de cotizaciones del dólar: 12:00 PM (mediodía) Argentina - 1 registro diario');
     console.log('[Cron] - Sincronización RSS (todas las fuentes): Diariamente a las 8:00 AM (Argentina)');
     console.log('[Cron] - Limpieza de noticias: Diariamente a las 03:00 AM (Argentina)');
+    console.log('[Cron] - Limpieza de Decorala (imágenes expiradas): Diariamente a las 04:00 AM (Argentina)');
 };
 
 module.exports = { startCronJobs };

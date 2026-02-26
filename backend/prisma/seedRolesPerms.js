@@ -12,6 +12,7 @@ async function main() {
     { name: 'use_calculators', description: 'Usar calculadoras' },
     { name: 'access_chat', description: 'Acceder al chat' },
     { name: 'use_placas', description: 'Usar generador de placas' },
+    { name: 'use_decorala', description: 'Usar decoración de ambientes con IA' },
     // Agrega más según tus vistas/secciones
   ];
 
@@ -29,21 +30,21 @@ async function main() {
       name: 'ADMIN',
       description: 'Administrador',
       permissions: [
-        'view_admin', 'manage_users', 'manage_content', 'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas',
+        'view_admin', 'manage_users', 'manage_content', 'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas', 'use_decorala',
       ],
     },
     {
       name: 'CORREDOR',
       description: 'Corredor',
       permissions: [
-        'manage_content', 'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas',
+        'manage_content', 'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas', 'use_decorala',
       ],
     },
     {
       name: 'USUARIO',
       description: 'Usuario',
       permissions: [
-        'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas',
+        'upload_files', 'generate_documents', 'use_calculators', 'access_chat', 'use_placas', 'use_decorala',
       ],
     },
   ];
