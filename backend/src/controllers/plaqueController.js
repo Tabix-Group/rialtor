@@ -542,27 +542,33 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis, output
     console.log('[PLACAS] Imagen descargada, tamaño:', imageBuffer.length, 'bytes');
 
     // Procesar con Sharp
-    let image = sharp(imageBuffer);
-    const metadata = await image.metadata();
-    let { width, height } = metadata;
+    const metadata = await sharp(imageBuffer).metadata();
+    console.log('[PLACAS] Dimensiones originales:', metadata.width, 'x', metadata.height);
 
-    console.log('[PLACAS] Dimensiones originales:', width, 'x', height);
+    // Normalizar SIEMPRE a 1080×1080 para que todos los elementos del overlay
+    // queden en posiciones y tamaños consistentes sin importar el tamaño de la
+    // imagen original subida (puede ser pequeña, mediana o grande).
+    // Se usa fit:'cover' + position:'center' para rellenar sin distorsionar.
+    let width = 1080;
+    let height = 1080;
 
-    // Si se especifica un formato de salida, redimensionar la imagen
+    // Si se especifica un formato de salida personalizado, usarlo como dimensiones objetivo
     if (outputFormat && outputFormat !== 'original' && formats[outputFormat]) {
       const targetFormat = formats[outputFormat];
-      console.log('[PLACAS] Redimensionando a formato:', targetFormat.name, `(${targetFormat.width}x${targetFormat.height})`);
-      
-      image = sharp(imageBuffer).resize(targetFormat.width, targetFormat.height, {
-        fit: 'cover',
-        position: 'center'
-      });
-      
       width = targetFormat.width;
       height = targetFormat.height;
+      console.log('[PLACAS] Formato de salida personalizado:', targetFormat.name, `(${width}x${height})`);
     }
 
-    console.log('[PLACAS] Dimensiones finales:', width, 'x', height);
+    const normalizedBuffer = await sharp(imageBuffer)
+      .resize(width, height, {
+        fit: 'cover',
+        position: 'center'
+      })
+      .toBuffer();
+
+    let image = sharp(normalizedBuffer);
+    console.log('[PLACAS] Imagen normalizada a:', width, 'x', height, '(cover/center)');
 
     // Crear SVG con la información de la propiedad
     const overlayColor = determineOverlayColor(imageAnalysis.colores);
