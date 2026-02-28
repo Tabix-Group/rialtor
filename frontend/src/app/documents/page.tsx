@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link'
-import { Search, Wand2, Edit3 } from 'lucide-react'
+import { Search, Wand2, Edit3, Brain } from 'lucide-react'
 
 export default function DocumentsPage() {
 
@@ -23,6 +23,16 @@ export default function DocumentsPage() {
       iconColor: 'text-purple-600',
       iconBg: 'bg-purple-50',
       iconBgHover: 'group-hover:bg-purple-100'
+    },
+    {
+      title: 'DocuSmart',
+      description: 'Subí una escritura, boleto o cesión y elegí exactamente qué datos necesitás extraer: partes, dominio, cargas, precio, plazos, cláusulas y más. La IA localiza y devuelve solo lo que seleccionaste.',
+      icon: Brain,
+      href: '/documents/docusmart',
+      iconColor: 'text-indigo-600',
+      iconBg: 'bg-indigo-50',
+      iconBgHover: 'group-hover:bg-indigo-100',
+      badge: 'Nuevo'
     }
   ];
 
@@ -67,9 +77,16 @@ export default function DocumentsPage() {
                     <div className={`${option.iconBg} p-2.5 rounded-lg ${option.iconBgHover} transition-colors flex-shrink-0`}>
                       <option.icon className={`w-5 h-5 ${option.iconColor}`} />
                     </div>
-                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {option.title}
-                    </h3>
+                    <div className="flex flex-col gap-0.5">
+                      <h3 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {option.title}
+                      </h3>
+                      {'badge' in option && option.badge && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full w-fit">
+                          {option.badge}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <svg
                     className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all flex-shrink-0"

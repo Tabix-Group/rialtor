@@ -1030,6 +1030,230 @@ router.post('/test-basic', async (req, res) => {
   }
 });
 
+// ============================================================
+// DocuSmart — Extracción inteligente de campos seleccionados
+// POST /api/documents/docusmart
+// Body (multipart): file + selectedFields (JSON array of field IDs)
+// Documents are stored in Cloudinary for 30 days then auto-deleted
+// ============================================================
+
+const DOCUSMART_FIELDS = {
+  bloque_a_1:  { block: 'A', blockName: 'Identidad de la operación', label: 'Tipo de documento',                     prompt: 'Tipo de documento: Escritura, Boleto de compraventa, Cesión, u otro' },
+  bloque_a_2:  { block: 'A', blockName: 'Identidad de la operación', label: 'Tipo de operación',                     prompt: 'Tipo de operación: Compra-venta, Cesión de boleto, Permuta, Donación, u otro' },
+  bloque_a_3:  { block: 'A', blockName: 'Identidad de la operación', label: 'Fecha del documento',                   prompt: 'Fecha de celebración u otorgamiento del documento' },
+  bloque_a_4:  { block: 'A', blockName: 'Identidad de la operación', label: 'Jurisdicción',                          prompt: 'Jurisdicción: CABA, PBA/AMBA, u otra provincia' },
+  bloque_a_5:  { block: 'A', blockName: 'Identidad de la operación', label: 'Inmobiliaria/s interviniente/s',        prompt: 'Nombre/s de la/s inmobiliaria/s o corredor/es intervinientes' },
+
+  bloque_b_6:  { block: 'B', blockName: 'Partes', label: 'Vendedor/es (nombre + DNI/CUIT)',                          prompt: 'Nombre completo y DNI o CUIT de cada vendedor' },
+  bloque_b_7:  { block: 'B', blockName: 'Partes', label: 'Estado civil + régimen patrimonial del vendedor',          prompt: 'Estado civil del vendedor/es y régimen patrimonial (sociedad conyugal, separación de bienes, etc.)' },
+  bloque_b_8:  { block: 'B', blockName: 'Partes', label: 'Comprador/es (nombre + DNI/CUIT)',                         prompt: 'Nombre completo y DNI o CUIT de cada comprador' },
+  bloque_b_9:  { block: 'B', blockName: 'Partes', label: 'Representación: apoderado (sí/no)',                        prompt: '¿Alguna parte actúa por apoderado? Sí o No. Si sí, indicar quién.' },
+  bloque_b_10: { block: 'B', blockName: 'Partes', label: 'Datos del poder (escribano / fecha / registro)',           prompt: 'Datos del poder notarial si existe: nombre del escribano, fecha, número de registro/protocolo' },
+
+  bloque_c_11: { block: 'C', blockName: 'Inmueble', label: 'Domicilio del inmueble',                                 prompt: 'Dirección completa del inmueble (calle, número, piso, depto, localidad)' },
+  bloque_c_12: { block: 'C', blockName: 'Inmueble', label: 'Matrícula / datos registrales',                          prompt: 'Número de matrícula del Registro de la Propiedad Inmueble' },
+  bloque_c_13: { block: 'C', blockName: 'Inmueble', label: 'Partida (ARBA / ABL)',                                   prompt: 'Número de partida inmobiliaria ARBA (provincia) o ABL (CABA)' },
+  bloque_c_14: { block: 'C', blockName: 'Inmueble', label: 'Nomenclatura catastral',                                 prompt: 'Nomenclatura catastral: Circunscripción, Sección, Manzana, Parcela' },
+  bloque_c_15: { block: 'C', blockName: 'Inmueble', label: 'Tipo de inmueble',                                       prompt: 'Tipo: Casa, Departamento, PH, Lote, Local, Oficina, u otro' },
+  bloque_c_16: { block: 'C', blockName: 'Inmueble', label: 'Unidad funcional / complementaria',                      prompt: 'Número de unidad funcional y/o complementaria (cochera, baulera) si es PH o edificio' },
+  bloque_c_17: { block: 'C', blockName: 'Inmueble', label: 'Superficie cubierta',                                    prompt: 'Superficie cubierta en m²' },
+  bloque_c_18: { block: 'C', blockName: 'Inmueble', label: 'Superficie descubierta',                                 prompt: 'Superficie descubierta (terraza, jardín, patio) en m²' },
+  bloque_c_19: { block: 'C', blockName: 'Inmueble', label: 'Superficie total',                                       prompt: 'Superficie total del inmueble en m²' },
+
+  bloque_d_20: { block: 'D', blockName: 'Dominio y cargas', label: 'Titularidad coincide con informe',               prompt: '¿La titularidad registral del vendedor coincide con el informe de dominio? Sí, No, o No informado' },
+  bloque_d_21: { block: 'D', blockName: 'Dominio y cargas', label: 'Tipo de dominio',                                prompt: 'Dominio: Pleno, Condominio (indicar partes indivisas), Usufructo, Nuda propiedad, u otro' },
+  bloque_d_22: { block: 'D', blockName: 'Dominio y cargas', label: 'Usufructo (sí/no + titulares)',                  prompt: '¿Existe usufructo? Sí o No. Si sí, indicar los titulares del usufructo.' },
+  bloque_d_23: { block: 'D', blockName: 'Dominio y cargas', label: 'Hipoteca (sí/no + estado)',                      prompt: '¿Existe hipoteca? Sí o No. Si sí: estado (vigente, cancelable en el acto, cancelada)' },
+  bloque_d_24: { block: 'D', blockName: 'Dominio y cargas', label: 'Embargo (sí/no)',                                prompt: '¿Existe embargo sobre el inmueble o las partes? Sí o No' },
+  bloque_d_25: { block: 'D', blockName: 'Dominio y cargas', label: 'Inhibición (sí/no)',                             prompt: '¿Existe inhibición general de bienes? Sí o No' },
+  bloque_d_26: { block: 'D', blockName: 'Dominio y cargas', label: 'Protección de vivienda / bien de familia',       prompt: '¿El inmueble tiene afectación a protección de vivienda (ex bien de familia)? Sí o No' },
+  bloque_d_27: { block: 'D', blockName: 'Dominio y cargas', label: 'Servidumbres / restricciones',                   prompt: '¿Existen servidumbres, restricciones al dominio u otras afectaciones? Sí o No. Si sí, describir brevemente.' },
+
+  bloque_e_28: { block: 'E', blockName: 'Económico', label: 'Precio total',                                          prompt: 'Precio total de la operación (en números y en letras si consta)' },
+  bloque_e_29: { block: 'E', blockName: 'Económico', label: 'Moneda',                                                prompt: 'Moneda: Pesos argentinos (ARS), Dólares (USD), u otra' },
+  bloque_e_30: { block: 'E', blockName: 'Económico', label: 'Forma de pago',                                         prompt: 'Forma de pago: Transferencia, Efectivo, Crédito hipotecario, Mixto. Describir.' },
+  bloque_e_31: { block: 'E', blockName: 'Económico', label: 'Anticipo / seña / reserva',                             prompt: 'Monto del anticipo, seña o reserva entregado o pactado' },
+  bloque_e_32: { block: 'E', blockName: 'Económico', label: 'Saldo',                                                 prompt: 'Monto del saldo a pagar y oportunidad (escritura, posesión, etc.)' },
+  bloque_e_33: { block: 'E', blockName: 'Económico', label: 'Condición crédito hipotecario',                         prompt: '¿La operación está sujeta a crédito hipotecario? Sí o No. Si sí, banco interviniente.' },
+  bloque_e_34: { block: 'E', blockName: 'Económico', label: 'Origen de fondos declarado',                            prompt: '¿Se declara el origen lícito de los fondos (art. 303 CCCN o UIAF)? Sí o No' },
+
+  bloque_f_35: { block: 'F', blockName: 'Plazos y entrega', label: 'Fecha máxima de escrituración',                  prompt: 'Fecha límite para la escrituración (en boleto de compraventa)' },
+  bloque_f_36: { block: 'F', blockName: 'Plazos y entrega', label: 'Modalidad de posesión',                          prompt: 'Posesión: Inmediata a la firma, Diferida (indicar fecha/condición), u Ocupada' },
+  bloque_f_37: { block: 'F', blockName: 'Plazos y entrega', label: 'Fecha de entrega de posesión',                   prompt: 'Fecha o plazo para la entrega de la posesión del inmueble' },
+  bloque_f_38: { block: 'F', blockName: 'Plazos y entrega', label: 'Llaves: cuándo y contra qué',                    prompt: 'Condición de entrega de llaves: cuándo y contra qué evento o pago' },
+
+  bloque_g_39: { block: 'G', blockName: 'Cláusulas de conflicto', label: 'Penalidad incumplimiento comprador',       prompt: 'Consecuencia/penalidad si el comprador incumple (pérdida de seña, multas, etc.)' },
+  bloque_g_40: { block: 'G', blockName: 'Cláusulas de conflicto', label: 'Penalidad incumplimiento vendedor',        prompt: 'Consecuencia/penalidad si el vendedor incumple (devolución doble de seña, multas, etc.)' },
+  bloque_g_41: { block: 'G', blockName: 'Cláusulas de conflicto', label: 'Distribución de gastos',                   prompt: 'Quién paga cada gasto: escribanía, sellos, impuesto de transferencia, ITI, plusvalía, etc.' },
+  bloque_g_42: { block: 'G', blockName: 'Cláusulas de conflicto', label: 'Comisión inmobiliaria',                    prompt: 'Porcentaje de comisión, quién la paga (comprador, vendedor, ambos) y cuándo' },
+  bloque_g_43: { block: 'G', blockName: 'Cláusulas de conflicto', label: 'Condiciones suspensivas/resolutorias',     prompt: 'Condiciones suspensivas o resolutorias: texto de la cláusula y tipo' },
+};
+
+async function cleanupExpiredDocuSmartDocs() {
+  try {
+    const now = new Date();
+    const docs = await prisma.documentTemplate.findMany({ where: { category: 'DocuSmart' } });
+    const expired = docs.filter(doc => {
+      try {
+        const meta = JSON.parse(doc.fields || '{}');
+        return meta.expiresAt && new Date(meta.expiresAt) < now;
+      } catch { return false; }
+    });
+    for (const doc of expired) {
+      try {
+        if (doc.cloudinaryId) {
+          const ext = (doc.cloudinaryId.split('.').pop() || '').toLowerCase();
+          const resourceType = ['jpg','jpeg','png','gif','bmp','webp'].includes(ext) ? 'image' : 'raw';
+          await cloudinary.uploader.destroy(doc.cloudinaryId, { resource_type: resourceType });
+        }
+        await prisma.documentTemplate.delete({ where: { id: doc.id } });
+        console.log(`[DOCUSMART] Deleted expired doc: ${doc.cloudinaryId}`);
+      } catch (e) {
+        console.error(`[DOCUSMART] Error deleting doc ${doc.id}:`, e.message);
+      }
+    }
+    if (expired.length > 0) console.log(`[DOCUSMART] Cleaned up ${expired.length} expired document(s)`);
+  } catch (e) {
+    console.error('[DOCUSMART] Cleanup error:', e.message);
+  }
+}
+
+router.post('/docusmart', upload.single('file'), async (req, res) => {
+  cleanupExpiredDocuSmartDocs().catch(() => {});
+
+  if (!req.file) return res.status(400).json({ error: 'No se subió ningún archivo' });
+
+  let selectedFields;
+  try { selectedFields = JSON.parse(req.body.selectedFields || '[]'); }
+  catch { return res.status(400).json({ error: 'selectedFields debe ser un array JSON válido' }); }
+
+  if (!Array.isArray(selectedFields) || selectedFields.length === 0) {
+    return res.status(400).json({ error: 'Debes seleccionar al menos un campo a extraer' });
+  }
+
+  if (!openaiClient) return res.status(503).json({ error: 'Servicio de IA no disponible' });
+
+  try {
+    // 1. Extract text from file
+    let extractedText = '';
+    try {
+      if (req.file.mimetype === 'application/pdf') {
+        extractedText = (await pdfParse(req.file.buffer)).text;
+      } else if (
+        req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        req.file.mimetype === 'application/msword'
+      ) {
+        extractedText = (await mammoth.extractRawText({ buffer: req.file.buffer })).value;
+      } else if (req.file.mimetype === 'text/plain') {
+        extractedText = req.file.buffer.toString('utf-8');
+      }
+    } catch (err) { extractedText = ''; }
+
+    if (!extractedText.trim()) {
+      return res.status(422).json({ error: 'No se pudo extraer texto del documento. Verifica que no sea un PDF escaneado (imagen).' });
+    }
+
+    // 2. Upload to Cloudinary (docusmart folder)
+    const originalName = req.file.originalname;
+    let cloudinaryResult = null;
+    await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'auto',
+          folder: 'docusmart',
+          public_id: `${Date.now()}_${originalName}`,
+          use_filename: false,
+          unique_filename: true,
+          overwrite: false
+        },
+        (error, result) => { if (error) reject(error); else { cloudinaryResult = result; resolve(result); } }
+      );
+      stream.end(req.file.buffer);
+    });
+
+    // 3. Persist in DB with 30-day expiry stored in fields column as JSON
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const dbDoc = await prisma.documentTemplate.create({
+      data: {
+        name: originalName,
+        title: originalName,
+        category: 'DocuSmart',
+        url: cloudinaryResult?.secure_url || '',
+        cloudinaryId: cloudinaryResult?.public_id || '',
+        content: extractedText.substring(0, 50000),
+        description: 'DocuSmart extraction',
+        template: '',
+        fields: JSON.stringify({ expiresAt, selectedFields }),
+        isActive: true,
+        userId: req.user.id
+      }
+    });
+
+    // 4. Build targeted OpenAI prompt with only selected fields
+    const validFields = selectedFields.filter(id => DOCUSMART_FIELDS[id]);
+    if (validFields.length === 0) return res.status(400).json({ error: 'Ninguno de los campos seleccionados es válido' });
+
+    const fieldDescriptions = validFields.map(id => {
+      const f = DOCUSMART_FIELDS[id];
+      return `- "${id}" (${f.label}): ${f.prompt}`;
+    }).join('\n');
+
+    const safeText = extractedText.length > 14000 ? extractedText.substring(0, 14000) : extractedText;
+
+    const systemPrompt = `Eres un asistente experto en documentos legales e inmobiliarios argentinos (escrituras, boletos de compraventa, cesiones, reservas).
+Extrae únicamente la información solicitada. Si un dato no figura en el documento usa null. Responde SOLO con JSON válido, sin texto adicional.`;
+
+    const emptySchema = Object.fromEntries(validFields.map(id => [id, null]));
+    const userPrompt = `Del siguiente documento, extrae estos campos:\n${fieldDescriptions}\n\nDevuelve SOLO este JSON (rellena los valores o deja null):\n${JSON.stringify(emptySchema, null, 2)}\n\nDOCUMENTO:\n${safeText}`;
+
+    console.log(`[DOCUSMART] OpenAI call: ${validFields.length} fields, doc ${dbDoc.id}`);
+
+    const completion = await openaiClient.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      max_tokens: 3000,
+      temperature: 0.1,
+      response_format: { type: 'json_object' }
+    });
+
+    let extracted = {};
+    try {
+      extracted = JSON.parse(completion?.choices?.[0]?.message?.content || '{}');
+    } catch {
+      const match = (completion?.choices?.[0]?.message?.content || '').match(/\{[\s\S]*\}/);
+      if (match) try { extracted = JSON.parse(match[0]); } catch { extracted = {}; }
+    }
+
+    // 5. Build enriched response
+    const results = {};
+    for (const fieldId of validFields) {
+      const f = DOCUSMART_FIELDS[fieldId];
+      results[fieldId] = {
+        block: f.block,
+        blockName: f.blockName,
+        label: f.label,
+        value: extracted[fieldId] !== undefined ? extracted[fieldId] : null
+      };
+    }
+
+    return res.json({
+      documentId: dbDoc.id,
+      documentName: originalName,
+      expiresAt,
+      results,
+      fieldsExtracted: validFields.length,
+      fieldsFound: Object.values(results).filter(r => r.value !== null && r.value !== '').length
+    });
+
+  } catch (err) {
+    console.error('[DOCUSMART] Error:', err);
+    return res.status(500).json({ error: 'Error al procesar el documento', details: err.message });
+  }
+});
+
 module.exports = router;// POST /api/documents/diagnose - endpoint de diagn�stico
 router.post('/diagnose', (req, res) => {
   console.log('[DIAGNOSE] ===== DIAGNOSTIC REQUEST =====');
