@@ -3,9 +3,9 @@ FROM node:18-slim
 
 # Crear directorio de trabajo
 WORKDIR /app
-# Instalar OpenSSL y CA certs para Prisma
+# Instalar OpenSSL, CA certs, Ghostscript (para pdf2pic) y Poppler
 RUN apt-get update && \
-    apt-get install -y openssl ca-certificates fontconfig fonts-dejavu-core && \
+    apt-get install -y openssl ca-certificates fontconfig fonts-dejavu-core ghostscript graphicsmagick && \
     rm -rf /var/lib/apt/lists/*
 
 # Copiar package.json y package-lock.json

@@ -135,6 +135,7 @@ interface DocuSmartResponse {
   results: Record<string, FieldResult>;
   fieldsExtracted: number;
   fieldsFound: number;
+  usedVisionOCR?: boolean;
 }
 
 // ─── Componente principal ─────────────────────────────────────────────────────
@@ -527,11 +528,19 @@ export default function DocuSmartPage() {
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
+                  <div className="p-2 bg-green-100 rounded-lg flex-shrink-0">
                     <Sparkles className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-gray-900">Extracción completada</h2>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-base font-semibold text-gray-900">Extracción completada</h2>
+                      {results.usedVisionOCR && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
+                          <Brain className="w-3 h-3" />
+                          OCR con IA aplicado automáticamente
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500 mt-0.5">
                       <strong className="text-green-700">{results.fieldsFound}</strong> de{' '}
                       <strong>{results.fieldsExtracted}</strong> campos encontrados en{' '}

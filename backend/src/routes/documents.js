@@ -15,6 +15,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');    // Leer el documento modelo
+const { fromBuffer: pdfToImages } = require('pdf2pic');
 const { OpenAI } = require('openai');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -1031,6 +1032,79 @@ router.post('/test-basic', async (req, res) => {
 });
 
 // ============================================================
+// DocuSmart helpers
+// ============================================================
+
+/**
+ * Converts a PDF buffer to an array of base64-encoded PNG images (one per page).
+ * Returns at most maxPages pages.
+ */
+async function getPdfImagesBase64(pdfBuffer, maxPages = 10) {
+  const converter = pdfToImages(pdfBuffer, {
+    density: 150,      // dpi — good balance between quality and token cost
+    format: 'png',
+    width: 1700,
+    height: 2400,
+  });
+  try {
+    const pages = await converter.bulk(-1, { responseType: 'base64' });
+    const filtered = pages.filter(p => p && p.base64);
+    return filtered.slice(0, maxPages).map(p => p.base64);
+  } catch (err) {
+    console.error('[DOCUSMART] pdf2pic error:', err.message);
+    throw err;
+  }
+}
+
+/**
+ * Uses GPT-4o Vision to extract DocuSmart fields directly from page images.
+ * Used when the PDF is a scanned document (no extractable text).
+ */
+async function extractFieldsViaVision(pageImages, validFields) {
+  const fieldDescriptions = validFields.map(id => {
+    const f = DOCUSMART_FIELDS[id];
+    return `- "${id}" (${f.label}): ${f.prompt}`;
+  }).join('\n');
+  const emptySchema = Object.fromEntries(validFields.map(id => [id, null]));
+
+  const systemPrompt =
+    'Eres un asistente experto en documentos legales e inmobiliarios argentinos.\n' +
+    'Se te muestran imágenes de las páginas de un documento.\n' +
+    'Extrae únicamente los campos solicitados. Si un dato no figura usa null.\n' +
+    'Responde SOLO con JSON válido, sin texto adicional.';
+
+  const userContent = [
+    {
+      type: 'text',
+      text:
+        `Analizá todas las páginas del documento y extraé estos campos:\n${fieldDescriptions}\n\n` +
+        `Devolvé SOLO este JSON (rellená los valores encontrados o dejá null):\n${JSON.stringify(emptySchema, null, 2)}`
+    },
+    ...pageImages.map(b64 => ({
+      type: 'image_url',
+      image_url: { url: `data:image/png;base64,${b64}`, detail: 'high' }
+    }))
+  ];
+
+  const completion = await openaiClient.chat.completions.create({
+    model: 'gpt-4o',           // vision-capable model
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userContent }
+    ],
+    max_tokens: 4096,
+    temperature: 0.1
+  });
+
+  const raw = completion?.choices?.[0]?.message?.content || '{}';
+  try { return JSON.parse(raw); } catch {
+    const m = raw.match(/\{[\s\S]*\}/);
+    if (m) try { return JSON.parse(m[0]); } catch { return {}; }
+    return {};
+  }
+}
+
+// ============================================================
 // DocuSmart — Extracción inteligente de campos seleccionados
 // POST /api/documents/docusmart
 // Body (multipart): file + selectedFields (JSON array of field IDs)
@@ -1136,7 +1210,8 @@ router.post('/docusmart', upload.single('file'), async (req, res) => {
   try {
     // 1. Extract text from file
     let extractedText = '';
-    let extractionWarning = null;
+    let usedVisionOCR = false;
+
     try {
       if (req.file.mimetype === 'application/pdf') {
         try {
@@ -1157,11 +1232,16 @@ router.post('/docusmart', upload.single('file'), async (req, res) => {
     } catch (err) { extractedText = ''; }
 
     const meaningfulText = extractedText.replace(/\s+/g, ' ').trim();
-    if (meaningfulText.length < 80) {
+    const isScannedPDF = meaningfulText.length < 80 && req.file.mimetype === 'application/pdf';
+
+    if (isScannedPDF) {
+      console.log('[DOCUSMART] PDF escaneado detectado — usando OCR via Vision');
+      usedVisionOCR = true;
+    } else if (meaningfulText.length < 80) {
+      // Non-PDF with no extractable text
       return res.status(422).json({
-        error: 'El documento no contiene texto legible. Esto ocurre cuando el PDF es escaneado (imagen) o está basado en imágenes.',
-        hint: 'Para usar DocuSmart necesitás un PDF con texto seleccionable (PDF digital). Si tu escritura o boleto es un escaneo, podés: 1) Pedirle al escribano la versión digital firmada (PDF digital), 2) Usar Adobe Acrobat para aplicar OCR al archivo, o 3) Usar herramientas online de OCR como ilovepdf.com.',
-        textLength: meaningfulText.length,
+        error: 'El documento no contiene texto legible.',
+        hint: 'Verificá que el archivo no esté vacío o corrupto.',
         type: 'NO_EXTRACTABLE_TEXT'
       });
     }
@@ -1184,7 +1264,7 @@ router.post('/docusmart', upload.single('file'), async (req, res) => {
       stream.end(req.file.buffer);
     });
 
-    // 3. Persist in DB with 30-day expiry stored in fields column as JSON
+    // 3. Persist in DB with 30-day expiry
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     const dbDoc = await prisma.documentTemplate.create({
       data: {
@@ -1193,7 +1273,7 @@ router.post('/docusmart', upload.single('file'), async (req, res) => {
         category: 'DocuSmart',
         url: cloudinaryResult?.secure_url || '',
         cloudinaryId: cloudinaryResult?.public_id || '',
-        content: extractedText.substring(0, 50000),
+        content: usedVisionOCR ? '[scanned-pdf-vision-ocr]' : extractedText.substring(0, 50000),
         description: 'DocuSmart extraction',
         template: '',
         fields: JSON.stringify({ expiresAt, selectedFields }),
@@ -1202,42 +1282,61 @@ router.post('/docusmart', upload.single('file'), async (req, res) => {
       }
     });
 
-    // 4. Build targeted OpenAI prompt with only selected fields
+    // 4. Extract fields — via Vision (scanned) or text prompt (digital)
     const validFields = selectedFields.filter(id => DOCUSMART_FIELDS[id]);
     if (validFields.length === 0) return res.status(400).json({ error: 'Ninguno de los campos seleccionados es válido' });
 
-    const fieldDescriptions = validFields.map(id => {
-      const f = DOCUSMART_FIELDS[id];
-      return `- "${id}" (${f.label}): ${f.prompt}`;
-    }).join('\n');
-
-    const safeText = extractedText.length > 14000 ? extractedText.substring(0, 14000) : extractedText;
-
-    const systemPrompt = `Eres un asistente experto en documentos legales e inmobiliarios argentinos (escrituras, boletos de compraventa, cesiones, reservas).
-Extrae únicamente la información solicitada. Si un dato no figura en el documento usa null. Responde SOLO con JSON válido, sin texto adicional.`;
-
-    const emptySchema = Object.fromEntries(validFields.map(id => [id, null]));
-    const userPrompt = `Del siguiente documento, extrae estos campos:\n${fieldDescriptions}\n\nDevuelve SOLO este JSON (rellena los valores o deja null):\n${JSON.stringify(emptySchema, null, 2)}\n\nDOCUMENTO:\n${safeText}`;
-
-    console.log(`[DOCUSMART] OpenAI call: ${validFields.length} fields, doc ${dbDoc.id}`);
-
-    const completion = await openaiClient.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      max_tokens: 3000,
-      temperature: 0.1,
-      response_format: { type: 'json_object' }
-    });
-
     let extracted = {};
-    try {
-      extracted = JSON.parse(completion?.choices?.[0]?.message?.content || '{}');
-    } catch {
-      const match = (completion?.choices?.[0]?.message?.content || '').match(/\{[\s\S]*\}/);
-      if (match) try { extracted = JSON.parse(match[0]); } catch { extracted = {}; }
+
+    if (isScannedPDF) {
+      // Vision path: convert pages to images and ask GPT-4o to extract fields
+      let pageImages;
+      try {
+        pageImages = await getPdfImagesBase64(req.file.buffer, 10);
+      } catch (convErr) {
+        console.error('[DOCUSMART] Error convirtiendo PDF a imágenes:', convErr.message);
+        return res.status(422).json({
+          error: 'No se pudo procesar el PDF escaneado. Intentá con un PDF digital (texto seleccionable).',
+          hint: 'Podés usar Adobe Acrobat o ilovepdf.com para aplicar OCR y generar un PDF digital.',
+          type: 'SCANNED_PDF_CONVERSION_ERROR'
+        });
+      }
+      if (!pageImages || pageImages.length === 0) {
+        return res.status(422).json({
+          error: 'No se pudieron extraer páginas del PDF escaneado.',
+          type: 'SCANNED_PDF_NO_PAGES'
+        });
+      }
+      console.log(`[DOCUSMART] Vision OCR: ${pageImages.length} páginas → GPT-4o`);
+      extracted = await extractFieldsViaVision(pageImages, validFields);
+    } else {
+      // Text path: standard GPT extraction
+      const safeText = extractedText.length > 14000 ? extractedText.substring(0, 14000) : extractedText;
+      const fieldDescriptions = validFields.map(id => {
+        const f = DOCUSMART_FIELDS[id];
+        return `- "${id}" (${f.label}): ${f.prompt}`;
+      }).join('\n');
+      const systemPrompt = `Eres un asistente experto en documentos legales e inmobiliarios argentinos (escrituras, boletos de compraventa, cesiones, reservas).\nExtrae únicamente la información solicitada. Si un dato no figura en el documento usa null. Responde SOLO con JSON válido, sin texto adicional.`;
+      const emptySchema = Object.fromEntries(validFields.map(id => [id, null]));
+      const userPrompt = `Del siguiente documento, extrae estos campos:\n${fieldDescriptions}\n\nDevuelve SOLO este JSON (rellena los valores o deja null):\n${JSON.stringify(emptySchema, null, 2)}\n\nDOCUMENTO:\n${safeText}`;
+
+      console.log(`[DOCUSMART] Text extraction: ${validFields.length} fields, doc ${dbDoc.id}`);
+      const completion = await openaiClient.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 3000,
+        temperature: 0.1,
+        response_format: { type: 'json_object' }
+      });
+      try {
+        extracted = JSON.parse(completion?.choices?.[0]?.message?.content || '{}');
+      } catch {
+        const match = (completion?.choices?.[0]?.message?.content || '').match(/\{[\s\S]*\}/);
+        if (match) try { extracted = JSON.parse(match[0]); } catch { extracted = {}; }
+      }
     }
 
     // 5. Build enriched response
@@ -1258,7 +1357,8 @@ Extrae únicamente la información solicitada. Si un dato no figura en el docume
       expiresAt,
       results,
       fieldsExtracted: validFields.length,
-      fieldsFound: Object.values(results).filter(r => r.value !== null && r.value !== '').length
+      fieldsFound: Object.values(results).filter(r => r.value !== null && r.value !== '').length,
+      usedVisionOCR
     });
 
   } catch (err) {
