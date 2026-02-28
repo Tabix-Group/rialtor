@@ -132,10 +132,8 @@ function Navigation() {
       icon: FileText,
       dropdown: [
         { name: "Resumidor Inteligente", href: "/documents/summary" },
-        {
-          name: "Formularios Editables",
-          href: "/formularios",
-        },
+        { name: "Formularios Editables", href: "/formularios" },
+        { name: "DocuSmart", href: "/documents/docusmart" },
       ],
     },
 

@@ -155,6 +155,17 @@ const Play = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const Brain = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M12 2C8.5 2 6 4.5 6 7v1c-1.5.5-3 2-3 4 0 1.5.8 2.8 2 3.5V17c0 1.1.9 2 2 2h1v1a2 2 0 004 0v-1h1a2 2 0 002-2v-1.5c1.2-.7 2-2 2-3.5 0-2-1.5-3.5-3-4V7c0-2.5-2.5-5-6-5zM9 10h6M9 13h4"
+    />
+  </svg>
+)
+
 const Check = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -283,6 +294,15 @@ export default function Home() {
       icon: FileText,
       href: "/documents/summary",
       requiresAuth: true,
+      size: "normal" as const,
+    },
+    {
+      name: "DocuSmart",
+      description: "Subí una escritura, boleto o cesión y elegí qué datos extraer: partes, dominio, cargas, precio, plazos y cláusulas. La IA los localiza por vos.",
+      icon: Brain,
+      href: "https://www.rialtor.app/documents/docusmart",
+      requiresAuth: true,
+      isNew: true,
       size: "normal" as const,
     },
   ]

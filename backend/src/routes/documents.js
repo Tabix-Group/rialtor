@@ -1136,9 +1136,16 @@ router.post('/docusmart', upload.single('file'), async (req, res) => {
   try {
     // 1. Extract text from file
     let extractedText = '';
+    let extractionWarning = null;
     try {
       if (req.file.mimetype === 'application/pdf') {
-        extractedText = (await pdfParse(req.file.buffer)).text;
+        try {
+          const parsed = await pdfParse(req.file.buffer);
+          extractedText = parsed.text || '';
+        } catch (pdfErr) {
+          console.warn('[DOCUSMART] pdf-parse error:', pdfErr.message);
+          extractedText = '';
+        }
       } else if (
         req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
         req.file.mimetype === 'application/msword'
@@ -1149,8 +1156,14 @@ router.post('/docusmart', upload.single('file'), async (req, res) => {
       }
     } catch (err) { extractedText = ''; }
 
-    if (!extractedText.trim()) {
-      return res.status(422).json({ error: 'No se pudo extraer texto del documento. Verifica que no sea un PDF escaneado (imagen).' });
+    const meaningfulText = extractedText.replace(/\s+/g, ' ').trim();
+    if (meaningfulText.length < 80) {
+      return res.status(422).json({
+        error: 'El documento no contiene texto legible. Esto ocurre cuando el PDF es escaneado (imagen) o está basado en imágenes.',
+        hint: 'Para usar DocuSmart necesitás un PDF con texto seleccionable (PDF digital). Si tu escritura o boleto es un escaneo, podés: 1) Pedirle al escribano la versión digital firmada (PDF digital), 2) Usar Adobe Acrobat para aplicar OCR al archivo, o 3) Usar herramientas online de OCR como ilovepdf.com.',
+        textLength: meaningfulText.length,
+        type: 'NO_EXTRACTABLE_TEXT'
+      });
     }
 
     // 2. Upload to Cloudinary (docusmart folder)

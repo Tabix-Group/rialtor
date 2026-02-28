@@ -143,11 +143,12 @@ export default function DocuSmartPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [selectedFields, setSelectedFields] = useState<Set<FieldId>>(new Set(ALL_FIELD_IDS));
+  const [selectedFields, setSelectedFields] = useState<Set<FieldId>>(new Set());
   const [collapsedBlocks, setCollapsedBlocks] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<DocuSmartResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorHint, setErrorHint] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   // ── Drag & Drop handlers ──────────────────────────────────────────────────
@@ -219,6 +220,7 @@ export default function DocuSmartPage() {
     if (selectedFields.size === 0) { setError('Seleccioná al menos un campo a extraer'); return; }
 
     setError(null);
+    setErrorHint(null);
     setResults(null);
     setLoading(true);
 
@@ -231,7 +233,9 @@ export default function DocuSmartPage() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Error ${res.status}`);
+        setError(errData.error || `Error ${res.status}`);
+        if (errData.hint) setErrorHint(errData.hint);
+        return;
       }
 
       const data: DocuSmartResponse = await res.json();
@@ -395,9 +399,16 @@ export default function DocuSmartPage() {
                 </button>
 
                 {error && (
-                  <div className="mt-3 flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-red-700">{error}</p>
+                  <div className="mt-3 p-4 bg-amber-50 border border-amber-300 rounded-lg space-y-2">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <p className="text-sm font-medium text-amber-800">{error}</p>
+                    </div>
+                    {errorHint && (
+                      <div className="pl-6">
+                        <p className="text-xs text-amber-700 leading-relaxed whitespace-pre-line">{errorHint}</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -544,7 +555,7 @@ export default function DocuSmartPage() {
                   </button>
 
                   <button
-                    onClick={() => { setResults(null); setSelectedFile(null); setError(null); if (fileRef.current) fileRef.current.value = ''; }}
+                    onClick={() => { setResults(null); setSelectedFile(null); setError(null); setErrorHint(null); if (fileRef.current) fileRef.current.value = ''; }}
                     className="flex items-center gap-1.5 text-xs text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-full transition-colors"
                   >
                     <Upload className="w-3.5 h-3.5" />
