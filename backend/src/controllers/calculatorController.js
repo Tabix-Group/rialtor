@@ -883,6 +883,17 @@ const calculateRent = async (req, res) => {
     }
 
     // Procesar y formatear la respuesta
+    // Filtrar las proyecciones para mostrar solo cada N meses
+    const startDate = new Date(requestData.date);
+    const filteredProjections = apiResult.data.filter(item => {
+      const itemDate = new Date(item.date);
+      const monthsDiff = (itemDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                         (itemDate.getMonth() - startDate.getMonth());
+      
+      // Mostrar siempre la primera fila (mes 0) y luego cada N meses
+      return monthsDiff === 0 || monthsDiff % requestData.months === 0;
+    });
+
     const result = {
       inputs: {
         amount: requestData.amount,
@@ -890,7 +901,7 @@ const calculateRent = async (req, res) => {
         months: requestData.months,
         rate: requestData.rate
       },
-      projections: apiResult.data.map(item => ({
+      projections: filteredProjections.map(item => ({
         date: item.date,
         value: item.value,
         estimated: item.estimated,
