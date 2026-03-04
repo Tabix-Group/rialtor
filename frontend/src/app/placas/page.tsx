@@ -1084,8 +1084,8 @@ export default function PlacasPage() {
                                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Ej: EMPRESA Premium" />
                             </div>
 
-                            {/* Selector de color para todos los modelos cuando hay marca */}
-                            {propertyData.brand && (
+                            {/* Selector de color para modelos que no sean modelo 4 */}
+                            {propertyData.brand && modelType !== 'model4' && (
                               <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Color de la Marca</label>
                                 <div className="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
@@ -1107,6 +1107,13 @@ export default function PlacasPage() {
                                     Resetear
                                   </button>
                                 </div>
+                              </div>
+                            )}
+
+                            {/* Información para modelo 4 */}
+                            {propertyData.brand && modelType === 'model4' && (
+                              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[10px] text-slate-500 italic">
+                                El color de la marca en Modelo 4 usa un marrón predefinido que armoniza con el diseño.
                               </div>
                             )}
                           </div>

@@ -1099,13 +1099,13 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
     // --- LÓGICA ESPECÍFICA PARA MODELO 4 ---
     if (isModel4) {
-      // Reducción del 25% en todos los elementos (0.75 escala) + escalado adaptativo a tamaño de imagen
-      const sidebarWidth = Math.floor(width * 0.315);      // 0.42 * 0.75
+      // Ampliación de sidebar al 40% + ajustes tipográficos
+      const sidebarWidth = Math.floor(width * 0.40);      // Ampliado al 40%
       const baseIconSize = 30;                              // 40 * 0.75
       const baseMarginX = 37;                               // 50 * 0.75
       const baseTextSize = 28;                              // 38 * 0.75
       const startY = height * 0.15;
-      const baseSpacingY = 56;                              // 75 * 0.75
+      const baseSpacingY = 42;                              // Reducido de 56 a 42 para acortar distancia
       
       // Aplicar escalado proporcional al tamaño de la imagen
       const iconSize = Math.floor(baseIconSize * finalScaleFactor);
@@ -1115,6 +1115,10 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
       const priceSize = Math.floor(36 * finalScaleFactor);  // 48 * 0.75
       const brandSize = Math.floor(39 * finalScaleFactor);  // 52 * 0.75
       const correSize = Math.floor(16 * finalScaleFactor);  // Aumentado 25% (de 13 a 16)
+      
+      // Color predefinido para marca (marrón neutral que combina con diseño)
+      const defaultBrandColor = '#544a3f'; // Marrón oscuro predefinido
+      const finalBrandColor = '#544a3f';   // Usar siempre el color predefinido
       
       let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
@@ -1145,7 +1149,7 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         
         // Ajuste dinámico de fuente para la dirección para que entre en la barra
         if (ln.icon === 'ubicacion') {
-          const charWidthFactor = 0.55; // Factor estimado para Arial Bold
+          const charWidthFactor = 0.55; // Factor estimado para Arial
           const estimatedWidth = ln.text.length * textSize * charWidthFactor;
           
           if (estimatedWidth > availableWidth) {
@@ -1157,24 +1161,24 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
 
         svg += `  <g transform="translate(${marginX}, ${currentY})">\n`;
         svg += `    ${iconSvg}\n`;
-        svg += `    <text x="${textX}" y="${Math.floor(iconSize/2)}" dominant-baseline="central" style="font-family: Arial, sans-serif; font-size: ${lineTextSize}px; font-weight: 600; fill: ${textColor};">${escapeForSvg(ln.text)}</text>\n`;
+        svg += `    <text x="${textX}" y="${Math.floor(iconSize/2)}" dominant-baseline="central" style="font-family: Arial, sans-serif; font-size: ${lineTextSize}px; font-weight: 400; fill: ${textColor};">${escapeForSvg(ln.text)}</text>\n`;
         svg += `  </g>\n`;
         currentY += spacingY;
       });
       
-      // Caja de precio (reducida 25% + escalada adaptativamente)
+      // Caja de precio (ampliada al nuevo tamaño de sidebar)
       const priceBoxW = sidebarWidth - (marginX * 2);
       const priceBoxH = Math.floor(82 * finalScaleFactor);  // 110 * 0.75
       const priceBoxY = height * 0.65; // Subido de 0.72 para evitar solapamiento
       svg += `  <rect x="${marginX}" y="${priceBoxY}" width="${priceBoxW}" height="${priceBoxH}" fill="#FFFFFF" rx="4" />\n`;
       svg += `  <text x="${marginX + priceBoxW/2}" y="${priceBoxY + Math.floor(52 * finalScaleFactor)}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: ${priceSize}px; font-weight: 800; fill: #544a3f;">${moneda} ${formatPrice(precio)}</text>\n`;
       
-      // Logo (Brand) - reducido 25% + escalado adaptativamente
+      // Logo (Brand) - usar color predefinido siempre
       if (brand) {
-        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: ${brandSize}px; font-weight: 900; fill: ${brandColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
+        svg += `  <text x="${marginX}" y="${height - 100}" style="font-family: Arial Black, sans-serif; font-size: ${brandSize}px; font-weight: 900; fill: ${finalBrandColor}; text-transform: uppercase;">${escapeForSvg(brand)}</text>\n`;
       }
       
-      // Texto vertical a la derecha - reducido 25% + escalado adaptativamente
+      // Texto vertical a la derecha
       if (corredores) {
         svg += `  <text x="${width - 30}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 30}, ${height/2})" style="font-family: Arial, sans-serif; font-size: ${correSize}px; fill: rgba(255,255,255,0.7); letter-spacing: 1px;">${escapeForSvg(corredores)}</text>\n`;
       }
@@ -1219,29 +1223,21 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
         svg += `  <text x="${width/2}" y="${height * 0.82}" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 32px; font-weight: 700; fill: ${textColor}; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">${escapeForSvg(infoText)}</text>\n`;
       }
       
-      // Nombre del Agente — extremo inferior izquierdo con fondo semi-transparente
+      // Nombre del Agente — extremo inferior izquierdo (sin contenedor)
       const agentNameM5 = propertyInfo.agentName ? escapeForSvg(propertyInfo.agentName) : null;
       if (agentNameM5) {
         const agFontSize = agentNameM5.length > 20 ? 22 : 28;
-        const agPadX = 16, agPadY = 10;
-        const agBoxW = Math.min(agentNameM5.length * agFontSize * 0.56 + agPadX * 2, width * 0.45);
-        const agBoxH = agFontSize + agPadY * 2;
         const agBoxX = borderMargin;
-        const agBoxY = height - borderMargin - agBoxH;
-        svg += `  <rect x="${agBoxX}" y="${agBoxY}" width="${agBoxW}" height="${agBoxH}" rx="6" fill="rgba(0,0,0,0.55)" />\n`;
-        svg += `  <text x="${agBoxX + agPadX}" y="${agBoxY + agFontSize + agPadY - 4}" text-anchor="start" style="font-family: Arial, sans-serif; font-size: ${agFontSize}px; font-weight: 700; fill: #FFFFFF; letter-spacing: 0.3px;">${agentNameM5}</text>\n`;
+        const agBoxY = height - borderMargin;
+        svg += `  <text x="${agBoxX}" y="${agBoxY}" text-anchor="start" style="font-family: Arial, sans-serif; font-size: ${agFontSize}px; font-weight: 700; fill: #FFFFFF; letter-spacing: 0.3px;">${agentNameM5}</text>\n`;
       }
 
-      // Logo (Brand) — extremo inferior derecho con fondo semi-transparente
+      // Logo (Brand) — extremo inferior derecho (sin contenedor)
       if (brand) {
         const brFontSize = brand.length > 15 ? 28 : 38;
-        const brPadX = 18, brPadY = 10;
-        const brBoxW = Math.min(brand.length * brFontSize * 0.62 + brPadX * 2, width * 0.42);
-        const brBoxH = brFontSize + brPadY * 2;
-        const brBoxX = width - borderMargin - brBoxW;
-        const brBoxY = height - borderMargin - brBoxH;
-        svg += `  <rect x="${brBoxX}" y="${brBoxY}" width="${brBoxW}" height="${brBoxH}" rx="6" fill="rgba(0,0,0,0.55)" />\n`;
-        svg += `  <text x="${brBoxX + brBoxW / 2}" y="${brBoxY + brFontSize + brPadY - 4}" text-anchor="middle" style="font-family: Arial Black, sans-serif; font-size: ${brFontSize}px; font-weight: 900; fill: ${brandColor}; text-transform: uppercase; letter-spacing: 1px;">${escapeForSvg(brand)}</text>\n`;
+        const brBoxX = width - borderMargin;
+        const brBoxY = height - borderMargin;
+        svg += `  <text x="${brBoxX}" y="${brBoxY}" text-anchor="end" style="font-family: Arial Black, sans-serif; font-size: ${brFontSize}px; font-weight: 900; fill: #FFFFFF; text-transform: uppercase; letter-spacing: 1px;">${escapeForSvg(brand)}</text>\n`;
       }
       
       // Texto vertical a la derecha

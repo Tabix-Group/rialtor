@@ -44,7 +44,9 @@ import {
   MoreVertical,
   Trash2,
   AlertCircle,
-  Briefcase
+  Briefcase,
+  BookOpen,
+  Palette
 } from "lucide-react"
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
@@ -375,12 +377,28 @@ export default function DashboardPage() {
       color: "text-orange-600 bg-orange-50"
     },
     {
-      title: "Prospectos",
-      description: "Gestión de clientes y CRM.",
+      title: "Proyecciones",
+      description: "Pipeline de ventas y proyecciones.",
       icon: User2,
       href: "/prospectos",
-      badge: "CRM",
+      badge: "Ventas",
       color: "text-cyan-600 bg-cyan-50"
+    },
+    {
+      title: "Docusmart",
+      description: "Gestión y análisis de documentos.",
+      icon: BookOpen,
+      href: "/documents/summary",
+      badge: "Docs",
+      color: "text-blue-600 bg-blue-50"
+    },
+    {
+      title: "Decorala",
+      description: "Herramientas de diseño y decoración.",
+      icon: Palette,
+      href: "/decorala",
+      badge: "Diseño",
+      color: "text-rose-600 bg-rose-50"
     },
     {
       title: "Finanzas",
