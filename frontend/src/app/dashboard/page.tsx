@@ -388,7 +388,7 @@ export default function DashboardPage() {
       title: "Docusmart",
       description: "Gestión y análisis de documentos.",
       icon: BookOpen,
-      href: "/documents/summary",
+      href: "/documents/docusmart",
       badge: "Docs",
       color: "text-blue-600 bg-blue-50"
     },
@@ -417,17 +417,6 @@ export default function DashboardPage() {
       color: "text-rose-600 bg-rose-50"
     },
   ]
-
-  if (isAdmin) {
-    features.push({
-      title: "Admin Panel",
-      description: "Gestión completa del sistema.",
-      icon: Shield,
-      href: "/admin",
-      badge: "Admin",
-      color: "text-slate-600 bg-slate-50"
-    })
-  }
 
   if (loading)
     return (
