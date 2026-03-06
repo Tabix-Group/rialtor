@@ -884,7 +884,6 @@ const calculateRent = async (req, res) => {
 
     // Procesar y formatear la respuesta
     // Filtrar las proyecciones para mostrar solo cada N meses
-    const startDate = new Date(requestData.date);
     const filteredProjections = apiResult.data.filter(item => {
       const itemDate = new Date(item.date);
       const monthsDiff = (itemDate.getFullYear() - startDate.getFullYear()) * 12 + 
