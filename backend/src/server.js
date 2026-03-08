@@ -111,33 +111,7 @@ const projectionMetricsRoutes = safeRequire('./routes/projection-metrics');
 const stripeRoutes = safeRequire('./routes/stripeRoutes');
 const valuationsRoutes = safeRequire('./routes/valuations');
 
-// Security middleware
-app.use(helmet({
-  crossOriginEmbedderPolicy: false,
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-}));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
-  message: {
-    error: 'Too many requests from this IP, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use(limiter);
-
-// CORS configuration
+// CORS configuration - MUST come BEFORE rate limiting
 // Support multiple frontend origins via FRONTEND_URLS (comma separated) or single FRONTEND_URL
 const getAllowedOrigins = () => {
   const env = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,https://www.rialtor.app,https://rialtor.app';
@@ -177,6 +151,33 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Security middleware
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
+
+// Rate limiting - comes AFTER CORS
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX) || 100,
+  message: {
+    error: 'Too many requests from this IP, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.method === 'OPTIONS', // Skip rate limiting for CORS preflight requests
+});
+
+app.use(limiter);
 
 // Respond to preflight OPTIONS using same options
 app.options('*', cors(corsOptions));
