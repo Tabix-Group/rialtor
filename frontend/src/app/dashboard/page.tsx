@@ -120,6 +120,8 @@ export default function DashboardPage() {
   const [indicatorsExpanded, setIndicatorsExpanded] = useState(false)
   const [proyeccionesExpanded, setProyeccionesExpanded] = useState(false)
   const [marketData, setMarketData] = useState<any>(null)
+  const [deletingDocId, setDeletingDocId] = useState<string | null>(null)
+  const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -181,6 +183,50 @@ export default function DashboardPage() {
       setDocuments(data.documents || [])
     } catch (error) {
       console.error("Error fetching documents:", error)
+    }
+  }
+
+  const downloadDocument = async (doc: Document) => {
+    setDownloadingDocId(doc.id)
+    try {
+      const response = await fetch(doc.url)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = doc.title || 'documento'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error("Error downloading document:", error)
+      alert("Error al descargar el documento")
+    } finally {
+      setDownloadingDocId(null)
+    }
+  }
+
+  const deleteDocument = async (doc: Document) => {
+    if (!confirm(`¿Eliminar el documento "${doc.title}"? Esta acción no se puede deshacer.`)) return
+
+    setDeletingDocId(doc.id)
+    try {
+      const res = await authenticatedFetch(`/api/documents/${doc.id}`, {
+        method: 'DELETE'
+      })
+      
+      if (res.ok) {
+        setDocuments(documents.filter(d => d.id !== doc.id))
+        fetchDocuments()
+      } else {
+        alert("Error al eliminar el documento")
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error)
+      alert("Error al eliminar el documento")
+    } finally {
+      setDeletingDocId(null)
     }
   }
 
@@ -762,17 +808,53 @@ export default function DashboardPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {documents.length > 0 ? documents.slice(0, 3).map((doc) => (
-                    <Link key={doc.id} href={doc.url} target="_blank" className="block group">
-                         <div className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-all flex items-start gap-3">
-                             <div className="p-2 bg-slate-100 text-slate-500 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                                 <FileText className="w-5 h-5" />
+                    <div key={doc.id} className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-all group">
+                         <div className="flex items-start justify-between gap-3">
+                             <div className="flex items-start gap-3 flex-1 min-w-0">
+                                 <div className="p-2 bg-slate-100 text-slate-500 rounded-lg group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors flex-shrink-0">
+                                     <FileText className="w-5 h-5" />
+                                 </div>
+                                 <div className="min-w-0 flex-1">
+                                     <a href={doc.url} target="_blank" rel="noopener noreferrer" className="font-bold text-slate-800 text-sm truncate hover:text-blue-700 block">{doc.title}</a>
+                                     <p className="text-xs text-slate-500 mt-1">{new Date(doc.uploadDate).toLocaleDateString()} • {doc.type}</p>
+                                 </div>
                              </div>
-                             <div className="min-w-0">
-                                 <h4 className="font-bold text-slate-800 text-sm truncate group-hover:text-blue-700">{doc.title}</h4>
-                                 <p className="text-xs text-slate-500 mt-1">{new Date(doc.uploadDate).toLocaleDateString()} • {doc.type}</p>
+                             <div className="flex gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                 <button
+                                     onClick={(e) => {
+                                       e.preventDefault()
+                                       downloadDocument(doc)
+                                     }}
+                                     disabled={downloadingDocId === doc.id}
+                                     className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                     title="Descargar documento"
+                                 >
+                                     {downloadingDocId === doc.id ? (
+                                       <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                     ) : (
+                                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                       </svg>
+                                     )}
+                                 </button>
+                                 <button
+                                     onClick={(e) => {
+                                       e.preventDefault()
+                                       deleteDocument(doc)
+                                     }}
+                                     disabled={deletingDocId === doc.id}
+                                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                     title="Eliminar documento"
+                                 >
+                                     {deletingDocId === doc.id ? (
+                                       <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                     ) : (
+                                       <Trash2 className="w-5 h-5" />
+                                     )}
+                                 </button>
                              </div>
                          </div>
-                    </Link>
+                    </div>
                 )) : (
                     <div className="col-span-3 text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
                         <p className="text-slate-400 text-sm">No hay documentos recientes</p>
