@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, ChangeEvent, FormEvent } from 'react'
-import { AlertCircle, Loader2, CheckCircle2, DollarSign } from 'lucide-react'
+import { AlertCircle, Loader2, CheckCircle2, Gavel } from 'lucide-react'
 
 interface ValuationFormData {
   provincia: string
@@ -21,7 +21,11 @@ interface ValuationResult {
   factoresConsiderados: string[]
 }
 
-export default function ValuationForm() {
+interface ValuationFormProps {
+  onSuccess?: () => void
+}
+
+export default function ValuationForm({ onSuccess }: ValuationFormProps) {
   const [form, setForm] = useState<ValuationFormData>({
     provincia: 'Buenos Aires',
     localidad: '',
@@ -107,6 +111,11 @@ export default function ValuationForm() {
         analisis: data.analisis || '',
         factoresConsiderados: data.factoresConsiderados || [],
       })
+      
+      // Llamar callback de éxito
+      if (onSuccess) {
+        onSuccess()
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado')
     } finally {
@@ -118,7 +127,7 @@ export default function ValuationForm() {
     <div className="w-full">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <DollarSign className="w-5 h-5" />
+          <Gavel className="w-5 h-5" />
           Tasador de Propiedades
         </h2>
 
@@ -129,204 +138,192 @@ export default function ValuationForm() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Ubicación */}
-          <div className="border-t pt-4">
-            <h3 className="font-semibold text-slate-700 mb-3">Ubicación</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Provincia <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="provincia"
-                  value={form.provincia}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Seleccionar provincia</option>
-                  <option value="Buenos Aires">Buenos Aires</option>
-                  <option value="CABA">CABA</option>
-                  <option value="Córdoba">Córdoba</option>
-                  <option value="Santa Fe">Santa Fe</option>
-                  <option value="Mendoza">Mendoza</option>
-                  <option value="La Pampa">La Pampa</option>
-                  <option value="Tucumán">Tucumán</option>
-                  <option value="Misiones">Misiones</option>
-                  <option value="Salta">Salta</option>
-                  <option value="Jujuy">Jujuy</option>
-                  <option value="Catamarca">Catamarca</option>
-                  <option value="La Rioja">La Rioja</option>
-                  <option value="Santiago del Estero">Santiago del Estero</option>
-                  <option value="Formosa">Formosa</option>
-                  <option value="Chaco">Chaco</option>
-                  <option value="Corrientes">Corrientes</option>
-                  <option value="Entre Ríos">Entre Ríos</option>
-                  <option value="Tierra del Fuego">Tierra del Fuego</option>
-                  <option value="Santa Cruz">Santa Cruz</option>
-                  <option value="Chubut">Chubut</option>
-                  <option value="Río Negro">Río Negro</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Localidad <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="localidad"
-                  value={form.localidad}
-                  onChange={handleChange}
-                  placeholder="Ej: San Isidro"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Dimensiones */}
-          <div className="border-t pt-4">
-            <h3 className="font-semibold text-slate-700 mb-3">Dimensiones</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Metros Cubiertos (m²) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="metrosCubiertos"
-                  value={form.metrosCubiertos}
-                  onChange={handleChange}
-                  placeholder="Ej: 100"
-                  min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Metros Descubiertos (m²) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="metrosDescubiertos"
-                  value={form.metrosDescubiertos}
-                  onChange={handleChange}
-                  placeholder="Ej: 20"
-                  min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Características */}
-          <div className="border-t pt-4">
-            <h3 className="font-semibold text-slate-700 mb-3">Características</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ambientes <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="ambientes"
-                  value={form.ambientes}
-                  onChange={handleChange}
-                  placeholder="Ej: 3"
-                  min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Baños <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  name="banos"
-                  value={form.banos}
-                  onChange={handleChange}
-                  placeholder="Ej: 2"
-                  min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Amenities y otros datos */}
-          <div className="border-t pt-4">
-            <h3 className="font-semibold text-slate-700 mb-3">Detalles Adicionales</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Row 1: Provincia y Localidad */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amenities
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                Provincia
               </label>
-              <textarea
-                name="amenities"
-                value={form.amenities}
+              <select
+                name="provincia"
+                value={form.provincia}
                 onChange={handleChange}
-                placeholder="Ej: Cochera, balcón, aire acondicionado, calefacción central"
-                rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+                <option value="">Seleccionar</option>
+                <option value="Buenos Aires">Buenos Aires</option>
+                <option value="CABA">CABA</option>
+                <option value="Córdoba">Córdoba</option>
+                <option value="Santa Fe">Santa Fe</option>
+                <option value="Mendoza">Mendoza</option>
+                <option value="La Pampa">La Pampa</option>
+                <option value="Tucumán">Tucumán</option>
+                <option value="Misiones">Misiones</option>
+                <option value="Salta">Salta</option>
+                <option value="Jujuy">Jujuy</option>
+                <option value="Catamarca">Catamarca</option>
+                <option value="La Rioja">La Rioja</option>
+                <option value="Santiago del Estero">Santiago del Estero</option>
+                <option value="Formosa">Formosa</option>
+                <option value="Chaco">Chaco</option>
+                <option value="Corrientes">Corrientes</option>
+                <option value="Entre Ríos">Entre Ríos</option>
+                <option value="Tierra del Fuego">Tierra del Fuego</option>
+                <option value="Santa Cruz">Santa Cruz</option>
+                <option value="Chubut">Chubut</option>
+                <option value="Río Negro">Río Negro</option>
+              </select>
             </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Otros Datos
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                Localidad
               </label>
-              <textarea
-                name="otrosDatos"
-                value={form.otrosDatos}
+              <input
+                type="text"
+                name="localidad"
+                value={form.localidad}
                 onChange={handleChange}
-                placeholder="Ej: Renovado, apto profesional, pisos de madera..."
-                rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Ej: San Isidro"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
             </div>
           </div>
 
-          {/* Botón */}
-          <div className="border-t pt-4 flex gap-3">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Tasando...
-                </>
-              ) : (
-                <>
-                  <DollarSign className="w-4 h-4" />
-                  Obtener Tasación
-                </>
-              )}
-            </button>
+          {/* Row 2: Metros */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                M² Cubiertos
+              </label>
+              <input
+                type="number"
+                name="metrosCubiertos"
+                value={form.metrosCubiertos}
+                onChange={handleChange}
+                placeholder="100"
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                M² Descubiertos
+              </label>
+              <input
+                type="number"
+                name="metrosDescubiertos"
+                value={form.metrosDescubiertos}
+                onChange={handleChange}
+                placeholder="20"
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
           </div>
+
+          {/* Row 3: Ambientes y Baños */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                Ambientes
+              </label>
+              <input
+                type="number"
+                name="ambientes"
+                value={form.ambientes}
+                onChange={handleChange}
+                placeholder="3"
+                min="1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                Baños
+              </label>
+              <input
+                type="number"
+                name="banos"
+                value={form.banos}
+                onChange={handleChange}
+                placeholder="2"
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Row 4: Amenities */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+              Amenities (opcional)
+            </label>
+            <input
+              type="text"
+              name="amenities"
+              value={form.amenities}
+              onChange={handleChange}
+              placeholder="Ej: Cochera, balcón, AC, calefacción"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Row 5: Otros datos */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+              Detalles adicionales (opcional)
+            </label>
+            <input
+              type="text"
+              name="otrosDatos"
+              value={form.otrosDatos}
+              onChange={handleChange}
+              placeholder="Ej: Renovado, apto profesional, vista al río"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed transition font-semibold text-sm"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Tasando...
+              </>
+            ) : (
+              <>
+                <Gavel className="w-4 h-4" />
+                Valuar Propiedad
+              </>
+            )}
+          </button>
         </form>
       </div>
 
       {/* Resultado */}
       {result && (
-        <div className="mt-6 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl border border-green-200 shadow-sm p-6">
+        <div className="mt-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <CheckCircle2 className="w-6 h-6 text-green-600" />
-            <h3 className="text-xl font-bold text-slate-800">Rango de Valuación</h3>
+            <CheckCircle2 className="w-6 h-6 text-purple-600" />
+            <h3 className="text-lg font-bold text-slate-800">Valuación Completada</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-white rounded-lg p-4 border border-green-100">
-              <p className="text-sm text-gray-600 mb-1">Valor Mínimo</p>
-              <p className="text-2xl font-bold text-green-600">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div className="bg-white rounded-lg p-4 border border-purple-100">
+              <p className="text-xs text-gray-600 mb-1 font-semibold uppercase">Valor Mínimo</p>
+              <p className="text-2xl font-bold text-purple-600">
                 ${result.valorMinimo.toLocaleString('es-AR')}
               </p>
               <p className="text-xs text-gray-500 mt-1">USD</p>
             </div>
-            <div className="bg-white rounded-lg p-4 border border-blue-100">
-              <p className="text-sm text-gray-600 mb-1">Valor Máximo</p>
-              <p className="text-2xl font-bold text-blue-600">
+            <div className="bg-white rounded-lg p-4 border border-pink-100">
+              <p className="text-xs text-gray-600 mb-1 font-semibold uppercase">Valor Máximo</p>
+              <p className="text-2xl font-bold text-pink-600">
                 ${result.valorMaximo.toLocaleString('es-AR')}
               </p>
               <p className="text-xs text-gray-500 mt-1">USD</p>
@@ -335,20 +332,20 @@ export default function ValuationForm() {
 
           {result.analisis && (
             <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
-              <h4 className="font-semibold text-slate-700 mb-2">Análisis</h4>
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <h4 className="font-semibold text-slate-700 mb-2 text-sm">Análisis</h4>
+              <p className="text-sm text-gray-700 leading-relaxed line-clamp-3">
                 {result.analisis}
               </p>
             </div>
           )}
 
           {result.factoresConsiderados && result.factoresConsiderados.length > 0 && (
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <h4 className="font-semibold text-slate-700 mb-2">Factores Considerados</h4>
+            <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
+              <h4 className="font-semibold text-slate-700 mb-2 text-sm">Factores Considerados</h4>
               <ul className="space-y-1">
                 {result.factoresConsiderados.map((factor, idx) => (
-                  <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                    <span className="text-blue-600 font-bold">•</span>
+                  <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
+                    <span className="text-purple-600 font-bold">⚡</span>
                     <span>{factor}</span>
                   </li>
                 ))}
@@ -370,9 +367,9 @@ export default function ValuationForm() {
                 otrosDatos: '',
               })
             }}
-            className="mt-4 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+            className="w-full px-4 py-2 border border-purple-300 rounded-lg text-purple-700 hover:bg-purple-50 transition font-medium text-sm"
           >
-            Nueva Tasación
+            ↻ Valuar otra propiedad
           </button>
         </div>
       )}

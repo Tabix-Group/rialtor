@@ -172,6 +172,17 @@ const Check = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const Gavel = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M12 2c-1.1 0-2 .9-2 2v5h-1V4c0-1.1-.9-2-2-2s-2 .9-2 2v5H4c-1.1 0-2 .9-2 2s.9 2 2 2h1v6c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2v-6h1v6c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2v-6h1c1.1 0 2-.9 2-2s-.9-2-2-2h-1V4c0-1.1-.9-2-2-2s-2 .9-2 2v5h-1V4c0-1.1-.9-2-2-2z"
+    />
+  </svg>
+)
+
 export default function Home() {
   const features = [
     {
@@ -237,6 +248,15 @@ export default function Home() {
       icon: ShieldCheck,
       href: "https://www.rialtor.app/placas",
       requiresAuth: true,
+      size: "normal" as const,
+    },
+    {
+      name: "Tasador de Propiedades",
+      description: "Valuá propiedades en USD con IA: análisis de mercado, ubicación y características.",
+      icon: Gavel,
+      href: "https://www.rialtor.app/valuador",
+      requiresAuth: true,
+      isNew: true,
       size: "normal" as const,
     },
     {

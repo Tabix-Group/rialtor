@@ -31,6 +31,7 @@ import {
   Mail,
   Briefcase, // Icono añadido para mejorar sección de negocio
   Wand2,
+  Gavel,
 } from "lucide-react"
 
 function Navigation() {
@@ -137,9 +138,9 @@ function Navigation() {
       ],
     },
     {
-      name: "Tasador",
+      name: "Mi Tasador",
       href: "/valuador",
-      icon: DollarSign,
+      icon: Gavel,
       description: "Valúa propiedades con IA",
     },
 

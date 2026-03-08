@@ -46,7 +46,8 @@ import {
   AlertCircle,
   Briefcase,
   BookOpen,
-  Palette
+  Palette,
+  Gavel
 } from "lucide-react"
 import { Calendar as BigCalendar, dateFnsLocalizer } from "react-big-calendar"
 import { format, parse, startOfWeek, getDay } from "date-fns"
@@ -339,10 +340,10 @@ export default function DashboardPage() {
     {
       title: "Tasador",
       description: "Valúa propiedades con IA.",
-      icon: DollarSign,
+      icon: Gavel,
       href: "/valuador",
       badge: "Valuación",
-      color: "text-emerald-600 bg-emerald-50"
+      color: "text-purple-600 bg-purple-50"
     },
     {
       title: "Formularios",
