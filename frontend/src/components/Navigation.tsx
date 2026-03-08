@@ -134,7 +134,7 @@ function Navigation() {
       dropdown: [
         { name: "Resumidor Inteligente", href: "/documents/summary" },
         { name: "Formularios Editables", href: "/formularios" },
-        { name: "DocuSmart", href: "/documents/docusmart" },
+        { name: "DocuSmart", href: "/documents/docusmart", badge: "Nuevo" },
       ],
     },
     {
@@ -346,6 +346,11 @@ function Navigation() {
                             `}
                           >
                             <span className="truncate">{sub.name}</span>
+                            {(sub as any).badge && (
+                              <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white leading-none">
+                                {(sub as any).badge}
+                              </span>
+                            )}
                           </Link>
                         ))}
                       </div>

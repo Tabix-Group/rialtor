@@ -357,7 +357,7 @@ export default function DashboardPage() {
       title: "Análisis IA",
       description: "Lectura inteligente de docs.",
       icon: Search,
-      href: "/documents/summary",
+      href: "/documents",
       badge: "Smart",
       color: "text-emerald-600 bg-emerald-50"
     },
