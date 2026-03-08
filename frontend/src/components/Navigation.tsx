@@ -142,6 +142,7 @@ function Navigation() {
       href: "/valuador",
       icon: Gavel,
       description: "Valúa propiedades con IA",
+      badge: "Nuevo",
     },
 
     // --- MARKETING ---
