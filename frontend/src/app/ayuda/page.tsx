@@ -19,7 +19,10 @@ import {
   Home,
   Settings,
   Star,
-  BarChart3
+  BarChart3,
+  Wand2,
+  Gavel,
+  FileCheck
 } from 'lucide-react'
 
 export default function AyudaPage() {
@@ -126,6 +129,36 @@ export default function AyudaPage() {
         { id: 'placas-modelos', title: 'Modelos Disponibles' },
         { id: 'placas-crear', title: 'Paso a Paso' },
         { id: 'placas-personalizar', title: 'Personalización' }
+      ]
+    },
+    {
+      id: 'decorala',
+      title: 'Decorala - Diseño IA',
+      icon: Wand2,
+      subsections: [
+        { id: 'decorala-intro', title: 'Introducción' },
+        { id: 'decorala-paso-a-paso', title: 'Paso a Paso' },
+        { id: 'decorala-ejemplos', title: 'Ejemplos de Consultas' }
+      ]
+    },
+    {
+      id: 'docusmart',
+      title: 'Docusmart - IA Documental',
+      icon: FileCheck,
+      subsections: [
+        { id: 'docusmart-intro', title: 'Introducción' },
+        { id: 'docusmart-funciones', title: 'Funcionalidades' },
+        { id: 'docusmart-uso', title: 'Cómo Usarlo' }
+      ]
+    },
+    {
+      id: 'tasador',
+      title: 'Tasador - Valuación con IA',
+      icon: Gavel,
+      subsections: [
+        { id: 'tasador-intro', title: 'Introducción' },
+        { id: 'tasador-paso-a-paso', title: 'Paso a Paso' },
+        { id: 'tasador-historico', title: 'Histórico de Valuaciones' }
       ]
     },
     {
@@ -553,6 +586,169 @@ export default function AyudaPage() {
                        <li>Completá los datos (en el Modelo 4 podés incluso elegir el color de la barra).</li>
                        <li>Generá la previsualización y descargá el archivo final en alta resolución.</li>
                     </ol>
+                  </div>
+                </div>
+              </section>
+
+              {/* Decorala */}
+              <section id="decorala" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <Wand2 className="w-8 h-8 text-cyan-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Decorala - Diseño de Interiores con IA</h2>
+                </div>
+
+                <div id="decorala-intro" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Introducción</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      <strong>Decorala</strong> es una herramienta de diseño impulsada por IA que te permite reimaginar espacios. Sube una foto de una habitación y especifica cómo quieres que se vea (estilo, colores, mobiliario) para obtener renders realistas al instante.
+                    </p>
+                    <p className="text-gray-700">
+                      Ideal para mostrarles a tus clientes potenciales cómo lucirían sus propiedades con diferentes estilos de decoración. Genera propuestas profesionales sin necesidad de diseñadores externos.
+                    </p>
+                  </div>
+                </div>
+
+                <div id="decorala-paso-a-paso" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Paso a Paso</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                      <li>Accedé a <a href="https://www.rialtor.app/decorala" className="text-blue-600 underline">https://www.rialtor.app/decorala</a>.</li>
+                      <li>Subí una foto clara de la habitación o espacio que querés rediseñar (JPG, PNG).</li>
+                      <li>Describe en detalle tu visión: <strong>"Quiero un living moderno, colores neutros, mucha luz natural, sofá gris y mesa de vidrio"</strong>.</li>
+                      <li>La IA generará 2-4 opciones de diseño realistas en cuestión de segundos.</li>
+                      <li>Descargá las imágenes en alta resolución para mostrarlas en presentaciones o propuestas.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div id="decorala-ejemplos" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Ejemplos de Consultas</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">Prueba con descripciones como:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border border-cyan-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-cyan-700 mb-1">Moderno Minimalista</p>
+                        <p className="text-sm italic">"Dormitorio nórdico, paredes blancas, piso de madera, cama blanca, almohadas negras"</p>
+                      </div>
+                      <div className="border border-cyan-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-cyan-700 mb-1">Lujo Contemporáneo</p>
+                        <p className="text-sm italic">"Sala de estar premium, tonos grises, muebles de diseño, iluminación LED, cuadros modernos"</p>
+                      </div>
+                      <div className="border border-cyan-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-cyan-700 mb-1">Industrial</p>
+                        <p className="text-sm italic">"Oficina industrial, exposición de ladrillos, tuberías, muebles de metal y madera reciclada"</p>
+                      </div>
+                      <div className="border border-cyan-100 bg-white p-4 rounded-lg">
+                        <p className="font-semibold text-cyan-700 mb-1">Acogedor</p>
+                        <p className="text-sm italic">"Espacio cálido, muebles tapizados, alfombra suave, iluminación cálida, plantas"</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Docusmart */}
+              <section id="docusmart" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <FileCheck className="w-8 h-8 text-purple-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Docusmart - Procesamiento Inteligente de Documentos</h2>
+                </div>
+
+                <div id="docusmart-intro" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Introducción</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space y-4">
+                    <p className="text-gray-700">
+                      <strong>Docusmart</strong> es un asistente de IA especializado en procesar documentos legales, financieros e inmobiliarios. Sube cualquier PDF, DOCX o imagen de contrato y extrae información crítica automáticamente.
+                    </p>
+                    <p className="text-gray-700">
+                      Ahorrá horas en revisión de documentos: vencimientos, montos, cláusulas importantes, obligaciones y riesgos se identifican al instante.
+                    </p>
+                  </div>
+                </div>
+
+                <div id="docusmart-funciones" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Funcionalidades Principales</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                      <li><strong>Extracción de Datos:</strong> Identifica montos, fechas vencimiento, partes involucradas y términos de pago automáticamente.</li>
+                      <li><strong>Análisis de Cláusulas:</strong> Destaca cláusulas de rescisión, penalizaciones, garantías y condiciones especiales.</li>
+                      <li><strong>Resumen Ejecutivo:</strong> Genera un resumen en lenguaje natural de los puntos más importantes del documento.</li>
+                      <li><strong>Validación Legal:</strong> Señala posibles inconsistencias o términos inusuales para revisar.</li>
+                      <li><strong>Compatibilidad:</strong> Soporta PDF, DOCX, imágenes de documentos escaneados, y emails con adjuntos.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div id="docusmart-uso" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Cómo Usarlo</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                      <li>Subí tu documento en la sección <a href="https://www.rialtor.app/docusmart" className="text-blue-600 underline">https://www.rialtor.app/docusmart</a>.</li>
+                      <li>Seleccioná el tipo: Contrato de Alquiler, Boleto de Compraventa, Escritura, o Genérico.</li>
+                      <li>Formulá tu pregunta: <strong>"¿Cuáles son las fechas clave de este contrato?"</strong> o <strong>"¿Hay cláusulas de rescisión?" </strong></li>
+                      <li>La IA procesará el documento y te entregará un análisis detallado con puntos de acción.</li>
+                      <li>Exportá el resumen como PDF o compártelo con tu equipo.</li>
+                    </ol>
+                  </div>
+                </div>
+              </section>
+
+              {/* Tasador */}
+              <section id="tasador" className="mb-16 scroll-mt-24">
+                <div className="flex items-center gap-3 mb-6">
+                  <Gavel className="w-8 h-8 text-purple-600" />
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Tasador - Valuación Inteligente de Propiedades</h2>
+                </div>
+
+                <div id="tasador-intro" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Introducción</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      <strong>Tasador</strong> es una herramienta de valuación impulsada por IA y web search que analiza propiedades en tiempo real. Ingresá los datos básicos de una propiedad y obtendrás un rango de precios en USD basado en:
+                    </p>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                      <li><strong>Ubicación y Zona:</strong> Análisis de precios del mercado local.</li>
+                      <li><strong>Características Físicas:</strong> Metros cubiertos, ambientes, baños, amenities.</li>
+                      <li><strong>Análisis Contextual:</strong> Tendencias del barrio, infraestructura, servicios cercanos.</li>
+                      <li><strong>Datos de Mercado en Vivo:</strong> Búsqueda en internet para comparables actuales.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div id="tasador-paso-a-paso" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Paso a Paso</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                      <li>Accedé a <a href="https://www.rialtor.app/valuador" className="text-blue-600 underline">https://www.rialtor.app/valuador</a>.</li>
+                      <li>Completá los datos de la propiedad:
+                        <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
+                          <li>Provincia y Localidad</li>
+                          <li>Metros cubiertos y descubiertos</li>
+                          <li>Cantidad de ambientes y baños</li>
+                          <li>Amenities (balcón, terraza, cochera, etc.)</li>
+                          <li>Datos adicionales relevantes</li>
+                        </ul>
+                      </li>
+                      <li>Hacé clic en <strong>Generar Valuación</strong>.</li>
+                      <li>Recibí un rango de precios en USD (mínimo-máximo) con análisis detallado de factores que influyen en la valuación.</li>
+                      <li>Guardá la valuación en tu histórico para futuras referencias y comparaciones.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                <div id="tasador-historico" className="mb-8 scroll-mt-24">
+                  <h3 className="text-xl font-semibold mb-3">Histórico de Valuaciones</h3>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <p className="text-gray-700">
+                      Todas tus valuaciones se guardan automáticamente en la sección de histórico del Tasador. Podés:
+                    </p>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                      <li><strong>Comparar valuaciones:</strong> Revisa cómo varían los precios según la ubicación y características.</li>
+                      <li><strong>Exportar análisis:</strong> Descargá las valuaciones como PDF para presentar a clientes.</li>
+                      <li><strong>Revalorizar:</strong> Generá nuevas valuaciones para la misma propiedad con datos actualizados.</li>
+                      <li><strong>Borrar registros:</strong> Mantén tu histórico limpio eliminando valuaciones antiguas.</li>
+                    </ul>
                   </div>
                 </div>
               </section>

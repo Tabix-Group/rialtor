@@ -333,7 +333,7 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
           {result.analisis && (
             <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
               <h4 className="font-semibold text-slate-700 mb-2 text-sm">Análisis</h4>
-              <p className="text-sm text-gray-700 leading-relaxed line-clamp-3">
+              <p className="text-sm text-gray-700 leading-relaxed">
                 {result.analisis}
               </p>
             </div>

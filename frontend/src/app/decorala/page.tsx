@@ -243,33 +243,44 @@ export default function DecoralaPage() {
   const canGenerate = remaining > 0 && !isGenerating
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/10">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-cyan-900 to-blue-900">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-900/20 to-slate-900/90"></div>
 
-        {/* ─── Header ─────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-6 h-6 text-primary" />
-              <h1 className="text-2xl font-bold text-slate-900">Decorala</h1>
+        <div className="relative max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8">
+            <div className="flex-1 w-full lg:w-auto">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4 sm:mb-6">
+                <Wand2 className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-400" />
+                <span className="text-xs sm:text-sm font-semibold text-white">Diseño con IA</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 tracking-tight">
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Decorala</span>
+              </h1>
+
+              <p className="text-base sm:text-lg lg:text-xl text-slate-300 mb-6 sm:mb-8 max-w-2xl leading-relaxed">
+                Sube la foto de un ambiente vacío y recibí una versión completamente decorada con IA. Elige entre 4 estilos profesionales.
+              </p>
             </div>
-            <p className="text-slate-500 text-sm">
-              Subí la foto de un ambiente sin amueblar y recibí una versión decorada con IA.
-            </p>
-          </div>
 
-          {/* Contador de uso */}
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium
-            ${remaining === 0
-              ? 'bg-red-50 border-red-200 text-red-600'
-              : remaining <= 2
-              ? 'bg-amber-50 border-amber-200 text-amber-700'
-              : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-            }`}>
-            <Wand2 className="w-4 h-4" />
-            <span>{remaining} de {usage.limit} generaciones disponibles este mes</span>
+            {/* Contador de uso en header */}
+            <div className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl border text-sm sm:text-base font-medium backdrop-blur-md
+              ${remaining === 0
+                ? 'bg-red-500/20 border-red-400/50 text-red-200'
+                : remaining <= 2
+                ? 'bg-amber-500/20 border-amber-400/50 text-amber-200'
+                : 'bg-emerald-500/20 border-emerald-400/50 text-emerald-200'
+              }`}>
+              <Wand2 className="w-4 h-4" />
+              <span>{remaining} / {usage.limit}</span>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
         {/* ─── Main card ──────────────────────────────────────── */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
