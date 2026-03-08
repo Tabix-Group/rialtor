@@ -45,6 +45,7 @@ model User {
   roleAssignments     RoleAssignment[]
   salesFunnel         SalesFunnel?
   projectionMetrics   ProjectionMetrics?
+  valuations          Valuation[]
 
   @@map("users")
 }
@@ -463,5 +464,26 @@ model DecorationRequest {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("decoration_requests")
+}
+
+model Valuation {
+  id                  String   @id @default(uuid())
+  userId              String
+  provincia           String
+  localidad           String
+  metrosCubiertos     Int
+  metrosDescubiertos  Int
+  ambientes           Int
+  banos               Int
+  amenities           String   @default("")
+  otrosDatos          String?  // JSON para datos adicionales
+  valorMinimo         Float
+  valorMaximo         Float
+  analisisIA          String   // JSON respuesta completa de GPT
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("valuations")
 }
 

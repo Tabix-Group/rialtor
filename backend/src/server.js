@@ -109,6 +109,7 @@ const newslettersRoutes = safeRequire('./routes/newsletters');
 const salesFunnelRoutes = safeRequire('./routes/sales-funnel');
 const projectionMetricsRoutes = safeRequire('./routes/projection-metrics');
 const stripeRoutes = safeRequire('./routes/stripeRoutes');
+const valuationsRoutes = safeRequire('./routes/valuations');
 
 // Security middleware
 app.use(helmet({
@@ -297,6 +298,7 @@ app.use('/api/newsletters', newslettersRoutes);
 app.use('/api/sales-funnel', salesFunnelRoutes);
 app.use('/api/projection-metrics', projectionMetricsRoutes);
 app.use('/api/stripe', stripeRoutes);
+app.use('/api/valuations', valuationsRoutes);
 app.use('/api/calendar', safeRequire('./routes/calendar'));
 
 // Error handling middleware

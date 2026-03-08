@@ -136,6 +136,12 @@ function Navigation() {
         { name: "DocuSmart", href: "/documents/docusmart" },
       ],
     },
+    {
+      name: "Tasador",
+      href: "/valuador",
+      icon: DollarSign,
+      description: "Valúa propiedades con IA",
+    },
 
     // --- MARKETING ---
     {

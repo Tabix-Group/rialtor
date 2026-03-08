@@ -337,6 +337,14 @@ export default function DashboardPage() {
       color: "text-blue-600 bg-blue-50"
     },
     {
+      title: "Tasador",
+      description: "Valúa propiedades con IA.",
+      icon: DollarSign,
+      href: "/valuador",
+      badge: "Valuación",
+      color: "text-emerald-600 bg-emerald-50"
+    },
+    {
       title: "Formularios",
       description: "Editor de contratos y reservas.",
       icon: Edit3,
