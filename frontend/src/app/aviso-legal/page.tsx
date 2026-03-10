@@ -85,27 +85,6 @@ export default function AvisoLegalPage() {
             </div>
           </section>
 
-          {/* Footer Disclaimer (Short Version) */}
-          <section className="bg-white/5 border border-purple-500/20 rounded-lg p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Resumen (Footer)</h2>
-            
-            <div className="space-y-6 text-purple-100/80 text-sm leading-relaxed">
-              <p>
-                <strong className="text-white">Realtor.app</strong> actúa exclusivamente como proveedor de servicios tecnológicos para la 
-                publicación de avisos inmobiliarios. No ejerce el corretaje inmobiliario ni interviene en las operaciones entre las partes.
-              </p>
-
-              <p>
-                Las propiedades, descripciones, precios, superficies y demás información publicada son provistas por inmobiliarias, corredores 
-                o anunciantes independientes, quienes son los únicos responsables por su veracidad y actualización.
-              </p>
-
-              <p>
-                Las operaciones inmobiliarias se realizan directamente entre las partes y, cuando corresponda, a través del corredor público 
-                inmobiliario matriculado responsable de la publicación.
-              </p>
-            </div>
-          </section>
 
           {/* Contact Section */}
           <section className="bg-gradient-to-r from-purple-900/40 to-purple-800/20 border border-purple-500/20 rounded-lg p-8 text-center">
