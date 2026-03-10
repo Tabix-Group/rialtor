@@ -14,7 +14,7 @@ Plataforma integral para RE/MAX Argentina: gestión de conocimiento, bot IA, cal
 - **Calculadora Argentina**: Cálculo de comisiones, impuestos, sellos y tasas por provincia, ITI, historial y configuraciones personalizadas.
 - **Panel de Administración**: Dashboard con estadísticas en tiempo real (usuarios, artículos, consultas, documentos en Cloudinary), gestión de usuarios (CRUD), control de roles y permisos, administración de contenido y configuración del sistema.
 - **Autenticación y Seguridad**: Registro, login, refresco de token, cambio de contraseña, roles y permisos granulares (ADMIN, USER, AGENTE), protección de rutas, validación y sanitización de datos.
-- **Dockerización**: Despliegue de frontend y backend en Railway y otros entornos, con docker-compose y soporte para variables de entorno.
+- **Dockerización**: Despliegue de frontend y backend en Railway y otros entornos, con docker-compose y soporte para variables de entorno
 
 ## 🌐 Enlace de producción
 
