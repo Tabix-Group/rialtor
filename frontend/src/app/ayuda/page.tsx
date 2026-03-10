@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '../auth/authContext'
 import { 
   Calculator, 
@@ -26,9 +27,17 @@ import {
 } from 'lucide-react'
 
 export default function AyudaPage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
+  const router = useRouter()
   const [activeSection, setActiveSection] = useState('primeros-pasos')
   const [searchQuery, setSearchQuery] = useState('')
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push(`/auth/login?redirect=/ayuda`)
+    }
+  }, [user, loading, router])
 
   // Smooth scroll to section
   const scrollToSection = (sectionId: string) => {

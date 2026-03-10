@@ -990,7 +990,7 @@ export default function Home() {
               <h3 className="font-semibold mb-4 text-sm">Soporte</h3>
               <ul className="space-y-2.5 text-sm">
                 <li>
-                  <Link href="/centro-ayuda" className="text-purple-300/70 hover:text-white transition-colors">
+                  <Link href="/ayuda" className="text-purple-300/70 hover:text-white transition-colors">
                     Centro de Ayuda
                   </Link>
                 </li>
@@ -1020,12 +1020,28 @@ export default function Home() {
                     Política de Privacidad
                   </Link>
                 </li>
+                <li>
+                  <Link href="/aviso-legal" className="text-purple-300/70 hover:text-white transition-colors">
+                    Aviso Legal
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-8 text-center">
-            <p className="text-sm text-purple-300/40">© 2026 RIALTOR · Todos los derechos reservados</p>
+          <div className="border-t border-white/5 pt-8">
+            <div className="mb-6 text-center text-xs text-purple-300/50 leading-relaxed max-w-3xl mx-auto">
+              <p>
+                <strong>Disclaimer:</strong> RIALTOR actúa exclusivamente como proveedor de servicios tecnológicos para la publicación de avisos inmobiliarios. 
+                No ejerce el corretaje inmobiliario ni interviene en las operaciones entre las partes. Las propiedades, descripciones y precios son provistas 
+                por anunciantes independientes, quienes son los únicos responsables por su veracidad. Las operaciones inmobiliarias se realizan directamente entre 
+                las partes y, cuando corresponda, a través del corredor público inmobiliario matriculado responsable.{" "}
+                <Link href="/aviso-legal" className="text-purple-300/70 hover:text-white transition-colors underline">
+                  Ver aviso legal completo
+                </Link>
+              </p>
+            </div>
+            <p className="text-center text-sm text-purple-300/40">© 2026 RIALTOR · Todos los derechos reservados</p>
           </div>
         </div>
       </footer>
