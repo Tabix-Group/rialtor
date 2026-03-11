@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation'
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams()
-  const token = searchParams.get('token')
+  const token = searchParams?.get('token') || null
 
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
