@@ -13,8 +13,11 @@ async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
 
+    console.log(`[PASSWORD_RESET] Forgot password request for email: ${email}`);
+
     // Validar que email sea válido
     if (!email || !email.includes('@')) {
+      console.log(`[PASSWORD_RESET] Invalid email format: ${email}`);
       return res.status(400).json({ error: 'Email inválido' });
     }
 
@@ -23,10 +26,13 @@ async function forgotPassword(req, res) {
 
     if (!user) {
       // Por seguridad, no revelar si el email existe
+      console.log(`[PASSWORD_RESET] User not found: ${email}`);
       return res.status(200).json({
         message: 'Si el email existe, recibirás instrucciones para restablecer tu contraseña.',
       });
     }
+
+    console.log(`[PASSWORD_RESET] User found: ${email}, generating reset token`);
 
     // Generar token único (válido 1 hora)
     const token = crypto.randomBytes(32).toString('hex');
@@ -41,15 +47,31 @@ async function forgotPassword(req, res) {
       },
     });
 
+    console.log(`[PASSWORD_RESET] Reset token created and saved to DB`);
+    console.log(`[PASSWORD_RESET] Token expires at: ${expiresAt}`);
+
     // Enviar email
-    await emailService.sendPasswordResetEmail(email, token);
+    console.log(`[PASSWORD_RESET] Attempting to send reset email...`);
+    const emailResult = await emailService.sendPasswordResetEmail(email, token);
+    
+    console.log(`[PASSWORD_RESET] Email send result:`, emailResult);
+
+    if (!emailResult.success) {
+      console.error(`[PASSWORD_RESET] Email failed to send:`, emailResult.error);
+      // Still return 200 to avoid revealing if email failed
+      return res.status(200).json({
+        message: 'Si el email existe, recibirás instrucciones para restablecer tu contraseña.',
+      });
+    }
+
+    console.log(`[PASSWORD_RESET] Password reset email sent successfully`);
 
     return res.status(200).json({
       message:
         'Instrucciones para restablecer tu contraseña han sido enviadas a tu email.',
     });
   } catch (error) {
-    console.error('Error in forgotPassword:', error);
+    console.error('[PASSWORD_RESET] Error in forgotPassword:', error);
     return res.status(500).json({ error: 'Error procesando solicitud' });
   }
 }

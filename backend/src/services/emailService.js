@@ -11,6 +11,17 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER || 'info@rialtor.app',
     pass: process.env.SMTP_PASS,
   },
+  logger: true, // Enable logger
+  debug: true, // Enable debug
+});
+
+// Verify transporter on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('SMTP Connection Error:', error);
+  } else {
+    console.log('✓ SMTP server is ready to take messages');
+  }
 });
 
 // Ruta base de templates
@@ -22,13 +33,15 @@ const TEMPLATES_DIR = path.join(__dirname, '../templates/emails');
 async function renderTemplate(templateName, data) {
   try {
     const templatePath = path.join(TEMPLATES_DIR, `${templateName}.ejs`);
+    console.log(`[EMAIL] Rendering template: ${templatePath}`);
     const html = await ejs.renderFile(templatePath, {
       ...data,
       frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
     });
+    console.log(`[EMAIL] Template rendered successfully`);
     return html;
   } catch (error) {
-    console.error(`Error rendering template ${templateName}:`, error);
+    console.error(`[EMAIL] Error rendering template ${templateName}:`, error);
     throw error;
   }
 }
@@ -38,20 +51,35 @@ async function renderTemplate(templateName, data) {
  */
 async function sendEmail(to, subject, templateName, data = {}) {
   try {
+    console.log(`[EMAIL] Starting to send email to ${to} with template: ${templateName}`);
+    console.log(`[EMAIL] SMTP Config - Host: ${process.env.SMTP_HOST}, Port: ${process.env.SMTP_PORT}, User: ${process.env.SMTP_USER}`);
+    
     const html = await renderTemplate(templateName, data);
 
     const mailOptions = {
-      from: process.env.SMTP_FROM || 'info@rialtor.app',
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'info@rialtor.app',
       to,
       subject,
       html,
     };
 
+    console.log(`[EMAIL] Mail options prepared:`, {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      htmlLength: mailOptions.html.length,
+    });
+
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Email enviado a ${to} (${templateName}):`, info.messageId);
+    console.log(`[EMAIL] ✓ Email sent successfully to ${to}`);
+    console.log(`[EMAIL] Message ID: ${info.messageId}`);
+    console.log(`[EMAIL] Response:`, info.response);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error(`Error enviando email a ${to}:`, error);
+    console.error(`[EMAIL] ✗ Error sending email to ${to}:`, error);
+    console.error(`[EMAIL] Error message:`, error.message);
+    console.error(`[EMAIL] Error code:`, error.code);
+    console.error(`[EMAIL] Full error:`, JSON.stringify(error, null, 2));
     return { success: false, error: error.message };
   }
 }
