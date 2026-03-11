@@ -2,6 +2,7 @@ require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const cloudinary = require('../cloudinary');
 const multer = require('multer');
+const { getTemplateStyles } = require('../utils/templateStyles');
 
 const prisma = new PrismaClient();
 
@@ -523,10 +524,12 @@ const sendNewsletter = async (req, res, next) => {
         });
 
         // Enviar el email
+        const templateStyles = getTemplateStyles(parsedNewsletter.template);
         const emailResult = await sendNewsletterEmail(email, {
           title: parsedNewsletter.title,
           content: parsedNewsletter.content,
           template: parsedNewsletter.template,
+          templateStyles: templateStyles,
           news: fullNews,
           properties: fullProperties,
           agentInfo: parsedNewsletter.agentInfo

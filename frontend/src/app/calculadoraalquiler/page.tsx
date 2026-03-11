@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Calculator, TrendingUp, Calendar, DollarSign, AlertCircle, CheckCircle, Info } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
+import { formatLocalDate } from '@/utils/dateUtils'
 import PDFExportButton from '@/components/PDFExportButton'
 
 interface RentProjection {
@@ -103,7 +104,7 @@ export default function CalculadoraAlquilerPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-AR', {
+    return formatLocalDate(dateString, {
       year: 'numeric',
       month: 'long',
       day: 'numeric'

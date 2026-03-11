@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../auth/authContext"
 import { useRouter } from "next/navigation"
 import { authenticatedFetch } from "@/utils/api"
+import { formatDateWithWeekday } from "@/utils/dateUtils"
 import Link from "next/link"
 import EconomicIndicators from "@/components/EconomicIndicators"
 import SalesFunnel from "@/components/SalesFunnel"
@@ -495,7 +496,7 @@ export default function DashboardPage() {
                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100 flex items-center gap-1">
                     <Crown className="w-3 h-3" /> Premium
                  </span>
-                 <span className="text-xs text-slate-400">{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                 <span className="text-xs text-slate-400">{formatDateWithWeekday(new Date().toISOString().split('T')[0])}</span>
                </div>
                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
                   Hola, <span className="text-blue-600">{user?.name?.split(" ")[0]}</span>

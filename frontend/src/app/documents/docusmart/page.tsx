@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { authenticatedFetch } from '@/utils/api';
+import { formatDateWithWeekday } from '@/utils/dateUtils';
 
 // ─── Definición de bloques y campos ──────────────────────────────────────────
 
@@ -634,7 +635,7 @@ export default function DocuSmartPage() {
               <p>
                 El documento fue guardado de forma segura en la nube y será <strong>eliminado automáticamente</strong> el{' '}
                 <strong className="text-slate-700">
-                  {new Date(results.expiresAt).toLocaleDateString('es-AR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+                  {formatDateWithWeekday(results.expiresAt.split('T')[0])}
                 </strong>.
               </p>
             </div>

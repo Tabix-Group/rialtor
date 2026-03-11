@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Calculator, Calendar, Clock, CheckCircle, ArrowRight, Hash, CalendarCheck, Info, Briefcase } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
+import { formatLocalDate, formatDateWithWeekday, formatDateShort } from '@/utils/dateUtils'
 import PDFExportButton from "@/components/PDFExportButton"
 
 interface DaysResult {
@@ -157,16 +158,11 @@ export default function DiasPage() {
     }
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('es-AR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })
+        return formatDateWithWeekday(dateString)
     }
 
     const formatShortDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('es-AR', {
+        return formatLocalDate(dateString, {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric'

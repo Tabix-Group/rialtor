@@ -182,6 +182,7 @@ async function sendNewsletterEmail(email, newsletterData) {
       news: newsletterData.news || [],
       properties: newsletterData.properties || [],
       agentInfo: newsletterData.agentInfo || null,
+      templateStyles: newsletterData.templateStyles || {}, // Template styling config
       unsubscribeLink: `${process.env.FRONTEND_URL}/newsletter/unsubscribe?email=${encodeURIComponent(email)}`
     };
 

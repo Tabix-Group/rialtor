@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { useAssistantChat } from '../../hooks/useAssistantChat'
 import MessageContent from '../../components/MessageContent'
+import { formatDateWithWeekday } from '@/utils/dateUtils'
 
 export default function ChatPage() {
     const {
@@ -84,12 +85,7 @@ export default function ChatPage() {
                             </p>
 
                             <p className="text-xs sm:text-sm text-slate-400">
-                                {new Date().toLocaleDateString('es-ES', {
-                                    weekday: 'long',
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}
+                                {formatDateWithWeekday(new Date().toISOString().split('T')[0])}
                             </p>
                         </div>
 

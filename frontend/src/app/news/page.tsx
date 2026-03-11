@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { formatDateWithWeekday } from '@/utils/dateUtils'
 import { 
     Newspaper, 
     ExternalLink, 
@@ -219,12 +220,7 @@ export default function NewsPage() {
                         </p>
 
                         <p className="text-xs sm:text-sm text-slate-400">
-                            {new Date().toLocaleDateString('es-ES', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}
+                            {formatDateWithWeekday(new Date().toISOString().split('T')[0])}
                         </p>
                     </div>
                 </div>

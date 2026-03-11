@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, DollarSign, RefreshCw, Info, BarChart3, Build
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import RealEstateCommissions from "@/components/RealEstateCommissions"
 import NetworkNegotiationIndicators from "@/components/NetworkNegotiationIndicators"
+import { formatDateWithWeekday } from "@/utils/dateUtils"
 
 interface DolarRate {
   compra: number
@@ -488,11 +489,12 @@ export default function IndicadoresPage() {
                         <XAxis 
                           dataKey="fecha" 
                           tick={{ fontSize: 12 }}
-                          tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
-                            month: 'short', 
-                            day: 'numeric',
-                            ...(selectedDollarPeriod === '1y' && { year: '2-digit' })
-                          })}
+                          tickFormatter={(value) => {
+                            const dateStr = typeof value === 'string' ? value : new Date(value).toISOString().split('T')[0]
+                            const options = { month: 'short' as const, day: 'numeric' as const }
+                            if (selectedDollarPeriod === '1y') (options as any).year = '2-digit'
+                            return new Date(dateStr).toLocaleDateString('es-AR', options)
+                          }}
                         />
                         <YAxis 
                           tick={{ fontSize: 12 }}
@@ -500,12 +502,11 @@ export default function IndicadoresPage() {
                           tickFormatter={(value) => `$${formatCurrency(value)}`}
                         />
                         <Tooltip 
-                          labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { 
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                          labelFormatter={(value) => {
+                            // Handle both string dates and timestamp numbers
+                            const dateStr = typeof value === 'string' ? value : new Date(value).toISOString().split('T')[0]
+                            return formatDateWithWeekday(dateStr)
+                          }}
                           formatter={(value: number, name: string) => [
                             `$${formatCurrency(value)}`, 
                             name === 'compra' ? 'Compra' : 'Venta'
@@ -745,14 +746,20 @@ export default function IndicadoresPage() {
                             <XAxis 
                               dataKey="fecha" 
                               tick={{ fontSize: 12 }}
-                              tickFormatter={(value) => new Date(value).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' })}
+                              tickFormatter={(value) => {
+                                const dateStr = typeof value === 'string' ? value : new Date(value).toISOString().split('T')[0]
+                                return new Date(dateStr).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' })
+                              }}
                             />
                             <YAxis 
                               tick={{ fontSize: 12 }}
                               domain={['dataMin - 1', 'dataMax + 1']}
                             />
                             <Tooltip 
-                              labelFormatter={(value) => new Date(value).toLocaleDateString('es-AR')}
+                              labelFormatter={(value) => {
+                                const dateStr = typeof value === 'string' ? value : new Date(value).toISOString().split('T')[0]
+                                return formatDateWithWeekday(dateStr)
+                              }}
                               formatter={(value: number) => [formatCurrency(value, 2), 'Valor']}
                             />
                             <Line 
