@@ -1,0 +1,25 @@
+<%
+  const body = `
+    <h2>¡Bienvenido <%= userName %>!</h2>
+    <p>Tu cuenta en Rialtor ha sido creada exitosamente.</p>
+    
+    <p>Estás listo para:</p>
+    <ul>
+      <li>📊 Gestionar prospectos inmobiliarios</li>
+      <li>💬 Chatear con IA para análisis</li>
+      <li>📄 Generar documentos profesionales</li>
+      <li>📈 Seguir indicadores del mercado</li>
+    </ul>
+
+    <hr class="divider">
+    
+    <p><strong>Email de cuenta:</strong> <%= email %></p>
+    
+    <p>Accede a tu dashboard:</p>
+    <a href="<%= frontendUrl %>/dashboard" class="button">Ir a Rialtor</a>
+
+    <p>Si no solicitaste esta cuenta, ignora este correo.</p>
+  `;
+%>
+
+<%- include('layout', { body, title: 'Bienvenido a Rialtor' }) %>

@@ -1,0 +1,19 @@
+<%
+  const body = `
+    <h2>Actualización de Prospecto</h2>
+    <p>Hola <%= userName %>,</p>
+
+    <p><strong><%= prospectName %></strong></p>
+    <p>Se ha registrado un cambio en tu prospecto:</p>
+
+    <p style="background-color: #e8f5e9; padding: 15px; border-radius: 4px; font-size: 16px; font-weight: bold; color: #2e7d32;">
+      <%= action %>
+    </p>
+
+    <a href="<%= prospectUrl %>" class="button">Ver Prospecto</a>
+
+    <p>Mantente actualizado con el estado de tus prospectos en Rialtor.</p>
+  `;
+%>
+
+<%- include('layout', { body, title: 'Actualización de Prospecto' }) %>

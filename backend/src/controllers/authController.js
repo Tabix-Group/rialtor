@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
+const emailService = require('../services/emailService');
 
 const prisma = new PrismaClient();
 
@@ -67,6 +68,14 @@ const register = async (req, res, next) => {
           roleId: roleToAssign.id
         }
       });
+    }
+
+    // Enviar email de bienvenida
+    try {
+      await emailService.sendRegistrationEmail(user.email, user.name || user.email);
+    } catch (emailError) {
+      console.error('Error sending registration email:', emailError);
+      // No fallar el registro si el email falla
     }
 
     // Generar token

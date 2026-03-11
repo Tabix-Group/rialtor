@@ -1,0 +1,24 @@
+<%
+  const body = `
+    <h2>¡Tu cuenta está activada! 🎉</h2>
+    <p>Hola <%= userName %>,</p>
+
+    <p>Tu suscripción ha sido procesada exitosamente. Tu cuenta Rialtor ahora tiene acceso completo a todas las funcionalidades.</p>
+
+    <p><strong>Acceso habilitado:</strong></p>
+    <ul>
+      <li>✅ Gestión de prospectos</li>
+      <li>✅ Chat con IA ilimitado</li>
+      <li>✅ Generación de documentos</li>
+      <li>✅ Notificaciones y alertas</li>
+    </ul>
+
+    <a href="<%= frontendUrl %>/dashboard" class="button">Comenzar Ahora</a>
+
+    <hr class="divider">
+
+    <p>¿Necesitas ayuda? Contacta a nuestro equipo en <a href="mailto:info@rialtor.app">info@rialtor.app</a></p>
+  `;
+%>
+
+<%- include('layout', { body, title: 'Tu Cuenta Está Activada' }) %>

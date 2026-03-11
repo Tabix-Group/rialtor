@@ -1,0 +1,17 @@
+<%
+  const body = `
+    <h2>Tu documento está listo 📄</h2>
+    <p>Hola <%= userName %>,</p>
+
+    <p>El documento <strong><%= documentName %></strong> ha sido generado correctamente.</p>
+
+    <p>Puedes descargarlo desde tu panel de documentos:</p>
+    <a href="<%= documentsUrl %>" class="button">Ver Documentos</a>
+
+    <p style="font-size: 12px; color: #666;">
+      El documento está disponible durante 30 días. Descárgalo antes de que expire.
+    </p>
+  `;
+%>
+
+<%- include('layout', { body, title: 'Documento Generado' }) %>

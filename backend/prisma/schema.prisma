@@ -19,6 +19,10 @@ model User {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   
+  // Email verification fields
+  emailVerified       Boolean              @default(false)
+  emailVerifiedAt     DateTime?
+  
   // Stripe subscription fields
   stripeCustomerId    String?              @unique
   subscriptionId      String?              @unique
@@ -485,5 +489,17 @@ model Valuation {
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("valuations")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String   @db.VarChar(255)
+  token     String   @unique @db.VarChar(500)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@map("password_reset_tokens")
 }
 
