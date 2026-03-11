@@ -1,6 +1,6 @@
 <%
   const body = `
-    <h2>¡Bienvenido <%= userName %>!</h2>
+    <h2>¡Bienvenido ${userName}!</h2>
     <p>Tu cuenta en Rialtor ha sido creada exitosamente.</p>
     
     <p>Estás listo para:</p>
@@ -13,10 +13,10 @@
 
     <hr class="divider">
     
-    <p><strong>Email de cuenta:</strong> <%= email %></p>
+    <p><strong>Email de cuenta:</strong> ${email}</p>
     
     <p>Accede a tu dashboard:</p>
-    <a href="<%= frontendUrl %>/dashboard" class="button">Ir a Rialtor</a>
+    <a href="${frontendUrl}/dashboard" class="button">Ir a Rialtor</a>
 
     <p>Si no solicitaste esta cuenta, ignora este correo.</p>
   `;
