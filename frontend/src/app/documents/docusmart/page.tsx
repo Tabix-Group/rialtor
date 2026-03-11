@@ -366,6 +366,14 @@ export default function DocuSmartPage() {
                     El documento se almacena de forma segura en la nube y se elimina automáticamente a los <strong>30 días</strong>.
                   </p>
                 </div>
+
+                {/* Scanned documents warning */}
+                <div className="mt-3 flex items-start gap-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-orange-700">
+                    <strong>Nota:</strong> Los documentos escaneados o imágenes pueden perder calidad durante el procesamiento, lo que afecta la precisión de la extracción.
+                  </p>
+                </div>
               </div>
 
               {/* Extract button + field counter */}
