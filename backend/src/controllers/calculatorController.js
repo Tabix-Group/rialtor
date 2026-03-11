@@ -1,3 +1,5 @@
+const { getDayName } = require('../utils/dateUtils');
+
 // Calculadora de honorarios de escribano
 const calculateEscribano = async (req, res) => {
   try {
@@ -648,7 +650,7 @@ const calculateDays = async (req, res) => {
       } else if (holidayInfo) {
         holidays.push({
           date: currentDate.toISOString().split('T')[0],
-          day: currentDate.toLocaleDateString('es-AR', { weekday: 'long' }),
+          day: getDayName(currentDate.toISOString().split('T')[0]),
           reason: holidayInfo.name || 'Feriado',
           type: holidayInfo.type || 'public'
         });
@@ -749,7 +751,7 @@ const calculateDueDate = async (req, res) => {
       } else if (holidayInfo) {
         holidays.push({
           date: currentDate.toISOString().split('T')[0],
-          day: currentDate.toLocaleDateString('es-AR', { weekday: 'long' }),
+          day: getDayName(currentDate.toISOString().split('T')[0]),
           reason: Array.isArray(holidayInfo) ? holidayInfo[0].name : (holidayInfo.name || 'Feriado'),
           type: Array.isArray(holidayInfo) ? holidayInfo[0].type : (holidayInfo.type || 'public')
         });

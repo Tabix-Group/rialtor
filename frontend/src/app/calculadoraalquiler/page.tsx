@@ -270,10 +270,16 @@ export default function CalculadoraAlquilerPage() {
                     <h2 className="text-xl font-bold text-gray-900">Resumen del Cálculo</h2>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-sm text-gray-600">Monto inicial</p>
                       <p className="text-2xl font-bold text-gray-900">{formatCurrency(result.inputs.amount)}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="text-sm text-gray-600">Índice de ajuste</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {RATE_OPTIONS.find(r => r.value === result.inputs.rate)?.label.split(' - ')[0] || result.inputs.rate.toUpperCase()}
+                      </p>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-sm text-gray-600">Monto final proyectado</p>

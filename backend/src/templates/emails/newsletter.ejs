@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
+    <% 
+        // Set style defaults if templateStyles is not provided
+        const ts = templateStyles || {};
+        const styles = {
+            fontFamily: ts.fontFamily ? ts.fontFamily : "system-ui, -apple-system, sans-serif",
+            lineHeight: ts.lineHeight ? ts.lineHeight : "1.6",
+            textColor: ts.textColor ? ts.textColor : "#1f2937",
+            background: ts.background ? ts.background : "#f9fafb",
+            headerGradient: ts.headerGradient ? ts.headerGradient : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            headerBorder: ts.headerBorder ? ts.headerBorder : "",
+            accentColor: ts.accentColor ? ts.accentColor : "#667eea",
+            cardBg: ts.cardBg ? ts.cardBg : "#f9fafb",
+            cardBorder: ts.cardBorder ? ts.cardBorder : "1px solid #e5e7eb",
+            cardShadow: ts.cardShadow ? ts.cardShadow : "0 2px 4px rgba(0,0,0,0.05)"
+        };
+    %>
     <style>
         * {
             margin: 0;
@@ -11,10 +27,10 @@
             box-sizing: border-box;
         }
         body {
-            font-family: <%= templateStyles?.fontFamily || "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" %>;
-            line-height: <%= templateStyles?.lineHeight || "1.6" %>;
-            color: <%= templateStyles?.textColor || "#1f2937" %>;
-            background: <%= templateStyles?.background || "#f9fafb" %>;
+            font-family: <% if (styles.fontFamily) { %><%= styles.fontFamily %><% } %>;
+            line-height: <% if (styles.lineHeight) { %><%= styles.lineHeight %><% } %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
+            background: <% if (styles.background) { %><%= styles.background %><% } %>;
         }
         .container {
             max-width: 600px;
@@ -22,8 +38,8 @@
             background: white;
         }
         .header {
-            background: <%= templateStyles?.headerGradient || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" %>;
-            <%= templateStyles?.headerBorder ? `border-bottom: ${templateStyles.headerBorder};` : "" %>
+            background: <% if (styles.headerGradient) { %><%= styles.headerGradient %><% } %>;
+            <% if (styles.headerBorder) { %>border-bottom: <%= styles.headerBorder %>;<% } %>
             padding: 40px 20px;
             text-align: center;
             color: white;
@@ -43,36 +59,36 @@
         }
         .content {
             padding: 40px 25px;
-            background: <%= templateStyles?.background || "#f9fafb" %>;
+            background: <% if (styles.background) { %><%= styles.background %><% } %>;
         }
         .newsletter-title {
             font-size: 28px;
             font-weight: 700;
-            color: <%= templateStyles?.textColor || "#1f2937" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 8px 0;
             line-height: 1.2;
         }
         .newsletter-meta {
             font-size: 13px;
-            color: <%= templateStyles?.accentColor || "#6b7280" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             margin-bottom: 30px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .newsletter-content {
-            color: <%= templateStyles?.textColor || "#374151" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             font-size: 15px;
-            line-height: <%= templateStyles?.lineHeight || "1.7" %>;
+            line-height: <% if (styles.lineHeight) { %><%= styles.lineHeight %><% } %>;
             margin-bottom: 40px;
         }
         .newsletter-content h2 {
-            color: <%= templateStyles?.accentColor || "#667eea" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             font-size: 20px;
             margin: 30px 0 15px 0;
             font-weight: 700;
         }
         .newsletter-content h3 {
-            color: <%= templateStyles?.accentColor || "#764ba2" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             font-size: 17px;
             margin: 20px 0 12px 0;
             font-weight: 600;
@@ -88,7 +104,7 @@
             margin: 8px 0;
         }
         .newsletter-content a {
-            color: <%= templateStyles?.accentColor || "#667eea" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             text-decoration: none;
             font-weight: 500;
         }
@@ -105,10 +121,10 @@
         .section-title {
             font-size: 22px;
             font-weight: 700;
-            color: <%= templateStyles?.textColor || "#1f2937" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 40px 0 25px 0;
             padding-bottom: 12px;
-            border-bottom: 3px solid <%= templateStyles?.accentColor || "#667eea" %>;
+            border-bottom: 3px solid <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
         }
         .news-container {
             margin-bottom: 40px;
@@ -116,41 +132,41 @@
         .news-item {
             margin-bottom: 20px;
             padding: 20px;
-            border: <%= templateStyles?.cardBorder || "1px solid #e5e7eb" %>;
+            border: <% if (styles.cardBorder) { %><%= styles.cardBorder %><% } %>;
             border-radius: 8px;
-            background: <%= templateStyles?.cardBg || "#f9fafb" %>;
-            box-shadow: <%= templateStyles?.cardShadow || "0 2px 4px rgba(0,0,0,0.05)" %>;
+            background: <% if (styles.cardBg) { %><%= styles.cardBg %><% } %>;
+            box-shadow: <% if (styles.cardShadow) { %><%= styles.cardShadow %><% } %>;
             transition: all 0.2s;
         }
         .news-item:hover {
-            border-color: <%= templateStyles?.accentColor || "#667eea" %>;
+            border-color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             background: #f3f4f6;
         }
         .news-title {
             font-size: 16px;
             font-weight: 600;
-            color: <%= templateStyles?.textColor || "#1f2937" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 10px 0;
             line-height: 1.4;
         }
         .news-synopsis {
             font-size: 13px;
-            color: <%= templateStyles?.textColor || "#6b7280" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 12px 0;
             line-height: 1.6;
             opacity: 0.8;
         }
         .news-meta {
             font-size: 12px;
-            color: <%= templateStyles?.accentColor || "#9ca3af" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             margin: 0;
         }
         .news-source {
             font-weight: 600;
-            color: <%= templateStyles?.accentColor || "#667eea" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
         }
         .news-link {
-            color: <%= templateStyles?.accentColor || "#667eea" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             text-decoration: none;
             font-weight: 600;
             margin-left: 8px;
@@ -161,16 +177,16 @@
         }
         .property-card {
             margin-bottom: 20px;
-            border: <%= templateStyles?.cardBorder || "1px solid #e5e7eb" %>;
+            border: <% if (styles.cardBorder) { %><%= styles.cardBorder %><% } %>;
             border-radius: 8px;
             overflow: hidden;
-            background: <%= templateStyles?.cardBg || "white" %>;
-            box-shadow: <%= templateStyles?.cardShadow || "0 2px 4px rgba(0,0,0,0.05)" %>;
+            background: <% if (styles.cardBg) { %><%= styles.cardBg %><% } %>;
+            box-shadow: <% if (styles.cardShadow) { %><%= styles.cardShadow %><% } %>;
         }
         .property-image {
             width: 100%;
             height: 180px;
-            background: <%= templateStyles?.headerGradient || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" %>;
+            background: <% if (styles.headerGradient) { %><%= styles.headerGradient %><% } %>;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -185,33 +201,33 @@
         .property-address {
             font-size: 14px;
             font-weight: 600;
-            color: <%= templateStyles?.textColor || "#1f2937" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 8px 0;
         }
         .property-type {
             font-size: 12px;
-            color: <%= templateStyles?.textColor || "#6b7280" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 10px 0;
             opacity: 0.7;
         }
         .property-details {
             font-size: 12px;
-            color: <%= templateStyles?.textColor || "#6b7280" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0;
         }
         .property-price {
             font-size: 16px;
             font-weight: 700;
-            color: <%= templateStyles?.accentColor || "#667eea" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             margin-top: 10px;
         }
         .agent-section {
-            background: rgba(<%= templateStyles?.accentColor || "#667eea" %>, 0.05);
+            background: rgba(102, 126, 234, 0.05);
             padding: 30px 25px;
             border-radius: 12px;
             text-align: center;
             margin-bottom: 40px;
-            border: 1px solid <%= templateStyles?.cardBorder || "rgba(102, 126, 234, 0.2)" %>;
+            border: 1px solid <% if (styles.cardBorder) { %><%= styles.cardBorder %><% } %>;
         }
         .agent-avatar {
             width: 100px;
@@ -219,24 +235,24 @@
             border-radius: 50%;
             object-fit: cover;
             margin: 0 auto 15px;
-            border: 4px solid <%= templateStyles?.accentColor || "#667eea" %>;
+            border: 4px solid <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             display: block;
         }
         .agent-name {
             font-size: 18px;
             font-weight: 700;
-            color: <%= templateStyles?.textColor || "#1f2937" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 5px 0;
         }
         .agent-title {
             font-size: 13px;
-            color: <%= templateStyles?.textColor || "#6b7280" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 12px 0;
             opacity: 0.7;
         }
         .agent-bio {
             font-size: 13px;
-            color: <%= templateStyles?.textColor || "#6b7280" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
             margin: 0 0 15px 0;
             line-height: 1.6;
             font-style: italic;
@@ -247,15 +263,15 @@
         }
         .agent-contact p {
             margin: 6px 0;
-            color: <%= templateStyles?.textColor || "#6b7280" %>;
+            color: <% if (styles.textColor) { %><%= styles.textColor %><% } %>;
         }
         .agent-contact a {
-            color: <%= templateStyles?.accentColor || "#667eea" %>;
+            color: <% if (styles.accentColor) { %><%= styles.accentColor %><% } %>;
             text-decoration: none;
             font-weight: 600;
         }
         .footer {
-            background: <%= templateStyles?.headerGradient || "#1f2937" %>;
+            background: <% if (styles.headerGradient) { %><%= styles.headerGradient %><% } %>;
             color: white;
             padding: 25px 20px;
             text-align: center;

@@ -34,6 +34,9 @@ async function renderTemplate(templateName, data) {
   try {
     const templatePath = path.join(TEMPLATES_DIR, `${templateName}.ejs`);
     console.log(`[EMAIL] Rendering template: ${templatePath}`);
+    console.log(`[EMAIL] Data keys available:`, Object.keys(data).join(', '));
+    console.log(`[EMAIL] templateStyles available:`, data.templateStyles ? 'YES' : 'NO');
+    
     const html = await ejs.renderFile(templatePath, {
       ...data,
       frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
@@ -166,6 +169,7 @@ async function sendDocumentNotificationEmail(email, userName, documentName) {
 async function sendNewsletterEmail(email, newsletterData) {
   try {
     console.log(`[NEWSLETTER] Preparing newsletter email for ${email}`);
+    console.log(`[NEWSLETTER] templateStyles provided:`, newsletterData.templateStyles ? 'YES' : 'NO');
     
     // Extraer fecha actual formateada
     const publishDate = new Date().toLocaleDateString('es-ES', {
@@ -187,6 +191,7 @@ async function sendNewsletterEmail(email, newsletterData) {
     };
 
     console.log(`[NEWSLETTER] Template data prepared with ${templateData.news.length} news items and ${templateData.properties.length} properties`);
+    console.log(`[NEWSLETTER] Template styles in data:`, templateData.templateStyles ? 'YES' : 'NO');
 
     return sendEmail(
       email,
