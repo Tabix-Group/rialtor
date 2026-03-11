@@ -452,8 +452,40 @@ const sendNewsletter = async (req, res, next) => {
       images: JSON.parse(newsletter.images || '[]'),
       properties: newsletter.properties ? JSON.parse(newsletter.properties) : null,
       news: newsletter.news ? JSON.parse(newsletter.news) : null,
-      agentInfo: newsletter.agentInfo ? JSON.parse(newsletter.agentInfo) : null
+      agentInfo: newsletter.agentInfo ? JSON.parse(newsletter.agentInfo) : null,
+      template: newsletter.template || 'default'
     };
+
+    // Obtener datos completos de noticias
+    let fullNews = [];
+    if (parsedNewsletter.news && parsedNewsletter.news.length > 0) {
+      console.log(`[NEWSLETTER SEND] Obteniendo datos de ${parsedNewsletter.news.length} noticias...`);
+      fullNews = await prisma.news.findMany({
+        where: {
+          id: {
+            in: parsedNewsletter.news
+          }
+        },
+        include: {
+          category: true
+        }
+      });
+      console.log(`[NEWSLETTER SEND] Noticias obtenidas: ${fullNews.length}`);
+    }
+
+    // Obtener datos completos de propiedades
+    let fullProperties = [];
+    if (parsedNewsletter.properties && parsedNewsletter.properties.length > 0) {
+      console.log(`[NEWSLETTER SEND] Obteniendo datos de ${parsedNewsletter.properties.length} propiedades...`);
+      fullProperties = await prisma.propertyPlaque.findMany({
+        where: {
+          id: {
+            in: parsedNewsletter.properties
+          }
+        }
+      });
+      console.log(`[NEWSLETTER SEND] Propiedades obtenidas: ${fullProperties.length}`);
+    }
 
     // Importar servicio de email
     const { sendNewsletterEmail } = require('../services/emailService');
@@ -494,8 +526,9 @@ const sendNewsletter = async (req, res, next) => {
         const emailResult = await sendNewsletterEmail(email, {
           title: parsedNewsletter.title,
           content: parsedNewsletter.content,
-          news: parsedNewsletter.news,
-          properties: parsedNewsletter.properties,
+          template: parsedNewsletter.template,
+          news: fullNews,
+          properties: fullProperties,
           agentInfo: parsedNewsletter.agentInfo
         });
 
