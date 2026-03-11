@@ -407,11 +407,173 @@ const deleteNewsletter = async (req, res, next) => {
   }
 };
 
+/**
+ * Enviar newsletter a múltiples destinatarios
+ */
+const sendNewsletter = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { emails = [] } = req.body;
+    const userId = req.user.id;
+
+    console.log(`[NEWSLETTER SEND] Iniciando envío de newsletter ${id} a ${emails.length} destinatarios`);
+
+    // Validar que al menos un email sea proporcionado
+    if (!Array.isArray(emails) || emails.length === 0) {
+      return res.status(400).json({
+        error: 'Debe proporcionar al menos un email'
+      });
+    }
+
+    // Validar que todos los emails sean válidos
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalidEmails = emails.filter(email => !emailRegex.test(email));
+    if (invalidEmails.length > 0) {
+      return res.status(400).json({
+        error: 'Emails inválidos',
+        invalidEmails
+      });
+    }
+
+    // Obtener la newsletter
+    const newsletter = await prisma.newsletter.findFirst({
+      where: { id, userId }
+    });
+
+    if (!newsletter) {
+      return res.status(404).json({
+        error: 'Newsletter no encontrada'
+      });
+    }
+
+    // Parsear datos de la newsletter
+    const parsedNewsletter = {
+      ...newsletter,
+      images: JSON.parse(newsletter.images || '[]'),
+      properties: newsletter.properties ? JSON.parse(newsletter.properties) : null,
+      news: newsletter.news ? JSON.parse(newsletter.news) : null,
+      agentInfo: newsletter.agentInfo ? JSON.parse(newsletter.agentInfo) : null
+    };
+
+    // Importar servicio de email
+    const { sendNewsletterEmail } = require('../services/emailService');
+
+    // Rastrear resultados
+    const results = {
+      sent: 0,
+      failed: 0,
+      failures: []
+    };
+
+    // Enviar a cada destinatario
+    for (const email of emails) {
+      try {
+        console.log(`[NEWSLETTER SEND] Enviando a ${email}...`);
+
+        // Crear o actualizar el registro del suscriptor
+        const subscriber = await prisma.newsLetterSubscriber.upsert({
+          where: { 
+            newsletterId_email: {
+              newsletterId: id,
+              email
+            }
+          },
+          update: { 
+            status: 'PENDING',
+            sentAt: null,
+            failureReason: null
+          },
+          create: {
+            newsletterId: id,
+            email,
+            status: 'PENDING'
+          }
+        });
+
+        // Enviar el email
+        const emailResult = await sendNewsletterEmail(email, {
+          title: parsedNewsletter.title,
+          content: parsedNewsletter.content,
+          news: parsedNewsletter.news,
+          properties: parsedNewsletter.properties,
+          agentInfo: parsedNewsletter.agentInfo
+        });
+
+        if (emailResult.success) {
+          console.log(`[NEWSLETTER SEND] ✓ Email enviado exitosamente a ${email}`);
+          
+          // Actualizar subscriber status a SENT
+          await prisma.newsLetterSubscriber.update({
+            where: { id: subscriber.id },
+            data: {
+              status: 'SENT',
+              sentAt: new Date()
+            }
+          });
+
+          results.sent++;
+        } else {
+          console.error(`[NEWSLETTER SEND] ✗ Error al enviar a ${email}: ${emailResult.error}`);
+          
+          // Actualizar subscriber status a FAILED
+          await prisma.newsLetterSubscriber.update({
+            where: { id: subscriber.id },
+            data: {
+              status: 'FAILED',
+              failureReason: emailResult.error
+            }
+          });
+
+          results.failed++;
+          results.failures.push({
+            email,
+            error: emailResult.error
+          });
+        }
+      } catch (emailError) {
+        console.error(`[NEWSLETTER SEND] Error procesando email ${email}:`, emailError);
+        results.failed++;
+        results.failures.push({
+          email,
+          error: emailError.message
+        });
+      }
+    }
+
+    // Si todos fueron exitosos, actualizar estado del newsletter a SENT
+    if (results.failed === 0 && results.sent > 0) {
+      await prisma.newsletter.update({
+        where: { id },
+        data: { status: 'SENT' }
+      });
+    }
+
+    console.log(`[NEWSLETTER SEND] Envío completado: ${results.sent} enviados, ${results.failed} fallidos`);
+
+    res.json({
+      message: 'Envío de newsletter completado',
+      results: {
+        sent: results.sent,
+        failed: results.failed,
+        total: emails.length,
+        failures: results.failed > 0 ? results.failures : undefined
+      }
+    });
+  } catch (error) {
+    console.error('[NEWSLETTER SEND] Error general en sendNewsletter:', error);
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   createNewsletter,
   getNewsletters,
   getNewsletterById,
   updateNewsletter,
   deleteNewsletter,
+  sendNewsletter,
   uploadFields
 };

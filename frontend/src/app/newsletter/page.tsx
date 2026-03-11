@@ -7,6 +7,7 @@ import { usePermission } from '../../hooks/usePermission'
 import { authenticatedFetchJson } from '@/utils/api'
 import dynamic from 'next/dynamic'
 import NewsletterHeader from '@/components/NewsletterHeader'
+import SendNewsletterModal from '@/components/SendNewsletterModal'
 import {
   Upload,
   Mail,
@@ -237,6 +238,8 @@ export default function NewsletterPage() {
   const [loadingProperties, setLoadingProperties] = useState(false);
   const [showInternationalNews, setShowInternationalNews] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [selectedNewsletterToSend, setSelectedNewsletterToSend] = useState<Newsletter | null>(null);
 
   // Proteger ruta
   useEffect(() => {
@@ -494,6 +497,20 @@ export default function NewsletterPage() {
   const openPreviewModal = (newsletter: Newsletter) => {
     setPreviewNewsletter(newsletter);
     setShowPreviewModal(true);
+  };
+
+  const openSendModal = (newsletter: Newsletter) => {
+    setSelectedNewsletterToSend(newsletter);
+    setShowSendModal(true);
+  };
+
+  const closeSendModal = () => {
+    setShowSendModal(false);
+    setSelectedNewsletterToSend(null);
+  };
+
+  const handleSendSuccess = () => {
+    fetchNewsletters(currentPage);
   };
 
   const getStatusIcon = (status: string) => {
@@ -1144,6 +1161,16 @@ export default function NewsletterPage() {
                           >
                             <Download className="w-3.5 h-3.5" />
                           </button>
+
+                          {(newsletter.status === 'PUBLISHED' || newsletter.status === 'SENT') && (
+                            <button
+                              onClick={() => openSendModal(newsletter)}
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                              title="Enviar a destinatarios"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                            </button>
+                          )}
 
                           {newsletter.status === 'DRAFT' && (
                             <button
@@ -2248,6 +2275,14 @@ export default function NewsletterPage() {
           </div>
         </div>
       )}
+
+      {/* Modal de Envío de Newsletter */}
+      <SendNewsletterModal
+        isOpen={showSendModal}
+        newsletter={selectedNewsletterToSend}
+        onClose={closeSendModal}
+        onSuccess={handleSendSuccess}
+      />
     </div>
   );
 }

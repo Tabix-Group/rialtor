@@ -30,6 +30,9 @@ router.get('/', newsletterController.getNewsletters);
 // Obtener newsletter específica
 router.get('/:id', newsletterController.getNewsletterById);
 
+// Enviar newsletter a múltiples destinatarios
+router.post('/:id/send', newsletterController.sendNewsletter);
+
 // Actualizar newsletter (con subida opcional de imágenes)
 router.put('/:id',
   conditionalUpload,

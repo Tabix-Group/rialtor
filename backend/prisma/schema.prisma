@@ -420,8 +420,25 @@ model Newsletter {
   updatedAt  DateTime @updatedAt
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscribers NewsLetterSubscriber[]
 
   @@map("newsletters")
+}
+
+model NewsLetterSubscriber {
+  id           String   @id @default(uuid())
+  email        String
+  status       String   @default("PENDING") // PENDING, SENT, FAILED
+  sentAt       DateTime?
+  failureReason String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  newsletterId String
+  newsletter   Newsletter @relation(fields: [newsletterId], references: [id], onDelete: Cascade)
+
+  @@unique([newsletterId, email])
+  @@index([email])
+  @@map("newsletter_subscribers")
 }
 
 model SalesFunnel {

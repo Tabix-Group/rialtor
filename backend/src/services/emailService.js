@@ -161,6 +161,45 @@ async function sendDocumentNotificationEmail(email, userName, documentName) {
 }
 
 /**
+ * Email de newsletter
+ */
+async function sendNewsletterEmail(email, newsletterData) {
+  try {
+    console.log(`[NEWSLETTER] Preparing newsletter email for ${email}`);
+    
+    // Extraer fecha actual formateada
+    const publishDate = new Date().toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Construir datos para el template
+    const templateData = {
+      title: newsletterData.title,
+      contentHtml: newsletterData.content || '<p>Sin contenido</p>',
+      publishDate,
+      news: newsletterData.news || [],
+      properties: newsletterData.properties || [],
+      agentInfo: newsletterData.agentInfo || null,
+      unsubscribeLink: `${process.env.FRONTEND_URL}/newsletter/unsubscribe?email=${encodeURIComponent(email)}`
+    };
+
+    console.log(`[NEWSLETTER] Template data prepared with ${templateData.news.length} news items and ${templateData.properties.length} properties`);
+
+    return sendEmail(
+      email,
+      `${newsletterData.title} - Newsletter Rialtor`,
+      'newsletter',
+      templateData
+    );
+  } catch (error) {
+    console.error(`[NEWSLETTER] Error preparing newsletter email for ${email}:`, error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
  * Test: verificar conexión SMTP
  */
 async function verifyConnection() {
@@ -182,5 +221,6 @@ module.exports = {
   sendChatNotificationEmail,
   sendProspectNotificationEmail,
   sendDocumentNotificationEmail,
+  sendNewsletterEmail,
   verifyConnection,
 };
