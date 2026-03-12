@@ -1,16 +1,16 @@
 <%
     // Set style defaults if templateStyles is not provided
     const ts = templateStyles || {};
-    const headerGradient = ts.headerGradient ? ts.headerGradient : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
-    const textColor = ts.textColor ? ts.textColor : "#1f2937";
-    const accentColor = ts.accentColor ? ts.accentColor : "#667eea";
-    const background = ts.background ? ts.background : "#f9fafb";
-    const cardBg = ts.cardBg ? ts.cardBg : "#f9fafb";
-    const cardBorder = ts.cardBorder ? ts.cardBorder : "1px solid #e5e7eb";
-    const cardShadow = ts.cardShadow ? ts.cardShadow : "0 2px 4px rgba(0,0,0,0.05)";
-    const fontFamily = ts.fontFamily ? ts.fontFamily : "system-ui, -apple-system, sans-serif";
-    const lineHeight = ts.lineHeight ? ts.lineHeight : "1.6";
-    const headerBorder = ts.headerBorder ? ts.headerBorder : "";
+    const headerGradient = ts.headerGradient || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+    const textColor = ts.textColor || "#1f2937";
+    const accentColor = ts.accentColor || "#667eea";
+    const bgColor = ts.bgColor || "#f3f4f6";
+    const cardBg = ts.cardBg || "#ffffff";
+    const cardBorder = ts.cardBorder || "1px solid #e5e7eb";
+    const cardShadow = ts.cardShadow || "0 2px 8px rgba(0,0,0,0.08)";
+    const fontFamily = ts.fontFamily || "system-ui, -apple-system, Arial, sans-serif";
+    const lineHeight = ts.lineHeight || "1.6";
+    const headerBorderStyle = (ts.headerBorder && ts.headerBorder !== 'none') ? 'border-bottom:' + ts.headerBorder + ';' : '';
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -18,457 +18,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %></title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: <%= fontFamily %>;
-            line-height: <%= lineHeight %>;
-            color: <%= textColor %>;
-            background: <%= background %>;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-        }
-        .header {
-            background: <%= headerGradient %>;
-            <%= headerBorder ? `border-bottom: ${headerBorder};` : '' %>
-            padding: 50px 20px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .logo {
-            font-size: 36px;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: -2px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .subtitle {
-            font-size: 13px;
-            opacity: 0.95;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 600;
-        }
-        .content {
-            padding: 50px 35px;
-            background: <%= background %>;
-            line-height: 1.8;
-        }
-        .newsletter-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: <%= textColor %>;
-            margin: 0 0 12px 0;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-        }
-        .newsletter-meta {
-            font-size: 12px;
-            color: <%= accentColor %>;
-            margin-bottom: 35px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
-        .newsletter-content {
-            color: <%= textColor %>;
-            font-size: 15px;
-            line-height: <%= lineHeight %>;
-            margin-bottom: 50px;
-            word-spacing: 0.05em;
-        }
-        .newsletter-content h2 {
-            color: <%= accentColor %>;
-            font-size: 22px;
-            margin: 35px 0 18px 0;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-        .newsletter-content h3 {
-            color: <%= accentColor %>;
-            font-size: 18px;
-            margin: 25px 0 15px 0;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
-        .newsletter-content p {
-            margin: 14px 0;
-            color: <%= textColor %>;
-        }
-        .newsletter-content ul, .newsletter-content ol {
-            margin: 20px 0;
-            padding-left: 28px;
-        }
-        .newsletter-content li {
-            margin: 10px 0;
-            line-height: 1.7;
-        }
-        .newsletter-content a {
-            color: <%= accentColor %>;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .newsletter-content a:hover {
-            text-decoration: underline;
-        }
-        .newsletter-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 25px 0;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-        .section-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: <%= textColor %>;
-            margin: 50px 0 30px 0;
-            padding-bottom: 14px;
-            border-bottom: 4px solid <%= accentColor %>;
-            letter-spacing: -0.5px;
-        }
-        .news-container {
-            margin-bottom: 50px;
-        }
-        .news-item {
-            margin-bottom: 24px;
-            padding: 24px;
-            border: <%= cardBorder %>;
-            border-radius: 12px;
-            background: <%= cardBg %>;
-            box-shadow: <%= cardShadow %>;
-            transition: all 0.3s ease;
-        }
-        .news-item:hover {
-            border-color: <%= accentColor %>;
-            background: rgba(102, 126, 234, 0.02);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-        }
-        .news-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: <%= textColor %>;
-            margin: 0 0 12px 0;
-            line-height: 1.4;
-            letter-spacing: -0.3px;
-        }
-        .news-synopsis {
-            font-size: 14px;
-            color: <%= textColor %>;
-            margin: 0 0 14px 0;
-            line-height: 1.7;
-            opacity: 0.85;
-        }
-        .news-meta {
-            font-size: 12px;
-            color: <%= accentColor %>;
-            margin: 0;
-            font-weight: 500;
-        }
-        .news-source {
-            font-weight: 700;
-            color: <%= accentColor %>;
-        }
-        .news-link {
-            color: <%= accentColor %>;
-            text-decoration: none;
-            font-weight: 700;
-            margin-left: 10px;
-        }
-        .properties-grid {
-            display: block;
-            margin-bottom: 50px;
-        }
-        .property-card {
-            margin-bottom: 24px;
-            border: <%= cardBorder %>;
-            border-radius: 12px;
-            overflow: hidden;
-            background: <%= cardBg %>;
-            box-shadow: <%= cardShadow %>;
-            transition: all 0.3s ease;
-        }
-        .property-card:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-            transform: translateY(-3px);
-            border-color: <%= accentColor %>;
-        }
-        .property-image {
-            width: 100%;
-            height: 200px;
-            background: <%= headerGradient %>;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-            text-align: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-        .property-image img {
-            margin: 0;
-            border-radius: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .property-content {
-            padding: 20px;
-        }
-        .property-address {
-            font-size: 16px;
-            font-weight: 700;
-            color: <%= textColor %>;
-            margin: 0 0 10px 0;
-            letter-spacing: -0.3px;
-        }
-        .property-type {
-            font-size: 12px;
-            color: <%= textColor %>;
-            margin: 0 0 12px 0;
-            opacity: 0.7;
-            font-weight: 500;
-            text-transform: capitalize;
-        }
-        .property-details {
-            font-size: 13px;
-            color: <%= textColor %>;
-            margin: 8px 0;
-            opacity: 0.8;
-            line-height: 1.5;
-        }
-        .property-price {
-            font-size: 18px;
-            font-weight: 800;
-            color: <%= accentColor %>;
-            margin-top: 12px;
-            letter-spacing: -0.5px;
-        }
-        .agent-section {
-            background: rgba(102, 126, 234, 0.08);
-            padding: 40px 30px;
-            border-radius: 14px;
-            text-align: center;
-            margin-bottom: 50px;
-            border: 2px solid <%= cardBorder %>;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.08);
-        }
-        .agent-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 20px;
-            border: 5px solid <%= accentColor %>;
-            display: block;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        .agent-name {
-            font-size: 20px;
-            font-weight: 800;
-            color: <%= textColor %>;
-            margin: 0 0 8px 0;
-            letter-spacing: -0.5px;
-        }
-        .agent-title {
-            font-size: 13px;
-            color: <%= textColor %>;
-            margin: 0 0 14px 0;
-            opacity: 0.75;
-            font-weight: 600;
-        }
-        .agent-bio {
-            font-size: 13px;
-            color: <%= textColor %>;
-            margin: 0 0 18px 0;
-            line-height: 1.7;
-            font-style: italic;
-            opacity: 0.85;
-        }
-        .agent-contact {
-            font-size: 13px;
-            margin: 0;
-        }
-        .agent-contact p {
-            margin: 8px 0;
-            color: <%= textColor %>;
-            font-weight: 500;
-        }
-        .agent-contact a {
-            color: <%= accentColor %>;
-            text-decoration: none;
-            font-weight: 700;
-        }
-        .footer {
-            background: <%= headerGradient %>;
-            color: white;
-            padding: 35px 25px;
-            text-align: center;
-            font-size: 12px;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .footer-text {
-            margin: 10px 0;
-            opacity: 0.95;
-            line-height: 1.6;
-            font-weight: 500;
-        }
-        .footer a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.9;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .footer a:hover {
-            opacity: 1;
-            border-bottom: 1px solid white;
-        }
-        @media (max-width: 640px) {
-            .content {
-                padding: 20px;
-            }
-            .newsletter-title {
-                font-size: 24px;
-            }
-            .section-title {
-                font-size: 20px;
-            }
-            .agent-avatar {
-                width: 80px;
-                height: 80px;
-            }
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1 class="logo">RIALTOR</h1>
-            <p class="subtitle">Tu plataforma inteligente</p>
-        </div>
+<body style="margin:0;padding:0;background-color:<%= bgColor %>;font-family:<%= fontFamily %>;line-height:<%= lineHeight %>;color:<%= textColor %>;">  
 
-        <!-- Main Content -->
-        <div class="content">
-            <h2 class="newsletter-title"><%= title %></h2>
-            <p class="newsletter-meta"><%= publishDate %></p>
+    <!-- Wrapper -->
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="<%= bgColor %>" style="background-color:<%= bgColor %>;padding:20px 0;">
+        <tr>
+            <td align="center">
 
-            <!-- Newsletter HTML Content -->
-            <div class="newsletter-content">
-                <%- contentHtml %>
-            </div>
+                <!-- Container -->
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.12);">
 
-            <!-- News Section -->
-            <% if (news && news.length > 0) { %>
-            <div class="news-container">
-                <h3 class="section-title">📰 Noticias del Mercado</h3>
-                <% news.forEach(function(newsItem) { %>
-                <div class="news-item">
-                    <h4 class="news-title"><%= newsItem.title %></h4>
-                    <p class="news-synopsis"><%= newsItem.synopsis %></p>
-                    <p class="news-meta">
-                        <span class="news-source"><%= newsItem.source %></span>
-                        • <span style="color: #9ca3af;"><%= new Date(newsItem.publishedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
-                        <% if (newsItem.externalUrl) { %>
-                        <a href="<%= newsItem.externalUrl %>" class="news-link">Leer más →</a>
-                        <% } %>
-                    </p>
-                </div>
-                <% }) %>
-            </div>
-            <% } %>
+                    <!-- HEADER -->
+                    <tr>
+                        <td style="background:<%= headerGradient %>;<%= headerBorderStyle %>padding:50px 30px;text-align:center;">
+                            <h1 style="margin:0;font-size:38px;font-weight:800;color:#ffffff;letter-spacing:-2px;text-shadow:0 2px 4px rgba(0,0,0,0.15);">RIALTOR</h1>
+                            <p style="margin:10px 0 0 0;font-size:11px;color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:3px;font-weight:600;">Tu plataforma inteligente</p>
+                        </td>
+                    </tr>
 
-            <!-- Properties Section -->
-            <% if (properties && properties.length > 0) { %>
-            <div class="properties-grid">
-                <h3 class="section-title">🏠 Propiedades Destacadas</h3>
-                <% properties.forEach(function(property) { %>
-                <div class="property-card">
-                    <div class="property-image">
-                        <% if (property.generatedImages && property.generatedImages.length > 0) { %>
-                        <img src="<%= property.generatedImages[0] %>" alt="<%= property.title %>">
-                        <% } else { %>
-                        🏡 Propiedad
-                        <% } %>
-                    </div>
-                    <div class="property-content">
-                        <p class="property-address"><%= property.title %></p>
-                        <% if (property.propertyData) { %>
-                            <% if (property.propertyData.tipo) { %>
-                            <p class="property-type"><%= property.propertyData.tipo %></p>
+                    <!-- MAIN CONTENT -->
+                    <tr>
+                        <td style="padding:45px 40px;background-color:#ffffff;">
+
+                            <!-- Title -->
+                            <h2 style="margin:0 0 10px 0;font-size:30px;font-weight:800;color:<%= textColor %>;line-height:1.2;letter-spacing:-0.5px;"><%= title %></h2>
+                            <p style="margin:0 0 30px 0;font-size:12px;color:<%= accentColor %>;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;"><%= publishDate %></p>
+
+                            <!-- Divider -->
+                            <div style="height:3px;background:<%= accentColor %>;border-radius:2px;margin-bottom:30px;opacity:0.6;"></div>
+
+                            <!-- Newsletter HTML Content -->
+                            <div style="color:<%= textColor %>;font-size:15px;line-height:<%= lineHeight %>;margin-bottom:40px;word-wrap:break-word;">
+                                <%- contentHtml %>
+                            </div>
+
+                            <!-- NEWS SECTION -->
+                            <% if (news && news.length > 0) { %>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:40px;">
+                                <tr>
+                                    <td>
+                                        <h3 style="margin:0 0 25px 0;font-size:22px;font-weight:800;color:<%= textColor %>;padding-bottom:14px;border-bottom:4px solid <%= accentColor %>;letter-spacing:-0.5px;">📰 Noticias del Mercado</h3>
+                                    </td>
+                                </tr>
+                                <% news.forEach(function(newsItem) { %>
+                                <tr>
+                                    <td style="padding-bottom:20px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td style="background:<%= cardBg %>;border:<%= cardBorder %>;border-radius:10px;padding:22px;box-shadow:<%= cardShadow %>;">
+                                                    <h4 style="margin:0 0 10px 0;font-size:16px;font-weight:700;color:<%= textColor %>;line-height:1.4;"><%= newsItem.title %></h4>
+                                                    <p style="margin:0 0 12px 0;font-size:14px;color:<%= textColor %>;line-height:1.7;opacity:0.85;"><%= newsItem.synopsis %></p>
+                                                    <p style="margin:0;font-size:12px;color:<%= accentColor %>;font-weight:600;">
+                                                        <strong style="color:<%= accentColor %>;"><%= newsItem.source %></strong>
+                                                        &nbsp;•&nbsp;
+                                                        <span style="color:#9ca3af;font-weight:400;"><%= new Date(newsItem.publishedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                                                        <% if (newsItem.externalUrl) { %>
+                                                        &nbsp;&nbsp;<a href="<%= newsItem.externalUrl %>" style="color:<%= accentColor %>;text-decoration:none;font-weight:700;">Leer más →</a>
+                                                        <% } %>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </table>
                             <% } %>
-                            <% if (property.propertyData.direccion) { %>
-                            <p class="property-details">📍 <%= property.propertyData.direccion %></p>
+
+                            <!-- PROPERTIES SECTION -->
+                            <% if (properties && properties.length > 0) { %>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:40px;">
+                                <tr>
+                                    <td>
+                                        <h3 style="margin:0 0 25px 0;font-size:22px;font-weight:800;color:<%= textColor %>;padding-bottom:14px;border-bottom:4px solid <%= accentColor %>;letter-spacing:-0.5px;">🏠 Propiedades Destacadas</h3>
+                                    </td>
+                                </tr>
+                                <% properties.forEach(function(property) { %>
+                                <tr>
+                                    <td style="padding-bottom:20px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:<%= cardBorder %>;border-radius:10px;overflow:hidden;box-shadow:<%= cardShadow %>;">
+                                            <% if (property.generatedImages && property.generatedImages.length > 0) { %>
+                                            <tr>
+                                                <td style="padding:0;line-height:0;">
+                                                    <img src="<%= property.generatedImages[0] %>" alt="<%= property.title %>" width="600" style="width:100%;max-width:600px;height:200px;object-fit:cover;display:block;border-radius:10px 10px 0 0;">
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                                            <tr>
+                                                <td style="background:<%= cardBg %>;padding:20px;">
+                                                    <p style="margin:0 0 8px 0;font-size:16px;font-weight:700;color:<%= textColor %>;"><%= property.title %></p>
+                                                    <% if (property.propertyData) { %>
+                                                        <% if (property.propertyData.tipo) { %>
+                                                        <p style="margin:0 0 8px 0;font-size:12px;color:<%= textColor %>;opacity:0.65;font-weight:600;text-transform:capitalize;"><%= property.propertyData.tipo %></p>
+                                                        <% } %>
+                                                        <% if (property.propertyData.direccion) { %>
+                                                        <p style="margin:0 0 10px 0;font-size:13px;color:<%= textColor %>;opacity:0.8;">📍 <%= property.propertyData.direccion %></p>
+                                                        <% } %>
+                                                        <% if (property.propertyData.precio) { %>
+                                                        <p style="margin:10px 0 0 0;font-size:18px;font-weight:800;color:<%= accentColor %>;letter-spacing:-0.5px;">
+                                                            <%= property.propertyData.moneda || '$' %> <%= parseInt(property.propertyData.precio).toLocaleString('es-AR') %>
+                                                        </p>
+                                                        <% } %>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </table>
                             <% } %>
-                            <% if (property.propertyData.precio) { %>
-                            <p class="property-price">
-                                <%= property.propertyData.moneda || '$' %> <%= parseInt(property.propertyData.precio).toLocaleString('es-AR') %>
+
+                            <!-- AGENT SECTION -->
+                            <% if (agentInfo && agentInfo.name) { %>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:40px;">
+                                <tr>
+                                    <td style="background:rgba(102,126,234,0.07);border:2px solid <%= accentColor %>;border-radius:14px;padding:35px 30px;text-align:center;">
+                                        <% if (agentInfo.photo) { %>
+                                        <img src="<%= agentInfo.photo %>" alt="<%= agentInfo.name %>" width="120" height="120" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:5px solid <%= accentColor %>;display:block;margin:0 auto 18px auto;box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                                        <% } %>
+                                        <h3 style="margin:0 0 6px 0;font-size:20px;font-weight:800;color:<%= textColor %>;"><%= agentInfo.name %></h3>
+                                        <% if (agentInfo.title || agentInfo.agency) { %>
+                                        <p style="margin:0 0 12px 0;font-size:13px;color:<%= textColor %>;opacity:0.7;font-weight:600;">
+                                            <% if (agentInfo.title) { %><%= agentInfo.title %><% } %>
+                                            <% if (agentInfo.title && agentInfo.agency) { %> | <% } %>
+                                            <% if (agentInfo.agency) { %><%= agentInfo.agency %><% } %>
+                                        </p>
+                                        <% } %>
+                                        <% if (agentInfo.bio) { %>
+                                        <p style="margin:0 0 16px 0;font-size:13px;color:<%= textColor %>;line-height:1.7;font-style:italic;opacity:0.85;"><%= agentInfo.bio %></p>
+                                        <% } %>
+                                        <% if (agentInfo.email) { %>
+                                        <p style="margin:6px 0;font-size:13px;color:<%= textColor %>;"><strong>Email:</strong> <a href="mailto:<%= agentInfo.email %>" style="color:<%= accentColor %>;text-decoration:none;font-weight:700;"><%= agentInfo.email %></a></p>
+                                        <% } %>
+                                        <% if (agentInfo.phone) { %>
+                                        <p style="margin:6px 0;font-size:13px;color:<%= textColor %>;"><strong>Teléfono:</strong> <a href="tel:<%= agentInfo.phone %>" style="color:<%= accentColor %>;text-decoration:none;font-weight:700;"><%= agentInfo.phone %></a></p>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            </table>
+                            <% } %>
+
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="background:<%= headerGradient %>;padding:35px 30px;text-align:center;">
+                            <p style="margin:0 0 10px 0;font-size:13px;color:#ffffff;font-weight:700;letter-spacing:0.5px;">RIALTOR — Tu plataforma inmobiliaria inteligente</p>
+                            <p style="margin:0 0 10px 0;font-size:12px;color:rgba(255,255,255,0.9);">
+                                <a href="<%= unsubscribeLink %>" style="color:rgba(255,255,255,0.9);text-decoration:underline;font-weight:600;">Dar de baja de este newsletter</a>
                             </p>
-                            <% } %>
-                        <% } %>
-                    </div>
-                </div>
-                <% }) %>
-            </div>
-            <% } %>
+                            <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.65);">© <%= new Date().getFullYear() %> RIALTOR. Todos los derechos reservados.</p>
+                        </td>
+                    </tr>
 
-            <!-- Agent Section -->
-            <% if (agentInfo && agentInfo.name) { %>
-            <div class="agent-section">
-                <% if (agentInfo.photo) { %>
-                <img src="<%= agentInfo.photo %>" alt="<%= agentInfo.name %>" class="agent-avatar">
-                <% } %>
-                <h3 class="agent-name"><%= agentInfo.name %></h3>
-                <% if (agentInfo.title || agentInfo.agency) { %>
-                <p class="agent-title">
-                    <% if (agentInfo.title) { %><%= agentInfo.title %><% } %>
-                    <% if (agentInfo.title && agentInfo.agency) { %> | <% } %>
-                    <% if (agentInfo.agency) { %><%= agentInfo.agency %><% } %>
-                </p>
-                <% } %>
-                <% if (agentInfo.bio) { %>
-                <p class="agent-bio"><%= agentInfo.bio %></p>
-                <% } %>
-                <div class="agent-contact">
-                    <% if (agentInfo.email) { %>
-                    <p>
-                        <strong>Email:</strong> 
-                        <a href="mailto:<%= agentInfo.email %>"><%= agentInfo.email %></a>
-                    </p>
-                    <% } %>
-                    <% if (agentInfo.phone) { %>
-                    <p>
-                        <strong>Teléfono:</strong> 
-                        <a href="tel:<%= agentInfo.phone %>"><%= agentInfo.phone %></a>
-                    </p>
-                    <% } %>
-                </div>
-            </div>
-            <% } %>
-        </div>
+                </table>
+                <!-- /Container -->
 
-        <!-- Footer -->
-        <div class="footer">
-            <p class="footer-text"><strong>RIALTOR</strong> — Tu plataforma inmobiliaria inteligente</p>
-            <p class="footer-text">
-                <a href="<%= unsubscribeLink %>">Dar de baja de este newsletter</a>
-            </p>
-            <p class="footer-text" style="font-size: 11px; color: #9ca3af;">© <%= new Date().getFullYear() %> RIALTOR. Todos los derechos reservados.</p>
-        </div>
-    </div>
+            </td>
+        </tr>
+    </table>
+    <!-- /Wrapper -->
+
 </body>
 </html>
