@@ -1,6 +1,22 @@
 const { getDayName } = require('../utils/dateUtils');
 
 /**
+ * Parsea una fecha desde string (YYYY-MM-DD) en hora local, sin conversión de zona horaria
+ * Evita que new Date() interprete como UTC
+ */
+function parseLocalDate(dateString) {
+  const parts = dateString.split('-').length === 3 ? dateString.split('-') : dateString.split('/');
+  if (parts.length !== 3) throw new Error('Formato de fecha inválido');
+  
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  
+  const date = new Date(year, month, day, 0, 0, 0, 0);
+  return date;
+}
+
+/**
  * Convierte una Date object a string YYYY-MM-DD en hora local
  * Evita problemas de zona horaria con .toISOString() que usa UTC
  * Solo se usa en las calculadoras de días
@@ -622,14 +638,15 @@ const calculateMortgage = async (req, res) => {
 // Calculadora de días hábiles
 const calculateDays = async (req, res) => {
   try {
-    const { startDate, endDate } = req.body;
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
 
     if (!startDate || !endDate) {
       return res.status(400).json({ success: false, message: 'Debe proporcionar fecha de inicio y fin' });
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = parseLocalDate(startDate);
+    const end = parseLocalDate(endDate);
 
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({ success: false, message: 'Fechas inválidas' });
@@ -721,7 +738,8 @@ const calculateDays = async (req, res) => {
 // Calcular fecha de vencimiento dado fecha inicial y cantidad de días hábiles
 const calculateDueDate = async (req, res) => {
   try {
-    const { startDate, businessDaysCount } = req.body;
+    const startDate = req.body.startDate;
+    const businessDaysCount = req.body.businessDaysCount;
 
     if (!startDate) {
       return res.status(400).json({ success: false, message: 'Debe proporcionar una fecha de inicio' });
@@ -735,7 +753,7 @@ const calculateDueDate = async (req, res) => {
       return res.status(400).json({ success: false, message: 'La cantidad máxima de días hábiles es 365' });
     }
 
-    const start = new Date(startDate);
+    const start = parseLocalDate(startDate);
 
     if (isNaN(start.getTime())) {
       return res.status(400).json({ success: false, message: 'Fecha de inicio inválida' });
