@@ -1,4 +1,18 @@
 const { getDayName } = require('../utils/dateUtils');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+/**
+ * Convierte una Date object a string YYYY-MM-DD en hora local
+ * Evita problemas de zona horaria con .toISOString() que usa UTC
+ * Solo se usa en las calculadoras de días
+ */
+function formatLocalDateString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 // Calculadora de honorarios de escribano
 const calculateEscribano = async (req, res) => {
@@ -648,9 +662,10 @@ const calculateDays = async (req, res) => {
       if (isWeekend) {
         weekendCount++;
       } else if (holidayInfo) {
+        const dateStr = formatLocalDateString(currentDate);
         holidays.push({
-          date: currentDate.toISOString().split('T')[0],
-          day: getDayName(currentDate.toISOString().split('T')[0]),
+          date: dateStr,
+          day: getDayName(dateStr),
           reason: holidayInfo.name || 'Feriado',
           type: holidayInfo.type || 'public'
         });
@@ -662,8 +677,8 @@ const calculateDays = async (req, res) => {
     }
 
     const result = {
-      startDate: start.toISOString().split('T')[0],
-      endDate: end.toISOString().split('T')[0],
+      startDate: formatLocalDateString(start),
+      endDate: formatLocalDateString(end),
       totalDays,
       businessDays,
       nonBusinessDays: {
@@ -682,8 +697,8 @@ const calculateDays = async (req, res) => {
         data: {
           type: 'DAYS',
           inputs: JSON.stringify({
-            startDate: start.toISOString().split('T')[0],
-            endDate: end.toISOString().split('T')[0]
+            startDate: formatLocalDateString(start),
+            endDate: formatLocalDateString(end)
           }),
           result: JSON.stringify(result),
           userId: req.user.id
@@ -749,9 +764,10 @@ const calculateDueDate = async (req, res) => {
       if (isWeekend) {
         weekendCount++;
       } else if (holidayInfo) {
+        const dateStr = formatLocalDateString(currentDate);
         holidays.push({
-          date: currentDate.toISOString().split('T')[0],
-          day: getDayName(currentDate.toISOString().split('T')[0]),
+          date: dateStr,
+          day: getDayName(dateStr),
           reason: Array.isArray(holidayInfo) ? holidayInfo[0].name : (holidayInfo.name || 'Feriado'),
           type: Array.isArray(holidayInfo) ? holidayInfo[0].type : (holidayInfo.type || 'public')
         });
@@ -767,8 +783,8 @@ const calculateDueDate = async (req, res) => {
     const endDate = currentDate;
 
     const result = {
-      startDate: start.toISOString().split('T')[0],
-      dueDate: endDate.toISOString().split('T')[0],
+      startDate: formatLocalDateString(start),
+      dueDate: formatLocalDateString(endDate),
       businessDaysRequested: parseInt(businessDaysCount),
       totalCalendarDays,
       nonBusinessDays: {
@@ -787,7 +803,7 @@ const calculateDueDate = async (req, res) => {
         data: {
           type: 'DUE_DATE',
           inputs: JSON.stringify({
-            startDate: start.toISOString().split('T')[0],
+            startDate: formatLocalDateString(start),
             businessDaysCount: parseInt(businessDaysCount)
           }),
           result: JSON.stringify(result),
