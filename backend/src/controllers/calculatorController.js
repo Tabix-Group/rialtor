@@ -1,6 +1,4 @@
 const { getDayName } = require('../utils/dateUtils');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 
 /**
  * Convierte una Date object a string YYYY-MM-DD en hora local
