@@ -672,12 +672,20 @@ const calculateDays = async (req, res) => {
     while (currentDate <= end) {
       const dayOfWeek = currentDate.getDay(); // 0 = Domingo, 6 = Sábado
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const holidayInfo = hd.isHoliday(currentDate);
+      const currentDateStr = formatLocalDateString(currentDate);
+      // Use local noon to avoid timezone boundary shifts in holiday resolution.
+      const holidayDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate(),
+        12, 0, 0, 0
+      );
+      const holidayInfo = hd.isHoliday(holidayDate);
 
       if (isWeekend) {
         weekendCount++;
       } else if (holidayInfo) {
-        const dateStr = formatLocalDateString(currentDate);
+        const dateStr = currentDateStr;
         holidays.push({
           date: dateStr,
           day: getDayName(dateStr),
@@ -775,12 +783,20 @@ const calculateDueDate = async (req, res) => {
       totalCalendarDays++;
       const dayOfWeek = currentDate.getDay(); // 0 = Domingo, 6 = Sábado
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const holidayInfo = hd.isHoliday(currentDate);
+      const currentDateStr = formatLocalDateString(currentDate);
+      // Use local noon to avoid timezone boundary shifts in holiday resolution.
+      const holidayDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate(),
+        12, 0, 0, 0
+      );
+      const holidayInfo = hd.isHoliday(holidayDate);
 
       if (isWeekend) {
         weekendCount++;
       } else if (holidayInfo) {
-        const dateStr = formatLocalDateString(currentDate);
+        const dateStr = currentDateStr;
         holidays.push({
           date: dateStr,
           day: getDayName(dateStr),
