@@ -13,6 +13,9 @@ RUN npm ci
 # Copiar código fuente
 COPY . .
 
+# Evitar ruido de telemetría en logs de build
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Construir aplicación
 RUN npm run build
 
