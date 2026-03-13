@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../auth/authContext'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { usePermission } from '../../hooks/usePermission'
 import { authenticatedFetch } from '@/utils/api'
 import {
@@ -163,6 +164,7 @@ export default function PlacasPage() {
   const [agentImageFile, setAgentImageFile] = useState<File | null>(null);
   const [interiorImageFile, setInteriorImageFile] = useState<File | null>(null);
   const [exteriorImageFile, setExteriorImageFile] = useState<File | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Helper para visibilidad de campos
   const isFieldVisible = (field: string) => {
@@ -758,14 +760,27 @@ export default function PlacasPage() {
 
                   {/* Selector de modelo visual (PASO 1) */}
                   <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 mb-6">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-                        <Star className="w-5 h-5 text-white" />
+                    <div className="flex items-center justify-between gap-3 mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200 flex-shrink-0">
+                          <Star className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-900">1. Selecciona el Diseño</h3>
+                          <p className="text-sm text-slate-500">Cada modelo tiene una estética y campos diferentes</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-slate-900">1. Selecciona el Diseño</h3>
-                        <p className="text-sm text-slate-500">Cada modelo tiene una estética y campos diferentes</p>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsPreviewOpen(true);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50 text-slate-700 hover:text-blue-700 rounded-lg text-sm font-medium transition-all shadow-sm group"
+                      >
+                        <Eye className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
+                        <span className="hidden sm:inline">Catálogo Visual</span>
+                      </button>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -813,6 +828,20 @@ export default function PlacasPage() {
                                   </span>
                                 ))}
                               </div>
+                              
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setIsPreviewOpen(true);
+                                }}
+                                className={`mt-3 flex items-center gap-1.5 text-xs font-semibold hover:underline border border-transparent rounded px-2 py-1 -ml-2 transition-colors ${
+                                  modelType === model.key ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                                }`}
+                              >
+                                <Eye className="w-3 h-3" />
+                                Ver ejemplo
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -1213,6 +1242,36 @@ export default function PlacasPage() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Catálogo Visual de Modelos */}
+        {isPreviewOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" onClick={() => setIsPreviewOpen(false)}>
+            <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md transition-opacity"></div>
+            <div 
+              className="relative w-full max-w-6xl max-h-[90vh] flex flex-col items-center justify-center bg-black/40 rounded-3xl overflow-hidden shadow-2xl shadow-black border border-white/10"
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setIsPreviewOpen(false)}
+                className="absolute top-4 right-4 z-10 w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-sm transition-all shadow-lg hover:scale-105"
+              >
+                <XCircle className="w-8 h-8" />
+              </button>
+              
+              <div className="w-full h-full relative p-2 sm:p-4 mt-16 sm:mt-0 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                <Image 
+                  src="/images/placaspreview.png" 
+                  alt="Catálogo visual de los 5 modelos de placas Rialtor" 
+                  width={1920}
+                  height={1080}
+                  className="w-full h-auto object-contain rounded-xl"
+                  priority
+                />
               </div>
             </div>
           </div>
