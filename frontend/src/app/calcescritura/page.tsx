@@ -10,6 +10,7 @@ export default function CalceEscrituraPage() {
   const [writingPrice, setWritingPrice] = useState<string>('100000')
   const [transactionPrice, setTransactionPrice] = useState<string>('100000')
   const [stampExemption, setStampExemption] = useState<boolean>(false)
+  const [direccion, setDireccion] = useState<string>('')
   const [isLoadingExchangeRate, setIsLoadingExchangeRate] = useState<boolean>(true)
   const [exchangeRateError, setExchangeRateError] = useState<boolean>(false)
 
@@ -252,6 +253,20 @@ export default function CalceEscrituraPage() {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dirección de la Propiedad (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={direccion}
+                    onChange={(e) => setDireccion(e.target.value)}
+                    placeholder="Ej: Av. Corrientes 123, CABA"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    maxLength={150}
+                  />
+                </div>
+
                 <div className="pt-2">
                   <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <input
@@ -459,7 +474,32 @@ export default function CalceEscrituraPage() {
                     </div>
                   </div>
 
-                    <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  {/* Información de Origen */}
+                  <div className="border rounded-lg border-green-200 overflow-hidden bg-green-50/50">
+                    <div className="px-4 py-3 bg-green-100 border-b border-green-200">
+                        <h3 className="font-semibold text-green-800">Información de Origen</h3>
+                    </div>
+                    <div className="divide-y divide-green-100 px-4 py-3">
+                        {direccion && (
+                          <div className="flex justify-between items-center py-2">
+                            <span className="text-sm text-gray-700">Dirección:</span>
+                            <span className="text-sm font-medium text-gray-900">{direccion}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-sm text-gray-700">Tipo de Cambio:</span>
+                          <span className="text-sm font-medium text-gray-900">USD {numericExchangeRate.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-sm text-gray-700">Ubicación:</span>
+                          <span className="text-sm font-medium text-gray-900">{location === 'CABA' ? 'CABA' : 'Provincia de Buenos Aires'}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-sm text-gray-700">Fecha:</span>
+                          <span className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString('es-AR')}</span>
+                        </div>
+                    </div>
+                  </div>
                       <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-blue-700">
                         Los cálculos son estimativos y pueden variar según condiciones específicas. Los honorarios e impuestos pueden sufrir modificaciones.
