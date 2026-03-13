@@ -228,7 +228,7 @@ export default function NewsPage() {
 
             <div className="max-w-7xl mx-auto px-4 py-8">
                 {/* Category Navigation */}
-                <div className="bg-white border-2 border-gray-300 rounded-lg p-3 sm:p-4 lg:p-6 mb-6 sm:mb-8 shadow-sm">
+                <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 lg:p-7 mb-8 sm:mb-10 shadow-sm">
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-2">
                             <span className="text-base sm:text-lg font-bold text-black uppercase tracking-wide">Secciones:</span>
@@ -239,10 +239,10 @@ export default function NewsPage() {
                                     setSelectedCategory('')
                                     setCurrentPage(1)
                                 }}
-                                className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wide transition-all border-2 ${
+                                className={`px-4 sm:px-5 lg:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wide transition-all duration-300 hover:scale-105 ${
                                     selectedCategory === ''
-                                        ? 'bg-black text-white border-black'
-                                        : 'bg-white text-black border-gray-300 hover:border-black hover:bg-gray-50'
+                                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+                                        : 'bg-gray-100 text-black hover:bg-gray-200'
                                 }`}
                             >
                                 Todas las noticias
@@ -256,14 +256,19 @@ export default function NewsPage() {
                                             setSelectedCategory(category.id)
                                             setCurrentPage(1)
                                         }}
-                                        className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wide transition-all border-2 flex items-center gap-1 sm:gap-2 lg:gap-3 ${
+                                        className={`px-4 sm:px-5 lg:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wide transition-all duration-300 hover:scale-105 flex items-center gap-1 sm:gap-2 lg:gap-3 ${
                                             selectedCategory === category.id
-                                                ? 'bg-black text-white border-black'
-                                                : 'bg-white text-black border-gray-300 hover:border-black hover:bg-gray-50'
+                                                ? 'text-white'
+                                                : 'bg-gray-100 text-black hover:bg-gray-200'
                                         }`}
+                                        style={
+                                            selectedCategory === category.id
+                                                ? { backgroundImage: `linear-gradient(to right, ${category.color}, ${category.color}cc)` }
+                                                : {}
+                                        }
                                     >
-                                        <Icon 
-                                            className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" 
+                                        <Icon
+                                            className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
                                             style={{ color: selectedCategory === category.id ? 'white' : category.color }}
                                             strokeWidth={2.5}
                                         />
@@ -287,15 +292,18 @@ export default function NewsPage() {
                         {/* Featured News Section */}
                         {news.length > 0 && (
                             <div className="mb-12">
-                                <div className="bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-xl">
                                     <div className="bg-black text-white px-4 sm:px-6 py-2 sm:py-3">
                                         <h2 className="text-base sm:text-xl font-bold uppercase tracking-wide">Portada</h2>
                                     </div>
-                                    <div className="p-4 sm:p-6 lg:p-8">
-                                        <article className="border-b-2 border-gray-200 pb-4 sm:pb-6 lg:pb-8 mb-4 sm:mb-6 lg:mb-8">
-                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                                    <div className="p-6 sm:p-8 lg:p-8">
+                                        <article className="border-l-4 pl-6 pb-6 sm:pb-8 lg:pb-8 mb-6 sm:mb-8 lg:mb-8"
+                                                 style={{
+                                                    borderLeftColor: news[0].category?.color || '#000'
+                                                 }}>
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-8">
                                                 <div>
-                                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 font-medium">
+                                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 mb-4 sm:mb-5 font-medium">
                                                         <div className="flex items-center gap-1 sm:gap-2">
                                                             <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                                                             <span className="uppercase tracking-wide">{formatDate(news[0].publishedAt)}</span>
@@ -322,13 +330,13 @@ export default function NewsPage() {
                                                         })()}
                                                     </div>
 
-                                                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-black mb-4 sm:mb-6 leading-tight uppercase tracking-wide">
-                                                        <Link href={news[0].externalUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gray-700 transition-colors">
+                                                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-black mb-5 sm:mb-7 leading-tight uppercase tracking-wide">
+                                                        <Link href={news[0].externalUrl} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors duration-300">
                                                             {news[0].title}
                                                         </Link>
                                                     </h2>
 
-                                                    <p className="text-sm sm:text-base lg:text-lg text-gray-700 mb-4 sm:mb-6 leading-relaxed font-serif">
+                                                    <p className="text-sm sm:text-base lg:text-lg text-gray-700 mb-6 sm:mb-7 leading-relaxed">
                                                         {news[0].synopsis}
                                                     </p>
 
@@ -337,21 +345,27 @@ export default function NewsPage() {
                                                             href={news[0].externalUrl}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-black text-white font-bold uppercase tracking-wide hover:bg-gray-800 transition-colors text-xs sm:text-sm"
+                                                            className="inline-flex items-center gap-2 px-6 sm:px-7 py-3 sm:py-4 bg-black text-white font-bold uppercase tracking-wide hover:bg-gray-800 transition-all duration-300 text-xs sm:text-sm rounded-lg hover:gap-3"
                                                         >
                                                             <span>Leer artículo completo</span>
                                                             <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                                                         </Link>
                                                     </div>
                                                 </div>
-                                                <div className="bg-gray-100 p-3 sm:p-4 lg:p-6 rounded-lg">
-                                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-3 sm:mb-4 uppercase tracking-wide">
+                                                <div className="bg-gray-50 p-5 sm:p-6 lg:p-8 rounded-xl border border-gray-200">
+                                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-4 sm:mb-6 uppercase tracking-wide">
                                                         Más noticias destacadas
                                                     </h3>
-                                                    <div className="space-y-3 sm:space-y-4">
+                                                    <div className="space-y-4 sm:space-y-5">
                                                         {news.slice(1, 4).map((item, index) => (
-                                                            <div key={item.id} className="border-b border-gray-300 pb-2 sm:pb-3 last:border-b-0">
-                                                                <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs text-gray-500 mb-1">
+                                                            <div
+                                                                key={item.id}
+                                                                className="border-b border-gray-200 pb-3 sm:pb-4 last:border-b-0 animate-slide-in-fade-up"
+                                                                style={{
+                                                                    animationDelay: `${(index + 1) * 100}ms`
+                                                                }}
+                                                            >
+                                                                <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs text-gray-500 mb-2">
                                                                     <span className="font-medium">{formatDate(item.publishedAt)}</span>
                                                                     {item.category && (
                                                                         <>
@@ -366,7 +380,7 @@ export default function NewsPage() {
                                                                     href={item.externalUrl}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="text-xs sm:text-sm font-bold text-black hover:text-gray-600 leading-tight block"
+                                                                    className="text-xs sm:text-sm font-bold text-black hover:text-blue-600 transition-colors duration-300 leading-tight block"
                                                                 >
                                                                     {item.title}
                                                                 </Link>
@@ -382,13 +396,19 @@ export default function NewsPage() {
                         )}
 
                         {/* Main News Grid - Newspaper Style */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 mb-10 sm:mb-14">
                             {/* Left Column - Large Articles */}
-                            <div className="lg:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                            <div className="lg:col-span-2 space-y-6 sm:space-y-8 lg:space-y-10">
                                 {news.slice(1, 4).map((item, index) => (
-                                    <article key={item.id} className="bg-white border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="p-4 sm:p-6">
-                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 font-medium">
+                                    <article
+                                        key={item.id}
+                                        className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 animate-slide-in-fade-up"
+                                        style={{
+                                            animationDelay: `${index * 100}ms`
+                                        }}
+                                    >
+                                        <div className="p-6 sm:p-7 lg:p-8">
+                                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 mb-4 sm:mb-5 font-medium">
                                                 <div className="flex items-center gap-1 sm:gap-2">
                                                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                                                     <span className="uppercase tracking-wide">{formatDate(item.publishedAt)}</span>
@@ -415,13 +435,13 @@ export default function NewsPage() {
                                                 })()}
                                             </div>
 
-                                            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-black mb-3 sm:mb-4 leading-tight hover:text-gray-700 transition-colors">
+                                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-black mb-4 sm:mb-5 leading-tight hover:text-blue-600 transition-colors duration-300">
                                                 <Link href={item.externalUrl} target="_blank" rel="noopener noreferrer" className="block">
                                                     {item.title}
                                                 </Link>
                                             </h2>
 
-                                            <p className="text-sm sm:text-base text-gray-700 mb-4 sm:mb-6 leading-relaxed font-serif line-clamp-3">
+                                            <p className="text-sm sm:text-base text-gray-700 mb-6 sm:mb-7 leading-relaxed line-clamp-3">
                                                 {item.synopsis}
                                             </p>
 
@@ -430,7 +450,7 @@ export default function NewsPage() {
                                                     href={item.externalUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-black text-white font-bold uppercase tracking-wide text-xs sm:text-sm hover:bg-gray-800 transition-colors"
+                                                    className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 bg-black text-white font-bold uppercase tracking-wide text-xs sm:text-sm rounded-lg hover:bg-blue-700 transition-all duration-300 hover:gap-3"
                                                 >
                                                     <span>Leer más</span>
                                                     <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -442,20 +462,26 @@ export default function NewsPage() {
                             </div>
 
                             {/* Right Column - Sidebar */}
-                            <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+                            <div className="space-y-6 sm:space-y-8 lg:space-y-10">
                                 {/* Latest News Sidebar */}
-                                <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 shadow-sm">
-                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-4 sm:mb-6 uppercase tracking-wide border-b-2 border-gray-300 pb-2">
+                                <div className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6 lg:p-7 shadow-sm">
+                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-5 sm:mb-6 uppercase tracking-wide border-b border-gray-200 pb-3">
                                         Últimas noticias
                                     </h3>
-                                    <div className="space-y-2 sm:space-y-3">
+                                    <div className="space-y-3 sm:space-y-4">
                                         {news.slice(0, 5).map((item, index) => (
-                                            <div key={item.id} className="border-b border-gray-200 pb-2 sm:pb-3 last:border-b-0">
+                                            <div
+                                                key={item.id}
+                                                className="border-b border-gray-200 pb-3 last:border-b-0 animate-slide-in-fade-up"
+                                                style={{
+                                                    animationDelay: `${(index + 3) * 100}ms`
+                                                }}
+                                            >
                                                 <Link
                                                     href={item.externalUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-xs sm:text-sm font-bold text-black hover:text-gray-600 leading-tight block"
+                                                    className="text-xs sm:text-sm font-bold text-black hover:text-blue-600 transition-colors duration-300 leading-tight block"
                                                 >
                                                     {item.title}
                                                 </Link>
@@ -476,8 +502,8 @@ export default function NewsPage() {
                                 </div>
 
                                 {/* Categories Summary */}
-                                <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 shadow-sm">
-                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-4 sm:mb-6 uppercase tracking-wide border-b-2 border-gray-300 pb-2">
+                                <div className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6 lg:p-7 shadow-sm">
+                                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-black mb-5 sm:mb-6 uppercase tracking-wide border-b border-gray-200 pb-3">
                                         Secciones
                                     </h3>
                                     <div className="space-y-2 sm:space-y-3">
@@ -512,9 +538,9 @@ export default function NewsPage() {
 
                         {/* Pagination - Professional & Scalable */}
                         {pagination && pagination.pages > 1 && (
-                            <div className="bg-white border-2 border-gray-300 rounded-lg p-4 sm:p-6 shadow-sm">
+                            <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-7 lg:p-8 shadow-sm">
                                 {/* Información de resultados */}
-                                <div className="text-center mb-4 text-sm text-gray-600">
+                                <div className="text-center mb-6 text-sm text-gray-600">
                                     Mostrando <span className="font-bold text-black">{((currentPage - 1) * pagination.limit) + 1}</span> - <span className="font-bold text-black">{Math.min(currentPage * pagination.limit, pagination.total)}</span> de <span className="font-bold text-black">{pagination.total}</span> noticias
                                     {selectedCategory && (
                                         <span className="ml-2 text-gray-500">en la categoría seleccionada</span>
@@ -526,7 +552,7 @@ export default function NewsPage() {
                                     <button
                                         onClick={() => setCurrentPage(1)}
                                         disabled={currentPage === 1}
-                                        className="hidden lg:flex items-center gap-1 px-3 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs"
+                                        className="hidden lg:flex items-center gap-1 px-4 py-2.5 rounded-lg bg-gray-100 text-black font-bold uppercase tracking-wide hover:bg-gray-200 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100 text-xs"
                                         title="Primera página"
                                     >
                                         <ChevronsLeft className="w-4 h-4" />
@@ -536,34 +562,34 @@ export default function NewsPage() {
                                     <button
                                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                         disabled={currentPage === 1}
-                                        className="flex items-center gap-2 px-4 sm:px-5 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs sm:text-sm"
+                                        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-100 text-black font-bold uppercase tracking-wide hover:bg-gray-200 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100 text-xs sm:text-sm"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
                                         <span className="hidden sm:inline">Anterior</span>
                                     </button>
 
                                     {/* Números de página con elipsis inteligente */}
-                                    <div className="flex gap-1 sm:gap-2">
+                                    <div className="flex gap-2">
                                         {getPageNumbers(currentPage, pagination.pages).map((page, index) => {
                                             if (page === '...') {
                                                 return (
                                                     <div
                                                         key={`ellipsis-${index}`}
-                                                        className="flex items-center justify-center px-2 sm:px-3 py-2 text-gray-400"
+                                                        className="flex items-center justify-center px-3 py-2.5 text-gray-400"
                                                     >
                                                         <MoreHorizontal className="w-4 h-4" />
                                                     </div>
                                                 )
                                             }
-                                            
+
                                             return (
                                                 <button
                                                     key={page}
                                                     onClick={() => setCurrentPage(page as number)}
-                                                    className={`min-w-[40px] sm:min-w-[44px] px-3 sm:px-4 py-2 border-2 font-bold transition-all text-xs sm:text-sm ${
+                                                    className={`min-w-[44px] px-4 py-2.5 rounded-lg font-bold transition-all duration-300 text-xs sm:text-sm ${
                                                         currentPage === page
-                                                            ? 'bg-black text-white border-black scale-110 shadow-lg'
-                                                            : 'bg-white text-black border-gray-300 hover:bg-gray-50 hover:border-black hover:scale-105'
+                                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105'
+                                                            : 'bg-gray-100 text-black hover:bg-gray-200 hover:scale-105'
                                                     }`}
                                                 >
                                                     {page}
@@ -576,7 +602,7 @@ export default function NewsPage() {
                                     <button
                                         onClick={() => setCurrentPage(prev => Math.min(pagination.pages, prev + 1))}
                                         disabled={currentPage === pagination.pages}
-                                        className="flex items-center gap-2 px-4 sm:px-5 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs sm:text-sm"
+                                        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-100 text-black font-bold uppercase tracking-wide hover:bg-gray-200 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100 text-xs sm:text-sm"
                                     >
                                         <span className="hidden sm:inline">Siguiente</span>
                                         <ChevronRight className="w-4 h-4" />
@@ -586,7 +612,7 @@ export default function NewsPage() {
                                     <button
                                         onClick={() => setCurrentPage(pagination.pages)}
                                         disabled={currentPage === pagination.pages}
-                                        className="hidden lg:flex items-center gap-1 px-3 py-2 border-2 border-gray-300 bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black disabled:hover:border-gray-300 text-xs"
+                                        className="hidden lg:flex items-center gap-1 px-4 py-2.5 rounded-lg bg-gray-100 text-black font-bold uppercase tracking-wide hover:bg-gray-200 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100 text-xs"
                                         title="Última página"
                                     >
                                         <ChevronsRight className="w-4 h-4" />
@@ -613,7 +639,7 @@ export default function NewsPage() {
                                                     }
                                                 }
                                             }}
-                                            className="w-20 px-3 py-1.5 border-2 border-gray-300 rounded text-center font-bold text-sm focus:border-black focus:outline-none"
+                                            className="w-20 px-3 py-2 border border-gray-200 rounded-lg text-center font-bold text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all duration-300"
                                         />
                                         <span className="text-sm text-gray-500">de {pagination.pages}</span>
                                     </div>
