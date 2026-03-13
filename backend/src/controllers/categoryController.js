@@ -203,15 +203,19 @@ const updateCategory = async (req, res, next) => {
 };
 
 // DELETE /api/categories/:id - Delete category (admin only)
+// Query param: ?forceCascade=true to delete with cascade
 const deleteCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const { forceCascade } = req.query;
+    const isForceCascade = forceCascade === 'true';
 
     // Check if category exists
     const category = await prisma.category.findUnique({
       where: { id },
       include: {
         articles: true,
+        news: true,
         children: true
       }
     });
@@ -220,27 +224,66 @@ const deleteCategory = async (req, res, next) => {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    // Check if category has articles
-    if (category.articles.length > 0) {
-      return res.status(400).json({ 
-        error: 'Cannot delete category with articles',
-        message: 'Please move or delete all articles in this category first'
+    // Count related items
+    const hasArticles = category.articles.length > 0;
+    const hasNews = category.news.length > 0;
+    const hasChildren = category.children.length > 0;
+    const totalRelatedItems = category.articles.length + category.news.length;
+
+    // If no related items, delete directly
+    if (!hasArticles && !hasNews && !hasChildren) {
+      await prisma.category.delete({
+        where: { id }
+      });
+
+      return res.json({
+        message: 'Category deleted successfully',
+        itemsDeleted: 0
       });
     }
 
-    // Check if category has children
-    if (category.children.length > 0) {
-      return res.status(400).json({ 
+    // If has related items and no force cascade, return warning with counts
+    if (!isForceCascade) {
+      return res.status(409).json({
+        error: 'Category has related items',
+        message: `Esta categoría contiene ${totalRelatedItems} ítems que serán eliminados permanentemente.`,
+        details: {
+          articlesCount: category.articles.length,
+          newsCount: category.news.length,
+          childrenCount: category.children.length
+        },
+        requiresConfirmation: true
+      });
+    }
+
+    // If force cascade is true and has children, still prevent (parent category constraint)
+    if (hasChildren) {
+      return res.status(400).json({
         error: 'Cannot delete category with subcategories',
         message: 'Please move or delete all subcategories first'
       });
     }
 
+    // Force cascade delete: delete related articles and news, then category
+    // Deleting articles first (cascade will handle their relations)
+    await prisma.article.deleteMany({
+      where: { categoryId: id }
+    });
+
+    // Delete news
+    await prisma.news.deleteMany({
+      where: { categoryId: id }
+    });
+
+    // Finally delete category
     await prisma.category.delete({
       where: { id }
     });
 
-    res.json({ message: 'Category deleted successfully' });
+    res.json({
+      message: 'Category and related items deleted successfully',
+      itemsDeleted: totalRelatedItems
+    });
   } catch (error) {
     next(error);
   }

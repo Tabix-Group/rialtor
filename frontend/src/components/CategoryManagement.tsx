@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, Tag, Eye, EyeOff } from 'lucide-react'
+import { Plus, Edit, Trash2, Tag, Eye, EyeOff, AlertTriangle } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 
 interface Category {
@@ -24,11 +24,21 @@ interface CategoryResponse {
     categories: Category[]
 }
 
+interface DeleteConfirmation {
+    categoryId: string
+    categoryName: string
+    articlesCount: number
+    newsCount: number
+    totalItems: number
+    confirmed: boolean
+}
+
 export default function CategoryManagement() {
     const [categories, setCategories] = useState<Category[]>([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+    const [deleteConfirmation, setDeleteConfirmation] = useState<DeleteConfirmation | null>(null)
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -98,23 +108,62 @@ export default function CategoryManagement() {
         setShowForm(true)
     }
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer.')) return
-
+    const handleDelete = async (id: string, categoryName: string) => {
         try {
             const response = await authenticatedFetch(`/api/categories/${id}`, {
                 method: 'DELETE'
             })
 
             if (response.ok) {
+                // Eliminada sin problemas
                 await fetchCategories()
                 alert('Categoría eliminada exitosamente')
             } else {
                 const error = await response.json()
-                alert(error.error || 'Error al eliminar la categoría')
+
+                // Si devuelve 409, significa que hay noticias/artículos
+                if (response.status === 409 && error.details) {
+                    // Mostrar modal de confirmación
+                    setDeleteConfirmation({
+                        categoryId: id,
+                        categoryName: categoryName,
+                        articlesCount: error.details.articlesCount || 0,
+                        newsCount: error.details.newsCount || 0,
+                        totalItems: error.details.articlesCount + error.details.newsCount || 0,
+                        confirmed: false
+                    })
+                } else {
+                    alert(error.message || error.error || 'Error al eliminar la categoría')
+                }
             }
         } catch (error) {
             console.error('Error deleting category:', error)
+            alert('Error al eliminar la categoría')
+        }
+    }
+
+    const handleConfirmCascadeDeletion = async () => {
+        if (!deleteConfirmation) return
+
+        try {
+            const response = await authenticatedFetch(
+                `/api/categories/${deleteConfirmation.categoryId}?forceCascade=true`,
+                {
+                    method: 'DELETE'
+                }
+            )
+
+            if (response.ok) {
+                const data = await response.json()
+                await fetchCategories()
+                setDeleteConfirmation(null)
+                alert(`Categoría y ${data.itemsDeleted} ítems relacionados eliminados permanentemente`)
+            } else {
+                const error = await response.json()
+                alert(error.message || error.error || 'Error al eliminar la categoría')
+            }
+        } catch (error) {
+            console.error('Error deleting category with cascade:', error)
             alert('Error al eliminar la categoría')
         }
     }
@@ -293,6 +342,65 @@ export default function CategoryManagement() {
                 </div>
             )}
 
+            {/* Delete Confirmation Modal */}
+            {deleteConfirmation && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100">
+                                <AlertTriangle className="w-6 h-6 text-red-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                Eliminar categor­ía
+                            </h3>
+                        </div>
+
+                        <div className="mb-6 space-y-3">
+                            <p className="text-gray-700">
+                                La categoría <strong>{deleteConfirmation.categoryName}</strong> contiene {deleteConfirmation.totalItems} ítem{deleteConfirmation.totalItems !== 1 ? 's' : ''}:
+                            </p>
+                            <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                                {deleteConfirmation.articlesCount > 0 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Artículos:</span>
+                                        <span className="font-semibold">{deleteConfirmation.articlesCount}</span>
+                                    </div>
+                                )}
+                                {deleteConfirmation.newsCount > 0 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Noticias:</span>
+                                        <span className="font-semibold">{deleteConfirmation.newsCount}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                                <p className="text-sm text-red-800">
+                                    <strong>Advertencia:</strong> Si continúas, la categoría y todos sus ítems serán eliminados <strong>permanentemente</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteConfirmation(null)}
+                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmCascadeDeletion}
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                            >
+                                Eliminar categoría y todos sus ítems
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Categories List */}
             {categories.length === 0 ? (
                 <div className="text-center py-8">
@@ -358,8 +466,8 @@ export default function CategoryManagement() {
                                     </button>
 
                                     <button
-                                        onClick={() => handleDelete(category.id)}
-                                        className="p-2 text-gray-600 hover:text-gray-800"
+                                        onClick={() => handleDelete(category.id, category.name)}
+                                        className="p-2 text-red-600 hover:text-red-800"
                                         title="Eliminar"
                                     >
                                         <Trash2 className="w-4 h-4" />
