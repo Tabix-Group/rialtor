@@ -958,13 +958,15 @@ function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, model
     const photoZoneH = isPremium ? FOOTER_Y : height;
 
     // ── Posiciones Y fijas del contenido (calibradas para 1080px) ──
+    // Fórmula para ADDR_Y: PILLS_Y + PILL_H(44) + icon_offset(19) + gap(16) = PILLS_Y + 79
+    // Esto garantiza que el ícono de dirección nunca se superpone con los pills de features
     const PRICE_Y    = isPremium ? 598  : 700;
-    const DIVIDER_Y  = isPremium ? 630  : 734;
-    const TIPO_Y     = isPremium ? 658  : 762;
-    const PILLS_Y    = isPremium ? 686  : 794;
-    const ADDR_Y     = isPremium ? 748  : 840;
-    const CONTACT_Y  = isPremium ? 790  : 880;
-    const CORR_Y     = isPremium ? 840  : 940;
+    const DIVIDER_Y  = isPremium ? 632  : 736;
+    const TIPO_Y     = isPremium ? 660  : 764;
+    const PILLS_Y    = isPremium ? 692  : 800;
+    const ADDR_Y     = isPremium ? 766  : 874;  // PILLS_Y + 79 (sin overlap garantizado)
+    const CONTACT_Y  = isPremium ? 810  : 918;
+    const CORR_Y     = isPremium ? 850  : 960;
     const PRICE_FONT = isPremium ? 58   : 72;
 
     // Feature pills (máximo 4, en orden de importancia)
@@ -2161,12 +2163,13 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
 
     // === SISTEMA DE PROPORCIÓN EXACTA — SIN OVERFLOW ===
     // FIX: el diseño anterior desbordaba 16px (1096 > 1080)
+    // MEJORA: foto más grande (668px alto) + info más compacta (280px)
     // Matemática: contentY + contentHeight + footerHeight = 1080
-    // borderSize(12) + exteriorHeight(596) = 608 = contentY
-    // contentHeight(352) + footerHeight(120) = 472
-    // 608 + 472 = 1080 ✓
-    const exteriorHeight = 596;        // Alto de la foto exterior (sin borde)
-    const contentHeight = 352;         // Área de datos de la propiedad
+    // borderSize(12) + exteriorHeight(668) = 680 = contentY
+    // contentHeight(280) + footerHeight(120) = 400
+    // 680 + 400 = 1080 ✓
+    const exteriorHeight = 668;        // Foto exterior prominente (era 596)
+    const contentHeight = 280;         // Área de datos más compacta (era 352)
     const footerHeight = 120;          // Footer de contacto
     
     const contentY = exteriorHeight + borderSize; // Inicio del área de contenido
@@ -2925,13 +2928,14 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   
   <!-- === SECCIÓN DE INFORMACIÓN DE PROPIEDAD === -->\n`;
   
-  // --- LAYOUT VERTICAL DEL ÁREA DE CONTENIDO (contentY → footerY, 300px) ---
-  // Zona 1: Encabezado (label + tipo + dirección): ~88px
-  // Zona 2: Separador: ~14px
+  // --- LAYOUT VERTICAL DEL ÁREA DE CONTENIDO ---
+  // Ajustado para contentHeight=280 (más compacto que el anterior 352px)
+  // Zona 1: Encabezado (label + tipo + dirección): ~72px
+  // Zona 2: Separador de acento: ~18px
   // Zona 3: Grid de features (2 filas × 56px + gap 10px): ~122px
-  // Margen superior/inferior: ~38px libre
+  // Márgenes: ~68px libre (top 20 + bottom 48)
 
-  const headerTopY   = contentY + 28;   // Label "PROPIEDAD"
+  const headerTopY   = contentY + 20;   // Label "PROPIEDAD" (reducido de 28 para mejor balance)
   const tipoY        = headerTopY + 26; // Tipo de propiedad (serif bold)
   const direccionY   = tipoY + 26;      // Dirección (sans-serif medium)
   const accentLineY  = direccionY + 18; // Línea de acento
@@ -3051,11 +3055,6 @@ function createVIPPremiumDesignOverlay(width, height, propertyInfo, contentY, co
   // Contacto - tercera línea
   if (contacto) {
     svg += `  <text x="${centerX}" y="${currentLineY}" text-anchor="middle" class="vip-footer-info">${contacto}</text>\n`;
-  }
-  
-  // Texto vertical a la derecha (Legal) - Consistencia con otros modelos
-  if (corredores) {
-    svg += `  <text x="${width - 35}" y="${height/2}" text-anchor="middle" transform="rotate(-90, ${width - 35}, ${height/2})" style="font-family: 'Inter', Arial, sans-serif; font-size: 18px; fill: rgba(100,116,139,0.7); letter-spacing: 1px;">${corredores}</text>\n`;
   }
   
   svg += '\n</svg>';
