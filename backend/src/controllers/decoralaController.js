@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const OpenAI = require('openai');
+const { toFile } = require('openai/uploads');
 const cloudinary = require('../cloudinary');
 const multer = require('multer');
 
@@ -162,7 +163,7 @@ const createDecoration = async (req, res, next) => {
         // Llamar a gpt-image-1 (imagen-in, imagen-out)
         const response = await openai.images.edit({
           model: 'gpt-image-1',
-          image: await OpenAI.toFile(req.file.buffer, 'room.png', { type: mimeType }),
+          image: await toFile(req.file.buffer, 'room.png', { type: mimeType }),
           prompt: combinedPrompt,
           size: '1024x1024',
         });
