@@ -18,6 +18,7 @@ interface Decoration {
   originalUrl: string
   generatedUrl?: string
   style: string
+  spaceType: string
   status: DecorationStatus
   errorMessage?: string
   expiresAt: string
@@ -58,6 +59,23 @@ const STYLES = [
   },
 ]
 
+// ─── Space types config ───────────────────────────────────────────────────────
+
+const SPACE_TYPES = [
+  { id: 'cocina', label: 'Cocina', emoji: '🍳' },
+  { id: 'comedor', label: 'Comedor', emoji: '🍽️' },
+  { id: 'dormitorio', label: 'Dormitorio', emoji: '🛏️' },
+  { id: 'living', label: 'Living / Sala', emoji: '🛋️' },
+  { id: 'bano', label: 'Baño', emoji: '🚿' },
+  { id: 'recibidor', label: 'Recibidor / Entrada', emoji: '🚪' },
+  { id: 'office', label: 'Home Office / Oficina', emoji: '💼' },
+  { id: 'lavadero', label: 'Lavadero', emoji: '🧺' },
+  { id: 'galeria', label: 'Galería / Balcón', emoji: '🌿' },
+  { id: 'patio', label: 'Patio / Terraza', emoji: '🏡' },
+  { id: 'closet', label: 'Closet / Placard', emoji: '👗' },
+  { id: 'otro', label: 'Otro', emoji: '✨' },
+]
+
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 function daysUntil(dateStr: string): number {
@@ -81,6 +99,7 @@ export default function DecoralaPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [selectedStyle, setSelectedStyle] = useState('moderno')
+  const [selectedSpaceType, setSelectedSpaceType] = useState('living')
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -178,6 +197,7 @@ export default function DecoralaPage() {
     const formData = new FormData()
     formData.append('image', selectedFile)
     formData.append('style', selectedStyle)
+    formData.append('spaceType', selectedSpaceType)
 
     try {
       const res = await authenticatedFetch('/api/decorala', {
@@ -345,7 +365,7 @@ export default function DecoralaPage() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                    Ambiente decorado — estilo {STYLES.find(s => s.id === currentResult.style)?.label}
+                    {SPACE_TYPES.find(s => s.id === currentResult.spaceType)?.emoji} {SPACE_TYPES.find(s => s.id === currentResult.spaceType)?.label} — estilo {STYLES.find(s => s.id === currentResult.style)?.label}
                   </h2>
                   <button onClick={resetForm} className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1">
                     <ChevronLeft className="w-4 h-4" /> Nueva decoración
@@ -401,6 +421,32 @@ export default function DecoralaPage() {
                       <div className="text-xl mb-1">{style.emoji}</div>
                       <div className="text-sm font-semibold text-slate-800">{style.label}</div>
                       <div className="text-xs text-slate-400 mt-0.5 leading-tight">{style.description}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Space type selector */}
+            {!currentResult && (
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-slate-700">Tipo de espacio</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {SPACE_TYPES.map((space) => (
+                    <button
+                      key={space.id}
+                      onClick={() => setSelectedSpaceType(space.id)}
+                      disabled={isGenerating}
+                      className={`p-2.5 rounded-lg border-2 text-center transition-all
+                        ${selectedSpaceType === space.id
+                          ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                          : 'border-slate-200 hover:border-slate-300 bg-white'
+                        }
+                        ${isGenerating ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+                      `}
+                    >
+                      <div className="text-lg mb-0.5">{space.emoji}</div>
+                      <div className="text-xs font-medium text-slate-800">{space.label}</div>
                     </button>
                   ))}
                 </div>
@@ -485,8 +531,8 @@ export default function DecoralaPage() {
                   <div className="p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-slate-700 capitalize">
-                        {STYLES.find(s => s.id === d.style)?.emoji}{' '}
-                        {STYLES.find(s => s.id === d.style)?.label}
+                        {SPACE_TYPES.find(s => s.id === d.spaceType)?.emoji}{' '}
+                        {SPACE_TYPES.find(s => s.id === d.spaceType)?.label}
                       </span>
                       <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium
                         ${d.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' :
@@ -494,6 +540,10 @@ export default function DecoralaPage() {
                           'bg-red-100 text-red-700'}`}>
                         {d.status === 'COMPLETED' ? 'Listo' : d.status === 'PROCESSING' ? 'En proceso' : 'Error'}
                       </span>
+                    </div>
+
+                    <div className="text-xs text-slate-500">
+                      {STYLES.find(s => s.id === d.style)?.emoji} {STYLES.find(s => s.id === d.style)?.label}
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-slate-400">

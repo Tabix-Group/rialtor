@@ -34,6 +34,22 @@ const STYLE_PROMPTS = {
   industrial: 'Furnish this empty room in industrial loft style. Use dark metal frames, reclaimed wood, exposed-brick texture accents, Edison lighting, and raw textures.',
 };
 
+// Prompts específicos por tipo de espacio
+const SPACE_TYPE_PROMPTS = {
+  cocina: 'This is a kitchen. Add functional furniture and appliances: modern kitchen cabinets, countertops, sink, stove, refrigerator, dining table, and proper lighting. Make it practical and stylish.',
+  comedor: 'This is a dining room. Add a dining table with appropriate chairs, sideboard or cabinet for serving, decorative elements, wall art, and elegant lighting fixtures suitable for dining.',
+  dormitorio: 'This is a bedroom. Add a bed as the main furniture piece, nightstands, dresser, possibly a wardrobe, decorative bedding, wall art, soft lighting, and cozy accessories.',
+  living: 'This is a living room/lounge. Add comfortable seating like sofas and armchairs, a coffee table, TV stand or entertainment unit, bookshelf, wall art, proper lighting, and decorative accessories.',
+  bano: 'This is a bathroom. Add bathroom fixtures: sink with mirror, toilet, shower or bathtub area, bathroom cabinet, shelving for toiletries, towel racks, and appropriate moisture-resistant decor.',
+  recibidor: 'This is an entryway/foyer. Add a console table or shoe rack, mirror, coat hooks or coat stand, entryway lighting, and welcome-oriented decorative elements. Keep it organized and inviting.',
+  office: 'This is a home office/workspace. Add a desk, office chair, shelving or bookcases, desk lamp, possibly a filing cabinet, minimal decoration to avoid distractions, and functional storage.',
+  lavadero: 'This is a laundry room. Add washing machine, dryer, utility sink, storage cabinets, shelves for cleaning supplies, hanging rods for clothes, and practical work surfaces.',
+  galeria: 'This is a gallery/balcony. Add light furniture suitable for outdoor or semi-outdoor spaces: chairs, small tables, planters with plants, decorative elements, and atmospheric lighting.',
+  patio: 'This is a patio/terrace. Add outdoor furniture: lounge chairs, outdoor table, possibly an umbrella or shade structure, planters, decorative lighting, and garden elements.',
+  closet: 'This is a closet/wardrobe room. Add clothing racks, shelving units, hanging organizers, drawers, mirrors, proper lighting, and practical storage solutions for maximum space efficiency.',
+  otro: 'Furnish this empty room appropriately for its size and architectural features. Balance functionality with aesthetics.',
+};
+
 const MONTHLY_LIMIT = 3;
 
 /**
@@ -64,9 +80,14 @@ const createDecoration = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const style = (req.body.style || 'moderno').toLowerCase();
+    const spaceType = (req.body.spaceType || 'otro').toLowerCase();
 
     if (!STYLE_PROMPTS[style]) {
       return res.status(400).json({ error: 'Estilo no válido', validStyles: Object.keys(STYLE_PROMPTS) });
+    }
+
+    if (!SPACE_TYPE_PROMPTS[spaceType]) {
+      return res.status(400).json({ error: 'Tipo de espacio no válido', validSpaceTypes: Object.keys(SPACE_TYPE_PROMPTS) });
     }
 
     if (!req.file) {
@@ -111,6 +132,7 @@ const createDecoration = async (req, res, next) => {
         originalUrl: originalResult.secure_url,
         originalId: originalResult.public_id,
         style,
+        spaceType,
         status: 'PROCESSING',
         expiresAt,
       },
@@ -127,18 +149,21 @@ const createDecoration = async (req, res, next) => {
     // --- Generación asincrónica ---
     (async () => {
       try {
-        console.log(`[DECORALA] Iniciando generación para request ${decoration.id}, estilo: ${style}`);
+        console.log(`[DECORALA] Iniciando generación para request ${decoration.id}, estilo: ${style}, espacio: ${spaceType}`);
 
         // Convertir imagen original a base64 para la API
         const base64Image = req.file.buffer.toString('base64');
         const mimeType = req.file.mimetype;
         const dataUrl = `data:${mimeType};base64,${base64Image}`;
 
+        // Construir prompt combinado: primero el contexto del tipo de espacio, luego el estilo
+        const combinedPrompt = `${SPACE_TYPE_PROMPTS[spaceType]} Style: ${STYLE_PROMPTS[style]}`;
+
         // Llamar a gpt-image-1 (imagen-in, imagen-out)
         const response = await openai.images.edit({
           model: 'gpt-image-1',
           image: await OpenAI.toFile(req.file.buffer, 'room.png', { type: mimeType }),
-          prompt: STYLE_PROMPTS[style],
+          prompt: combinedPrompt,
           size: '1024x1024',
         });
 
@@ -201,6 +226,7 @@ const getDecorations = async (req, res, next) => {
         originalUrl: true,
         generatedUrl: true,
         style: true,
+        spaceType: true,
         status: true,
         expiresAt: true,
         createdAt: true,
@@ -241,6 +267,7 @@ const getDecorationById = async (req, res, next) => {
         originalUrl: true,
         generatedUrl: true,
         style: true,
+        spaceType: true,
         status: true,
         errorMessage: true,
         expiresAt: true,

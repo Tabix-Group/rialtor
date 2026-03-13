@@ -481,6 +481,7 @@ model DecorationRequest {
   generatedUrl String?
   generatedId  String?
   style        String   @default("moderno")
+  spaceType    String   @default("otro")
   status       String   @default("PROCESSING") // PROCESSING | COMPLETED | ERROR
   errorMessage String?
   expiresAt    DateTime
