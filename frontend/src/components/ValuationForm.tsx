@@ -6,6 +6,9 @@ import { AlertCircle, Loader2, CheckCircle2, Gavel } from 'lucide-react'
 interface ValuationFormData {
   provincia: string
   localidad: string
+  direccion: string
+  tipoPropiedad: string
+  antiguedad: number | ''
   metrosCubiertos: number | ''
   metrosDescubiertos: number | ''
   ambientes: number | ''
@@ -29,6 +32,9 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
   const [form, setForm] = useState<ValuationFormData>({
     provincia: 'Buenos Aires',
     localidad: '',
+    direccion: '',
+    tipoPropiedad: '',
+    antiguedad: '',
     metrosCubiertos: '',
     metrosDescubiertos: '',
     ambientes: '',
@@ -90,6 +96,9 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
         body: JSON.stringify({
           provincia: form.provincia,
           localidad: form.localidad,
+          direccion: form.direccion || '',
+          tipoPropiedad: form.tipoPropiedad || '',
+          antiguedad: form.antiguedad === '' ? null : Number(form.antiguedad),
           metrosCubiertos: Number(form.metrosCubiertos),
           metrosDescubiertos: Number(form.metrosDescubiertos),
           ambientes: Number(form.ambientes),
@@ -190,7 +199,56 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
             </div>
           </div>
 
-          {/* Row 2: Metros */}
+          {/* Row 1.5: Dirección y Tipo de Propiedad */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                Dirección (opcional)
+              </label>
+              <input
+                type="text"
+                name="direccion"
+                value={form.direccion}
+                onChange={handleChange}
+                placeholder="Ej: Av. Córdoba 1500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+                Tipo de Propiedad (opcional)
+              </label>
+              <select
+                name="tipoPropiedad"
+                value={form.tipoPropiedad}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              >
+                <option value="">Seleccionar</option>
+                <option value="casa">Casa</option>
+                <option value="departamento">Departamento</option>
+                <option value="local">Local</option>
+                <option value="oficina">Oficina</option>
+                <option value="terreno">Terreno</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Row 1.7: Antigüedad */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
+              Antigüedad en años (opcional)
+            </label>
+            <input
+              type="number"
+              name="antiguedad"
+              value={form.antiguedad}
+              onChange={handleChange}
+              placeholder="Ej: 10"
+              min="0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">
@@ -359,6 +417,9 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
               setForm({
                 provincia: 'Buenos Aires',
                 localidad: '',
+                direccion: '',
+                tipoPropiedad: '',
+                antiguedad: '',
                 metrosCubiertos: '',
                 metrosDescubiertos: '',
                 ambientes: '',

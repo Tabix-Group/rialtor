@@ -492,15 +492,18 @@ model Valuation {
   userId              String
   provincia           String
   localidad           String
+  direccion           String?
+  tipoPropiedad       String?
+  antiguedad          Int?
   metrosCubiertos     Int
   metrosDescubiertos  Int
   ambientes           Int
   banos               Int
   amenities           String   @default("")
-  otrosDatos          String?  // JSON para datos adicionales
+  otrosDatos          String?
   valorMinimo         Float
   valorMaximo         Float
-  analisisIA          String   // JSON respuesta completa de GPT
+  analisisIA          String
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)

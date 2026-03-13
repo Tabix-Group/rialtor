@@ -21,16 +21,24 @@ const VALUATION_SYSTEM_PROMPT = `Eres un tasador profesional inmobiliario argent
 
 **TUS RESPONSABILIDADES:**
 1. Analizar datos de propiedades argentinas
-2. Considerar ubicación geográfica, amenities, estado general
+2. Considerar ubicación geográfica, tipo de propiedad, antigüedad, amenities, estado general
 3. Usar información actualizada del mercado inmobiliario argentino
 4. Proporcionar un rango de valuación (mínimo y máximo) en dólares USD
 5. Justificar el rango basándote en datos de mercado
+
+**FACTORES CRÍTICOS DE VALUACIÓN:**
+- Tipo de propiedad: Casa, Departamento, Local, Oficina o Terreno tienen diferentes valoraciones
+- Antigüedad: Propiedades más nuevas suelen tener mayor valor
+- Ubicación: Dirección específica, accesibilidad, infraestructura local
+- Superficie: Metros cubiertos vs descubiertos
+- Características: Ambientes, baños, amenities especiales
 
 **CONTEXTO ARGENTINO:**
 - Mercado inmobiliario de CABA, GBA y provincias
 - Influencia de ubicación, accesibilidad, infraestructura
 - Variaciones de precio por tipo de propiedad (departamento, casa, PH, terreno)
 - Condiciones actuales del mercado argentino
+- Impacto de antigüedad en el valor de la propiedad
 
 **REQUISITOS DE RESPUESTA:**
 Proporciona SIEMPRE una respuesta JSON VÁLIDA con esta estructura exacta:
@@ -53,6 +61,9 @@ function buildValuationPrompt(propertyData) {
   const {
     provincia,
     localidad,
+    direccion,
+    tipoPropiedad,
+    antiguedad,
     metrosCubiertos,
     metrosDescubiertos,
     ambientes,
@@ -66,6 +77,9 @@ function buildValuationPrompt(propertyData) {
 **DATOS DE LA PROPIEDAD:**
 - Provincia: ${provincia}
 - Localidad: ${localidad}
+${direccion ? `- Dirección: ${direccion}` : ''}
+${tipoPropiedad ? `- Tipo de Propiedad: ${tipoPropiedad}` : ''}
+${antiguedad !== undefined && antiguedad !== null ? `- Antigüedad: ${antiguedad} años` : ''}
 - Metros Cubiertos: ${metrosCubiertos} m²
 - Metros Descubiertos: ${metrosDescubiertos} m²
 - Ambientes: ${ambientes}
@@ -74,10 +88,12 @@ function buildValuationPrompt(propertyData) {
 ${otrosDatos ? `- Otros Datos: ${otrosDatos}` : ''}
 
 Analiza estos datos considerando:
-1. Ubicación y accesibilidad
-2. Tamaño y distribución
-3. Amenities y características especiales
-4. Condiciones actuales del mercado inmobiliario argentino
+1. Tipo de propiedad (residencial, comercial, terreno)
+2. Antigüedad y estado general de la propiedad
+3. Ubicación y accesibilidad
+4. Tamaño y distribución
+5. Amenities y características especiales
+6. Condiciones actuales del mercado inmobiliario argentino
 
 Proporciona un rango de valuación realista en dólares USD con análisis detallado.`;
 }
@@ -97,6 +113,9 @@ async function createValuation(req, res) {
     const {
       provincia,
       localidad,
+      direccion,
+      tipoPropiedad,
+      antiguedad,
       metrosCubiertos,
       metrosDescubiertos,
       ambientes,
@@ -119,6 +138,26 @@ async function createValuation(req, res) {
         .json({ error: 'Faltan campos requeridos de la propiedad' });
     }
 
+    // Validación de tipoPropiedad si se proporciona
+    const tiposValidos = ['casa', 'departamento', 'local', 'oficina', 'terreno'];
+    if (tipoPropiedad && !tiposValidos.includes(tipoPropiedad.toLowerCase())) {
+      return res
+        .status(400)
+        .json({
+          error: 'Tipo de propiedad inválido. Valores permitidos: casa, departamento, local, oficina, terreno'
+        });
+    }
+
+    // Validación de antiguedad si se proporciona
+    if (antiguedad !== undefined && antiguedad !== null) {
+      const antiguedadNum = parseInt(antiguedad);
+      if (isNaN(antiguedadNum) || antiguedadNum < 0) {
+        return res
+          .status(400)
+          .json({ error: 'La antigüedad debe ser un número no negativo' });
+      }
+    }
+
     if (!openai) {
       return res
         .status(500)
@@ -129,6 +168,9 @@ async function createValuation(req, res) {
     const propertyData = {
       provincia,
       localidad,
+      direccion: direccion || null,
+      tipoPropiedad: tipoPropiedad ? tipoPropiedad.toLowerCase() : null,
+      antiguedad: antiguedad !== undefined && antiguedad !== null ? parseInt(antiguedad) : null,
       metrosCubiertos: parseInt(metrosCubiertos),
       metrosDescubiertos: parseInt(metrosDescubiertos),
       ambientes: parseInt(ambientes),
@@ -235,6 +277,9 @@ async function getValuations(req, res) {
         id: true,
         provincia: true,
         localidad: true,
+        direccion: true,
+        tipoPropiedad: true,
+        antiguedad: true,
         metrosCubiertos: true,
         metrosDescubiertos: true,
         ambientes: true,
