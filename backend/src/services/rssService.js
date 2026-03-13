@@ -69,6 +69,22 @@ const RSS_SOURCES = {
         categorySlug: 'indices-costos',
         categoryColor: '#6366F1',
         categoryDescription: 'Índices de costos de construcción y análisis técnico del sector'
+    },
+    CLARIN: {
+        url: 'https://www.clarin.com/rss/arq',
+        name: 'Clarín - Arquitectura',
+        categoryName: 'Arquitectura y Diseño',
+        categorySlug: 'arquitectura-diseno',
+        categoryColor: '#DC2626',
+        categoryDescription: 'Tendencias en arquitectura, diseño y urbanismo'
+    },
+    LA_NACION_PROPIEDADES: {
+        url: 'https://www.lanacion.com.ar/arc/outboundfeeds/rss/category/propiedades/?outputType=xml',
+        name: 'La Nación - Propiedades',
+        categoryName: 'Mercado de Propiedades',
+        categorySlug: 'mercado-propiedades',
+        categoryColor: '#0EA5E9',
+        categoryDescription: 'Análisis y noticias del mercado inmobiliario argentino'
     }
 };
 
@@ -154,8 +170,8 @@ const syncRSSSource = async (sourceConfig, limit = 20) => {
                     .trim()
                     .substring(0, 500); // Limitar a 500 caracteres
 
-                // Verificar si la noticia ya existe (por URL)
-                const existingNews = await prisma.news.findFirst({
+                // Verificar si la noticia ya existe (por URL) - usando índice UNIQUE para optimización O(1)
+                const existingNews = await prisma.news.findUnique({
                     where: { externalUrl }
                 });
 

@@ -292,7 +292,7 @@ model News {
   title       String
   synopsis    String
   source      String
-  externalUrl String
+  externalUrl String    @unique
   publishedAt DateTime  @default(now())
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
@@ -300,6 +300,10 @@ model News {
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
 
+  @@index([publishedAt])
+  @@index([source])
+  @@index([categoryId])
+  @@index([source, publishedAt])
   @@map("news")
 }
 

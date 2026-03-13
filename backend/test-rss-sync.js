@@ -6,6 +6,40 @@
 require('dotenv').config();
 const { syncAllRSSSources, syncRSSSource, getImportStats, getRSSSources, RSS_SOURCES } = require('./src/services/rssService');
 
+async function testNewSources() {
+    console.log('');
+    console.log('='.repeat(60));
+    console.log('TEST: Validación de NUEVAS FUENTES RSS');
+    console.log('='.repeat(60));
+    console.log('');
+
+    const newSources = ['CLARIN', 'LA_NACION_PROPIEDADES'];
+
+    for (const sourceKey of newSources) {
+        if (RSS_SOURCES[sourceKey]) {
+            const source = RSS_SOURCES[sourceKey];
+            console.log(`📡 Testando: ${source.name}`);
+            console.log(`   URL: ${source.url}`);
+            console.log(`   Categoría: ${source.categoryName}`);
+
+            try {
+                const result = await syncRSSSource(source, 5); // Limitar a 5 items para test
+                console.log(`   ✓ Resultado: ${result.success ? '✅ ÉXITO' : '❌ FALLÓ'}`);
+                console.log(`   - Importadas: ${result.stats.imported}`);
+                console.log(`   - Actualizadas: ${result.stats.updated}`);
+                console.log(`   - Omitidas: ${result.stats.skipped}`);
+
+                if (result.stats.errors && result.stats.errors.length > 0) {
+                    console.log(`   ⚠️  Errores: ${result.stats.errors.length}`);
+                }
+            } catch (error) {
+                console.log(`   ❌ Error: ${error.message}`);
+            }
+            console.log('');
+        }
+    }
+}
+
 async function testRSSSync() {
     console.log('='.repeat(60));
     console.log('TEST: Sincronización de noticias RSS - Múltiples Fuentes');
@@ -13,9 +47,15 @@ async function testRSSSync() {
     console.log('');
 
     try {
+        // Primero testear las nuevas fuentes
+        await testNewSources();
+
         // Listar fuentes disponibles
         const sources = getRSSSources();
-        console.log('📡 Fuentes RSS disponibles:');
+        console.log('='.repeat(60));
+        console.log('📡 Total de fuentes RSS disponibles: ' + sources.length);
+        console.log('='.repeat(60));
+        console.log('');
         sources.forEach((source, idx) => {
             console.log(`  ${idx + 1}. ${source.name}`);
             console.log(`     URL: ${source.url}`);
@@ -35,7 +75,7 @@ async function testRSSSync() {
         console.log('Resultado General:');
         console.log('  ✓ Éxito:', result.success);
         console.log('  📊 Mensaje:', result.message);
-        
+
         if (result.stats) {
             console.log('');
             console.log('Estadísticas Consolidadas:');
@@ -45,7 +85,7 @@ async function testRSSSync() {
             console.log('  - Total importadas:', result.stats.totalImported);
             console.log('  - Total actualizadas:', result.stats.totalUpdated);
             console.log('  - Total omitidas:', result.stats.totalSkipped);
-            
+
             if (result.stats.totalErrors > 0) {
                 console.log('  - Total errores:', result.stats.totalErrors);
             }
@@ -60,7 +100,7 @@ async function testRSSSync() {
                 console.log(`     - Importadas: ${sourceResult.stats.imported}`);
                 console.log(`     - Actualizadas: ${sourceResult.stats.updated}`);
                 console.log(`     - Omitidas: ${sourceResult.stats.skipped}`);
-                
+
                 if (sourceResult.stats.errors && sourceResult.stats.errors.length > 0) {
                     console.log(`     ⚠️  Errores: ${sourceResult.stats.errors.length}`);
                     sourceResult.stats.errors.forEach((err, errIdx) => {
@@ -75,7 +115,7 @@ async function testRSSSync() {
         console.log('='.repeat(60));
         console.log('Estadísticas generales de noticias:');
         console.log('='.repeat(60));
-        
+
         const statsResult = await getImportStats();
         if (statsResult.success) {
             console.log('');
