@@ -1,6 +1,6 @@
 "use client"
 import React, { useMemo, useState, useEffect } from "react"
-import { Calculator, DollarSign, MapPin, AlertTriangle, FileText, CheckCircle, Info, Building2 } from 'lucide-react'
+import { Calculator, MapPin, FileText, CheckCircle, Info, Building2 } from 'lucide-react'
 import PDFExportButton from "@/components/PDFExportButton"
 
 export default function CalceEscrituraPage() {
@@ -500,6 +500,8 @@ export default function CalceEscrituraPage() {
                         </div>
                     </div>
                   </div>
+
+                    <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-blue-700">
                         Los cálculos son estimativos y pueden variar según condiciones específicas. Los honorarios e impuestos pueden sufrir modificaciones.
