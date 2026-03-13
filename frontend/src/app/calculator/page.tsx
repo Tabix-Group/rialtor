@@ -8,6 +8,7 @@ import EscribanoCalculator from '../../components/EscribanoCalculator'
 import OtrosGastosCalculator from '../../components/OtrosGastosCalculator'
 import GananciaInmobiliariaCalculator from '../../components/GananciaInmobiliariaCalculator'
 import AjustesCalculator from '../../components/AjustesCalculator'
+import PDFExportButton from '../../components/PDFExportButton'
 import { useAuth } from '../auth/authContext'
 
 interface CalculationResult {
@@ -489,11 +490,20 @@ export default function CalculatorPage() {
             </section>
             <section id="escribano" className="mb-12">
               <div className="bg-white/90 rounded-3xl shadow-2xl p-8 border border-gray-100 backdrop-blur-md flex flex-col gap-8 mb-4 animate-fade-in">
-                <div className="flex items-center gap-3 mb-4">
-                  <Receipt className="w-8 h-8 text-blue-500" />
-                  <h2 className="text-2xl font-bold tracking-tight text-blue-700">Calculadora de gastos inmobiliarios</h2>
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3">
+                    <Receipt className="w-8 h-8 text-blue-500" />
+                    <h2 className="text-2xl font-bold tracking-tight text-blue-700">Calculadora de gastos inmobiliarios</h2>
+                  </div>
+                  <PDFExportButton
+                    elementId="escribano-results"
+                    fileName="calculo-escritura"
+                    title="Cálculo de Honorarios de Escritura"
+                  />
                 </div>
-                <EscribanoCalculator />
+                <div id="escribano-results">
+                  <EscribanoCalculator />
+                </div>
               </div>
             </section>
             <section id="otros" className="mb-12">

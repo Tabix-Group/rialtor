@@ -1,11 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function EscribanoCalculator() {
   const [escrituraAmount, setEscrituraAmount] = useState('');
   const [buyerRate, setBuyerRate] = useState('2');
   const [sellerRate, setSellerRate] = useState('0');
+  const [direccion, setDireccion] = useState('');
+  const [tipoDeambio, setTipoDeambio] = useState('1.0');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingDolar, setLoadingDolar] = useState(true);
+
+  // Obtener dólar oficial al cargar
+  useEffect(() => {
+    const fetchDolarOficial = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/indicators/dolar`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await res.json();
+        if (data.success && data.data?.oficial?.venta) {
+          setTipoDeambio(data.data.oficial.venta.toString());
+        }
+      } catch (e) {
+        console.error('Error obteniendo dólar oficial:', e);
+      } finally {
+        setLoadingDolar(false);
+      }
+    };
+    fetchDolarOficial();
+  }, []);
 
   const handleCalculate = async () => {
     if (!escrituraAmount || isNaN(Number(escrituraAmount)) || Number(escrituraAmount) <= 0) {
@@ -16,11 +39,19 @@ export default function EscribanoCalculator() {
     setResult(null);
     try {
       const numEscrituraAmount = Number(escrituraAmount);
+      const numTipoDeambio = Number(tipoDeambio) || 1;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/calculator/escribano`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         // Enviamos tanto escrituraAmount como saleAmount para máxima compatibilidad
-        body: JSON.stringify({ escrituraAmount: numEscrituraAmount, saleAmount: numEscrituraAmount, buyerRate, sellerRate })
+        body: JSON.stringify({
+          escrituraAmount: numEscrituraAmount,
+          saleAmount: numEscrituraAmount,
+          buyerRate,
+          sellerRate,
+          direccion,
+          tipoDeambio: numTipoDeambio
+        })
       });
       const data = await res.json();
       if (data.success) setResult(data.data);
@@ -49,13 +80,51 @@ export default function EscribanoCalculator() {
           <input type="number" value={sellerRate} onChange={e => setSellerRate(e.target.value)} className="w-full px-3 py-2 border rounded" min="0" max="5" step="0.01" />
         </div>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label className="block text-sm font-semibold mb-1">Dirección (opcional)</label>
+          <input type="text" value={direccion} onChange={e => setDireccion(e.target.value)} className="w-full px-3 py-2 border rounded" placeholder="Ej: Av. Corrientes 123, CABA" maxLength={150} />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold mb-1">Tipo de Cambio (USD)</label>
+          <input type="number" value={tipoDeambio} onChange={e => setTipoDeambio(e.target.value)} className="w-full px-3 py-2 border rounded" min="0.01" max="999.99" step="0.01" disabled={loadingDolar} />
+          {loadingDolar && <p className="text-xs text-gray-500 mt-1">Obteniendo valor...</p>}
+        </div>
+      </div>
       <button onClick={handleCalculate} disabled={loading || !escrituraAmount} className="bg-blue-600 text-white px-4 py-2 rounded font-bold disabled:bg-gray-300">{loading ? 'Calculando...' : 'Calcular'}</button>
       {result && (
-        <div className="mt-4 bg-blue-50 rounded p-4">
-          <div className="font-semibold">Resultado:</div>
-          <div>Comprador: <span className="font-bold">{result.comprador.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span></div>
-          <div>Vendedor: <span className="font-bold">{result.vendedor.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span></div>
-          <div>Total: <span className="font-bold">{result.total.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span></div>
+        <div className="mt-6 space-y-4">
+          <div className="bg-blue-50 rounded p-4 border border-blue-200">
+            <div className="font-semibold text-blue-900 mb-2">Información de Origen:</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+              {direccion && (
+                <div>
+                  <span className="text-gray-600">Dirección:</span>
+                  <span className="font-semibold ml-2">{direccion}</span>
+                </div>
+              )}
+              <div>
+                <span className="text-gray-600">Monto de Escritura:</span>
+                <span className="font-semibold ml-2">{result.escrituraAmount.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Tipo de Cambio (Referencia):</span>
+                <span className="font-semibold ml-2">USD {Number(tipoDeambio).toFixed(2)}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Fecha:</span>
+                <span className="font-semibold ml-2">{new Date().toLocaleDateString('es-AR')}</span>
+              </div>
+            </div>
+          </div>
+          <div className="bg-blue-50 rounded p-4 border border-blue-200">
+            <div className="font-semibold text-blue-900 mb-2">Resultado:</div>
+            <div className="space-y-1">
+              <div>Comprador: <span className="font-bold">{result.comprador.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span></div>
+              <div>Vendedor: <span className="font-bold">{result.vendedor.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span></div>
+              <div>Total: <span className="font-bold">{result.total.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span></div>
+            </div>
+          </div>
         </div>
       )}
     </div>

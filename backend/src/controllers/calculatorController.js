@@ -31,9 +31,11 @@ function formatLocalDateString(date) {
 // Calculadora de honorarios de escribano
 const calculateEscribano = async (req, res) => {
   try {
-    const { saleAmount, escrituraAmount, buyerRate = 2, sellerRate = 0 } = req.body;
+    const { saleAmount, escrituraAmount, buyerRate = 2, sellerRate = 0, direccion = '', tipoDeambio = 1 } = req.body;
     // saleAmount: monto de venta, escrituraAmount: monto de escritura (puede ser igual o menor)
     // buyerRate y sellerRate: % sugerido para cada parte
+    // direccion: dirección de la propiedad (opcional)
+    // tipoDeambio: tipo de cambio de referencia (opcional)
     if (!saleAmount || saleAmount <= 0) {
       return res.status(400).json({ success: false, message: 'El monto de venta debe ser mayor a 0' });
     }
@@ -49,7 +51,9 @@ const calculateEscribano = async (req, res) => {
         sellerRate: parseFloat(sellerRate),
         comprador,
         vendedor,
-        total: comprador + vendedor
+        total: comprador + vendedor,
+        direccion,
+        tipoDeambio: parseFloat(tipoDeambio)
       }
     });
   } catch (error) {
