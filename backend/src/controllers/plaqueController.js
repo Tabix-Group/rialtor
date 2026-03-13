@@ -647,11 +647,12 @@ async function createPlaqueOverlay(imageUrl, propertyInfo, imageAnalysis, output
         const agentBuffer = Buffer.from(agentArrayBuffer);
         
         // Calcular posición y tamaño del agente en el footer
-        const agentBoxHeight = Math.floor(height * 0.24);
-        const agentBoxY = height - agentBoxHeight;
-        const agentImageSize = 110;
-        const agentX = 60;
-        const agentY = agentBoxY + (agentBoxHeight - agentImageSize) / 2;
+        // IMPORTANTE: estas constantes deben coincidir con createPlaqueSvgString
+        const agentBoxHeight = 210;                                        // FOOTER_H
+        const agentBoxY = height - agentBoxHeight;                         // FOOTER_Y = 870
+        const agentImageSize = 136;                                        // AGENT_IMG_D
+        const agentX = 47;                                                 // AGENT_CX - AGENT_IMG_D/2 = 115 - 68 = 47
+        const agentY = agentBoxY + Math.floor((agentBoxHeight - agentImageSize) / 2); // 870 + 37 = 907
         
         // Procesar imagen del agente: redimensionar a círculo
         const agentProcessed = await sharp(agentBuffer)
@@ -745,8 +746,370 @@ function escapeForSvg(s) {
     .replace(/'/g, '&#39;');
 }
 
-    // Función factorizada para generar el string SVG del overlay.
+    // Función factorizada para generar el string SVG del overlay — REDISEÑO COMPLETO
 function createPlaqueSvgString(width, height, propertyInfo, imageAnalysis, modelType = 'standard') {
+  try {
+    // ─── EXTRACCIÓN DE DATOS ─────────────────────────────────────────────────
+    const precioRaw    = String(propertyInfo.precio || '').replace(/[^\d]/g, '');
+    const moneda       = propertyInfo.moneda     || 'USD';
+    const tipo         = propertyInfo.tipo       || 'Propiedad';
+    const ambientes    = propertyInfo.ambientes   || null;
+    const dormitorios  = propertyInfo.dormitorios || null;
+    const banos        = propertyInfo.banos       || null;
+    const cocheras     = propertyInfo.cocheras    || null;
+    const m2_totales   = propertyInfo.m2_totales  || null;
+    const m2_cubiertos = propertyInfo.m2_cubiertos|| null;
+    const direccion    = propertyInfo.direccion   || null;
+    const contacto     = propertyInfo.contacto    || null;
+    const email        = propertyInfo.email       || null;
+    const corredores   = propertyInfo.corredores  || null;
+    const antiguedad   = propertyInfo.antiguedad  || null;
+    const brand        = propertyInfo.brand       || null;
+    const brandColor   = propertyInfo.brandColor  || '#FFFFFF';
+    const sidebarColor = propertyInfo.sidebarColor|| 'rgba(40,40,45,0.85)';
+
+    const precioFmt = formatPrice(precioRaw);
+    const precioStr = escapeForSvg(`${moneda} ${precioFmt}`);
+
+    // ─── SISTEMA DE ICONOS SVG (22x22, stroke blanco, para overlays oscuros) ─
+    const IC = {
+      home:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>`,
+      bed:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/></svg>`,
+      bath:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" x2="8" y1="5" y2="7"/><line x1="2" x2="22" y1="12" y2="12"/><line x1="7" x2="7" y1="19" y2="21"/><line x1="17" x2="17" y1="19" y2="21"/></svg>`,
+      rooms: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
+      area:  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`,
+      pin:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+      phone: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+      mail:  `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 5L2 7"/></svg>`,
+      car:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16H9m10 0h3m-3 0c0-1.1-.9-2-2-2s-2 .9-2 2m5 0v2a1 1 0 0 1-1 1h-2m-3-3V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v9m16 0H6m0 0c0-1.1-.9-2-2-2s-2 .9-2 2m4 0v3"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>`,
+    };
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // MODELO 4 — "Barra Lateral"
+    // Sidebar 37% izquierdo + foto 63% derecho. Layout limpio con grilla de 56px.
+    // ──────────────────────────────────────────────────────────────────────────
+    if (modelType === 'model4') {
+      const sW  = 396;   // ancho del sidebar (fijo)
+      const PAD = 32;
+
+      // FIX CRÍTICO: usar el brandColor del usuario, no marrón hardcodeado
+      const finalBrandColor = escapeForSvg(brandColor);
+
+      // Lista de ítems de información
+      const items = [];
+      if (tipo)         items.push({ icon: IC.home,  text: tipo });
+      if (ambientes)    items.push({ icon: IC.rooms,  text: `${ambientes} Ambiente${ambientes !== '1' ? 's' : ''}` });
+      if (dormitorios)  items.push({ icon: IC.bed,    text: `${dormitorios} Dormitorio${dormitorios !== '1' ? 's' : ''}` });
+      if (banos)        items.push({ icon: IC.bath,   text: `${banos} Baño${banos !== '1' ? 's' : ''}` });
+      if (cocheras)     items.push({ icon: IC.car,    text: `${cocheras} Cochera${cocheras !== '1' ? 's' : ''}` });
+      if (m2_totales)   items.push({ icon: IC.area,   text: `${m2_totales} m² totales` });
+      if (m2_cubiertos) items.push({ icon: IC.area,   text: `${m2_cubiertos} m² cubiertos` });
+      if (direccion)    items.push({ icon: IC.pin,    text: direccion });
+      if (antiguedad)   items.push({ icon: IC.phone,  text: `${antiguedad} años` });
+
+      let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+
+      // Fondo del sidebar
+      svg += `  <rect x="0" y="0" width="${sW}" height="${height}" fill="${escapeForSvg(sidebarColor)}"/>\n`;
+      // Línea divisoria sutil
+      svg += `  <line x1="${sW}" y1="0" x2="${sW}" y2="${height}" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>\n`;
+
+      let contentStartY = 60;
+
+      // Marca en la parte superior del sidebar (usa el color del usuario)
+      if (brand) {
+        svg += `  <text x="${PAD}" y="${contentStartY}" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" fill="${finalBrandColor}">${escapeForSvg((brand || '').toUpperCase())}</text>\n`;
+        svg += `  <line x1="${PAD}" y1="${contentStartY + 16}" x2="${sW - PAD}" y2="${contentStartY + 16}" stroke="rgba(255,255,255,0.20)" stroke-width="1"/>\n`;
+        contentStartY += 48;
+      }
+
+      // Ítems de información (grilla de 56px)
+      items.forEach((item, i) => {
+        const itemY = contentStartY + i * 56;
+        svg += `  <g transform="translate(${PAD}, ${itemY})">\n`;
+        svg += `    ${item.icon}\n`;
+        const maxChars = 26;
+        const txt = String(item.text).length > maxChars
+          ? String(item.text).substring(0, maxChars - 1) + '…'
+          : String(item.text);
+        svg += `    <text x="34" y="17" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="500" fill="white" dominant-baseline="middle">${escapeForSvg(txt)}</text>\n`;
+        svg += `  </g>\n`;
+      });
+
+      // Caja de precio (posición fija hacia el final del sidebar)
+      const priceBoxY = 810;
+      svg += `  <rect x="${PAD}" y="${priceBoxY}" width="${sW - PAD * 2}" height="100" rx="6" fill="white"/>\n`;
+      svg += `  <text x="${sW / 2}" y="${priceBoxY + 26}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="#999">${escapeForSvg(moneda)} · PRECIO</text>\n`;
+      svg += `  <text x="${sW / 2}" y="${priceBoxY + 76}" text-anchor="middle" font-family="Georgia, &apos;Times New Roman&apos;, serif" font-size="46" font-weight="800" fill="#1a1a1a">${escapeForSvg(precioFmt)}</text>\n`;
+
+      // Corredores — texto vertical en borde derecho de la imagen
+      if (corredores) {
+        const cText = String(corredores).length > 90
+          ? String(corredores).substring(0, 90) + '…'
+          : String(corredores);
+        svg += `  <text x="${width - 22}" y="${height / 2}" text-anchor="middle" transform="rotate(-90, ${width - 22}, ${height / 2})" font-family="Arial, sans-serif" font-size="13" fill="rgba(255,255,255,0.42)" letter-spacing="0.5">${escapeForSvg(cText)}</text>\n`;
+      }
+
+      svg += `</svg>`;
+      return svg;
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // MODELO 5 — "Impacto Visual Enmarcado"
+    // Marco blanco perimetral. Pill de tipo arriba, pill de precio al centro,
+    // barra de info abajo. Todo con opacidad alta para legibilidad garantizada.
+    // ──────────────────────────────────────────────────────────────────────────
+    if (modelType === 'model5') {
+      const BORDER = 32;
+      const FW = width - BORDER * 2;
+      const FH = height - BORDER * 2;
+
+      // FIX: título sin interpolar null — solo tipo + ambientes si existe
+      const titleParts = [tipo];
+      if (ambientes)   titleParts.push(`${ambientes} Amb.`);
+      if (dormitorios) titleParts.push(`${dormitorios} Dorm.`);
+      const titleText = escapeForSvg(titleParts.join('  ·  '));
+
+      // Barra de info inferior
+      const infoParts = [];
+      if (direccion) {
+        const d = String(direccion);
+        infoParts.push(d.length > 50 ? d.substring(0, 50) + '…' : d);
+      }
+      if (m2_totales) infoParts.push(`${m2_totales} m²`);
+      const infoText = infoParts.length > 0 ? escapeForSvg(infoParts.join('   ·   ')) : null;
+
+      let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+
+      // Marco exterior
+      svg += `  <rect x="${BORDER}" y="${BORDER}" width="${FW}" height="${FH}" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" rx="4"/>\n`;
+      // Marco interior sutil (doble marco)
+      svg += `  <rect x="${BORDER + 8}" y="${BORDER + 8}" width="${FW - 16}" height="${FH - 16}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1" rx="2"/>\n`;
+
+      // ── Pill de tipo (parte superior, centrado) ──
+      const titlePillW = Math.min(980, FW - 48);
+      const titlePillX = (width - titlePillW) / 2;
+      const titlePillY = BORDER + 24;
+      svg += `  <rect x="${titlePillX}" y="${titlePillY}" width="${titlePillW}" height="72" rx="10" fill="rgba(0,0,0,0.70)"/>\n`;
+      svg += `  <text x="${width / 2}" y="${titlePillY + 48}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="white" letter-spacing="0.5">${titleText}</text>\n`;
+
+      // ── Pill de precio (centro vertical) ──
+      const pricePillW = 500;
+      const pricePillX = (width - pricePillW) / 2;
+      const pricePillY = Math.round((height - 96) / 2) - 16;
+      svg += `  <rect x="${pricePillX}" y="${pricePillY}" width="${pricePillW}" height="96" rx="48" fill="rgba(0,0,0,0.72)" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>\n`;
+      svg += `  <text x="${width / 2}" y="${pricePillY + 61}" text-anchor="middle" font-family="Georgia, &apos;Times New Roman&apos;, serif" font-size="52" font-weight="700" fill="white">${precioStr}</text>\n`;
+
+      // ── Barra de info (inferior, dentro del marco) ──
+      if (infoText) {
+        const infoBarY = height - BORDER - 96;
+        svg += `  <rect x="${BORDER + 28}" y="${infoBarY}" width="${FW - 56}" height="64" rx="8" fill="rgba(0,0,0,0.70)"/>\n`;
+        svg += `  <text x="${width / 2}" y="${infoBarY + 40}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="500" fill="rgba(255,255,255,0.93)">${infoText}</text>\n`;
+      }
+
+      // ── Nombre del agente (inferior-izquierdo) ──
+      const agentNameM5 = propertyInfo.agentName ? escapeForSvg(propertyInfo.agentName) : null;
+      if (agentNameM5) {
+        svg += `  <text x="${BORDER + 16}" y="${height - BORDER - 18}" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="600" fill="rgba(255,255,255,0.88)">${agentNameM5}</text>\n`;
+      }
+
+      // ── Marca (inferior-derecho) ──
+      if (brand) {
+        svg += `  <text x="${width - BORDER - 16}" y="${height - BORDER - 18}" text-anchor="end" font-family="Arial Black, Arial, sans-serif" font-size="26" font-weight="900" fill="white" letter-spacing="1">${escapeForSvg(brand)}</text>\n`;
+      }
+
+      // ── Corredores (pequeño, sobre los elementos inferiores) ──
+      if (corredores) {
+        const cText = String(corredores).length > 110
+          ? String(corredores).substring(0, 110) + '…'
+          : String(corredores);
+        svg += `  <text x="${width / 2}" y="${height - BORDER - 50}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="rgba(255,255,255,0.42)">${escapeForSvg(cText)}</text>\n`;
+      }
+
+      // ── Watermark ──
+      svg += `  <text x="${width - BORDER - 10}" y="${BORDER + 22}" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="rgba(255,255,255,0.30)">Rialtor.app</text>\n`;
+
+      svg += `</svg>`;
+      return svg;
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // MODELOS 1 (standard) y 2 (premium) — Foto hero + gradiente inferior
+    //
+    // Principios de diseño:
+    //   • La foto es la protagonista — sin cajas flotando en el medio
+    //   • Gradiente oscuro solo en la zona inferior (50%-100%)
+    //   • Jerarquía Clara: Precio → Tipo → Características → Contacto → Legal
+    //   • Coordenadas FIJAS para 1080x1080 — sin escalado adaptativo
+    //   • Premium agrega footer oscuro con datos del agente (210px alto)
+    // ──────────────────────────────────────────────────────────────────────────
+    const isPremium = modelType === 'premium';
+
+    // Constantes del footer del agente (DEBEN coincidir con processStandardAndPremiumPlaques)
+    const FOOTER_H    = 210;
+    const FOOTER_Y    = height - FOOTER_H;    // 870
+    const AGENT_IMG_D = 136;
+    const AGENT_CX    = 115;
+    const AGENT_CY    = FOOTER_Y + Math.round(FOOTER_H / 2); // 975
+
+    // Altura de la zona de foto (donde aplica el gradiente)
+    const photoZoneH = isPremium ? FOOTER_Y : height;
+
+    // ── Posiciones Y fijas del contenido (calibradas para 1080px) ──
+    const PRICE_Y    = isPremium ? 598  : 700;
+    const DIVIDER_Y  = isPremium ? 630  : 734;
+    const TIPO_Y     = isPremium ? 658  : 762;
+    const PILLS_Y    = isPremium ? 686  : 794;
+    const ADDR_Y     = isPremium ? 748  : 840;
+    const CONTACT_Y  = isPremium ? 790  : 880;
+    const CORR_Y     = isPremium ? 840  : 940;
+    const PRICE_FONT = isPremium ? 58   : 72;
+
+    // Feature pills (máximo 4, en orden de importancia)
+    const pillDefs = [];
+    if (ambientes)   pillDefs.push({ icon: IC.rooms, label: `${ambientes} amb.` });
+    if (dormitorios) pillDefs.push({ icon: IC.bed,   label: `${dormitorios} dorm.` });
+    if (banos)       pillDefs.push({ icon: IC.bath,  label: `${banos} b.` });
+    if (m2_totales)  pillDefs.push({ icon: IC.area,  label: `${m2_totales} m²` });
+    const pills = pillDefs.slice(0, 4);
+
+    let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    svg += `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+
+    // ── DEFS: gradiente + filtro de sombra para texto ──
+    svg += `  <defs>\n`;
+    svg += `    <linearGradient id="photoGrad" x1="0" y1="0" x2="0" y2="${photoZoneH}" gradientUnits="userSpaceOnUse">\n`;
+    svg += `      <stop offset="0%"   stop-color="black" stop-opacity="0"/>\n`;
+    svg += `      <stop offset="50%"  stop-color="black" stop-opacity="0"/>\n`;
+    svg += `      <stop offset="72%"  stop-color="black" stop-opacity="0.60"/>\n`;
+    svg += `      <stop offset="100%" stop-color="black" stop-opacity="${isPremium ? '0.56' : '0.88'}"/>\n`;
+    svg += `    </linearGradient>\n`;
+    svg += `    <filter id="ts" x="-5%" y="-5%" width="110%" height="110%">\n`;
+    svg += `      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="black" flood-opacity="0.9"/>\n`;
+    svg += `    </filter>\n`;
+    svg += `  </defs>\n`;
+
+    // ── Overlay de gradiente sobre la zona de foto ──
+    svg += `  <rect x="0" y="0" width="${width}" height="${photoZoneH}" fill="url(#photoGrad)"/>\n`;
+
+    // ── Pill de marca (superior-izquierda, si existe) ──
+    if (brand) {
+      const bLen = String(brand).length;
+      const bFontSize = 20;
+      const bW = Math.max(100, bLen * 13 + 48);
+      svg += `  <rect x="40" y="40" width="${bW}" height="52" rx="26" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>\n`;
+      svg += `  <text x="${40 + bW / 2}" y="72" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="${bFontSize}" font-weight="900" fill="white">${escapeForSvg(brand)}</text>\n`;
+    }
+
+    // ── Precio principal ──
+    svg += `  <text x="48" y="${PRICE_Y}" filter="url(#ts)" font-family="Georgia, &apos;Times New Roman&apos;, serif" font-size="${PRICE_FONT}" font-weight="700" fill="white">${precioStr}</text>\n`;
+
+    // ── Línea divisoria ──
+    svg += `  <line x1="48" y1="${DIVIDER_Y}" x2="${isPremium ? 840 : 920}" y2="${DIVIDER_Y}" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>\n`;
+
+    // ── Etiqueta de tipo ──
+    svg += `  <text x="48" y="${TIPO_Y}" filter="url(#ts)" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="rgba(255,255,255,0.88)" letter-spacing="2">${escapeForSvg((tipo || '').toUpperCase())}</text>\n`;
+
+    // ── Feature pills ──
+    const PILL_H = 44;
+    let pillX = 48;
+    pills.forEach(pill => {
+      const labelEsc = escapeForSvg(String(pill.label));
+      const pillW = Math.max(90, String(pill.label).length * 11 + 70);
+      svg += `  <rect x="${pillX}" y="${PILLS_Y}" width="${pillW}" height="${PILL_H}" rx="22" fill="rgba(255,255,255,0.13)" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"/>\n`;
+      svg += `  <g transform="translate(${pillX + 14}, ${PILLS_Y + 11})">${pill.icon}</g>\n`;
+      svg += `  <text x="${pillX + 46}" y="${PILLS_Y + 29}" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="600" fill="white">${labelEsc}</text>\n`;
+      pillX += pillW + 10;
+    });
+
+    // ── Dirección ──
+    if (direccion) {
+      const dStr = String(direccion);
+      const dText = escapeForSvg(dStr.length > 60 ? dStr.substring(0, 60) + '…' : dStr);
+      svg += `  <g transform="translate(48, ${ADDR_Y - 19})">${IC.pin}</g>\n`;
+      svg += `  <text x="82" y="${ADDR_Y}" filter="url(#ts)" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="500" fill="rgba(255,255,255,0.88)">${dText}</text>\n`;
+    }
+
+    // ── Contacto (teléfono + email) ──
+    let cxOff = 48;
+    if (contacto) {
+      const cText = escapeForSvg(String(contacto));
+      svg += `  <g transform="translate(${cxOff}, ${CONTACT_Y - 17})">${IC.phone}</g>\n`;
+      svg += `  <text x="${cxOff + 30}" y="${CONTACT_Y}" filter="url(#ts)" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="rgba(255,255,255,0.82)">${cText}</text>\n`;
+      cxOff += String(contacto).length * 10 + 60;
+    }
+    if (email && !isPremium) {
+      const eText = escapeForSvg(String(email));
+      svg += `  <g transform="translate(${cxOff}, ${CONTACT_Y - 16})">${IC.mail}</g>\n`;
+      svg += `  <text x="${cxOff + 28}" y="${CONTACT_Y}" filter="url(#ts)" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="rgba(255,255,255,0.72)">${eText}</text>\n`;
+    }
+
+    // ── Corredores (disclaimer discreto, solo en modelo standard) ──
+    if (corredores && !isPremium) {
+      const cStr = String(corredores);
+      const cText = escapeForSvg(cStr.length > 130 ? cStr.substring(0, 130) + '…' : cStr);
+      svg += `  <text x="${width / 2}" y="${CORR_Y}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="rgba(255,255,255,0.48)">${cText}</text>\n`;
+    }
+
+    // ── Watermark Rialtor.app (solo modelo standard) ──
+    if (!isPremium) {
+      svg += `  <text x="${width - 24}" y="${height - 22}" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="rgba(255,255,255,0.30)">Rialtor.app</text>\n`;
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // FOOTER DEL AGENTE (solo modelo premium)
+    // La imagen del agente se compone DESPUÉS vía Sharp en processStandardAndPremiumPlaques
+    // con constantes: FOOTER_Y=870, FOOTER_H=210, AGENT_IMG_D=136, agentX=47, agentY=907
+    // ──────────────────────────────────────────────────────────────────────────
+    if (isPremium && propertyInfo.agentImage) {
+      // Fondo del footer oscuro
+      svg += `  <rect x="0" y="${FOOTER_Y}" width="${width}" height="${FOOTER_H}" fill="rgba(8,15,30,0.94)"/>\n`;
+      // Línea separadora superior
+      svg += `  <line x1="0" y1="${FOOTER_Y}" x2="${width}" y2="${FOOTER_Y}" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>\n`;
+
+      // Placeholder blanco circular para la foto del agente (Sharp la superpone después)
+      svg += `  <circle cx="${AGENT_CX}" cy="${AGENT_CY}" r="${AGENT_IMG_D / 2 + 5}" fill="white"/>\n`;
+      svg += `  <circle cx="${AGENT_CX}" cy="${AGENT_CY}" r="${AGENT_IMG_D / 2 + 7}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2"/>\n`;
+
+      // Textos del agente
+      const agName    = escapeForSvg(propertyInfo.agentName || 'Agente Inmobiliario');
+      const agAgency  = propertyInfo.agency       ? escapeForSvg(propertyInfo.agency)       : null;
+      const agContact = propertyInfo.agentContact ? escapeForSvg(propertyInfo.agentContact) :
+                        (propertyInfo.contacto    ? escapeForSvg(propertyInfo.contacto)     : null);
+      const agEmail   = propertyInfo.email        ? escapeForSvg(propertyInfo.email)        : null;
+
+      const tX  = AGENT_CX + AGENT_IMG_D / 2 + 28;  // 211
+      const tY0 = FOOTER_Y + 52;
+
+      svg += `  <text x="${tX}" y="${tY0}"      font-family="Georgia, serif" font-size="32" font-weight="700" fill="white">${agName}</text>\n`;
+      if (agAgency)  svg += `  <text x="${tX}" y="${tY0 + 40}"  font-family="Arial, Helvetica, sans-serif" font-size="20" fill="rgba(190,205,230,0.92)">${agAgency}</text>\n`;
+      if (agContact) svg += `  <text x="${tX}" y="${tY0 + 74}"  font-family="Arial, Helvetica, sans-serif" font-size="18" fill="rgba(150,170,200,0.85)">${agContact}</text>\n`;
+      if (agEmail)   svg += `  <text x="${tX}" y="${tY0 + 100}" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="rgba(130,150,180,0.75)">${agEmail}</text>\n`;
+      if (corredores) {
+        const cStr = String(corredores);
+        const cText = escapeForSvg(cStr.length > 90 ? cStr.substring(0, 90) + '…' : cStr);
+        svg += `  <text x="${tX}" y="${tY0 + 124}" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="rgba(120,140,170,0.62)">${cText}</text>\n`;
+      }
+
+      // Watermark en footer
+      svg += `  <text x="${width - 40}" y="${FOOTER_Y + FOOTER_H - 22}" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="rgba(255,255,255,0.38)">Rialtor.app</text>\n`;
+    }
+
+    svg += `</svg>`;
+    return svg;
+  } catch (e) {
+    console.error('[PLACAS] createPlaqueSvgString error:', e);
+    throw e;
+  }
+}
+
+// ── INICIO DE CÓDIGO LEGADO (eliminar en próxima refactorización) ────────────
+// Las siguientes líneas solo existen para que el compilador no rompa — todo
+// el trabajo era parte del antiguo createPlaqueSvgString.
+// ──────────────────────────────────────────────────────────────────────────────
+function _UNUSED_createPlaqueSvgLegacy(width, height, propertyInfo, imageAnalysis, modelType = 'standard') {
   try {
     const isModel4 = modelType === 'model4';
     const isModel5 = modelType === 'model5';
@@ -1796,11 +2159,15 @@ async function createVIPPlaqueOverlayFromBufferActual(templateBuffer, propertyIn
     // 1. Configuración de bordes
     const borderSize = 12; // Borde blanco de 12px en top, left, right
 
-    // === SISTEMA DE PROPORCIÓN ÓPTIMA ===
-    // Ajustado para footer más compacto: 15-20% menos de espacio vertical
-    const exteriorHeight = 672;        // Aumentado para que la imagen tome más lugar
-    const contentHeight = 300;         // Reducido para que la info sea más compacta
-    const footerHeight = 112;          // Footer proporcional
+    // === SISTEMA DE PROPORCIÓN EXACTA — SIN OVERFLOW ===
+    // FIX: el diseño anterior desbordaba 16px (1096 > 1080)
+    // Matemática: contentY + contentHeight + footerHeight = 1080
+    // borderSize(12) + exteriorHeight(596) = 608 = contentY
+    // contentHeight(352) + footerHeight(120) = 472
+    // 608 + 472 = 1080 ✓
+    const exteriorHeight = 596;        // Alto de la foto exterior (sin borde)
+    const contentHeight = 352;         // Área de datos de la propiedad
+    const footerHeight = 120;          // Footer de contacto
     
     const contentY = exteriorHeight + borderSize; // Inicio del área de contenido
     const footerY = contentY + contentHeight;

@@ -176,7 +176,7 @@ export default function PlacasPage() {
       if (!user) {
         router.replace('/auth/login');
       } else if (!hasPermission) {
-        // Si estÃ¡ logueado pero no tiene permiso, ir al dashboard
+        // Si está logueado pero no tiene permiso, ir al dashboard
         router.replace('/dashboard');
       }
     }
@@ -189,7 +189,7 @@ export default function PlacasPage() {
     }
   }, [user, hasPermission]);
 
-  // Funciones de paginaciÃ³n
+  // Funciones de paginación
   const handlePageChange = (page: number) => {
     fetchPlaques(page);
   };
@@ -236,7 +236,7 @@ export default function PlacasPage() {
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setSelectedImages(files.slice(0, 10)); // MÃ¡ximo 10 imÃ¡genes
+    setSelectedImages(files.slice(0, 10)); // Máximo 10 imágenes
   };
 
   const removeImage = (index: number) => {
@@ -376,7 +376,7 @@ export default function PlacasPage() {
         setInteriorImageFile(null);
         setExteriorImageFile(null);
         fetchPlaques(currentPage);
-        alert('Placa creada exitosamente. El procesamiento iniciarÃ¡ en breve.');
+        alert('Placa creada exitosamente. El procesamiento iniciará en breve.');
       } else {
         alert(data.message || 'Error creando la placa');
       }
@@ -389,7 +389,7 @@ export default function PlacasPage() {
   };
 
   const deletePlaque = async (id: string) => {
-    if (!confirm('Â¿EstÃ¡s seguro de eliminar esta placa?')) return;
+    if (!confirm('¿Estás seguro de eliminar esta placa?')) return;
 
     try {
       const res = await authenticatedFetch(`/api/placas/${id}`, {
@@ -536,7 +536,7 @@ export default function PlacasPage() {
                     </div>
                   </div>
 
-                  {/* InformaciÃ³n */}
+                  {/* Información */}
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-2 gap-2">
                       <h3 className="font-semibold text-gray-900 text-sm truncate flex-1">
@@ -607,7 +607,7 @@ export default function PlacasPage() {
               ))}
             </div>
 
-            {/* PaginaciÃ³n */}
+            {/* Paginación */}
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-6">
                 <button
@@ -819,138 +819,6 @@ export default function PlacasPage() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Sección de imágenes para modelo VIP */}
-                  {modelType === 'vip' && (
-                    <div className="space-y-4 border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
-                      <h3 className="text-lg font-semibold text-purple-900 flex items-center gap-2">
-                        <ImageIcon className="w-5 h-5" />
-                        Imágenes para Placa VIP
-                      </h3>
-                      <p className="text-sm text-purple-700">
-                        El modelo VIP requiere 3 imágenes específicas que se compondrán sobre el template personalizado
-                      </p>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Imagen Interior */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Imagen Interior *
-                          </label>
-                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-3 text-center">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleInteriorImageSelect}
-                              className="hidden"
-                              id="interior-image-upload"
-                            />
-                            <label
-                              htmlFor="interior-image-upload"
-                              className="cursor-pointer flex flex-col items-center"
-                            >
-                              <Home className="w-8 h-8 text-purple-400 mb-2" />
-                              <span className="text-xs text-gray-600">Interior</span>
-                            </label>
-                          </div>
-                          {interiorImageFile && (
-                            <div className="mt-2 relative inline-block">
-                              <img
-                                src={URL.createObjectURL(interiorImageFile)}
-                                alt="Preview interior"
-                                className="w-full h-24 object-cover rounded-lg border-2 border-purple-300"
-                              />
-                              <button
-                                type="button"
-                                onClick={removeInteriorImage}
-                                className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1 hover:bg-purple-600"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Imagen Exterior */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Imagen Exterior *
-                          </label>
-                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-3 text-center">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleExteriorImageSelect}
-                              className="hidden"
-                              id="exterior-image-upload"
-                            />
-                            <label
-                              htmlFor="exterior-image-upload"
-                              className="cursor-pointer flex flex-col items-center"
-                            >
-                              <ImageIcon className="w-8 h-8 text-purple-400 mb-2" />
-                              <span className="text-xs text-gray-600">Exterior</span>
-                            </label>
-                          </div>
-                          {exteriorImageFile && (
-                            <div className="mt-2 relative inline-block">
-                              <img
-                                src={URL.createObjectURL(exteriorImageFile)}
-                                alt="Preview exterior"
-                                className="w-full h-24 object-cover rounded-lg border-2 border-purple-300"
-                              />
-                              <button
-                                type="button"
-                                onClick={removeExteriorImage}
-                                className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1 hover:bg-purple-600"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Imagen Agente */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Imagen Agente
-                          </label>
-                          <div className="border-2 border-dashed border-purple-300 rounded-lg p-3 text-center">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleAgentImageSelect}
-                              className="hidden"
-                              id="vip-agent-image-upload"
-                            />
-                            <label
-                              htmlFor="vip-agent-image-upload"
-                              className="cursor-pointer flex flex-col items-center"
-                            >
-                              <Upload className="w-8 h-8 text-purple-400 mb-2" />
-                              <span className="text-xs text-gray-600">Agente</span>
-                            </label>
-                          </div>
-                          {agentImageFile && (
-                            <div className="mt-2 relative inline-block">
-                              <img
-                                src={URL.createObjectURL(agentImageFile)}
-                                alt="Preview agente"
-                                className="w-full h-24 object-cover rounded-lg border-2 border-purple-300"
-                              />
-                              <button
-                                type="button"
-                                onClick={removeAgentImage}
-                                className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1 hover:bg-purple-600"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Datos de la propiedad */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1320,7 +1188,7 @@ export default function PlacasPage() {
                   </p>
                 </div>
 
-                {/* ImÃ¡genes */}
+                {/* Imágenes */}
                 <div className="space-y-6">
                   {selectedPlaque.generatedImages.length > 0 && (
                     <div>
