@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
 const OpenAI = require('openai');
+const axios = require('axios');
 
 const prisma = new PrismaClient();
 
@@ -16,15 +17,60 @@ if (process.env.OPENAI_API_KEY) {
 
 const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o';
 
+/**
+ * Obtiene la cotización USD/ARS actual
+ */
+async function getUSDARSRate() {
+  try {
+    const response = await axios.get('https://dolarapi.com/v1/dolares', {
+      timeout: 3000,
+      headers: {
+        'User-Agent': 'RIALTOR/1.0'
+      }
+    });
+    
+    const data = response.data;
+    const oficial = data.find(d => d.casa === 'oficial');
+    
+    if (oficial && oficial.venta) {
+      return oficial.venta;
+    }
+    
+    // Fallback a base de datos si la API falla
+    return await getUSDARSRateFromDB();
+  } catch (error) {
+    console.warn('[VALUATION] Error fetching USD/ARS from API, using DB:', error.message);
+    return await getUSDARSRateFromDB();
+  }
+}
+
+/**
+ * Función auxiliar para obtener cotización desde BD
+ */
+async function getUSDARSRateFromDB() {
+  try {
+    const latestRate = await prisma.economicIndex.findFirst({
+      where: { indicator: 'dolarOficialVenta' },
+      orderBy: { date: 'desc' }
+    });
+    
+    return latestRate?.value || 1000; // Fallback si no hay datos
+  } catch (error) {
+    console.warn('[VALUATION] Error fetching USD/ARS from DB:', error.message);
+    return 1000; // Fallback a valor conservador
+  }
+}
+
 // Prompt especializado en tasaciones inmobiliarias argentinas
-const VALUATION_SYSTEM_PROMPT = `Eres un tasador profesional inmobiliario argentino especializado en valuaciones residenciales y comerciales. Tu objetivo es proporcionar estimaciones precisas de valor de propiedades.
+const VALUATION_SYSTEM_PROMPT = `Eres un tasador profesional inmobiliario argentino especializado en valuaciones residenciales y comerciales. Tu objetivo es proporcionar estimaciones precisas de valor de propiedades Y alquileres.
 
 **TUS RESPONSABILIDADES:**
 1. Analizar datos de propiedades argentinas
 2. Considerar ubicación geográfica, tipo de propiedad, antigüedad, amenities, estado general
 3. Usar información actualizada del mercado inmobiliario argentino
 4. Proporcionar un rango de valuación (mínimo y máximo) en dólares USD
-5. Justificar el rango basándote en datos de mercado
+5. Calcular el alquiler mensual estimado (5% para residencial, 6% para comercial del valor de compraventa)
+6. Justificar el rango basándote en datos de mercado
 
 **FACTORES CRÍTICOS DE VALUACIÓN:**
 - Tipo de propiedad: Casa, Departamento, Local, Oficina o Terreno tienen diferentes valoraciones
@@ -32,6 +78,11 @@ const VALUATION_SYSTEM_PROMPT = `Eres un tasador profesional inmobiliario argent
 - Ubicación: Dirección específica, accesibilidad, infraestructura local
 - Superficie: Metros cubiertos vs descubiertos
 - Características: Ambientes, baños, amenities especiales
+
+**CÁLCULO DE ALQUILER:**
+- Para propiedades RESIDENCIALES (casa, departamento, PH): 5% del valor mensual (5% anual / 12)
+- Para propiedades COMERCIALES (local, oficina): 6% del valor mensual (6% anual / 12)
+- Ejemplo: Propiedad con valor $150,000 USD → Alquiler residencial = $150,000 × 0.05 / 12 = $625 USD/mes
 
 **CONTEXTO ARGENTINO:**
 - Mercado inmobiliario de CABA, GBA y provincias
@@ -46,11 +97,13 @@ Proporciona SIEMPRE una respuesta JSON VÁLIDA con esta estructura exacta:
   "valorMinimo": <número>,
   "valorMaximo": <número>,
   "moneda": "USD",
-  "analisis": "<explicación detallada del rango de valuación>",
+  "alquilerMensualPromedio": <número USD>,
+  "analisis": "<explicación detallada del rango de valuación y alquiler>",
   "factoresConsiderados": [<lista de factores del mercado que influyeron>]
 }
 
 No incluyas nunca markdown, ni backticks, ni ningún texto fuera del JSON.`;
+
 
 /**
  * Construye el prompt de entrada para la valuación
@@ -72,7 +125,10 @@ function buildValuationPrompt(propertyData) {
     otrosDatos,
   } = propertyData;
 
-  return `Por favor, valúa la siguiente propiedad y proporciona una estimación de valor en USD.
+  const isCommercial = tipoPropiedad && ['local', 'oficina'].includes(tipoPropiedad.toLowerCase());
+  const rentalPercentage = isCommercial ? 6 : 5;
+
+  return `Por favor, valúa la siguiente propiedad y proporciona una estimación de valor en USD Y cálculo de alquiler mensual.
 
 **DATOS DE LA PROPIEDAD:**
 - Provincia: ${provincia}
@@ -95,7 +151,14 @@ Analiza estos datos considerando:
 5. Amenities y características especiales
 6. Condiciones actuales del mercado inmobiliario argentino
 
-Proporciona un rango de valuación realista en dólares USD con análisis detallado.`;
+**INSTRUCCIONES PARA CÁLCULO DE ALQUILER:**
+Calcula el alquiler mensual estimado como ${rentalPercentage}% del valor de compraventa anual (${rentalPercentage}% / 12).
+Ejemplo: Si el valor es $150,000 USD, el alquiler = $150,000 × ${rentalPercentage}% / 12 = $${(150000 * rentalPercentage / 100 / 12).toFixed(0)} USD/mes
+
+Proporciona:
+1. Rango de valuación realista en dólares USD
+2. Cálculo de alquiler mensual en USD (${rentalPercentage}% anual / 12 meses)
+3. Análisis detallado de ambos valores`;
 }
 
 /**
@@ -225,12 +288,51 @@ async function createValuation(req, res) {
       });
     }
 
+    // Procesar alquiler
+    let valorAlquilerUSD = null;
+    let valorAlquilerARS = null;
+    let porcentajeAlquiler = null;
+
+    if (aiResponseData.alquilerMensualPromedio) {
+      valorAlquilerUSD = parseFloat(aiResponseData.alquilerMensualPromedio);
+      
+      if (!isNaN(valorAlquilerUSD)) {
+        // Obtener cotización USD/ARS
+        const cotizacionUSD = await getUSDARSRate();
+        valorAlquilerARS = valorAlquilerUSD * cotizacionUSD;
+        
+        // Determinar porcentaje usado (5% residencial, 6% comercial)
+        const isCommercial = propertyData.tipoPropiedad && 
+          ['local', 'oficina'].includes(propertyData.tipoPropiedad.toLowerCase());
+        porcentajeAlquiler = isCommercial ? 6 : 5;
+        
+        console.log(`[VALUATION] Alquiler calculado: USD ${valorAlquilerUSD.toFixed(2)}, ARS ${valorAlquilerARS.toFixed(2)} (cotización: ${cotizacionUSD})`);
+      }
+    } else {
+      // Fallback: calcular automáticamente si la IA no devuelve alquiler
+      const isCommercial = propertyData.tipoPropiedad && 
+        ['local', 'oficina'].includes(propertyData.tipoPropiedad.toLowerCase());
+      const percentage = isCommercial ? 6 : 5;
+      const promedioValor = (valorMinimo + valorMaximo) / 2;
+      
+      valorAlquilerUSD = (promedioValor * percentage / 100) / 12;
+      
+      const cotizacionUSD = await getUSDARSRate();
+      valorAlquilerARS = valorAlquilerUSD * cotizacionUSD;
+      porcentajeAlquiler = percentage;
+      
+      console.log(`[VALUATION] Alquiler calculado por fallback: USD ${valorAlquilerUSD.toFixed(2)}, ARS ${valorAlquilerARS.toFixed(2)}`);
+    }
+
     // Guardar en base de datos
     const valuation = await prisma.valuation.create({
       data: {
         ...propertyData,
         valorMinimo,
         valorMaximo,
+        valorAlquilerUSD,
+        valorAlquilerARS,
+        porcentajeAlquiler,
         analisisIA: JSON.stringify(aiResponseData),
         userId,
       },
@@ -241,6 +343,9 @@ async function createValuation(req, res) {
       id: valuation.id,
       valorMinimo: valuation.valorMinimo,
       valorMaximo: valuation.valorMaximo,
+      valorAlquilerUSD: valuation.valorAlquilerUSD,
+      valorAlquilerARS: valuation.valorAlquilerARS,
+      porcentajeAlquiler: valuation.porcentajeAlquiler,
       analisis: aiResponseData.analisis || '',
       factoresConsiderados: aiResponseData.factoresConsiderados || [],
     });
@@ -286,6 +391,9 @@ async function getValuations(req, res) {
         banos: true,
         valorMinimo: true,
         valorMaximo: true,
+        valorAlquilerUSD: true,
+        valorAlquilerARS: true,
+        porcentajeAlquiler: true,
         createdAt: true,
       },
     });

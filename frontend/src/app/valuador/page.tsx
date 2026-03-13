@@ -16,6 +16,9 @@ interface ValuationHistoryItem {
   banos: number
   valorMinimo: number
   valorMaximo: number
+  valorAlquilerUSD?: number | null
+  valorAlquilerARS?: number | null
+  porcentajeAlquiler?: number | null
   createdAt: string
 }
 
@@ -216,6 +219,35 @@ export default function ValuadorPage() {
                             </div>
                           </div>
                         </div>
+
+                        {/* Alquiler estimado */}
+                        {val.valorAlquilerUSD && (
+                          <div className="bg-white rounded-lg p-3 border border-green-100 shadow-sm">
+                            <div className="text-xs text-slate-500 font-semibold mb-2 uppercase tracking-wide">
+                              Alquiler Mensual
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-xs text-slate-500 mb-0.5">USD</p>
+                                <p className="font-bold text-green-600">
+                                  ${val.valorAlquilerUSD.toLocaleString('es-AR', { maximumFractionDigits: 2 })}
+                                </p>
+                              </div>
+                              <div className="text-slate-300">•</div>
+                              <div className="text-right">
+                                <p className="text-xs text-slate-500 mb-0.5">ARS</p>
+                                <p className="font-bold text-emerald-600">
+                                  ${val.valorAlquilerARS?.toLocaleString('es-AR', { maximumFractionDigits: 2 })}
+                                </p>
+                              </div>
+                            </div>
+                            {val.porcentajeAlquiler && (
+                              <p className="text-xs text-slate-500 mt-2 pt-2 border-t border-gray-200">
+                                {val.porcentajeAlquiler}% anual del valor de compraventa
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))
                   )}

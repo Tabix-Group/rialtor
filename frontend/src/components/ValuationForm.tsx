@@ -20,6 +20,9 @@ interface ValuationFormData {
 interface ValuationResult {
   valorMinimo: number
   valorMaximo: number
+  valorAlquilerUSD?: number | null
+  valorAlquilerARS?: number | null
+  porcentajeAlquiler?: number | null
   analisis: string
   factoresConsiderados: string[]
 }
@@ -117,6 +120,9 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
       setResult({
         valorMinimo: data.valorMinimo,
         valorMaximo: data.valorMaximo,
+        valorAlquilerUSD: data.valorAlquilerUSD,
+        valorAlquilerARS: data.valorAlquilerARS,
+        porcentajeAlquiler: data.porcentajeAlquiler,
         analisis: data.analisis || '',
         factoresConsiderados: data.factoresConsiderados || [],
       })
@@ -387,6 +393,33 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
               <p className="text-xs text-gray-500 mt-1">USD</p>
             </div>
           </div>
+
+          {result.valorAlquilerUSD && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <div className="bg-white rounded-lg p-4 border border-green-100">
+                <p className="text-xs text-gray-600 mb-1 font-semibold uppercase">Alquiler Mensual</p>
+                <p className="text-2xl font-bold text-green-600">
+                  ${result.valorAlquilerUSD.toLocaleString('es-AR', { maximumFractionDigits: 2 })}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">USD/mes</p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-emerald-100">
+                <p className="text-xs text-gray-600 mb-1 font-semibold uppercase">Alquiler Mensual</p>
+                <p className="text-2xl font-bold text-emerald-600">
+                  ${result.valorAlquilerARS?.toLocaleString('es-AR', { maximumFractionDigits: 2 })}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">ARS/mes</p>
+              </div>
+            </div>
+          )}
+
+          {result.porcentajeAlquiler && (
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200 mb-4">
+              <p className="text-xs text-gray-700">
+                <span className="font-semibold">Cálculo:</span> El alquiler se estima como <span className="font-bold text-blue-600">{result.porcentajeAlquiler}%</span> anual del valor de compraventa (÷ 12 meses).
+              </p>
+            </div>
+          )}
 
           {result.analisis && (
             <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
