@@ -34,7 +34,7 @@ const STYLE_PROMPTS = {
   industrial: 'Furnish this empty room in industrial loft style. Use dark metal frames, reclaimed wood, exposed-brick texture accents, Edison lighting, and raw textures.',
 };
 
-const MONTHLY_LIMIT = 5;
+const MONTHLY_LIMIT = 3;
 
 /**
  * Sube un buffer a Cloudinary y retorna { secure_url, public_id }

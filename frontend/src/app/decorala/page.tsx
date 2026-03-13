@@ -92,7 +92,7 @@ export default function DecoralaPage() {
 
   // History & usage
   const [decorations, setDecorations] = useState<Decoration[]>([])
-  const [usage, setUsage] = useState<UsageInfo>({ used: 0, limit: 5 })
+  const [usage, setUsage] = useState<UsageInfo>({ used: 0, limit: 3 })
   const [loadingHistory, setLoadingHistory] = useState(true)
 
   // Auth guard
@@ -107,7 +107,7 @@ export default function DecoralaPage() {
       if (res.ok) {
         const data = await res.json()
         setDecorations(data.decorations || [])
-        setUsage(data.usage || { used: 0, limit: 5 })
+        setUsage(data.usage || { used: 0, limit: 3 })
       }
     } catch (_) {
       // silencioso
