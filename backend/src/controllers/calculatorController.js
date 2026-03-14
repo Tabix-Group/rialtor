@@ -1100,6 +1100,86 @@ const calculateCAC = async (req, res) => {
   }
 };
 
+// Enviar PDF del cálculo por email
+const sendCalculatorPDF = async (req, res) => {
+  try {
+    const { to, subject, fileName, pdfData } = req.body;
+    const emailService = require('../services/emailService');
+
+    if (!to || !pdfData || !fileName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Faltan datos requeridos (to, pdfData, fileName)'
+      });
+    }
+
+    // Validar que el email sea del usuario autenticado
+    if (req.user && req.user.email !== to && !req.user.email.includes('@rialtor.app')) {
+      // Permitir que usuarios normales envíen a su propio email
+      if (req.user.email !== to) {
+        return res.status(403).json({
+          success: false,
+          message: 'No puedes enviar el PDF a otro email'
+        });
+      }
+    }
+
+    // Convertir base64 a buffer
+    const pdfBuffer = Buffer.from(pdfData, 'base64');
+
+    // Enviar email con PDF adjunto
+    const transporter = require('nodemailer').createTransport({
+      host: process.env.SMTP_HOST || 'smtpout.secureserver.net',
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER || 'info@rialtor.app',
+        pass: process.env.SMTP_PASS,
+      }
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'info@rialtor.app',
+      to: to,
+      subject: subject || 'Resultado de Cálculo - Rialtor',
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #0f172a;">Resultado de tu Cálculo</h2>
+          <p>Adjuntamos el PDF con el resultado de tu cálculo realizado en Rialtor.</p>
+          <p style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+            <strong>www.rialtor.app</strong><br>
+            Herramientas Profesionales para Agentes Inmobiliarios
+          </p>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: fileName,
+          content: pdfBuffer,
+          contentType: 'application/pdf'
+        }
+      ]
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log(`[CALCULATOR] PDF sent to ${to}. Message ID: ${info.messageId}`);
+
+    res.json({
+      success: true,
+      message: 'PDF enviado correctamente',
+      messageId: info.messageId
+    });
+  } catch (error) {
+    console.error('[CALCULATOR] Error sending PDF:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al enviar el PDF',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getCalculatorConfigs,
   getProvincias,
@@ -1113,5 +1193,6 @@ module.exports = {
   calculateDays,
   calculateDueDate,
   calculateRent,
-  calculateCAC
+  calculateCAC,
+  sendCalculatorPDF
 };

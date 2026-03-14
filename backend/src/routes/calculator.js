@@ -23,6 +23,7 @@ router.post('/days', calculatorController.calculateDays);
 router.post('/due-date', calculatorController.calculateDueDate);
 router.post('/rent', calculatorController.calculateRent);
 router.post('/cac', calculatorController.calculateCAC);
+router.post('/send-pdf', calculatorController.sendCalculatorPDF);
 
 // Historial
 router.get('/history', calculatorController.getCalculatorHistory);

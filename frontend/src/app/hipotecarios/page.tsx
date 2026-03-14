@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Calculator, TrendingUp, DollarSign, Calendar, Banknote, Building, Wallet, Percent, Home, AlertCircle } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 import { useAuth } from '../auth/authContext'
-import PDFExportButton from "@/components/PDFExportButton"
+import DualExportButton from "@/components/DualExportButton"
 
 interface BankRate {
     id: string
@@ -403,7 +403,7 @@ export default function HipotecariosPage() {
                                                 </div>
                                                 <h2 className="text-xl font-bold text-gray-900">Proyección del Crédito</h2>
                                             </div>
-                                            <PDFExportButton 
+                                            <DualExportButton 
                                                 elementId="mortgage-calculation-results" 
                                                 fileName="simulacion-hipotecaria" 
                                                 title={`Simulación Crédito Hipotecario - ${selectedBank || 'Resultados'}`}

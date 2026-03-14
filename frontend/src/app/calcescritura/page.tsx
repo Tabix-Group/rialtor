@@ -1,7 +1,7 @@
 "use client"
 import React, { useMemo, useState, useEffect } from "react"
 import { Calculator, MapPin, FileText, CheckCircle, Info, Building2 } from 'lucide-react'
-import PDFExportButton from "@/components/PDFExportButton"
+import DualExportButton from "@/components/DualExportButton"
 
 export default function CalceEscrituraPage() {
   const [activeTab, setActiveTab] = useState<'comprador' | 'vendedor' | 'primera'>('comprador')
@@ -336,7 +336,7 @@ export default function CalceEscrituraPage() {
                         Resumen {activeTab === 'comprador' ? 'Comprador' : activeTab === 'vendedor' ? 'Vendedor' : '1ª Escritura'}
                       </h2>
                     </div>
-                    <PDFExportButton 
+                    <DualExportButton 
                       elementId="writing-calculation-results" 
                       fileName={`calculo-escritura-${activeTab}`} 
                       title={`Presupuesto de Escritura - ${activeTab === 'comprador' ? 'Comprador' : activeTab === 'vendedor' ? 'Vendedor' : '1ª Escritura'}`}

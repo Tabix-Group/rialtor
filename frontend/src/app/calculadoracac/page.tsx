@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Building2, TrendingUp, Calendar, DollarSign, AlertCircle, CheckCircle, Info } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
-import PDFExportButton from '@/components/PDFExportButton'
+import DualExportButton from '@/components/DualExportButton'
 
 interface CACProjection {
   date: string
@@ -226,7 +226,7 @@ export default function CalculadoraCACPage() {
             {result ? (
               <div className="space-y-6">
                 <div className="flex justify-end">
-                  <PDFExportButton 
+                  <DualExportButton 
                     elementId="cac-calculation-results" 
                     fileName={`calculo-cac-${new Date().getTime()}`} 
                     title="Proyección de Índice CAC"

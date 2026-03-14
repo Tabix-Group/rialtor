@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Calculator, TrendingUp, Calendar, DollarSign, AlertCircle, CheckCircle, Info } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 import { formatLocalDate } from '@/utils/dateUtils'
-import PDFExportButton from '@/components/PDFExportButton'
+import DualExportButton from '@/components/DualExportButton'
 
 interface RentProjection {
   date: string
@@ -253,7 +253,7 @@ export default function CalculadoraAlquilerPage() {
             {result ? (
               <div className="space-y-6">
                 <div className="flex justify-end">
-                  <PDFExportButton 
+                  <DualExportButton 
                     elementId="rent-calculation-results" 
                     fileName={`calculo-alquiler-${new Date().getTime()}`} 
                     title="Proyección de Aumentos de Alquiler"

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Calculator, Calendar, Clock, CheckCircle, ArrowRight, Hash, CalendarCheck, Info, Briefcase } from 'lucide-react'
 import { authenticatedFetch } from '@/utils/api'
 import { formatLocalDate, formatDateWithWeekday, formatDateShort } from '@/utils/dateUtils'
-import PDFExportButton from "@/components/PDFExportButton"
+import DualExportButton from "@/components/DualExportButton"
 
 interface DaysResult {
     startDate: string
@@ -344,7 +344,7 @@ export default function DiasPage() {
                                             </div>
                                             <h2 className="text-xl font-bold text-gray-900">Resultado</h2>
                                         </div>
-                                        <PDFExportButton 
+                                        <DualExportButton 
                                             elementId="days-calculation-results" 
                                             fileName="calculo-dias-habiles" 
                                             title="Cálculo de Días Hábiles"
@@ -425,7 +425,7 @@ export default function DiasPage() {
                                             </div>
                                             <h2 className="text-xl font-bold text-gray-900">Fecha de Vencimiento</h2>
                                         </div>
-                                        <PDFExportButton 
+                                        <DualExportButton 
                                             elementId="due-date-calculation-results" 
                                             fileName="calculo-vencimiento" 
                                             title="Cálculo de Fecha de Vencimiento"
