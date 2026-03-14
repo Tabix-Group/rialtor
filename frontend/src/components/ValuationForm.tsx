@@ -2,6 +2,7 @@
 
 import React, { useState, ChangeEvent, FormEvent } from 'react'
 import { AlertCircle, Loader2, CheckCircle2, Gavel } from 'lucide-react'
+import ValuationEmailButton from './ValuationEmailButton'
 
 interface ValuationFormData {
   provincia: string
@@ -444,27 +445,35 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
             </div>
           )}
 
-          <button
-            onClick={() => {
-              setResult(null)
-              setForm({
-                provincia: 'Buenos Aires',
-                localidad: '',
-                direccion: '',
-                tipoPropiedad: '',
-                antiguedad: '',
-                metrosCubiertos: '',
-                metrosDescubiertos: '',
-                ambientes: '',
-                banos: '',
-                amenities: '',
-                otrosDatos: '',
-              })
-            }}
-            className="w-full px-4 py-2 border border-purple-300 rounded-lg text-purple-700 hover:bg-purple-50 transition font-medium text-sm"
-          >
-            ↻ Valuar otra propiedad
-          </button>
+          <div className="flex gap-2">
+            <ValuationEmailButton
+              valuationData={result}
+              metrosCubiertos={form.metrosCubiertos as number}
+              ambientes={form.ambientes as number}
+              banos={form.banos as number}
+            />
+            <button
+              onClick={() => {
+                setResult(null)
+                setForm({
+                  provincia: 'Buenos Aires',
+                  localidad: '',
+                  direccion: '',
+                  tipoPropiedad: '',
+                  antiguedad: '',
+                  metrosCubiertos: '',
+                  metrosDescubiertos: '',
+                  ambientes: '',
+                  banos: '',
+                  amenities: '',
+                  otrosDatos: '',
+                })
+              }}
+              className="flex-1 px-4 py-2 border border-purple-300 rounded-lg text-purple-700 hover:bg-purple-50 transition font-medium text-sm"
+            >
+              ↻ Valuar otra propiedad
+            </button>
+          </div>
         </div>
       )}
     </div>

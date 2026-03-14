@@ -176,10 +176,104 @@ const getBalance = async (req, res, next) => {
   }
 };
 
+// Enviar Excel por email
+const sendExcelEmail = async (req, res) => {
+  try {
+    const { recipientEmail, excelBase64, fileName } = req.body;
+
+    if (!recipientEmail || !excelBase64 || !fileName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Faltan datos requeridos (recipientEmail, excelBase64, fileName)'
+      });
+    }
+
+    // Validar que sea un email válido
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(recipientEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email inválido'
+      });
+    }
+
+    // Solo usuarios autenticados pueden enviar
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
+      });
+    }
+
+    // Convertir base64 a buffer
+    const excelBuffer = Buffer.from(excelBase64.split(',')[1] || excelBase64, 'base64');
+
+    // Enviar email con Excel adjunto usando nodemailer
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtpout.secureserver.net',
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER || 'info@rialtor.app',
+        pass: process.env.SMTP_PASS,
+      }
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'info@rialtor.app',
+      to: recipientEmail,
+      subject: 'Tu Análisis Financiero - Rialtor',
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #0f172a;">Tu Análisis Financiero</h2>
+          <p>Adjuntamos el archivo Excel con tu análisis de finanzas y transacciones realizadas en Rialtor.</p>
+          <p>El archivo contiene:</p>
+          <ul style="color: #555;">
+            <li>Listado detallado de movimientos</li>
+            <li>Análisis y estadísticas de tus transacciones</li>
+            <li>Resumen mensual e ingresos/egresos</li>
+            <li>Distribución por categoría y concepto</li>
+          </ul>
+          <p style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+            <strong>www.rialtor.app</strong><br>
+            Herramientas Profesionales para Agentes Inmobiliarios
+          </p>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: fileName,
+          content: excelBuffer,
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+      ]
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log(`[FINANCE] Excel sent to ${recipientEmail}. Message ID: ${info.messageId}`);
+
+    res.json({
+      success: true,
+      message: 'Excel enviado correctamente',
+      messageId: info.messageId
+    });
+  } catch (error) {
+    console.error('[FINANCE] Error sending Excel:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al enviar el Excel',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getTransactions,
   createTransaction,
   updateTransaction,
   deleteTransaction,
-  getBalance
+  getBalance,
+  sendExcelEmail
 };

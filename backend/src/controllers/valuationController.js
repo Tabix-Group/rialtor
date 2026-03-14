@@ -503,9 +503,167 @@ async function deleteValuation(req, res) {
   }
 }
 
+/**
+ * Enviar valuación por email
+ */
+const sendValuationEmail = async (req, res) => {
+  try {
+    const { recipientEmail, valuationData, metrosCubiertos, ambientes, banos } = req.body;
+
+    if (!recipientEmail || !valuationData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Faltan datos requeridos (recipientEmail, valuationData)'
+      });
+    }
+
+    // Validar que sea un email válido
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(recipientEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email inválido'
+      });
+    }
+
+    // Solo usuarios autenticados pueden enviar
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
+      });
+    }
+
+    // Enviar email con valuación
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtpout.secureserver.net',
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER || 'info@rialtor.app',
+        pass: process.env.SMTP_PASS,
+      }
+    });
+
+    // Formatear los datos de la valuación en HTML
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+          <h1 style="margin: 0; font-size: 28px;">Tasación de Propiedad</h1>
+          <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Rialtor.app - Herramientas para Agentes Inmobiliarios</p>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
+          <h2 style="color: #1f2937; margin-top: 0;">Resumen de Tasación</h2>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+            <h3 style="color: #7c3aed; margin-top: 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Ubicación</h3>
+            <p style="margin: 0; font-size: 16px; font-weight: bold;">${valuationData.localidad}, ${valuationData.provincia}</p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #7c3aed;">
+              <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; font-weight: bold;">Valor Mínimo</p>
+              <p style="margin: 0; font-size: 24px; font-weight: bold; color: #7c3aed;">$${valuationData.valorMinimo.toLocaleString('es-AR')}</p>
+              <p style="margin: 5px 0 0 0; color: #9ca3af; font-size: 12px;">USD</p>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #ec4899;">
+              <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; font-weight: bold;">Valor Máximo</p>
+              <p style="margin: 0; font-size: 24px; font-weight: bold; color: #ec4899;">$${valuationData.valorMaximo.toLocaleString('es-AR')}</p>
+              <p style="margin: 5px 0 0 0; color: #9ca3af; font-size: 12px;">USD</p>
+            </div>
+          </div>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+            <h3 style="color: #374151; margin-top: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Características del Inmueble</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+              <div>
+                <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 12px;">Ambientes</p>
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #1f2937;">${ambientes}</p>
+              </div>
+              <div>
+                <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 12px;">Baños</p>
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #1f2937;">${banos}</p>
+              </div>
+              <div>
+                <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 12px;">M² Cubiertos</p>
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #1f2937;">${metrosCubiertos}</p>
+              </div>
+            </div>
+          </div>
+
+          ${valuationData.valorAlquilerUSD ? `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+              <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; font-weight: bold;">Alquiler Mensual (USD)</p>
+                <p style="margin: 0; font-size: 20px; font-weight: bold; color: #10b981;">$${valuationData.valorAlquilerUSD.toLocaleString('es-AR', { maximumFractionDigits: 2 })}</p>
+              </div>
+              <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #06b6d4;">
+                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 12px; text-transform: uppercase; font-weight: bold;">Alquiler Mensual (ARS)</p>
+                <p style="margin: 0; font-size: 20px; font-weight: bold; color: #06b6d4;">$${valuationData.valorAlquilerARS?.toLocaleString('es-AR', { maximumFractionDigits: 2 })}</p>
+              </div>
+            </div>
+          ` : ''}
+
+          ${valuationData.analisis ? `
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+              <h4 style="color: #374151; margin-top: 0; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Análisis</h4>
+              <p style="margin: 0; color: #6b7280; line-height: 1.8; font-size: 14px;">${valuationData.analisis}</p>
+            </div>
+          ` : ''}
+
+          ${valuationData.factoresConsiderados && valuationData.factoresConsiderados.length > 0 ? `
+            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+              <h4 style="color: #374151; margin-top: 0; margin-bottom: 15px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Factores Considerados</h4>
+              <ul style="margin: 0; padding-left: 20px;">
+                ${valuationData.factoresConsiderados.map(factor => `
+                  <li style="margin: 10px 0; color: #6b7280; font-size: 14px;">${factor}</li>
+                `).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+
+        <div style="background: #1f2937; color: white; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+          <p style="margin: 0; font-size: 12px;">
+            <strong>www.rialtor.app</strong><br>
+            Herramientas Profesionales para Agentes Inmobiliarios
+          </p>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'info@rialtor.app',
+      to: recipientEmail,
+      subject: `Tasación de Propiedad - ${valuationData.localidad}, ${valuationData.provincia} - Rialtor`,
+      html: htmlContent
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log(`[VALUATION] Email sent to ${recipientEmail}. Message ID: ${info.messageId}`);
+
+    res.json({
+      success: true,
+      message: 'Valuación enviada correctamente',
+      messageId: info.messageId
+    });
+  } catch (error) {
+    console.error('[VALUATION] Error sending email:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al enviar el email',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createValuation,
   getValuations,
   getValuationById,
   deleteValuation,
+  sendValuationEmail,
 };

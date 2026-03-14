@@ -10,6 +10,7 @@ import {
   Wallet, ArrowRightLeft, FileText, Download
 } from 'lucide-react'
 import Reportes from './Reportes'
+import DualExcelExportButton from '@/components/DualExcelExportButton'
 
 interface FinanceTransaction {
   id: string
@@ -158,10 +159,10 @@ export default function FinanzasPage() {
   }
 
   // EXCEL EXPORT IMPROVED
-  const exportToXLSX = async () => {
+  const exportToXLSX = async (returnBlob: boolean = false): Promise<Blob | null> => {
     if (filteredTransactions.length === 0) {
       alert('No hay transacciones para exportar.')
-      return
+      return null
     }
 
     try {
@@ -246,10 +247,20 @@ export default function FinanzasPage() {
       XLSX.utils.book_append_sheet(wb, ws, 'Listado de Movimientos')
       XLSX.utils.book_append_sheet(wb, wsAnalysis, 'Análisis y Estadísticas')
 
-      XLSX.writeFile(wb, `rialtor_finanzas_${new Date().toISOString().slice(0,10)}.xlsx`)
+      if (returnBlob) {
+        // Retornar como Blob para envío por email
+        const excelData = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
+        const blob = new Blob([new Uint8Array(excelData)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        return blob
+      } else {
+        // Descargar directamente
+        XLSX.writeFile(wb, `rialtor_finanzas_${new Date().toISOString().slice(0,10)}.xlsx`)
+        return null
+      }
     } catch (err) {
       console.error('Error exporting XLSX:', err)
       alert('Error al generar el archivo Excel.')
+      return null
     }
   }
 
@@ -661,13 +672,12 @@ export default function FinanzasPage() {
                        </div>
                        
                        <div className="flex items-center gap-3">
-                        <button
-                          onClick={exportToXLSX}
-                          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 hover:shadow-emerald-500/30 transition-all transform active:scale-[0.98]"
-                        >
-                          <Download className="w-4 h-4" />
-                          <span>Exportar a Excel</span>
-                        </button>
+                        <DualExcelExportButton
+                          onExport={() => exportToXLSX(false)}
+                          onExportBlob={() => exportToXLSX(true)}
+                          fileName="rialtor_finanzas"
+                          title="Finanzas"
+                        />
                        </div>
                     </div>
                     {/* ======================= */}

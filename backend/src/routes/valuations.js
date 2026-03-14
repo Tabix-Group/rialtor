@@ -16,6 +16,9 @@ router.get('/:id', valuationController.getValuationById);
 // POST crear nueva valuación
 router.post('/', valuationController.createValuation);
 
+// POST enviar valuación por email
+router.post('/send-email', valuationController.sendValuationEmail);
+
 // DELETE eliminar una valuación
 router.delete('/:id', valuationController.deleteValuation);
 

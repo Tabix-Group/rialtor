@@ -22,4 +22,7 @@ router.delete('/:id', financeController.deleteTransaction);
 // Obtener saldos consolidados
 router.get('/balance', financeController.getBalance);
 
+// Enviar Excel por email
+router.post('/send-excel', financeController.sendExcelEmail);
+
 module.exports = router;
