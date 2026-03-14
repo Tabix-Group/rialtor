@@ -447,7 +447,11 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
 
           <div className="flex gap-2">
             <ValuationEmailButton
-              valuationData={result}
+              valuationData={{
+                ...result,
+                provincia: form.provincia,
+                localidad: form.localidad
+              }}
               metrosCubiertos={form.metrosCubiertos as number}
               ambientes={form.ambientes as number}
               banos={form.banos as number}
