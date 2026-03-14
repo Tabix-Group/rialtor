@@ -1113,15 +1113,21 @@ const sendCalculatorPDF = async (req, res) => {
       });
     }
 
-    // Validar que el email sea del usuario autenticado
-    if (req.user && req.user.email !== to && !req.user.email.includes('@rialtor.app')) {
-      // Permitir que usuarios normales envíen a su propio email
-      if (req.user.email !== to) {
-        return res.status(403).json({
-          success: false,
-          message: 'No puedes enviar el PDF a otro email'
-        });
-      }
+    // Validar que sea un email válido
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(to)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email inválido'
+      });
+    }
+
+    // Solo usuarios autenticados pueden enviar
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'No autorizado'
+      });
     }
 
     // Convertir base64 a buffer
