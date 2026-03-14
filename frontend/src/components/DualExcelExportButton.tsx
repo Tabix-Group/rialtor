@@ -75,7 +75,7 @@ export default function DualExcelExportButton({ onExport, onExportBlob, fileName
         }
       })
       
-      const response = await fetch('/api/finanzas/send-excel', {
+      const response = await fetch('/api/finances/send-excel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -445,7 +445,7 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-3">
             <ValuationEmailButton
               valuationData={{
                 ...result,
@@ -473,7 +473,7 @@ export default function ValuationForm({ onSuccess }: ValuationFormProps) {
                   otrosDatos: '',
                 })
               }}
-              className="flex-1 px-4 py-2 border border-purple-300 rounded-lg text-purple-700 hover:bg-purple-50 transition font-medium text-sm"
+              className="flex-1 px-4 py-2 border border-purple-300 rounded-lg text-purple-700 hover:bg-purple-50 transition font-medium text-sm whitespace-nowrap"
             >
               ↻ Valuar otra propiedad
             </button>

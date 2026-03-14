@@ -52,10 +52,12 @@ export default function ValuationEmailButton({ valuationData, metrosCubiertos, a
     setEmailError('')
 
     try {
+      const token = localStorage.getItem('token')
       const response = await fetch('/api/valuations/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           recipientEmail,
