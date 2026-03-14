@@ -12,7 +12,7 @@ async function main() {
     { name: 'use_calculators', description: 'Usar calculadoras' },
     { name: 'access_chat', description: 'Acceder al chat' },
     { name: 'use_placas', description: 'Usar generador de placas' },
-    { name: 'use_decorala', description: 'Usar decoración de ambientes con IA' },
+    { name: 'use_decorala', description: 'Usar Amuebla IA - diseño de interiores' },
     // Agrega más según tus vistas/secciones
   ];
 

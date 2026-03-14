@@ -9,7 +9,7 @@ try {
   prismaForCron = new PrismaClient();
   cloudinaryForCron = require('../cloudinary');
 } catch (e) {
-  console.error('[Cron] No se pudo inicializar Prisma/Cloudinary para limpieza de Decorala:', e.message);
+  console.error('[Cron] No se pudo inicializar Prisma/Cloudinary para limpieza de Amuebla IA:', e.message);
 }
 
 /**
@@ -59,11 +59,11 @@ const startCronJobs = () => {
         timezone: "America/Argentina/Buenos_Aires"
     });
 
-    // Limpiar imágenes de Decorala expiradas (15 días) todos los días a las 04:00 AM
+    // Limpiar imágenes de Amuebla IA expiradas (15 días) todos los días a las 04:00 AM
     cron.schedule('0 4 * * *', async () => {
         console.log('[Cron] Ejecutando limpieza de decoraciones expiradas...');
         if (!prismaForCron || !cloudinaryForCron) {
-            console.warn('[Cron] Decorala cleanup omitido: Prisma o Cloudinary no disponibles');
+            console.warn('[Cron] Amuebla IA cleanup omitido: Prisma o Cloudinary no disponibles');
             return;
         }
         try {
@@ -83,9 +83,9 @@ const startCronJobs = () => {
                     console.error(`[Cron] Error eliminando decoración ${req.id}:`, itemErr.message);
                 }
             }
-            console.log(`[Cron] Decorala: ${deleted} decoraciones expiradas eliminadas`);
+            console.log(`[Cron] Amuebla IA: ${deleted} decoraciones expiradas eliminadas`);
         } catch (error) {
-            console.error('[Cron] Error en limpieza de Decorala:', error);
+            console.error('[Cron] Error en limpieza de Amuebla IA:', error);
         }
     }, {
         timezone: "America/Argentina/Buenos_Aires"
@@ -110,7 +110,7 @@ const startCronJobs = () => {
     console.log('[Cron] - Actualización de cotizaciones del dólar: 12:00 PM (mediodía) Argentina - 1 registro diario');
     console.log('[Cron] - Sincronización RSS (todas las fuentes): Diariamente a las 8:00 AM (Argentina)');
     console.log('[Cron] - Limpieza de noticias: Diariamente a las 03:00 AM (Argentina)');
-    console.log('[Cron] - Limpieza de Decorala (imágenes expiradas): Diariamente a las 04:00 AM (Argentina)');
+    console.log('[Cron] - Limpieza de Amuebla IA (imágenes expiradas): Diariamente a las 04:00 AM (Argentina)');
 };
 
 module.exports = { startCronJobs };

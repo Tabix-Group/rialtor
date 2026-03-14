@@ -449,8 +449,8 @@ export default function DashboardPage() {
       color: "text-blue-600 bg-blue-50"
     },
     {
-      title: "Decorala",
-      description: "Herramientas de diseño y decoración.",
+      title: "Amuebla IA",
+      description: "Diseño de interiores con IA.",
       icon: Palette,
       href: "/decorala",
       badge: "Diseño",

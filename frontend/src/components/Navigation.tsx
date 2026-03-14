@@ -153,10 +153,10 @@ function Navigation() {
       description: "Genera placas profesionales",
     },
     {
-      name: "Decorala",
+      name: "Amuebla IA",
       href: "/decorala",
       icon: Wand2,
-      description: "Decoraci\u00f3n de ambientes con IA",
+      description: "Diseño de interiores con IA",
       badge: "Nuevo",
     },
     {

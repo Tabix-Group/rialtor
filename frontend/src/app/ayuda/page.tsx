@@ -142,7 +142,7 @@ export default function AyudaPage() {
     },
     {
       id: 'decorala',
-      title: 'Decorala - Diseño IA',
+      title: 'Amuebla IA - Diseño de Interiores',
       icon: Wand2,
       subsections: [
         { id: 'decorala-intro', title: 'Introducción' },
@@ -603,14 +603,14 @@ export default function AyudaPage() {
               <section id="decorala" className="mb-16 scroll-mt-24">
                 <div className="flex items-center gap-3 mb-6">
                   <Wand2 className="w-8 h-8 text-cyan-600" />
-                  <h2 className="text-3xl font-bold text-gray-900 m-0">Decorala - Diseño de Interiores con IA</h2>
+                  <h2 className="text-3xl font-bold text-gray-900 m-0">Amuebla IA - Diseño de Interiores</h2>
                 </div>
 
                 <div id="decorala-intro" className="mb-8 scroll-mt-24">
                   <h3 className="text-xl font-semibold mb-3">Introducción</h3>
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                     <p className="text-gray-700">
-                      <strong>Decorala</strong> es una herramienta de diseño impulsada por IA que te permite reimaginar espacios. Sube una foto de una habitación y especifica cómo quieres que se vea (estilo, colores, mobiliario) para obtener renders realistas al instante.
+                      <strong>Amuebla IA</strong> es una herramienta de diseño impulsada por IA que te permite reimaginar espacios. Sube una foto de una habitación y especifica cómo quieres que se vea (estilo, colores, mobiliario) para obtener renders realistas al instante.
                     </p>
                     <p className="text-gray-700">
                       Ideal para mostrarles a tus clientes potenciales cómo lucirían sus propiedades con diferentes estilos de decoración. Genera propuestas profesionales sin necesidad de diseñadores externos.

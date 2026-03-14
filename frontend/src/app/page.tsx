@@ -260,7 +260,7 @@ export default function Home() {
       size: "normal" as const,
     },
     {
-      name: "Decorala",
+      name: "Amuebla IA",
       description: "Subí la foto de un ambiente vacío y recibí una versión amoblada con IA. Cuatro estilos disponibles.",
       icon: Wand2,
       href: "https://www.rialtor.app/decorala",

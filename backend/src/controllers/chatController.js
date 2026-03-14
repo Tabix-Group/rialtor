@@ -78,7 +78,7 @@ Tu conocimiento se basa exclusivamente en las secciones de la plataforma:
 4. **Calculadoras**: Honorarios, Escrituración, IIGG, Ajustes Alquiler, CAC, Créditos UVA, Seguros de Caución, Días Hábiles. Se encuentran en https://www.rialtor.app/calculadoras.
 5. **Documentos**: Gestión de formularios editables (https://www.rialtor.app/formularios) en carpetas (Alquiler, Boletos, Reservas) y Resumidor Inteligente de PDF/DOCX.
 6. **Placas**: Generador de placas con 5 modelos (Standard, Premium, VIP con QR, Moderno, Impacto). Se accede en https://www.rialtor.app/placas.
-7. **Decorala**: Diseño de interiores con IA. Sube fotos de espacios y generá renders con diferentes estilos de decoración. https://www.rialtor.app/decorala.
+7. **Amuebla IA**: Diseño de interiores con IA. Sube fotos de espacios y generá renders con diferentes estilos de decoración. https://www.rialtor.app/decorala.
 8. **Docusmart**: Procesamiento inteligente de documentos. Sube PDF/DOCX de contratos y extrae datos críticos (vencimientos, montos, cláusulas). https://www.rialtor.app/docusmart.
 9. **Tasador**: Valuación de propiedades con IA. Ingresá datos de una propiedad y obtendrás rango de precios en USD con análisis de mercado. https://www.rialtor.app/valuador.
 10. **Proyecciones**: Sección https://www.rialtor.app/prospectos para simulación comercial y embudo de conversión.
