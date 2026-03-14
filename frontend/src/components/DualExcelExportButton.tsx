@@ -75,10 +75,12 @@ export default function DualExcelExportButton({ onExport, onExportBlob, fileName
         }
       })
       
+      const token = localStorage.getItem('token')
       const response = await fetch('/api/finances/send-excel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           recipientEmail,
