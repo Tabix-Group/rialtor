@@ -17,8 +17,16 @@ export default function DualExportButton({ elementId, fileName, title }: DualExp
   const [isExporting, setIsExporting] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
+  const [showEmailInput, setShowEmailInput] = useState(false)
   const [emailStatus, setEmailStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' })
+  const [recipientEmail, setRecipientEmail] = useState<string>(user?.email || '')
+  const [emailError, setEmailError] = useState<string>('')
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
 
   const generatePDF = async () => {
     const element = document.getElementById(elementId)
@@ -89,13 +97,20 @@ export default function DualExportButton({ elementId, fileName, title }: DualExp
   }
 
   const handleSendEmail = async () => {
-    if (!user?.email) {
-      setEmailStatus({ type: 'error', message: 'No se encontró tu email' })
+    // Validar email
+    if (!recipientEmail) {
+      setEmailError('Por favor ingresa un email')
+      return
+    }
+
+    if (!validateEmail(recipientEmail)) {
+      setEmailError('Por favor ingresa un email válido')
       return
     }
 
     setSendingEmail(true)
     setEmailStatus({ type: null, message: '' })
+    setEmailError('')
 
     try {
       const pdf = await generatePDF()
@@ -116,7 +131,7 @@ export default function DualExportButton({ elementId, fileName, title }: DualExp
               'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
-              to: user.email,
+              to: recipientEmail,
               subject: `Cálculo: ${title}`,
               fileName: `${fileName}.pdf`,
               pdfData: base64PDF
@@ -131,7 +146,9 @@ export default function DualExportButton({ elementId, fileName, title }: DualExp
           setEmailStatus({ type: 'success', message: '✓ Email enviado correctamente' })
           setTimeout(() => {
             setShowDropdown(false)
+            setShowEmailInput(false)
             setEmailStatus({ type: null, message: '' })
+            setRecipientEmail(user?.email || '')
           }, 2000)
         } catch (error) {
           console.error('Error:', error)
@@ -200,16 +217,68 @@ export default function DualExportButton({ elementId, fileName, title }: DualExp
               </button>
 
               <button
-                onClick={handleSendEmail}
-                disabled={sendingEmail}
-                className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors flex items-center gap-3 text-sm font-medium text-slate-900"
+                onClick={() => setShowEmailInput(!showEmailInput)}
+                className="w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors flex items-center gap-3 text-sm font-medium text-slate-900 border-b border-gray-100"
               >
                 <Mail className="w-4 h-4 text-blue-600" />
                 <div>
                   <p>Enviar por Email</p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
+                  <p className="text-xs text-gray-500">Seleccionar destino</p>
                 </div>
               </button>
+
+              {showEmailInput && (
+                <div className="px-4 py-4 border-t border-gray-100 space-y-3 bg-slate-50">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-2">
+                      Email destino:
+                    </label>
+                    <input
+                      type="email"
+                      value={recipientEmail}
+                      onChange={(e) => {
+                        setRecipientEmail(e.target.value)
+                        setEmailError('')
+                      }}
+                      placeholder="tu@email.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    {emailError && (
+                      <p className="text-xs text-red-600 mt-1">{emailError}</p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSendEmail}
+                      disabled={sendingEmail}
+                      className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {sendingEmail ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="w-3 h-3" />
+                          Enviar
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setShowEmailInput(false)}
+                      className="flex-1 px-3 py-2 bg-gray-300 text-gray-800 text-sm font-medium rounded-lg hover:bg-gray-400 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-gray-600">
+                    Email registrado: <span className="font-semibold">{user?.email}</span>
+                  </p>
+                </div>
+              )}
             </>
           )}
         </div>
