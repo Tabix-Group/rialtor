@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, HelpCircle, Loader2 } from 'lucide-react'
+import { X, Send, Sparkles, Loader2 } from 'lucide-react'
 import { useHelpAssistantChat } from '../hooks/useHelpAssistantChat'
 import MessageContent from './MessageContent'
 import { useAuth } from '../app/auth/authContext'
@@ -67,7 +67,7 @@ export default function HelpAssistant() {
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white flex items-center justify-between shadow-md">
                             <div className="flex items-center gap-3">
                                 <div className="bg-white/20 p-2 rounded-full backdrop-blur-sm">
-                                    <HelpCircle className="w-5 h-5" />
+                                    <Sparkles className="w-5 h-5" />
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-base">Centro de Ayuda</h3>
@@ -86,7 +86,7 @@ export default function HelpAssistant() {
                         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                             {messages.length === 0 && (
                                 <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-2">
-                                    <HelpCircle className="w-10 h-10 opacity-50" />
+                                    <Sparkles className="w-10 h-10 opacity-50" />
                                     <p className="text-sm text-center">¿En qué puedo ayudarte hoy?</p>
                                 </div>
                             )}
@@ -144,11 +144,11 @@ export default function HelpAssistant() {
 
             {/* Bubble Button */}
             <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
                 onClick={toggleOpen}
-                className={`relative w-14 h-14 rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
-                    isOpen ? 'bg-gray-800 text-white' : 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white'
+                className={`relative w-12 h-12 rounded-full shadow-md flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                    isOpen ? 'bg-gray-800 text-white shadow-lg' : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-lg'
                 }`}
             >
                 <AnimatePresence mode="wait">
@@ -170,15 +170,10 @@ export default function HelpAssistant() {
                             exit={{ opacity: 0, rotate: -90 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <HelpCircle className="w-7 h-7" />
+                            <Sparkles className="w-7 h-7" />
                         </motion.div>
                     )}
                 </AnimatePresence>
-                
-                {/* Notification Badge */}
-                {!isOpen && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full" />
-                )}
             </motion.button>
             
              {/* Tooltip */}
@@ -188,12 +183,13 @@ export default function HelpAssistant() {
                         initial={{ opacity: 0, x: 10, scale: 0.95 }}
                         animate={{ opacity: 1, x: 0, scale: 1 }}
                         exit={{ opacity: 0, x: 10, scale: 0.95 }}
-                        className="absolute bottom-1 right-16 mr-2 z-50"
+                        transition={{ duration: 0.3 }}
+                        className="absolute bottom-1 right-14 mr-2 z-50"
                     >
-                        <div className="bg-white text-gray-800 px-4 py-2.5 rounded-xl shadow-xl border border-gray-100 whitespace-nowrap flex items-center gap-2">
-                            <span className="text-sm font-medium">¿Ayuda con la app? 👋</span>
+                        <div className="bg-white text-gray-800 px-3 py-2 rounded-lg shadow-md border border-gray-200 whitespace-nowrap flex items-center gap-2">
+                            <span className="text-xs font-medium">Centro de ayuda</span>
                             {/* Arrow */}
-                            <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-r border-t border-gray-100" />
+                            <div className="absolute right-[-4px] top-1/2 -translate-y-1/2 w-2 h-2 bg-white rotate-45 border-r border-t border-gray-200" />
                         </div>
                     </motion.div>
                 )}
